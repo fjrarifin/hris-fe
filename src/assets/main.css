@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  background: var(--ui-bg-muted);
+  color: var(--ui-text);
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+}
+
+.hris-shell {
+  background: #f3f7ff;
+}
+
+.hris-content {
+  color-scheme: light;
+  color: #334155;
+  background:
+    radial-gradient(circle at 90% 4%, rgba(191, 219, 254, 0.42), transparent 28rem), #f3f7ff;
+  --ui-bg: #ffffff;
+  --ui-bg-muted: #f3f7ff;
+  --ui-bg-elevated: #ffffff;
+  --ui-bg-accented: #eaf2ff;
+  --ui-bg-inverted: #0f172a;
+  --ui-border: #d6e0ee;
+  --ui-border-muted: #e2e8f0;
+  --ui-border-accented: #b8c7dc;
+  --ui-text-dimmed: #64748b;
+  --ui-text: #334155;
+  --ui-text-muted: #52657f;
+  --ui-text-toned: #475569;
+  --ui-text-highlighted: #0f172a;
+  --ui-text-inverted: #ffffff;
+}
+
+.hris-content .dark\:border-gray-800 {
+  border-color: #d6e0ee;
+}
+
+.hris-content table tbody {
+  color: #334155;
+}
+
+.hris-content table thead {
+  color: #475569;
+}
+
+.hris-content input,
+.hris-content select,
+.hris-content textarea {
+  color: #0f172a;
+}
+
+.portal-dark.hris-shell {
+  background: #060c19;
+}
+
+.portal-dark .hris-content {
+  color-scheme: dark;
+  color: #dbe4f0;
+  background: radial-gradient(circle at 90% 4%, rgba(37, 99, 235, 0.2), transparent 28rem), #060c19;
+  --ui-bg: #0f172a;
+  --ui-bg-muted: #060c19;
+  --ui-bg-elevated: #111c32;
+  --ui-bg-accented: #1e293b;
+  --ui-bg-inverted: #f8fafc;
+  --ui-border: #27344c;
+  --ui-border-muted: #223047;
+  --ui-border-accented: #3b4c66;
+  --ui-text-dimmed: #8192ab;
+  --ui-text: #dbe4f0;
+  --ui-text-muted: #a5b4c9;
+  --ui-text-toned: #c0cedf;
+  --ui-text-highlighted: #f8fafc;
+  --ui-text-inverted: #0f172a;
+}
+
+.portal-dark .hris-content .dark\:border-gray-800 {
+  border-color: #27344c;
+}
+
+.portal-dark .hris-content table tbody {
+  color: #dbe4f0;
+}
+
+.portal-dark .hris-content table thead {
+  color: #b7c6da;
+}
+
+.portal-dark .hris-content input,
+.portal-dark .hris-content select,
+.portal-dark .hris-content textarea {
+  color: #f8fafc;
+}
+
+.portal-dark .dashboard-hero {
+  border-color: #263752;
+  background: linear-gradient(135deg, #111c32, #142c52);
+}
+
+.portal-dark .dashboard-hero p,
+.portal-dark .dashboard-hero h2 {
+  color: #f8fafc;
+}
+
+.hris-sidebar,
+.hris-navbar {
+  color-scheme: dark;
+  --ui-bg: #0f172a;
+  --ui-bg-muted: #111827;
+  --ui-bg-elevated: #111827;
+  --ui-bg-accented: #1e293b;
+  --ui-border: #1e293b;
+  --ui-text: #e2e8f0;
+  --ui-text-muted: #94a3b8;
+  --ui-text-highlighted: #ffffff;
+}
