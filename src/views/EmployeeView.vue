@@ -1,12 +1,14 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { getEmployees } from '../services/employeeService'
+import { exportEmployees, getEmployees } from '../services/employeeService'
+import { apiError } from '../utils/formatters'
 
 const employees = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 const search = ref('')
 const page = ref(1)
+const exporting = ref(false)
 const itemsPerPage = 10
 
 const columns = [
@@ -76,6 +78,27 @@ async function loadEmployees() {
   }
 }
 
+async function downloadExport() {
+  exporting.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await exportEmployees()
+    const disposition = response.headers['content-disposition'] || ''
+    const name = disposition.match(/filename="?([^"]+)"?/)?.[1] || 'Data_Karyawan.csv'
+    const url = URL.createObjectURL(response.data)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = name
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Export data karyawan gagal.')
+  } finally {
+    exporting.value = false
+  }
+}
+
 watch(search, () => {
   page.value = 1
 })
@@ -91,7 +114,17 @@ onMounted(loadEmployees)
         <p class="mt-1 text-sm text-muted">Kelola data master karyawan HRIS.</p>
       </div>
 
-      <UButton label="Tambah Karyawan" />
+      <div class="flex gap-2">
+        <UButton
+          label="Export Karyawan"
+          icon="i-lucide-download"
+          color="neutral"
+          variant="outline"
+          :loading="exporting"
+          @click="downloadExport"
+        />
+        <UButton to="/employees/create" label="Tambah Karyawan" icon="i-lucide-user-plus" />
+      </div>
     </div>
 
     <UCard>

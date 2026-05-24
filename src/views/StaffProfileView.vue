@@ -7,6 +7,18 @@ import { apiError, formatDate } from '../utils/formatters'
 const data = ref(null)
 const loading = ref(true)
 const errorMessage = ref('')
+const photoLoadFailed = ref(false)
+const profileInitials = computed(() => {
+  const name = data.value?.employee?.nama_karyawan || data.value?.user?.name || 'User'
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+    .toUpperCase()
+})
 
 const workFields = computed(() => [
   { label: 'NIK', value: data.value?.employee?.nik },
@@ -65,6 +77,7 @@ async function loadProfile() {
   try {
     const response = await getStaffProfile()
     data.value = response.data
+    photoLoadFailed.value = false
   } catch (error) {
     errorMessage.value = apiError(error, 'Profil tidak dapat dimuat.')
   } finally {
@@ -93,17 +106,13 @@ onMounted(loadProfile)
       <UCard>
         <div class="flex flex-col items-center gap-5 sm:flex-row">
           <img
-            v-if="data.user.photo_url"
+            v-if="data.user.photo_url && !photoLoadFailed"
             :src="data.user.photo_url"
             :alt="data.employee.nama_karyawan"
             class="size-28 rounded-full object-cover"
+            @error="photoLoadFailed = true"
           />
-          <UAvatar
-            v-else
-            :text="data.employee.nama_karyawan?.slice(0, 2).toUpperCase()"
-            size="3xl"
-            color="primary"
-          />
+          <UAvatar v-else :text="profileInitials" size="3xl" color="primary" />
           <div class="text-center sm:text-left">
             <h3 class="text-xl font-semibold text-highlighted">
               {{ data.employee.nama_karyawan }}

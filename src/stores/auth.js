@@ -81,7 +81,10 @@ export const useAuthStore = defineStore('auth', {
     },
 
     canAccess(key) {
-      return this.menus.some((menu) => menu.key === key)
+      const includesKey = (menus) =>
+        menus.some((menu) => menu.key === key || (menu.children && includesKey(menu.children)))
+
+      return includesKey(this.menus)
     },
 
     async logout() {

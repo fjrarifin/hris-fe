@@ -9,6 +9,7 @@ export function formatDate(value) {
 export function statusLabel(status) {
   return (
     {
+      waiting_hr: 'Menunggu HRD',
       pending: 'Menunggu',
       approved: 'Disetujui',
       rejected: 'Ditolak',
@@ -20,6 +21,7 @@ export function statusLabel(status) {
 export function statusColor(status) {
   return (
     {
+      waiting_hr: 'warning',
       pending: 'warning',
       approved: 'success',
       rejected: 'error',

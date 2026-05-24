@@ -2,20 +2,28 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import LoginView from '../views/LoginView.vue'
+import ForgotPasswordView from '../views/ForgotPasswordView.vue'
+import VerifyOtpView from '../views/VerifyOtpView.vue'
+import ResetPasswordView from '../views/ResetPasswordView.vue'
 import ChangePasswordView from '../views/ChangePasswordView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import EmployeeView from '../views/EmployeeView.vue'
+import EmployeeCreateView from '../views/EmployeeCreateView.vue'
 import EmployeeDetailView from '../views/EmployeeDetailView.vue'
 import PayrollView from '../views/PayrollView.vue'
 import AttendanceView from '../views/AttendanceView.vue'
 import MenuAccessView from '../views/MenuAccessView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
+import StaffAttendanceView from '../views/StaffAttendanceView.vue'
 import LeaveRequestView from '../views/LeaveRequestView.vue'
 import PublicHolidayView from '../views/PublicHolidayView.vue'
 import PermissionView from '../views/PermissionView.vue'
 import StaffApprovalView from '../views/StaffApprovalView.vue'
 import OvertimeView from '../views/OvertimeView.vue'
 import GuideView from '../views/GuideView.vue'
+import HrApprovalView from '../views/HrApprovalView.vue'
+import HrScheduleView from '../views/HrScheduleView.vue'
+import HrGuideView from '../views/HrGuideView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,6 +33,24 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
       meta: { guestOnly: true, title: 'Login' },
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+      meta: { guestOnly: true, title: 'Lupa Password' },
+    },
+    {
+      path: '/forgot-password/verify',
+      name: 'verify-password-otp',
+      component: VerifyOtpView,
+      meta: { guestOnly: true, title: 'Verifikasi OTP' },
+    },
+    {
+      path: '/forgot-password/reset',
+      name: 'reset-password',
+      component: ResetPasswordView,
+      meta: { guestOnly: true, title: 'Buat Password Baru' },
     },
     {
       path: '/change-password',
@@ -65,13 +91,19 @@ const router = createRouter({
           path: 'staff/dashboard',
           name: 'staff-dashboard',
           component: DashboardView,
-          meta: { title: 'Dashboard Staff', levels: [3], menuKey: 'dashboard' },
+          meta: { title: 'Dashboard Karyawan', levels: [3], menuKey: 'dashboard' },
         },
         {
           path: 'staff/profile',
           name: 'staff-profile',
           component: StaffProfileView,
           meta: { title: 'Profil Saya', levels: [3] },
+        },
+        {
+          path: 'staff/attendance',
+          name: 'staff-attendance',
+          component: StaffAttendanceView,
+          meta: { title: 'Absensi Saya', levels: [3], menuKey: 'staff-attendance' },
         },
         {
           path: 'staff/leave',
@@ -116,6 +148,12 @@ const router = createRouter({
           meta: { title: 'Data Karyawan', menuKey: 'employees' },
         },
         {
+          path: 'employees/create',
+          name: 'employee-create',
+          component: EmployeeCreateView,
+          meta: { title: 'Tambah Karyawan', menuKey: 'employees' },
+        },
+        {
           path: 'employees/:nik',
           name: 'employee-detail',
           component: EmployeeDetailView,
@@ -131,7 +169,63 @@ const router = createRouter({
           path: 'attendance',
           name: 'attendance',
           component: AttendanceView,
-          meta: { title: 'Absensi', menuKey: 'attendance' },
+          meta: { title: 'Absensi', levels: [1, 2], menuKey: 'attendance' },
+        },
+        {
+          path: 'hr/schedules',
+          name: 'hr-schedules',
+          component: HrScheduleView,
+          meta: { title: 'Jadwal Karyawan', levels: [2], menuKey: 'hr-schedules' },
+        },
+        {
+          path: 'hr/approvals/leave',
+          name: 'hr-approval-leave',
+          component: HrApprovalView,
+          meta: {
+            title: 'Approval Cuti',
+            levels: [2],
+            menuKey: 'hr-approval-leave',
+            approvalType: 'leave',
+          },
+        },
+        {
+          path: 'hr/approvals/overtime',
+          name: 'hr-approval-overtime',
+          component: HrApprovalView,
+          meta: {
+            title: 'Approval Lembur',
+            levels: [2],
+            menuKey: 'hr-approval-overtime',
+            approvalType: 'overtime',
+          },
+        },
+        {
+          path: 'hr/approvals/ph',
+          name: 'hr-approval-ph',
+          component: HrApprovalView,
+          meta: {
+            title: 'Approval PH',
+            levels: [2],
+            menuKey: 'hr-approval-ph',
+            approvalType: 'ph',
+          },
+        },
+        {
+          path: 'hr/approvals/permission',
+          name: 'hr-approval-permission',
+          component: HrApprovalView,
+          meta: {
+            title: 'Approval Izin / Sakit',
+            levels: [2],
+            menuKey: 'hr-approval-permission',
+            approvalType: 'permission',
+          },
+        },
+        {
+          path: 'hr/guide',
+          name: 'hr-guide',
+          component: HrGuideView,
+          meta: { title: 'Panduan Aplikasi', levels: [2], menuKey: 'hr-guide' },
         },
         {
           path: 'access/menus',
@@ -163,10 +257,6 @@ router.beforeEach(async (to) => {
 
   if (auth.user?.must_change_password && !to.meta.passwordChange) {
     return '/change-password'
-  }
-
-  if (!auth.user?.must_change_password && to.meta.passwordChange) {
-    return auth.dashboardPath
   }
 
   if (to.name === 'home') {

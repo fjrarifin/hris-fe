@@ -1,73 +1,58 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getEmployee } from '../services/employeeService'
+import EmployeeFormFields from '../components/EmployeeFormFields.vue'
+import { getEmployee, updateEmployee } from '../services/employeeService'
+import { apiError } from '../utils/formatters'
 
 const route = useRoute()
-const employee = ref(null)
-const loading = ref(false)
+const form = reactive({})
+const loading = ref(true)
+const saving = ref(false)
 const errorMessage = ref('')
-
+const message = ref(route.query.created ? 'Karyawan berhasil ditambahkan.' : '')
 const nik = computed(() => String(route.params.nik || ''))
 
-const jobInformation = computed(() => [
-  { label: 'NIK', value: employee.value?.nik },
-  { label: 'Nama', value: employee.value?.nama_karyawan },
-  { label: 'Jabatan', value: employee.value?.jabatan },
-  { label: 'Posisi', value: employee.value?.posisi },
-  { label: 'Divisi', value: employee.value?.divisi },
-  { label: 'Departemen', value: employee.value?.departement },
-  { label: 'Unit', value: employee.value?.unit },
-  { label: 'Atasan Langsung', value: employee.value?.nama_atasan_langsung },
-  { label: 'Status Kontrak', value: employee.value?.status_kontrak },
-  { label: 'Tanggal Bergabung', value: formatDate(employee.value?.join_date) },
-])
-
-const contactInformation = computed(() => [
-  { label: 'Email', value: employee.value?.email },
-  { label: 'Nomor HP', value: employee.value?.no_hp },
-  { label: 'Jenis Kelamin', value: formatGender(employee.value?.jenis_kelamin) },
-  { label: 'Tempat Lahir', value: employee.value?.tempat_lahir },
-  { label: 'Tanggal Lahir', value: formatDate(employee.value?.tanggal_lahir) },
-  { label: 'Alamat', value: employee.value?.alamat },
-])
-
-function displayValue(value) {
-  return value || '-'
-}
-
-function formatDate(value) {
-  if (!value) {
-    return null
+function assignForm(data) {
+  Object.assign(form, data)
+  for (const key of ['join_date', 'start_date', 'end_date', 'tanggal_lahir']) {
+    form[key] = form[key] ? String(form[key]).slice(0, 10) : ''
   }
-
-  return new Intl.DateTimeFormat('id-ID', { dateStyle: 'long' }).format(new Date(value))
-}
-
-function formatGender(value) {
-  if (value === 'L') {
-    return 'Laki-laki'
-  }
-
-  if (value === 'P') {
-    return 'Perempuan'
-  }
-
-  return null
 }
 
 async function loadEmployee() {
   loading.value = true
   errorMessage.value = ''
-
   try {
     const response = await getEmployee(nik.value)
-    employee.value = response.data.data ?? response.data
+    assignForm(response.data.data ?? response.data)
   } catch (error) {
-    console.error(error)
-    errorMessage.value = 'Detail karyawan tidak dapat dimuat. Silakan coba kembali.'
+    errorMessage.value = apiError(error, 'Detail karyawan tidak dapat dimuat.')
   } finally {
     loading.value = false
+  }
+}
+
+async function save() {
+  saving.value = true
+  message.value = ''
+  errorMessage.value = ''
+  const payload = { ...form }
+  delete payload.nik
+  delete payload.pin
+  if (!payload.posisi_level && !payload.posisi_title && payload.posisi) {
+    delete payload.posisi_level
+    delete payload.posisi_title
+  }
+
+  try {
+    const { data } = await updateEmployee(nik.value, payload)
+    assignForm(data.data)
+    message.value = data.message
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Perubahan karyawan tidak dapat disimpan.')
+  } finally {
+    saving.value = false
   }
 }
 
@@ -75,88 +60,48 @@ onMounted(loadEmployee)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <form class="space-y-6" @submit.prevent="save">
     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <p class="text-sm text-muted">Data Karyawan / {{ nik }}</p>
         <h2 class="mt-1 text-2xl font-semibold text-highlighted">
-          {{ employee?.nama_karyawan || 'Detail Karyawan' }}
+          {{ form.nama_karyawan || 'Detail Karyawan' }}
         </h2>
+        <p class="mt-1 text-sm text-muted">
+          HRD dapat mengedit seluruh data kecuali NIK dan PIN absensi.
+        </p>
       </div>
-
-      <UButton to="/employees" label="Kembali" color="neutral" variant="outline" />
+      <div class="flex gap-2">
+        <UButton to="/employees" label="Kembali" color="neutral" variant="outline" />
+        <UButton v-if="!loading" type="submit" label="Simpan Perubahan" :loading="saving" />
+      </div>
     </div>
 
-    <UAlert
-      v-if="errorMessage"
-      color="error"
-      variant="subtle"
-      title="Data tidak dapat dimuat"
-      :description="errorMessage"
-    />
+    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
+    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
 
-    <div v-else-if="loading" class="flex justify-center py-16">
-      <p class="text-sm text-muted">Memuat detail karyawan...</p>
-    </div>
-
-    <template v-else-if="employee">
+    <div v-if="loading" class="py-16 text-center text-sm text-muted">Memuat detail karyawan...</div>
+    <template v-else-if="form.nik">
       <UCard>
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
           <UAvatar
-            :text="employee.nama_karyawan?.slice(0, 2).toUpperCase()"
+            :text="form.nama_karyawan?.slice(0, 2).toUpperCase()"
             color="primary"
             size="xl"
           />
           <div>
-            <h3 class="text-lg font-semibold text-highlighted">{{ employee.nama_karyawan }}</h3>
-            <p class="text-sm text-muted">
-              {{ displayValue(employee.posisi || employee.jabatan) }}
-            </p>
+            <h3 class="text-lg font-semibold text-highlighted">{{ form.nama_karyawan }}</h3>
+            <p class="text-sm text-muted">{{ form.posisi || form.jabatan || '-' }}</p>
           </div>
           <UBadge
             class="sm:ml-auto"
             color="primary"
             variant="subtle"
-            :label="displayValue(employee.status_kontrak)"
+            :label="form.status_kontrak || '-'"
           />
         </div>
       </UCard>
-
-      <div class="grid gap-6 lg:grid-cols-2">
-        <UCard>
-          <template #header>
-            <h3 class="font-semibold text-highlighted">Informasi Pekerjaan</h3>
-          </template>
-
-          <dl class="divide-y divide-gray-200 dark:divide-gray-800">
-            <div
-              v-for="item in jobInformation"
-              :key="item.label"
-              class="grid gap-1 py-3 sm:grid-cols-2"
-            >
-              <dt class="text-sm text-muted">{{ item.label }}</dt>
-              <dd class="text-sm font-medium text-highlighted">{{ displayValue(item.value) }}</dd>
-            </div>
-          </dl>
-        </UCard>
-
-        <UCard>
-          <template #header>
-            <h3 class="font-semibold text-highlighted">Informasi Kontak dan Pribadi</h3>
-          </template>
-
-          <dl class="divide-y divide-gray-200 dark:divide-gray-800">
-            <div
-              v-for="item in contactInformation"
-              :key="item.label"
-              class="grid gap-1 py-3 sm:grid-cols-2"
-            >
-              <dt class="text-sm text-muted">{{ item.label }}</dt>
-              <dd class="text-sm font-medium text-highlighted">{{ displayValue(item.value) }}</dd>
-            </div>
-          </dl>
-        </UCard>
-      </div>
+      <EmployeeFormFields :form="form" />
     </template>
-  </section>
+  </form>
 </template>

@@ -1,15 +1,20 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import StatCard from '../components/StatCard.vue'
+import { getHrDashboard } from '../services/hrService'
 import { getStaffDashboard } from '../services/staffService'
 import { useAuthStore } from '../stores/auth'
-import { apiError, formatDate } from '../utils/formatters'
+import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const auth = useAuthStore()
 const isStaff = computed(() => auth.user?.level === 3)
+const isHr = computed(() => auth.user?.level === 2)
 const dashboard = ref(null)
+const hrDashboard = ref(null)
 const loading = ref(false)
 const errorMessage = ref('')
+const incompleteAttendancePage = ref(1)
+const incompleteAttendanceItemsPerPage = 10
 
 const adminStatistics = [
   {
@@ -82,13 +87,76 @@ const staffStatistics = computed(() => {
   ]
 })
 
-const statistics = computed(() => (isStaff.value ? staffStatistics.value : adminStatistics))
-
-async function loadStaffDashboard() {
-  if (!isStaff.value) {
-    return
+const hrPrimaryStatistics = computed(() => {
+  if (!hrDashboard.value) {
+    return []
   }
 
+  const summary = hrDashboard.value.summary
+  const attendance = hrDashboard.value.attendance
+
+  return [
+    {
+      title: 'Karyawan Aktif',
+      value: summary.active_employees,
+      description: 'Karyawan dengan status aktif saat ini',
+      badge: 'Aktif',
+      color: 'primary',
+    },
+    {
+      title: 'Hadir Hari Ini',
+      value: summary.attendance_today,
+      description: 'Karyawan terhubung yang melakukan scan hari ini',
+      badge: attendance.unmapped_pin_count ? `${attendance.unmapped_pin_count} belum map` : 'Hadir',
+      color: attendance.unmapped_pin_count ? 'warning' : 'success',
+    },
+  ]
+})
+
+const hrAbsenceStatistics = computed(() => {
+  if (!hrDashboard.value) {
+    return []
+  }
+
+  const summary = hrDashboard.value.summary
+
+  return [
+    {
+      title: 'PH Hari Ini',
+      value: summary.public_holiday_today,
+      description: 'Pengambilan PH disetujui HR',
+      badge: 'PH',
+      color: 'info',
+    },
+    {
+      title: 'Cuti Hari Ini',
+      value: summary.leave_today,
+      description: 'Cuti yang telah disetujui HR',
+      badge: 'Cuti',
+      color: 'warning',
+    },
+  ]
+})
+
+const statistics = computed(() => {
+  if (isStaff.value) {
+    return staffStatistics.value
+  }
+
+  return adminStatistics
+})
+
+const incompleteAttendanceRecords = computed(
+  () => hrDashboard.value?.yesterday_incomplete_attendance.records || [],
+)
+
+const paginatedIncompleteAttendance = computed(() => {
+  const start = (incompleteAttendancePage.value - 1) * incompleteAttendanceItemsPerPage
+
+  return incompleteAttendanceRecords.value.slice(start, start + incompleteAttendanceItemsPerPage)
+})
+
+async function loadStaffDashboard() {
   loading.value = true
   errorMessage.value = ''
 
@@ -102,7 +170,38 @@ async function loadStaffDashboard() {
   }
 }
 
-onMounted(loadStaffDashboard)
+async function loadHrDashboard() {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    const { data } = await getHrDashboard()
+    hrDashboard.value = data
+    incompleteAttendancePage.value = 1
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Dashboard HR tidak dapat dimuat.')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadDashboard() {
+  if (isStaff.value) {
+    await loadStaffDashboard()
+  } else if (isHr.value) {
+    await loadHrDashboard()
+  }
+}
+
+function formatTime(value) {
+  return value ? `${value.slice(0, 5)} WIB` : '-'
+}
+
+function missingScanLabel(record) {
+  return record.missing_scan_in ? 'Tidak absen masuk' : 'Tidak absen pulang'
+}
+
+onMounted(loadDashboard)
 </script>
 
 <template>
@@ -112,12 +211,18 @@ onMounted(loadStaffDashboard)
     >
       <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
         <div>
-          <p class="text-sm font-medium text-blue-700">HRIS Dashboard</p>
+          <p class="text-sm font-medium text-blue-700">
+            {{ isHr ? 'Dashboard Operasional HR' : 'HRIS Dashboard' }}
+          </p>
           <h2 class="mt-3 text-2xl font-semibold text-slate-900 sm:text-3xl">
             Selamat datang, {{ auth.user?.name }}
           </h2>
           <p v-if="isStaff" class="mt-3 max-w-xl text-sm text-slate-600 sm:text-base">
             Lihat kehadiran, saldo pengajuan, dan data diri Anda dari portal karyawan.
+          </p>
+          <p v-else-if="isHr" class="mt-3 max-w-xl text-sm text-slate-600 sm:text-base">
+            Monitor kehadiran, ketidakhadiran, lembur, dan kontrak karyawan berdasarkan data aktual
+            hari ini.
           </p>
           <p v-else class="mt-3 max-w-xl text-sm text-slate-600 sm:text-base">
             Pantau ringkasan data karyawan, absensi, cuti, dan payroll dari satu halaman.
@@ -149,10 +254,195 @@ onMounted(loadStaffDashboard)
       :description="errorMessage"
     />
 
-    <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan Anda...</div>
+    <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
-    <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div v-else-if="!isHr" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard v-for="statistic in statistics" :key="statistic.title" v-bind="statistic" />
+    </div>
+
+    <div v-if="isHr && hrDashboard" class="space-y-4">
+      <div class="grid gap-4 lg:grid-cols-2">
+        <StatCard
+          v-for="statistic in hrPrimaryStatistics"
+          :key="statistic.title"
+          v-bind="statistic"
+        />
+      </div>
+
+      <div class="grid gap-4 xl:grid-cols-4">
+        <StatCard
+          v-for="statistic in hrAbsenceStatistics"
+          :key="statistic.title"
+          v-bind="statistic"
+        />
+
+        <UCard
+          :title="`Lembur Hari Ini (${hrDashboard.overtime_today.length})`"
+          description="Karyawan dengan pengajuan lembur aktif hari ini."
+        >
+          <div class="max-h-56 space-y-3 overflow-y-auto">
+            <div
+              v-for="item in hrDashboard.overtime_today"
+              :key="item.id"
+              class="rounded-lg border border-default p-3 text-sm"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <p class="font-medium text-highlighted">{{ item.name }}</p>
+                <UBadge
+                  :color="statusColor(item.status)"
+                  variant="subtle"
+                  :label="statusLabel(item.status)"
+                />
+              </div>
+              <p class="mt-1 text-muted">{{ item.department }}</p>
+              <p class="mt-2 text-muted">
+                {{ formatTime(item.start_time) }} - {{ formatTime(item.end_time) }}
+              </p>
+            </div>
+            <p v-if="!hrDashboard.overtime_today.length" class="py-3 text-sm text-muted">
+              Tidak ada lembur hari ini.
+            </p>
+          </div>
+        </UCard>
+
+        <UCard
+          :title="`Kontrak Akan Habis (${hrDashboard.expiring_contracts.records.length})`"
+          :description="`Dua bulan ke depan sampai ${formatDate(hrDashboard.expiring_contracts.through_date)}.`"
+        >
+          <div class="max-h-56 space-y-3 overflow-y-auto">
+            <div
+              v-for="contract in hrDashboard.expiring_contracts.records"
+              :key="contract.id"
+              class="rounded-lg border border-default p-3 text-sm"
+            >
+              <p class="font-medium text-highlighted">{{ contract.name }}</p>
+              <p class="mt-1 text-muted">{{ contract.department }} - {{ contract.nik }}</p>
+              <div class="mt-2 flex items-center justify-between gap-2">
+                <span class="text-muted">{{ formatDate(contract.end_date) }}</span>
+                <UBadge
+                  color="warning"
+                  variant="subtle"
+                  :label="`${contract.remaining_days} hari`"
+                />
+              </div>
+            </div>
+            <p
+              v-if="!hrDashboard.expiring_contracts.records.length"
+              class="py-3 text-sm text-muted"
+            >
+              Tidak ada kontrak berakhir dalam dua bulan ke depan.
+            </p>
+          </div>
+        </UCard>
+      </div>
+
+      <UAlert
+        v-if="hrDashboard.attendance.unmapped_pin_count"
+        color="warning"
+        variant="subtle"
+        title="Pemetaan PIN absensi belum lengkap"
+        :description="`${hrDashboard.attendance.unmapped_pin_count} PIN yang scan hari ini belum terhubung ke data karyawan dan belum dihitung dalam kartu Hadir Hari Ini. Hubungkan PIN agar kehadirannya masuk ringkasan.`"
+      />
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        <UCard title="Hadir per Departemen" description="Karyawan dengan PIN yang telah terhubung.">
+          <div class="space-y-3">
+            <div
+              v-for="department in hrDashboard.attendance.by_department"
+              :key="department.department"
+              class="flex items-center justify-between rounded-lg border border-default px-3 py-2"
+            >
+              <span class="text-sm text-highlighted">{{ department.department }}</span>
+              <UBadge color="success" variant="subtle" :label="`${department.total} orang`" />
+            </div>
+            <p v-if="!hrDashboard.attendance.by_department.length" class="py-4 text-sm text-muted">
+              Belum ada kehadiran yang terhubung ke data karyawan.
+            </p>
+          </div>
+        </UCard>
+
+        <UCard
+          class="lg:col-span-2"
+          title="Manager Hadir Hari Ini"
+          description="Berdasarkan posisi dan scan absensi hari ini."
+        >
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div
+              v-for="employee in hrDashboard.attendance.managers_present"
+              :key="employee.nik"
+              class="rounded-lg border border-default p-3 text-sm"
+            >
+              <p class="font-medium text-highlighted">{{ employee.name }}</p>
+              <p class="mt-1 text-muted">{{ employee.department }} - {{ employee.position }}</p>
+              <p class="mt-2 text-muted">Masuk {{ formatTime(employee.scan_in) }}</p>
+            </div>
+            <p
+              v-if="!hrDashboard.attendance.managers_present.length"
+              class="py-3 text-sm text-muted"
+            >
+              Belum ada Manager terpetakan hadir.
+            </p>
+          </div>
+        </UCard>
+      </div>
+
+      <UCard
+        title="Absensi Belum Lengkap Kemarin"
+        :description="`Jadwal kerja ${formatDate(hrDashboard.yesterday_incomplete_attendance.date)}.`"
+      >
+        <UAlert
+          v-if="hrDashboard.yesterday_incomplete_attendance.unlinked_pin_count"
+          color="warning"
+          variant="subtle"
+          class="mb-4"
+          :description="`${hrDashboard.yesterday_incomplete_attendance.unlinked_pin_count} karyawan terjadwal belum memiliki PIN sehingga belum dapat diperiksa absensinya.`"
+        />
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left text-muted">
+              <tr>
+                <th class="p-3">Karyawan</th>
+                <th class="p-3">Departemen</th>
+                <th class="p-3">Masuk</th>
+                <th class="p-3">Pulang</th>
+                <th class="p-3">Temuan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="item in paginatedIncompleteAttendance"
+                :key="item.nik"
+                class="border-t border-default"
+              >
+                <td class="p-3 font-medium text-highlighted">{{ item.name }}</td>
+                <td class="p-3">{{ item.department }}</td>
+                <td class="p-3">{{ formatTime(item.scan_in) }}</td>
+                <td class="p-3">{{ formatTime(item.scan_out) }}</td>
+                <td class="p-3">
+                  <UBadge color="warning" variant="subtle" :label="missingScanLabel(item)" />
+                </td>
+              </tr>
+              <tr v-if="!incompleteAttendanceRecords.length">
+                <td colspan="5" class="p-6 text-center text-muted">
+                  Tidak ada absensi terpetakan yang belum lengkap kemarin.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div
+          v-if="incompleteAttendanceRecords.length > incompleteAttendanceItemsPerPage"
+          class="mt-4 flex justify-end border-t border-default pt-4"
+        >
+          <UPagination
+            v-model:page="incompleteAttendancePage"
+            :total="incompleteAttendanceRecords.length"
+            :items-per-page="incompleteAttendanceItemsPerPage"
+            :sibling-count="1"
+            show-controls
+          />
+        </div>
+      </UCard>
     </div>
 
     <div v-if="isStaff && dashboard" class="grid gap-4 lg:grid-cols-3">

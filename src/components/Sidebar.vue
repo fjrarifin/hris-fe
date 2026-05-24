@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { backendLogoUrl } from '../services/api'
 import { useAuthStore } from '../stores/auth'
 
@@ -9,11 +10,44 @@ const props = defineProps({
 
 const emit = defineEmits(['close-sidebar'])
 const auth = useAuthStore()
+const router = useRouter()
 const links = computed(() => auth.menus)
+const accountMenuOpen = ref(false)
+const accountMenuRef = ref(null)
+const hasProfilePage = computed(() => auth.user?.level === 3)
 
 function closeSidebar() {
   emit('close-sidebar')
 }
+
+function toggleAccountMenu() {
+  accountMenuOpen.value = !accountMenuOpen.value
+}
+
+function closeAccountMenu() {
+  accountMenuOpen.value = false
+}
+
+function selectAccountLink() {
+  closeAccountMenu()
+  closeSidebar()
+}
+
+function handleOutsideClick(event) {
+  if (accountMenuRef.value && !accountMenuRef.value.contains(event.target)) {
+    closeAccountMenu()
+  }
+}
+
+async function logout() {
+  closeAccountMenu()
+  await auth.logout()
+  closeSidebar()
+  await router.push('/login')
+}
+
+onMounted(() => document.addEventListener('click', handleOutsideClick))
+onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
 </script>
 
 <template>
@@ -52,10 +86,55 @@ function closeSidebar() {
       @update:model-value="closeSidebar"
     />
 
-    <UCard class="mt-auto border-slate-800 bg-slate-900">
-      <p class="text-sm font-medium text-white">{{ auth.user?.name }}</p>
-      <p class="mt-1 text-xs text-slate-400">{{ auth.user?.username }}</p>
-      <UBadge class="mt-4" color="primary" variant="subtle" :label="auth.user?.level_label" />
-    </UCard>
+    <div ref="accountMenuRef" class="relative mt-auto">
+      <div
+        v-if="accountMenuOpen"
+        class="absolute inset-x-0 bottom-full mb-2 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 p-1 shadow-2xl"
+      >
+        <RouterLink
+          v-if="hasProfilePage"
+          to="/staff/profile"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-200 transition hover:bg-slate-800 hover:text-white"
+          @click="selectAccountLink"
+        >
+          <UIcon name="i-lucide-user-round" class="size-4" />
+          Profil Saya
+        </RouterLink>
+        <RouterLink
+          to="/change-password"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-200 transition hover:bg-slate-800 hover:text-white"
+          @click="selectAccountLink"
+        >
+          <UIcon name="i-lucide-key-round" class="size-4" />
+          Ubah Password
+        </RouterLink>
+        <button
+          type="button"
+          class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-300 transition hover:bg-red-950/50 hover:text-red-200"
+          @click="logout"
+        >
+          <UIcon name="i-lucide-log-out" class="size-4" />
+          Logout
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left transition hover:border-slate-700 hover:bg-slate-800"
+        :aria-expanded="accountMenuOpen"
+        aria-label="Buka menu akun"
+        @click="toggleAccountMenu"
+      >
+        <UAvatar :text="auth.initials" color="primary" size="md" />
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium text-white">{{ auth.user?.name }}</p>
+          <p class="truncate text-xs text-slate-400">{{ auth.user?.level_label }}</p>
+        </div>
+        <UIcon
+          name="i-lucide-chevron-up"
+          :class="['size-4 text-slate-400 transition-transform', accountMenuOpen && 'rotate-180']"
+        />
+      </button>
+    </div>
   </aside>
 </template>

@@ -8,6 +8,10 @@ export function getStaffProfile() {
   return api.get('/staff/profile')
 }
 
+export function getStaffAttendance(params) {
+  return api.get('/staff/attendance', { params })
+}
+
 export function getLeaves() {
   return api.get('/staff/leave')
 }
