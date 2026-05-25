@@ -23,12 +23,12 @@ const workFields = [
   { key: 'unit', label: 'Unit' },
   { key: 'nama_atasan_langsung', label: 'Atasan Langsung' },
   { key: 'atasan_tidak_langsung', label: 'Atasan Tidak Langsung' },
+  { key: 'status_karyawan', label: 'Status Karyawan' },
   { key: 'status_kontrak', label: 'Status Kontrak' },
   { key: 'join_date', label: 'Tanggal Bergabung', type: 'date' },
   { key: 'start_date', label: 'Tanggal Mulai Kontrak', type: 'date' },
   { key: 'durasi_kontrak', label: 'Durasi Kontrak', type: 'number' },
   { key: 'end_date', label: 'Tanggal Selesai Kontrak', type: 'date' },
-  { key: 'total_masa_kerja', label: 'Total Masa Kerja' },
 ]
 
 const personalFields = [
@@ -56,7 +56,6 @@ const familyFields = [
 ]
 
 const paymentFields = [
-  { key: 'account_name', label: 'Nama Rekening' },
   { key: 'bank', label: 'Bank' },
   { key: 'no_rekening', label: 'Nomor Rekening' },
   { key: 'no_npwp', label: 'Nomor NPWP' },
