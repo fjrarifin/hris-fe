@@ -344,6 +344,55 @@ onMounted(loadDashboard)
         :description="`${hrDashboard.attendance.unmapped_pin_count} PIN yang scan hari ini belum terhubung ke data karyawan dan belum dihitung dalam kartu Hadir Hari Ini. Hubungkan PIN agar kehadirannya masuk ringkasan.`"
       />
 
+      <UCard
+        v-if="hrDashboard.monthly_attendance_monitoring.visible"
+        title="Monitoring Minimum Kehadiran Bulanan"
+        :description="`Tampil mulai tanggal 26. Target: ${hrDashboard.monthly_attendance_monitoring.ideal_attendance_days} hari hadir dan ${hrDashboard.monthly_attendance_monitoring.minimum_work_duration}. PH dan Cuti disetujui dihitung 8 jam.`"
+      >
+        <UAlert
+          v-if="!hrDashboard.monthly_attendance_monitoring.records.length"
+          color="success"
+          variant="subtle"
+          description="Seluruh karyawan telah mencapai minimum hari dan durasi kerja pada periode berjalan."
+        />
+        <div v-else class="max-h-80 overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left text-muted">
+              <tr>
+                <th class="p-3">Karyawan</th>
+                <th class="p-3">Departemen</th>
+                <th class="p-3">Kehadiran</th>
+                <th class="p-3">Durasi</th>
+                <th class="p-3">Perhatian</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="record in hrDashboard.monthly_attendance_monitoring.records"
+                :key="record.nik"
+                class="border-t border-default"
+              >
+                <td class="p-3">
+                  <p class="font-medium text-highlighted">{{ record.name }}</p>
+                  <p class="text-xs text-muted">{{ record.nik }}</p>
+                </td>
+                <td class="p-3">{{ record.department }}</td>
+                <td class="p-3">{{ record.total_attendance }} hari</td>
+                <td class="p-3">{{ record.total_work_duration }}</td>
+                <td class="p-3">
+                  <p v-if="record.attendance_shortage" class="text-warning">
+                    Kurang {{ record.attendance_shortage }} hari
+                  </p>
+                  <p v-if="record.work_duration_shortage_minutes" class="text-warning">
+                    Kurang {{ record.work_duration_shortage }}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </UCard>
+
       <div class="grid gap-4 lg:grid-cols-3">
         <UCard title="Hadir per Departemen" description="Karyawan dengan PIN yang telah terhubung.">
           <div class="space-y-3">
@@ -375,6 +424,10 @@ onMounted(loadDashboard)
               <p class="font-medium text-highlighted">{{ employee.name }}</p>
               <p class="mt-1 text-muted">{{ employee.department }} - {{ employee.position }}</p>
               <p class="mt-2 text-muted">Masuk {{ formatTime(employee.scan_in) }}</p>
+              <p class="mt-1 text-muted">
+                Keluar
+                {{ employee.scan_out ? formatTime(employee.scan_out) : 'Belum scan keluar' }}
+              </p>
             </div>
             <p
               v-if="!hrDashboard.attendance.managers_present.length"

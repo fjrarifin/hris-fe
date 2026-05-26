@@ -72,6 +72,7 @@ const personalFields = computed(() => [
     label: 'Status Pernikahan',
     value: data.value?.employee?.status_pernikahan,
   },
+  { label: 'Status Pajak', value: data.value?.employee?.status_pajak },
   { label: 'Agama', value: data.value?.employee?.agama },
   { label: 'Kewarganegaraan', value: data.value?.employee?.kewarganegaraan },
 ])
@@ -88,6 +89,9 @@ const familyAndEducationFields = computed(() => [
   { label: 'Jurusan', value: data.value?.employee?.jurusan },
   { label: 'Nama Pasangan', value: data.value?.employee?.nama_pasangan },
   { label: 'Jumlah Anak', value: data.value?.employee?.jumlah_anak },
+  { label: 'Nama Anak Ke-1', value: data.value?.employee?.nama_anak_1 },
+  { label: 'Nama Anak Ke-2', value: data.value?.employee?.nama_anak_2 },
+  { label: 'Nama Anak Ke-3', value: data.value?.employee?.nama_anak_3 },
   { label: 'Nama Ayah', value: data.value?.employee?.nama_ayah },
   { label: 'Nama Ibu', value: data.value?.employee?.nama_ibu },
   { label: 'Kontak Darurat', value: data.value?.employee?.kontak_darurat_nama },

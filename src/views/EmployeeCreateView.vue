@@ -10,7 +10,7 @@ const form = reactive({
   nik: '',
   pin: '',
   nama_karyawan: '',
-  status_karyawan: 'AKTIF',
+  jenis_kontrak: 'PKWT',
   status_kontrak: 'AKTIF',
   kewarganegaraan: 'Indonesia',
   npwp: false,

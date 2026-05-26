@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import {
   createHrContract,
   getHrContracts,
@@ -19,13 +19,18 @@ const detailCardRef = ref(null)
 const formOpen = ref(false)
 const editingId = ref(null)
 const form = reactive({
+  jenis_kontrak: 'PKWT',
   status_kontrak: 'AKTIF',
   start_date: '',
   end_date: '',
-  durasi_bulan: '',
+  keterangan: '',
 })
 const message = ref('')
 const errorMessage = ref('')
+let searchTimer = null
+const hasActiveContract = computed(() =>
+  (detail.value?.contracts ?? []).some((contract) => contract.status === 'AKTIF'),
+)
 
 const stateLabels = {
   active: 'Aktif',
@@ -53,10 +58,11 @@ function stateColor(state) {
 
 function clearForm() {
   editingId.value = null
+  form.jenis_kontrak = 'PKWT'
   form.status_kontrak = 'AKTIF'
   form.start_date = ''
   form.end_date = ''
-  form.durasi_bulan = ''
+  form.keterangan = ''
 }
 
 async function load(requestedPage = 1) {
@@ -98,10 +104,11 @@ function createContract() {
 
 function editContract(contract) {
   editingId.value = contract.id
+  form.jenis_kontrak = contract.contract_type || 'PKWT'
   form.status_kontrak = contract.status
   form.start_date = contract.start_date || ''
   form.end_date = contract.end_date || ''
-  form.durasi_bulan = contract.duration_months ?? ''
+  form.keterangan = contract.description || ''
   formOpen.value = true
 }
 
@@ -110,10 +117,11 @@ async function saveContract() {
   message.value = ''
   errorMessage.value = ''
   const payload = {
+    jenis_kontrak: form.jenis_kontrak,
     status_kontrak: form.status_kontrak,
     start_date: form.start_date,
     end_date: form.end_date,
-    durasi_bulan: form.durasi_bulan === '' ? null : Number(form.durasi_bulan),
+    keterangan: form.keterangan || null,
   }
 
   try {
@@ -130,6 +138,22 @@ async function saveContract() {
   }
 }
 
+watch(
+  () => filters.q,
+  () => {
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => load(1), 300)
+  },
+)
+
+watch(
+  () => filters.status,
+  () => {
+    load(1)
+  },
+)
+
+onBeforeUnmount(() => clearTimeout(searchTimer))
 onMounted(() => load())
 </script>
 
@@ -224,7 +248,12 @@ onMounted(() => load())
               </td>
               <td class="p-3">{{ record.department }}</td>
               <td class="p-3">
-                {{ record.contract ? `Kontrak ke-${record.contract.contract_number}` : '-' }}
+                <template v-if="record.contract">
+                  {{ record.contract.contract_type }} / Kontrak ke-{{
+                    record.contract.contract_number
+                  }}
+                </template>
+                <span v-else>-</span>
               </td>
               <td class="p-3">
                 <template v-if="record.contract">
@@ -239,6 +268,7 @@ onMounted(() => load())
                   :color="stateColor(record.contract_state)"
                   variant="subtle"
                 />
+                <p class="mt-2 text-xs text-muted">Karyawan: {{ record.employee_status }}</p>
               </td>
               <td class="p-3">{{ record.contracts_count }} kontrak</td>
               <td class="p-3">
@@ -284,7 +314,17 @@ onMounted(() => load())
               {{ detail.employee.nik }} - {{ detail.employee.department }}
             </p>
           </div>
-          <UButton label="Tambah Kontrak Baru" icon="i-lucide-plus" @click="createContract" />
+          <div class="text-right">
+            <UButton
+              label="Tambah Kontrak Baru"
+              icon="i-lucide-plus"
+              :disabled="hasActiveContract"
+              @click="createContract"
+            />
+            <p v-if="hasActiveContract" class="mt-2 text-xs text-warning">
+              Nonaktifkan kontrak aktif terlebih dahulu.
+            </p>
+          </div>
         </div>
 
         <form
@@ -295,7 +335,18 @@ onMounted(() => load())
           <p class="mb-4 font-medium text-highlighted">
             {{ editingId ? 'Edit Kontrak' : 'Kontrak Baru' }}
           </p>
-          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <label class="text-sm text-muted">
+              Jenis Kontrak
+              <select
+                v-model="form.jenis_kontrak"
+                required
+                class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+              >
+                <option value="PKWT">PKWT</option>
+                <option value="PKWTT">PKWTT</option>
+              </select>
+            </label>
             <label class="text-sm text-muted">
               Status Kontrak
               <select
@@ -304,10 +355,7 @@ onMounted(() => load())
                 class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
               >
                 <option value="AKTIF">AKTIF</option>
-                <option value="DIPERPANJANG">DIPERPANJANG</option>
-                <option value="SELESAI">SELESAI</option>
-                <option value="HABIS">HABIS</option>
-                <option value="NONAKTIF">NONAKTIF</option>
+                <option value="NONAKTIF">TIDAK AKTIF</option>
               </select>
             </label>
             <label class="text-sm text-muted">
@@ -329,15 +377,18 @@ onMounted(() => load())
               />
             </label>
             <label class="text-sm text-muted">
-              Durasi (bulan)
+              Keterangan
               <input
-                v-model="form.durasi_bulan"
-                type="number"
-                min="0"
+                v-model="form.keterangan"
+                type="text"
+                placeholder="Catatan kontrak"
                 class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
               />
             </label>
           </div>
+          <p class="mt-3 text-xs text-muted">
+            Durasi kontrak dihitung otomatis dari tanggal mulai sampai tanggal selesai.
+          </p>
           <div class="mt-4 flex gap-2">
             <UButton type="submit" label="Simpan Kontrak" :loading="saving" />
             <UButton
@@ -355,9 +406,11 @@ onMounted(() => load())
             <thead class="text-left text-muted">
               <tr>
                 <th class="p-3">Kontrak</th>
+                <th class="p-3">Jenis</th>
                 <th class="p-3">Periode</th>
                 <th class="p-3">Durasi</th>
                 <th class="p-3">Status</th>
+                <th class="p-3">Keterangan</th>
                 <th class="p-3">Kondisi</th>
                 <th class="p-3">Aksi</th>
               </tr>
@@ -371,11 +424,13 @@ onMounted(() => load())
                 <td class="p-3 font-medium text-highlighted">
                   Kontrak ke-{{ contract.contract_number }}
                 </td>
+                <td class="p-3">{{ contract.contract_type }}</td>
                 <td class="p-3">
                   {{ formatDate(contract.start_date) }} - {{ formatDate(contract.end_date) }}
                 </td>
-                <td class="p-3">{{ contract.duration_months ?? '-' }} bulan</td>
+                <td class="p-3">{{ contract.duration_label }}</td>
                 <td class="p-3">{{ contract.status }}</td>
+                <td class="p-3">{{ contract.description || '-' }}</td>
                 <td class="p-3">
                   <UBadge
                     :label="stateLabel(contract.state)"
@@ -394,7 +449,7 @@ onMounted(() => load())
                 </td>
               </tr>
               <tr v-if="!detail.contracts.length">
-                <td colspan="6" class="p-8 text-center text-muted">
+                <td colspan="8" class="p-8 text-center text-muted">
                   Karyawan ini belum memiliki kontrak. Tambahkan kontrak pertamanya.
                 </td>
               </tr>

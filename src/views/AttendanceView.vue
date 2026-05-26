@@ -383,14 +383,17 @@ onMounted(loadOptions)
       <UCard title="Rekap Kehadiran Pivot">
         <p class="mb-4 text-xs text-muted">
           M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, C = Cuti, S = Sakit, I = Izin. Hak
-          PH diperoleh hanya jika karyawan masuk pada hari libur nasional.
+          PH diperoleh hanya jika karyawan masuk pada hari libur nasional. PH dan Cuti yang
+          disetujui dihitung 8 jam kerja. Target bulanan:
+          {{ data.targets.ideal_attendance_days }} hari dan
+          {{ data.targets.minimum_work_duration }}.
         </p>
         <div class="overflow-x-auto">
           <table class="min-w-max text-sm">
             <thead class="text-left text-muted">
               <tr>
-                <th class="min-w-32 p-3">NIK</th>
-                <th class="min-w-44 p-3">Nama Karyawan</th>
+                <th class="sticky left-0 z-20 min-w-32 bg-default p-3">NIK</th>
+                <th class="sticky left-32 z-20 min-w-44 bg-default p-3">Nama Karyawan</th>
                 <th class="min-w-36 p-3">Jabatan</th>
                 <th class="min-w-36 p-3">Departemen</th>
                 <th class="min-w-24 p-3">Unit</th>
@@ -414,8 +417,10 @@ onMounted(loadOptions)
             </thead>
             <tbody>
               <tr v-for="record in data.records" :key="record.nik" class="border-t border-default">
-                <td class="p-3">{{ record.nik }}</td>
-                <td class="p-3 font-medium text-highlighted">{{ record.name }}</td>
+                <td class="sticky left-0 z-10 bg-default p-3">{{ record.nik }}</td>
+                <td class="sticky left-32 z-10 bg-default p-3 font-medium text-highlighted">
+                  {{ record.name }}
+                </td>
                 <td class="p-3">{{ record.position }}</td>
                 <td class="p-3">{{ record.department }}</td>
                 <td class="p-3">{{ record.unit }}</td>
