@@ -42,7 +42,8 @@ async function submit() {
           Masukkan NIK karyawan. Kode OTP akan dikirim ke nomor telepon yang terdaftar.
         </p>
         <p class="mt-2 text-xs text-muted">
-          Reset password berhasil akan mengakhiri sesi login yang masih aktif di perangkat lain.
+          Password hanya dapat diganti 1 kali dalam 30 hari. Reset yang berhasil akan mengakhiri
+          sesi login aktif di perangkat lain.
         </p>
       </div>
 
