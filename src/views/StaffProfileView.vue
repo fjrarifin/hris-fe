@@ -187,6 +187,15 @@ async function submitPhoto() {
   }
 }
 
+function handlePhotoError() {
+  photoLoadFailed.value = true
+
+  if (!photoPreviewUrl.value) {
+    errorMessage.value =
+      'Data foto sudah tercatat, tetapi file foto tidak dapat ditampilkan. Silakan hubungi HR atau IT.'
+  }
+}
+
 function shown(value) {
   return value === null || value === undefined || value === '' ? '-' : value
 }
@@ -216,7 +225,7 @@ onBeforeUnmount(clearPhotoSelection)
               :src="photoPreviewUrl || data.user.photo_url"
               :alt="data.employee.nama_karyawan"
               class="size-20 rounded-full object-cover shrink-0"
-              @error="photoLoadFailed = true"
+              @error="handlePhotoError"
             />
             <UAvatar v-else :text="profileInitials" size="2xl" color="primary" class="shrink-0" />
             <div>
