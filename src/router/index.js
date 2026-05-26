@@ -25,6 +25,7 @@ import HrApprovalView from '../views/HrApprovalView.vue'
 import HrContractView from '../views/HrContractView.vue'
 import HrScheduleView from '../views/HrScheduleView.vue'
 import HrGuideView from '../views/HrGuideView.vue'
+import HrAttendanceCorrectionView from '../views/HrAttendanceCorrectionView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -183,6 +184,16 @@ const router = createRouter({
           name: 'hr-contracts',
           component: HrContractView,
           meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
+        },
+        {
+          path: 'hr/attendance-corrections',
+          name: 'hr-attendance-corrections',
+          component: HrAttendanceCorrectionView,
+          meta: {
+            title: 'Koreksi Absensi',
+            levels: [2],
+            menuKey: 'hr-attendance-corrections',
+          },
         },
         {
           path: 'hr/approvals/leave',

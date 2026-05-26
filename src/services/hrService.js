@@ -32,6 +32,14 @@ export function exportHrAttendance(params) {
   return api.get('/hr/attendance/export', { params, responseType: 'blob' })
 }
 
+export function getHrAttendanceCorrections(params) {
+  return api.get('/hr/attendance-corrections', { params })
+}
+
+export function saveHrAttendanceCorrection(nik, payload) {
+  return api.put(`/hr/attendance-corrections/${encodeURIComponent(nik)}`, payload)
+}
+
 export function getHrApprovals(type, params) {
   return api.get(`/hr/approvals/${type}`, { params })
 }

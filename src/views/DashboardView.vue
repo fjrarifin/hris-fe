@@ -423,11 +423,22 @@ onMounted(loadDashboard)
             >
               <p class="font-medium text-highlighted">{{ employee.name }}</p>
               <p class="mt-1 text-muted">{{ employee.department }} - {{ employee.position }}</p>
-              <p class="mt-2 text-muted">Masuk {{ formatTime(employee.scan_in) }}</p>
-              <p class="mt-1 text-muted">
-                Keluar
-                {{ employee.scan_out ? formatTime(employee.scan_out) : 'Belum scan keluar' }}
-              </p>
+              <div
+                class="mt-3 flex items-start justify-between gap-8 rounded-lg border border-default/60 bg-elevated/35 px-3 py-2"
+              >
+                <div>
+                  <p class="text-xs text-muted">Masuk</p>
+                  <p class="mt-1 font-medium text-highlighted">
+                    {{ formatTime(employee.scan_in) }}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-muted">Keluar</p>
+                  <p class="mt-1 font-medium text-highlighted">
+                    {{ employee.scan_out ? formatTime(employee.scan_out) : 'Belum scan' }}
+                  </p>
+                </div>
+              </div>
             </div>
             <p
               v-if="!hrDashboard.attendance.managers_present.length"
@@ -441,7 +452,7 @@ onMounted(loadDashboard)
 
       <UCard
         title="Absensi Belum Lengkap Kemarin"
-        :description="`Jadwal kerja ${formatDate(hrDashboard.yesterday_incomplete_attendance.date)}.`"
+        :description="`Data absensi ${formatDate(hrDashboard.yesterday_incomplete_attendance.date)} dengan salah satu scan belum lengkap.`"
       >
         <UAlert
           v-if="hrDashboard.yesterday_incomplete_attendance.unlinked_pin_count"
@@ -459,6 +470,8 @@ onMounted(loadDashboard)
                 <th class="p-3">Masuk</th>
                 <th class="p-3">Pulang</th>
                 <th class="p-3">Temuan</th>
+                <th class="p-3">Aksi</th>
+                <th class="p-3">Keterangan</th>
               </tr>
             </thead>
             <tbody>
@@ -474,9 +487,31 @@ onMounted(loadDashboard)
                 <td class="p-3">
                   <UBadge color="warning" variant="subtle" :label="missingScanLabel(item)" />
                 </td>
+                <td class="p-3">
+                  <UButton
+                    :to="{
+                      name: 'hr-attendance-corrections',
+                      query: {
+                        date: hrDashboard.yesterday_incomplete_attendance.date,
+                        nik: item.nik,
+                      },
+                    }"
+                    label="Koreksi"
+                    size="xs"
+                    variant="soft"
+                    icon="i-lucide-pencil-line"
+                  />
+                </td>
+                <td class="p-3">
+                  <UBadge
+                    color="success"
+                    variant="subtle"
+                    :label="item.whatsapp_notification_status"
+                  />
+                </td>
               </tr>
               <tr v-if="!incompleteAttendanceRecords.length">
-                <td colspan="5" class="p-6 text-center text-muted">
+                <td colspan="7" class="p-6 text-center text-muted">
                   Tidak ada absensi terpetakan yang belum lengkap kemarin.
                 </td>
               </tr>
