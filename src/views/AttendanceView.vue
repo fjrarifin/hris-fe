@@ -7,7 +7,7 @@ import {
   getHrAttendance,
   getHrAttendanceOptions,
 } from '../services/hrService'
-import { apiError, formatDate } from '../utils/formatters'
+import { apiError } from '../utils/formatters'
 
 const auth = useAuthStore()
 const filters = reactive({ start_date: '', end_date: '', departments: [], employee_niks: [] })
@@ -63,8 +63,26 @@ const employeeSummary = computed(() =>
     : `Semua karyawan (${eligibleEmployees.value.length})`,
 )
 
-function formatTime(value) {
-  return value ? `${String(value).slice(0, 5)} WIB` : '-'
+function formatDuration(minutes) {
+  return `${Math.floor(minutes / 60)} jam ${minutes % 60} menit`
+}
+
+function formatColumnDate(value) {
+  return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' }).format(
+    new Date(`${value}T00:00:00`),
+  )
+}
+
+function dayColor(day) {
+  if (day.has_approved_absence_conflict) return 'warning'
+  if (day.status === 'M') return 'success'
+  if (day.status === 'A') return 'error'
+  if (['PH', 'C', 'S', 'I'].includes(day.status)) return 'info'
+  return 'neutral'
+}
+
+function conflictDays(record) {
+  return Object.values(record.days).filter((day) => day.has_approved_absence_conflict)
 }
 
 async function loadOptions() {
@@ -125,16 +143,16 @@ function selectAllEmployees() {
   filters.employee_niks = []
 }
 
-async function cancelApprovedAbsence(record) {
-  const reason = window.prompt(`Alasan pembatalan ${record.attendance_type}:`)
+async function cancelApprovedAbsence(day) {
+  const reason = window.prompt(`Alasan pembatalan ${day.approval_label}:`)
   if (!reason) return
 
-  actingRow.value = `${record.approval_type}-${record.approval_id}`
+  actingRow.value = `${day.approval_type}-${day.approval_id}`
   message.value = ''
   errorMessage.value = ''
   try {
     message.value = (
-      await cancelHrApproval(record.approval_type, record.approval_id, { reason })
+      await cancelHrApproval(day.approval_type, day.approval_id, { reason })
     ).data.message
     await load(page.value)
   } catch (error) {
@@ -305,111 +323,142 @@ onMounted(loadOptions)
         v-if="data.summary.approved_absence_conflicts"
         color="warning"
         variant="subtle"
-        title="Cuti / PH memiliki data scan"
-        :description="`${data.summary.approved_absence_conflicts} baris Cuti atau PH yang sudah disetujui memiliki scan absensi. HRD dapat meninjau dan membatalkannya melalui tabel.`"
+        title="Approval ketidakhadiran memiliki data scan"
+        :description="`${data.summary.approved_absence_conflicts} tanggal approval PH, Cuti, Sakit, atau Izin memiliki scan. Kode ditampilkan sebagai M dan HRD dapat membatalkannya pada kolom aksi.`"
       />
-      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <!-- <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <UCard>
-          <p class="text-sm text-muted">Karyawan Tertarik</p>
+          <p class="text-sm text-muted">Karyawan Ditarik</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
             {{ data.summary.total_employees }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Hari Cuti</p>
+          <p class="text-sm text-muted">Total M</p>
+          <p class="mt-2 text-3xl font-semibold text-highlighted">
+            {{ data.summary.total_present }}
+          </p>
+        </UCard>
+        <UCard>
+          <p class="text-sm text-muted">Total Durasi Jam Kerja</p>
+          <p class="mt-2 text-3xl font-semibold text-highlighted">
+            {{ formatDuration(data.summary.total_work_duration_minutes) }}
+          </p>
+        </UCard>
+        <UCard>
+          <p class="text-sm text-muted">Total A</p>
+          <p class="mt-2 text-3xl font-semibold text-highlighted">
+            {{ data.summary.total_alpha }}
+          </p>
+        </UCard>
+        <UCard>
+          <p class="text-sm text-muted">Total C</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
             {{ data.summary.leave_days }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Hari PH</p>
+          <p class="text-sm text-muted">Total PH</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
             {{ data.summary.public_holiday_days }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Total Kehadiran</p>
+          <p class="text-sm text-muted">Total S</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.total_attendance }}
-          </p>
-          <p class="mt-1 text-xs text-muted">Satu scan tetap dihitung hadir</p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Tidak Scan Masuk</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.missing_scan_in }}
+            {{ data.summary.sick_days }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Tidak Scan Keluar</p>
+          <p class="text-sm text-muted">Total I</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.missing_scan_out }}
+            {{ data.summary.permission_days }}
           </p>
         </UCard>
-      </div>
+        <UCard>
+          <p class="text-sm text-muted">M pada Libur Nasional</p>
+          <p class="mt-2 text-3xl font-semibold text-highlighted">
+            {{ data.summary.national_holiday_attendance }}
+          </p>
+        </UCard>
+      </div> -->
 
-      <UCard title="Rekap Kehadiran">
+      <UCard title="Rekap Kehadiran Pivot">
+        <p class="mb-4 text-xs text-muted">
+          M = Masuk, A = Alfa, PH = Public Holiday, C = Cuti, S = Sakit, I = Izin.
+        </p>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="min-w-max text-sm">
             <thead class="text-left text-muted">
               <tr>
-                <th class="p-3">Tanggal</th>
-                <th class="p-3">NIK</th>
-                <th class="p-3">Nama Karyawan</th>
-                <th class="p-3">Jabatan</th>
-                <th class="p-3">Departemen</th>
-                <th class="p-3">Unit</th>
-                <th class="p-3">Jam Masuk</th>
-                <th class="p-3">Jam Keluar</th>
-                <th class="p-3">Keterangan</th>
-                <th class="p-3">Total Kehadiran</th>
-                <th class="p-3">Aksi</th>
+                <th class="min-w-32 p-3">NIK</th>
+                <th class="min-w-44 p-3">Nama Karyawan</th>
+                <th class="min-w-36 p-3">Jabatan</th>
+                <th class="min-w-36 p-3">Departemen</th>
+                <th class="min-w-24 p-3">Unit</th>
+                <th v-for="date in data.dates" :key="date" class="min-w-20 p-3 text-center">
+                  {{ formatColumnDate(date) }}
+                </th>
+                <th class="min-w-40 p-3">Durasi Kerja</th>
+                <th class="min-w-20 p-3">M</th>
+                <th class="min-w-20 p-3">A</th>
+                <th class="min-w-20 p-3">PH</th>
+                <th class="min-w-20 p-3">C</th>
+                <th class="min-w-20 p-3">S</th>
+                <th class="min-w-20 p-3">I</th>
+                <th class="min-w-28 p-3">M Libur Nasional</th>
+                <th class="min-w-40 p-3">Aksi Konflik</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="record in data.records"
-                :key="`${record.nik}-${record.date}`"
-                class="border-t border-default"
-              >
-                <td class="whitespace-nowrap p-3">{{ formatDate(record.date) }}</td>
+              <tr v-for="record in data.records" :key="record.nik" class="border-t border-default">
                 <td class="p-3">{{ record.nik }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.name }}</td>
                 <td class="p-3">{{ record.position }}</td>
                 <td class="p-3">{{ record.department }}</td>
                 <td class="p-3">{{ record.unit }}</td>
-                <td class="p-3">{{ formatTime(record.scan_in) }}</td>
-                <td class="p-3">{{ formatTime(record.scan_out) }}</td>
-                <td class="min-w-56 p-3">
+                <td
+                  v-for="date in data.dates"
+                  :key="`${record.nik}-${date}`"
+                  class="p-3 text-center"
+                >
                   <UBadge
-                    :color="
-                      record.has_approved_absence_conflict
-                        ? 'warning'
-                        : record.attendance_type === 'Hadir'
-                          ? 'success'
-                          : 'info'
-                    "
+                    :color="dayColor(record.days[date])"
                     variant="subtle"
-                    :label="record.attendance_type"
+                    :label="record.days[date].status"
                   />
-                  <p v-if="record.note" class="mt-2 text-xs text-muted">{{ record.note }}</p>
                 </td>
-                <td class="p-3 font-medium text-highlighted">{{ record.attendance_total }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_work_duration }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_present }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_alpha }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_ph }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_leave }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_sick }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_permission }}</td>
+                <td class="p-3 font-medium text-highlighted">
+                  {{ record.total_national_holiday_attendance }}
+                </td>
                 <td class="p-3">
-                  <UButton
-                    v-if="auth.user?.level === 2 && record.has_approved_absence_conflict"
-                    size="xs"
-                    color="error"
-                    variant="soft"
-                    :label="`Batalkan ${record.attendance_type}`"
-                    :loading="actingRow === `${record.approval_type}-${record.approval_id}`"
-                    @click="cancelApprovedAbsence(record)"
-                  />
+                  <div
+                    v-if="auth.user?.level === 2 && conflictDays(record).length"
+                    class="space-y-2"
+                  >
+                    <UButton
+                      v-for="day in conflictDays(record)"
+                      :key="`${day.approval_type}-${day.approval_id}`"
+                      size="xs"
+                      color="error"
+                      variant="soft"
+                      :label="`Batalkan ${day.approval_label}`"
+                      :loading="actingRow === `${day.approval_type}-${day.approval_id}`"
+                      @click="cancelApprovedAbsence(day)"
+                    />
+                  </div>
                   <span v-else class="text-xs text-muted">-</span>
                 </td>
               </tr>
               <tr v-if="!data.records.length">
-                <td colspan="11" class="p-8 text-center text-muted">
+                <td :colspan="data.dates.length + 13" class="p-8 text-center text-muted">
                   Tidak ada absensi pada periode ini.
                 </td>
               </tr>
@@ -422,7 +471,7 @@ onMounted(loadOptions)
         >
           <p class="text-sm text-muted">
             Menampilkan {{ data.pagination.from }}-{{ data.pagination.to }} dari
-            {{ data.pagination.total }} data
+            {{ data.pagination.total }} karyawan
           </p>
           <UPagination
             :page="page"
