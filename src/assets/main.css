@@ -110,7 +110,18 @@ body {
   color: #f8fafc;
 }
 
-.hris-sidebar,
+.hris-sidebar {
+  color-scheme: dark;
+  --ui-bg: #1e293b;
+  --ui-bg-muted: #1e293b;
+  --ui-bg-elevated: #273449;
+  --ui-bg-accented: #334155;
+  --ui-border: #475569;
+  --ui-text: #f1f5f9;
+  --ui-text-muted: #cbd5e1;
+  --ui-text-highlighted: #ffffff;
+}
+
 .hris-navbar {
   color-scheme: dark;
   --ui-bg: #0f172a;

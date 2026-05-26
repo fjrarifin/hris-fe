@@ -1,13 +1,18 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { backendLogoUrl } from '../services/api'
 import { useAuthStore } from '../stores/auth'
+import { formatDateTime } from '../utils/formatters'
 
 const auth = useAuthStore()
 const router = useRouter()
 const loading = ref(false)
 const errorMessage = ref('')
+const passwordLocked = computed(
+  () => !auth.user?.must_change_password && auth.user?.can_change_password === false,
+)
+const nextPasswordChange = computed(() => formatDateTime(auth.user?.password_change_available_at))
 const form = reactive({
   current_password: '',
   password: '',
@@ -38,9 +43,22 @@ async function submit() {
         <img :src="backendLogoUrl" alt="HRIS Logo" class="mb-4 size-16 object-contain" />
         <h1 class="text-xl font-semibold text-highlighted">Ganti Password</h1>
         <p class="mt-2 text-sm text-muted">
-          Anda wajib membuat password baru sebelum mengakses HRIS.
+          {{
+            auth.user?.must_change_password
+              ? 'Anda wajib membuat password baru sebelum mengakses HRIS.'
+              : 'Password hanya dapat diganti 1 kali dalam jangka waktu 30 hari.'
+          }}
         </p>
       </div>
+
+      <UAlert
+        v-if="passwordLocked"
+        class="mb-5"
+        color="warning"
+        variant="subtle"
+        title="Perubahan belum tersedia"
+        :description="`Password dapat diganti kembali pada ${nextPasswordChange}.`"
+      />
 
       <UAlert
         v-if="errorMessage"
@@ -57,6 +75,7 @@ async function submit() {
           class="w-full"
           type="password"
           placeholder="Password saat ini"
+          :disabled="passwordLocked"
           required
         />
         <UInput
@@ -64,6 +83,7 @@ async function submit() {
           class="w-full"
           type="password"
           placeholder="Password baru, minimal 8 karakter"
+          :disabled="passwordLocked"
           required
         />
         <UInput
@@ -71,9 +91,16 @@ async function submit() {
           class="w-full"
           type="password"
           placeholder="Konfirmasi password baru"
+          :disabled="passwordLocked"
           required
         />
-        <UButton type="submit" block label="Simpan Password" :loading="loading" />
+        <UButton
+          type="submit"
+          block
+          label="Simpan Password"
+          :disabled="passwordLocked"
+          :loading="loading"
+        />
       </form>
     </UCard>
   </main>

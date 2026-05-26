@@ -37,6 +37,12 @@ export const useAuthStore = defineStore('auth', {
       this.dashboardPath = payload.dashboard_path || '/staff/dashboard'
     },
 
+    updatePhoto(photoUrl) {
+      if (this.user) {
+        this.user = { ...this.user, photo_url: photoUrl }
+      }
+    },
+
     async login(credentials) {
       const { data } = await requestLogin(credentials)
 
