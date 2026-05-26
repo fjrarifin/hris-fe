@@ -4,6 +4,22 @@ export function getHrDashboard() {
   return api.get('/hr/dashboard')
 }
 
+export function getHrContracts(params) {
+  return api.get('/hr/contracts', { params })
+}
+
+export function getHrEmployeeContracts(nik) {
+  return api.get(`/hr/contracts/${encodeURIComponent(nik)}`)
+}
+
+export function createHrContract(nik, payload) {
+  return api.post(`/hr/contracts/${encodeURIComponent(nik)}`, payload)
+}
+
+export function updateHrContract(contractId, payload) {
+  return api.put(`/hr/contracts/records/${contractId}`, payload)
+}
+
 export function getHrAttendance(params) {
   return api.get('/hr/attendance', { params })
 }

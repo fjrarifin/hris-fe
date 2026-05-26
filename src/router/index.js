@@ -22,6 +22,7 @@ import StaffApprovalView from '../views/StaffApprovalView.vue'
 import OvertimeView from '../views/OvertimeView.vue'
 import GuideView from '../views/GuideView.vue'
 import HrApprovalView from '../views/HrApprovalView.vue'
+import HrContractView from '../views/HrContractView.vue'
 import HrScheduleView from '../views/HrScheduleView.vue'
 import HrGuideView from '../views/HrGuideView.vue'
 
@@ -176,6 +177,12 @@ const router = createRouter({
           name: 'hr-schedules',
           component: HrScheduleView,
           meta: { title: 'Jadwal Karyawan', levels: [2], menuKey: 'hr-schedules' },
+        },
+        {
+          path: 'hr/contracts',
+          name: 'hr-contracts',
+          component: HrContractView,
+          meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
         },
         {
           path: 'hr/approvals/leave',
