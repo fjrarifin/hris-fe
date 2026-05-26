@@ -1,35 +1,51 @@
 <script setup>
-import { reactive, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { backendLogoUrl } from "../services/api";
-import { useAuthStore } from "../stores/auth";
+import { reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { backendLogoUrl } from '../services/api'
+import { useAuthStore } from '../stores/auth'
 
-const router = useRouter();
-const route = useRoute();
-const auth = useAuthStore();
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
 const form = reactive({
-  username: "",
-  password: "",
-});
-const loading = ref(false);
-const errorMessage = ref("");
-const showPassword = ref(false);
+  username: '',
+  password: '',
+})
+const loading = ref(false)
+const errorMessage = ref('')
+const activeSessionMessage = ref('')
+const showPassword = ref(false)
+
+function formatSessionTime(value) {
+  if (!value) return '-'
+
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+    timeZone: 'Asia/Jakarta',
+  }).format(new Date(value))
+}
 
 async function submit() {
-  loading.value = true;
-  errorMessage.value = "";
+  loading.value = true
+  errorMessage.value = ''
+  activeSessionMessage.value = ''
 
   try {
-    await auth.login(form);
-    await router.push(
-      auth.user.must_change_password ? "/change-password" : auth.dashboardPath,
-    );
+    await auth.login(form)
+    await router.push(auth.user.must_change_password ? '/change-password' : auth.dashboardPath)
   } catch (error) {
+    if (error.response?.data?.code === 'ACTIVE_SESSION_EXISTS') {
+      const session = error.response.data.active_session
+      const network = session.network_address ? ` Jaringan: ${session.network_address}.` : ''
+      activeSessionMessage.value = `${error.response.data.message} Perangkat: ${session.device_name}. Aktivitas terakhir: ${formatSessionTime(session.last_active_at)} WIB. Silakan logout dari perangkat tersebut terlebih dahulu. Jika perangkat tidak dapat diakses, hubungi IT untuk melepaskan sesi aktif.`
+      return
+    }
+
     errorMessage.value =
-      error.response?.data?.errors?.username?.[0] ||
-      "Login gagal. Periksa NIK dan password.";
+      error.response?.data?.errors?.username?.[0] || 'Login gagal. Periksa NIK dan password.'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 </script>
@@ -53,8 +69,7 @@ async function submit() {
         />
         <h1 class="text-4xl font-bold text-white">HRIS Portal</h1>
         <p class="mt-3 text-base text-blue-100 max-w-sm">
-          Sistem Manajemen Sumber Daya Manusia terintegrasi untuk kebutuhan
-          operasional HR.
+          Sistem Manajemen Sumber Daya Manusia terintegrasi untuk kebutuhan operasional HR.
         </p>
       </div>
       <p class="absolute bottom-6 z-10 text-xs text-blue-200">
@@ -68,21 +83,13 @@ async function submit() {
     >
       <div class="w-full max-w-md flex-1 flex flex-col justify-center">
         <div class="mb-10 flex flex-col items-center text-center lg:hidden">
-          <img
-            :src="backendLogoUrl"
-            alt="HRIS Logo"
-            class="size-48 object-contain"
-          />
+          <img :src="backendLogoUrl" alt="HRIS Logo" class="size-48 object-contain" />
           <h1 class="text-2xl font-semibold text-highlighted">HRIS Portal</h1>
         </div>
 
         <div class="mb-8">
-          <h2 class="text-2xl font-semibold text-highlighted">
-            Selamat datang
-          </h2>
-          <p class="mt-1 text-sm text-muted">
-            Masuk menggunakan NIK dan password Anda.
-          </p>
+          <h2 class="text-2xl font-semibold text-highlighted">Selamat datang</h2>
+          <p class="mt-1 text-sm text-muted">Masuk menggunakan NIK dan password Anda.</p>
         </div>
 
         <UAlert
@@ -92,6 +99,15 @@ async function submit() {
           variant="subtle"
           title="Password berhasil diganti"
           description="Password kamu sudah diganti, silakan login menggunakan password terbaru."
+        />
+
+        <UAlert
+          v-if="activeSessionMessage"
+          class="mb-5"
+          color="warning"
+          variant="subtle"
+          title="Akun sedang aktif"
+          :description="activeSessionMessage"
         />
 
         <UAlert
@@ -127,9 +143,7 @@ async function submit() {
               autocomplete="current-password"
               placeholder="Masukkan password"
               leading-icon="i-lucide-lock"
-              :trailing-icon="
-                showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'
-              "
+              :trailing-icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
               required
               @click:trailing="showPassword = !showPassword"
             />
@@ -150,16 +164,10 @@ async function submit() {
       </div>
 
       <!-- Footer -->
-      <div
-        class="w-full max-w-md border-t border-default pt-5 mt-8 text-center"
-      >
+      <div class="w-full max-w-md border-t border-default pt-5 mt-8 text-center">
         <p class="text-xs text-muted">
           Butuh bantuan? Hubungi
-          <a
-            href="https://wa.me/6282117289833"
-            class="text-primary hover:underline"
-            >IT Dept</a
-          >
+          <a href="https://wa.me/6282117289833" class="text-primary hover:underline">IT Dept</a>
         </p>
         <p class="mt-1 text-xs text-muted">
           © {{ new Date().getFullYear() }} · CV. 3 Detik · All rights reserved
