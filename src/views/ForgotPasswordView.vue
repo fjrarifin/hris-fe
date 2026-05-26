@@ -41,6 +41,9 @@ async function submit() {
         <p class="mt-2 text-sm text-muted">
           Masukkan NIK karyawan. Kode OTP akan dikirim ke nomor telepon yang terdaftar.
         </p>
+        <p class="mt-2 text-xs text-muted">
+          Reset password berhasil akan mengakhiri sesi login yang masih aktif di perangkat lain.
+        </p>
       </div>
 
       <UAlert

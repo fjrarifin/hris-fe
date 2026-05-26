@@ -38,7 +38,7 @@ async function submit() {
     if (error.response?.data?.code === 'ACTIVE_SESSION_EXISTS') {
       const session = error.response.data.active_session
       const network = session.network_address ? ` Jaringan: ${session.network_address}.` : ''
-      activeSessionMessage.value = `${error.response.data.message} Perangkat: ${session.device_name}. Aktivitas terakhir: ${formatSessionTime(session.last_active_at)} WIB. Silakan logout dari perangkat tersebut terlebih dahulu. Jika perangkat tidak dapat diakses, hubungi IT untuk melepaskan sesi aktif.`
+      activeSessionMessage.value = `${error.response.data.message} Perangkat: ${session.device_name}.${network} Aktivitas terakhir: ${formatSessionTime(session.last_active_at)} WIB. Silakan logout dari perangkat tersebut terlebih dahulu. Jika perangkat tidak dapat diakses, gunakan Lupa password dengan verifikasi OTP untuk mengakhiri sesi lama.`
       return
     }
 
