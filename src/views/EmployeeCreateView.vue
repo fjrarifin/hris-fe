@@ -1,14 +1,37 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import EmployeeFormFields from '../components/EmployeeFormFields.vue'
-import { createEmployee } from '../services/employeeService'
+import { createEmployee, getEmployees } from '../services/employeeService'
 import { apiError } from '../utils/formatters'
 
 const router = useRouter()
-const form = reactive({ nik: '', pin: '', nama_karyawan: '', npwp: false, bpjs: false })
+const form = reactive({
+  nik: '',
+  pin: '',
+  nama_karyawan: '',
+  status_karyawan: 'AKTIF',
+  status_kontrak: 'AKTIF',
+  kewarganegaraan: 'Indonesia',
+  npwp: false,
+  bpjs: false,
+})
+const supervisorOptions = ref([])
+const loadingOptions = ref(false)
 const saving = ref(false)
 const errorMessage = ref('')
+
+async function loadOptions() {
+  loadingOptions.value = true
+  try {
+    const response = await getEmployees()
+    supervisorOptions.value = response.data.data ?? []
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Pilihan atasan tidak dapat dimuat.')
+  } finally {
+    loadingOptions.value = false
+  }
+}
 
 async function submit() {
   saving.value = true
@@ -26,6 +49,8 @@ async function submit() {
     saving.value = false
   }
 }
+
+onMounted(loadOptions)
 </script>
 
 <template>
@@ -41,6 +66,11 @@ async function submit() {
       </div>
     </div>
     <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
-    <EmployeeFormFields :form="form" creating />
+    <EmployeeFormFields
+      :form="form"
+      :supervisor-options="supervisorOptions"
+      :loading-options="loadingOptions"
+      creating
+    />
   </form>
 </template>

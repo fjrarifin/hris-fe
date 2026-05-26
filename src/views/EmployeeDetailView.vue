@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import EmployeeFormFields from '../components/EmployeeFormFields.vue'
-import { getEmployee, updateEmployee } from '../services/employeeService'
+import { getEmployee, getEmployees, updateEmployee } from '../services/employeeService'
 import { apiError } from '../utils/formatters'
 
 const route = useRoute()
@@ -11,10 +11,16 @@ const loading = ref(true)
 const saving = ref(false)
 const errorMessage = ref('')
 const message = ref(route.query.created ? 'Karyawan berhasil ditambahkan.' : '')
+const supervisorOptions = ref([])
+const contracts = ref([])
+const activeContractId = ref(null)
+const loadingOptions = ref(false)
 const nik = computed(() => String(route.params.nik || ''))
 
 function assignForm(data) {
   Object.assign(form, data)
+  contracts.value = data.contracts ?? []
+  activeContractId.value = data.active_contract_id ?? null
   for (const key of ['join_date', 'start_date', 'end_date', 'tanggal_lahir']) {
     form[key] = form[key] ? String(form[key]).slice(0, 10) : ''
   }
@@ -22,14 +28,22 @@ function assignForm(data) {
 
 async function loadEmployee() {
   loading.value = true
+  loadingOptions.value = true
   errorMessage.value = ''
   try {
-    const response = await getEmployee(nik.value)
+    const [response, employeesResponse] = await Promise.all([
+      getEmployee(nik.value),
+      getEmployees(),
+    ])
     assignForm(response.data.data ?? response.data)
+    supervisorOptions.value = (employeesResponse.data.data ?? []).filter(
+      (employee) => employee.nik !== nik.value,
+    )
   } catch (error) {
     errorMessage.value = apiError(error, 'Detail karyawan tidak dapat dimuat.')
   } finally {
     loading.value = false
+    loadingOptions.value = false
   }
 }
 
@@ -101,7 +115,13 @@ onMounted(loadEmployee)
           />
         </div>
       </UCard>
-      <EmployeeFormFields :form="form" />
+      <EmployeeFormFields
+        :form="form"
+        :supervisor-options="supervisorOptions"
+        :contracts="contracts"
+        :active-contract-id="activeContractId"
+        :loading-options="loadingOptions"
+      />
     </template>
   </form>
 </template>
