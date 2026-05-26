@@ -59,7 +59,8 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Public Holiday</h2>
       <p class="mt-1 text-sm text-muted">
-        Ajukan hari pengganti untuk PH dalam masa berlaku 90 hari.
+        Ajukan hari pengganti untuk PH dalam masa berlaku 90 hari. Saldo PH hanya diperoleh jika
+        Anda memiliki scan masuk pada hari libur nasional tersebut.
       </p>
     </div>
 

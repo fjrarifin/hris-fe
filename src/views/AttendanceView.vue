@@ -24,6 +24,20 @@ const page = ref(1)
 const actingRow = ref('')
 const message = ref('')
 const errorMessage = ref('')
+const exportItems = [
+  {
+    label: 'Export dengan breakdown per hari',
+    description: 'Menampilkan kode pada setiap tanggal periode.',
+    icon: 'i-lucide-table-properties',
+    onSelect: () => downloadExport('detail'),
+  },
+  {
+    label: 'Export rekap tanpa breakdown',
+    description: 'Hanya identitas dan total periode.',
+    icon: 'i-lucide-sheet',
+    onSelect: () => downloadExport('summary'),
+  },
+]
 
 const displayedDepartments = computed(() => {
   const keyword = departmentSearch.value.trim().toLowerCase()
@@ -110,11 +124,11 @@ async function load(requestedPage = 1) {
   }
 }
 
-async function downloadExport() {
+async function downloadExport(format) {
   exporting.value = true
   errorMessage.value = ''
   try {
-    const response = await exportHrAttendance(filters)
+    const response = await exportHrAttendance({ ...filters, format })
     const disposition = response.headers['content-disposition'] || ''
     const name = disposition.match(/filename="?([^"]+)"?/)?.[1] || 'Rekap_Absensi_HRD.xlsx'
     const url = URL.createObjectURL(response.data)
@@ -303,16 +317,23 @@ onMounted(loadOptions)
             icon="i-lucide-search"
             :loading="loading"
           />
-          <UButton
-            type="button"
-            label="Export Excel"
-            icon="i-lucide-download"
-            color="neutral"
-            variant="outline"
-            :disabled="!filters.start_date || !filters.end_date"
-            :loading="exporting"
-            @click="downloadExport"
-          />
+          <UDropdownMenu
+            :items="exportItems"
+            :disabled="!filters.start_date || !filters.end_date || exporting"
+            :content="{ align: 'start', sideOffset: 8 }"
+            :ui="{ content: 'w-72' }"
+          >
+            <UButton
+              type="button"
+              label="Export Excel"
+              icon="i-lucide-download"
+              trailing-icon="i-lucide-chevron-down"
+              color="neutral"
+              variant="outline"
+              :disabled="!filters.start_date || !filters.end_date"
+              :loading="exporting"
+            />
+          </UDropdownMenu>
           <p class="text-xs text-muted">Pilihan kosong berarti seluruh data pada cakupan filter.</p>
         </div>
       </form>
@@ -326,53 +347,23 @@ onMounted(loadOptions)
         title="Approval ketidakhadiran memiliki data scan"
         :description="`${data.summary.approved_absence_conflicts} tanggal approval PH, Cuti, Sakit, atau Izin memiliki scan. Kode ditampilkan sebagai M dan HRD dapat membatalkannya pada kolom aksi.`"
       />
-      <!-- <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <!-- <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <UCard>
-          <p class="text-sm text-muted">Karyawan Ditarik</p>
+          <p class="text-sm text-muted">Total Hari Periode</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.total_employees }}
+            {{ data.summary.period_days }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Total M</p>
+          <p class="text-sm text-muted">Total Kehadiran</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.total_present }}
+            {{ data.summary.total_attendance }}
           </p>
         </UCard>
         <UCard>
-          <p class="text-sm text-muted">Total Durasi Jam Kerja</p>
+          <p class="text-sm text-muted">Total Lembur Terverifikasi</p>
           <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ formatDuration(data.summary.total_work_duration_minutes) }}
-          </p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Total A</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.total_alpha }}
-          </p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Total C</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.leave_days }}
-          </p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Total PH</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.public_holiday_days }}
-          </p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Total S</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.sick_days }}
-          </p>
-        </UCard>
-        <UCard>
-          <p class="text-sm text-muted">Total I</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">
-            {{ data.summary.permission_days }}
+            {{ formatDuration(data.summary.total_overtime_minutes) }}
           </p>
         </UCard>
         <UCard>
@@ -381,11 +372,18 @@ onMounted(loadOptions)
             {{ data.summary.national_holiday_attendance }}
           </p>
         </UCard>
+        <UCard>
+          <p class="text-sm text-muted">A pada Libur Nasional</p>
+          <p class="mt-2 text-3xl font-semibold text-highlighted">
+            {{ data.summary.national_holiday_alpha }}
+          </p>
+        </UCard>
       </div> -->
 
       <UCard title="Rekap Kehadiran Pivot">
         <p class="mb-4 text-xs text-muted">
-          M = Masuk, A = Alfa, PH = Public Holiday, C = Cuti, S = Sakit, I = Izin.
+          M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, C = Cuti, S = Sakit, I = Izin. Hak
+          PH diperoleh hanya jika karyawan masuk pada hari libur nasional.
         </p>
         <div class="overflow-x-auto">
           <table class="min-w-max text-sm">
@@ -399,7 +397,10 @@ onMounted(loadOptions)
                 <th v-for="date in data.dates" :key="date" class="min-w-20 p-3 text-center">
                   {{ formatColumnDate(date) }}
                 </th>
+                <th class="min-w-32 p-3">Total Hari Periode</th>
+                <th class="min-w-28 p-3">Total Kehadiran</th>
                 <th class="min-w-40 p-3">Durasi Kerja</th>
+                <th class="min-w-36 p-3">Total Lembur</th>
                 <th class="min-w-20 p-3">M</th>
                 <th class="min-w-20 p-3">A</th>
                 <th class="min-w-20 p-3">PH</th>
@@ -407,6 +408,7 @@ onMounted(loadOptions)
                 <th class="min-w-20 p-3">S</th>
                 <th class="min-w-20 p-3">I</th>
                 <th class="min-w-28 p-3">M Libur Nasional</th>
+                <th class="min-w-28 p-3">A Libur Nasional</th>
                 <th class="min-w-40 p-3">Aksi Konflik</th>
               </tr>
             </thead>
@@ -428,7 +430,10 @@ onMounted(loadOptions)
                     :label="record.days[date].status"
                   />
                 </td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_period_days }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_attendance }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_work_duration }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_overtime }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_present }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_alpha }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_ph }}</td>
@@ -437,6 +442,9 @@ onMounted(loadOptions)
                 <td class="p-3 font-medium text-highlighted">{{ record.total_permission }}</td>
                 <td class="p-3 font-medium text-highlighted">
                   {{ record.total_national_holiday_attendance }}
+                </td>
+                <td class="p-3 font-medium text-highlighted">
+                  {{ record.total_national_holiday_alpha }}
                 </td>
                 <td class="p-3">
                   <div
@@ -458,7 +466,7 @@ onMounted(loadOptions)
                 </td>
               </tr>
               <tr v-if="!data.records.length">
-                <td :colspan="data.dates.length + 13" class="p-8 text-center text-muted">
+                <td :colspan="data.dates.length + 18" class="p-8 text-center text-muted">
                   Tidak ada absensi pada periode ini.
                 </td>
               </tr>
