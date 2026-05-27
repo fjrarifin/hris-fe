@@ -47,14 +47,7 @@ async function submit() {
         </p>
       </div>
 
-      <UAlert
-        v-if="errorMessage"
-        class="mb-5"
-        color="error"
-        variant="subtle"
-        title="Permintaan gagal"
-        :description="errorMessage"
-      />
+      <AlertToastBridge :error="errorMessage" />
 
       <form class="space-y-5" @submit.prevent="submit">
         <div class="space-y-2">

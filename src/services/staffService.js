@@ -76,6 +76,10 @@ export function getTeamSchedules(params) {
   return api.get('/staff/team-schedules', { params })
 }
 
+export function downloadTeamScheduleTemplate(params) {
+  return api.get('/staff/team-schedules/template', { params, responseType: 'blob' })
+}
+
 export function getTeamEmployeeSchedule(nik, params) {
   return api.get(`/staff/team-schedules/employees/${encodeURIComponent(nik)}`, { params })
 }

@@ -105,6 +105,10 @@ function employeeStatusLabel() {
 
   return props.form.status_karyawan === 'AKTIF' ? 'AKTIF' : 'TIDAK AKTIF'
 }
+
+function selectContractDocument(event) {
+  props.form.document = event.target.files[0] || null
+}
 </script>
 
 <template>
@@ -240,6 +244,16 @@ function employeeStatusLabel() {
           </select>
         </label>
         <label class="text-sm text-muted">
+          Golongan Darah
+          <select v-model="props.form.golongan_darah" :class="inputClass">
+            <option value="">Pilih golongan darah</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+            <option value="O">O</option>
+          </select>
+        </label>
+        <label class="text-sm text-muted">
           Status Pajak
           <select v-model="props.form.status_pajak" :class="inputClass">
             <option value="">Pilih status pajak</option>
@@ -319,6 +333,16 @@ function employeeStatusLabel() {
         <label class="text-sm text-muted sm:col-span-2 lg:col-span-4">
           Keterangan Kontrak
           <textarea v-model="props.form.keterangan_kontrak" rows="2" :class="inputClass"></textarea>
+        </label>
+        <label class="text-sm text-muted sm:col-span-2 lg:col-span-4">
+          Dokumen Kontrak (PDF, maksimal 2 MB)
+          <input
+            type="file"
+            accept=".pdf,application/pdf"
+            required
+            :class="inputClass"
+            @change="selectContractDocument"
+          />
         </label>
         <p class="text-xs text-muted sm:col-span-2 lg:col-span-4">
           Durasi dihitung otomatis dari tanggal mulai dan tanggal selesai.

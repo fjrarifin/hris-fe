@@ -58,14 +58,7 @@ onMounted(async () => {
         </p>
       </div>
 
-      <UAlert
-        v-if="errorMessage"
-        class="mb-5"
-        color="error"
-        variant="subtle"
-        title="Perubahan gagal"
-        :description="errorMessage"
-      />
+      <AlertToastBridge :error="errorMessage" />
 
       <form class="space-y-4" @submit.prevent="submit">
         <UInput

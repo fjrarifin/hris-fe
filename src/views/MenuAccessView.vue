@@ -123,20 +123,7 @@ onMounted(loadAccess)
       </p>
     </div>
 
-    <UAlert
-      v-if="message"
-      color="success"
-      variant="subtle"
-      title="Tersimpan"
-      :description="message"
-    />
-    <UAlert
-      v-if="errorMessage"
-      color="error"
-      variant="subtle"
-      title="Gagal"
-      :description="errorMessage"
-    />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard>
       <template #header>

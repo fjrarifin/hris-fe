@@ -1,12 +1,17 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { exportEmployees, getEmployees } from '../services/employeeService'
 import { apiError } from '../utils/formatters'
 
+const route = useRoute()
 const employees = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 const search = ref('')
+const statusFilter = ref(
+  ['AKTIF', 'NONAKTIF'].includes(route.query.status) ? route.query.status : 'all',
+)
 const page = ref(1)
 const exporting = ref(false)
 const failedPhotos = ref([])
@@ -28,6 +33,10 @@ const filteredEmployees = computed(() => {
 
   return employees.value
     .filter((employee) => {
+      if (statusFilter.value !== 'all' && employee.status !== statusFilter.value) {
+        return false
+      }
+
       if (!keyword) {
         return true
       }
@@ -140,6 +149,17 @@ watch(search, () => {
   page.value = 1
 })
 
+watch(statusFilter, () => {
+  page.value = 1
+})
+
+watch(
+  () => route.query.status,
+  (status) => {
+    statusFilter.value = ['AKTIF', 'NONAKTIF'].includes(status) ? status : 'all'
+  },
+)
+
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   loadEmployees()
@@ -173,23 +193,28 @@ onBeforeUnmount(() => {
 
     <UCard>
       <template #header>
-        <UInput
-          v-model="search"
-          class="w-full sm:max-w-md"
-          placeholder="Cari NIK, nama, email, jabatan, atau departemen..."
-        />
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <UInput
+            v-model="search"
+            class="w-full sm:max-w-md"
+            placeholder="Cari NIK, nama, email, jabatan, atau departemen..."
+          />
+          <select
+            v-model="statusFilter"
+            class="rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+            aria-label="Filter status karyawan"
+          >
+            <option value="all">Semua Status</option>
+            <option value="AKTIF">Aktif</option>
+            <option value="NONAKTIF">Tidak Aktif</option>
+          </select>
+        </div>
       </template>
 
-      <UAlert
-        v-if="errorMessage"
-        color="error"
-        variant="subtle"
-        title="Data tidak dapat dimuat"
-        :description="errorMessage"
-      />
+      <AlertToastBridge :error="errorMessage" />
 
       <UTable
-        v-else
+        v-if="!errorMessage"
         :data="paginatedEmployees"
         :columns="columns"
         :loading="loading"

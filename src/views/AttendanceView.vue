@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
   cancelHrApproval,
@@ -9,8 +10,14 @@ import {
 } from '../services/hrService'
 import { apiError } from '../utils/formatters'
 
+const route = useRoute()
 const auth = useAuthStore()
-const filters = reactive({ start_date: '', end_date: '', departments: [], employee_niks: [] })
+const filters = reactive({
+  start_date: typeof route.query.start_date === 'string' ? route.query.start_date : '',
+  end_date: typeof route.query.end_date === 'string' ? route.query.end_date : '',
+  departments: [],
+  employee_niks: [],
+})
 const options = ref({ departments: [], employees: [] })
 const departmentSearch = ref('')
 const employeeSearch = ref('')
@@ -176,7 +183,13 @@ async function cancelApprovedAbsence(day) {
   }
 }
 
-onMounted(loadOptions)
+onMounted(async () => {
+  await loadOptions()
+
+  if (filters.start_date && filters.end_date) {
+    await load()
+  }
+})
 </script>
 
 <template>
@@ -188,8 +201,7 @@ onMounted(loadOptions)
       </p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
     <UCard title="Filter Penarikan Absensi">
       <form class="space-y-4" @submit.prevent="load()">
         <div class="grid gap-4 lg:grid-cols-4">

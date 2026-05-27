@@ -55,8 +55,7 @@ onMounted(load)
       </p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard>
       <div v-if="loading" class="py-10 text-center text-sm text-muted">Memuat pengajuan...</div>

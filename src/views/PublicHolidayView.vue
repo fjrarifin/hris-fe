@@ -65,8 +65,7 @@ onMounted(load)
       </p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard>
       <div class="flex items-center justify-between gap-4">

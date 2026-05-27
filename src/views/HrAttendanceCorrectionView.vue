@@ -110,8 +110,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard title="Filter Data Absensi Tidak Lengkap">
       <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load(1)">

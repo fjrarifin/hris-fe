@@ -17,4 +17,22 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const hasSession = localStorage.getItem('hris_token')
+    const isLoginPage = window.location.pathname.startsWith('/login')
+
+    if (error.response?.status === 401 && hasSession) {
+      localStorage.removeItem('hris_token')
+
+      if (!isLoginPage) {
+        window.location.assign('/login?session_expired=1')
+      }
+    }
+
+    return Promise.reject(error)
+  },
+)
+
 export default api

@@ -1,9 +1,9 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import EmployeeFormFields from '../components/EmployeeFormFields.vue'
 import { getEmployee, getEmployees, updateEmployee } from '../services/employeeService'
-import { createHrContract, updateHrContract } from '../services/hrService'
+import { createHrContract, getHrContractPdfPreview, updateHrContract } from '../services/hrService'
 import { apiError, formatDate } from '../utils/formatters'
 
 const route = useRoute()
@@ -20,12 +20,15 @@ const contractFormOpen = ref(false)
 const editingContractId = ref(null)
 const savingContract = ref(false)
 const photoLoadFailed = ref(false)
+const documentPreview = reactive({ open: false, title: '', url: '', contractId: null })
+const loadingDocument = ref(false)
 const contractForm = reactive({
   jenis_kontrak: 'PKWT',
   status_kontrak: 'AKTIF',
   start_date: '',
   end_date: '',
   keterangan: '',
+  document: null,
 })
 const hasActiveContract = computed(() =>
   contracts.value.some((contract) => contract.status === 'AKTIF'),
@@ -103,6 +106,7 @@ function clearContractForm() {
   contractForm.start_date = ''
   contractForm.end_date = ''
   contractForm.keterangan = ''
+  contractForm.document = null
 }
 
 function addContract() {
@@ -117,7 +121,44 @@ function editContract(contract) {
   contractForm.start_date = contract.start_date || ''
   contractForm.end_date = contract.end_date || ''
   contractForm.keterangan = contract.description || ''
+  contractForm.document = null
   contractFormOpen.value = true
+}
+
+function selectContractDocument(event) {
+  contractForm.document = event.target.files[0] || null
+}
+
+function closeDocumentPreview() {
+  if (documentPreview.url) URL.revokeObjectURL(documentPreview.url)
+  documentPreview.open = false
+  documentPreview.title = ''
+  documentPreview.url = ''
+  documentPreview.contractId = null
+}
+
+function pdfBlobUrl(contentBase64, mimeType) {
+  const bytes = Uint8Array.from(atob(contentBase64), (character) => character.charCodeAt(0))
+  return URL.createObjectURL(new Blob([bytes], { type: mimeType }))
+}
+
+async function previewDocument(contract) {
+  closeDocumentPreview()
+  documentPreview.open = true
+  documentPreview.title = `Kontrak ke-${contract.contract_number}`
+  documentPreview.contractId = contract.id
+  loadingDocument.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await getHrContractPdfPreview(contract.id)
+    documentPreview.url = pdfBlobUrl(response.data.content_base64, response.data.mime_type)
+  } catch (error) {
+    closeDocumentPreview()
+    errorMessage.value = apiError(error, 'Dokumen kontrak tidak dapat ditampilkan.')
+  } finally {
+    loadingDocument.value = false
+  }
 }
 
 async function saveContract() {
@@ -126,7 +167,20 @@ async function saveContract() {
   errorMessage.value = ''
 
   try {
-    const payload = { ...contractForm }
+    const values = {
+      jenis_kontrak: contractForm.jenis_kontrak,
+      status_kontrak: contractForm.status_kontrak,
+      start_date: contractForm.start_date,
+      end_date: contractForm.end_date,
+      keterangan: contractForm.keterangan || null,
+    }
+    const payload = editingContractId.value ? values : new FormData()
+    if (!editingContractId.value) {
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== null) payload.append(key, value)
+      })
+      payload.append('document', contractForm.document)
+    }
     const response = editingContractId.value
       ? await updateHrContract(editingContractId.value, payload)
       : await createHrContract(nik.value, payload)
@@ -143,6 +197,7 @@ async function saveContract() {
 }
 
 onMounted(loadEmployee)
+onBeforeUnmount(closeDocumentPreview)
 </script>
 
 <template>
@@ -164,8 +219,7 @@ onMounted(loadEmployee)
         </div>
       </div>
 
-      <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-      <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+      <AlertToastBridge :message="message" :error="errorMessage" />
 
       <div v-if="loading" class="py-16 text-center text-sm text-muted">
         Memuat detail karyawan...
@@ -288,6 +342,16 @@ onMounted(loadEmployee)
               class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             />
           </label>
+          <label v-if="!editingContractId" class="text-sm text-muted sm:col-span-2 xl:col-span-5">
+            Dokumen Kontrak (PDF, maksimal 2 MB)
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              required
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+              @change="selectContractDocument"
+            />
+          </label>
         </div>
         <p class="mt-3 text-xs text-muted">
           Durasi kontrak dihitung otomatis dari tanggal mulai sampai tanggal selesai.
@@ -314,6 +378,7 @@ onMounted(loadEmployee)
               <th class="p-3">Durasi</th>
               <th class="p-3">Status</th>
               <th class="p-3">Keterangan</th>
+              <th class="p-3">Dokumen</th>
               <th class="p-3">Aksi</th>
             </tr>
           </thead>
@@ -337,6 +402,18 @@ onMounted(loadEmployee)
               <td class="p-3">{{ contract.description || '-' }}</td>
               <td class="p-3">
                 <UButton
+                  v-if="contract.has_document"
+                  type="button"
+                  size="xs"
+                  variant="soft"
+                  label="Lihat PDF"
+                  :loading="loadingDocument && documentPreview.contractId === contract.id"
+                  @click="previewDocument(contract)"
+                />
+                <span v-else>-</span>
+              </td>
+              <td class="p-3">
+                <UButton
                   type="button"
                   size="xs"
                   color="neutral"
@@ -347,7 +424,7 @@ onMounted(loadEmployee)
               </td>
             </tr>
             <tr v-if="!contracts.length">
-              <td colspan="7" class="p-8 text-center text-muted">
+              <td colspan="8" class="p-8 text-center text-muted">
                 Karyawan ini belum memiliki kontrak. Tambahkan kontrak pertamanya.
               </td>
             </tr>
@@ -355,5 +432,44 @@ onMounted(loadEmployee)
         </table>
       </div>
     </UCard>
+
+    <div
+      v-if="documentPreview.open"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="documentPreview.title"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup dokumen kontrak"
+        @click="closeDocumentPreview"
+      ></button>
+      <UCard class="relative h-[85vh] w-full overflow-hidden lg:w-2/3">
+        <div class="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-semibold text-highlighted">{{ documentPreview.title }}</h3>
+            <p class="mt-1 text-sm text-muted">Pratinjau dokumen PDF kontrak karyawan.</p>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            aria-label="Tutup"
+            @click="closeDocumentPreview"
+          />
+        </div>
+        <div v-if="loadingDocument" class="py-16 text-center text-sm text-muted">
+          Memuat dokumen kontrak...
+        </div>
+        <iframe
+          v-else-if="documentPreview.url"
+          :src="documentPreview.url"
+          :title="documentPreview.title"
+          class="h-[calc(85vh-6rem)] w-full rounded-lg border border-default bg-white"
+        ></iframe>
+      </UCard>
+    </div>
   </section>
 </template>

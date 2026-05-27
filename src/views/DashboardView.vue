@@ -13,8 +13,10 @@ const dashboard = ref(null)
 const hrDashboard = ref(null)
 const loading = ref(false)
 const errorMessage = ref('')
-const incompleteAttendancePage = ref(1)
-const incompleteAttendanceItemsPerPage = 10
+const selectedAttendanceDepartment = ref(null)
+const attendanceSearch = ref('')
+const selectedDailyStatus = ref(null)
+const dailyStatusSearch = ref('')
 
 const adminStatistics = [
   {
@@ -105,6 +107,15 @@ const hrPrimaryStatistics = computed(() => {
       description: 'Karyawan dengan status aktif saat ini',
       badge: 'Aktif',
       color: 'primary',
+      to: { name: 'employees', query: { status: 'AKTIF' } },
+    },
+    {
+      title: 'Kontrak Akan Habis',
+      value: summary.expiring_contracts,
+      description: 'Kontrak berakhir dalam dua bulan ke depan',
+      badge: 'Kontrak',
+      color: 'warning',
+      to: { name: 'hr-contracts', query: { status: 'expiring_two_months' } },
     },
     {
       title: 'Hadir Hari Ini',
@@ -112,24 +123,19 @@ const hrPrimaryStatistics = computed(() => {
       description: 'Karyawan terhubung yang melakukan scan hari ini',
       badge: attendance.unmapped_pin_count ? `${attendance.unmapped_pin_count} belum map` : 'Hadir',
       color: attendance.unmapped_pin_count ? 'warning' : 'success',
+      to: {
+        name: 'attendance',
+        query: { start_date: hrDashboard.value.as_of_date, end_date: hrDashboard.value.as_of_date },
+      },
     },
-  ]
-})
-
-const hrAbsenceStatistics = computed(() => {
-  if (!hrDashboard.value) {
-    return []
-  }
-
-  const summary = hrDashboard.value.summary
-
-  return [
     {
       title: 'PH Hari Ini',
       value: summary.public_holiday_today,
       description: 'Pengambilan PH disetujui HR',
       badge: 'PH',
       color: 'info',
+      clickable: true,
+      modalType: 'ph',
     },
     {
       title: 'Cuti Hari Ini',
@@ -137,6 +143,26 @@ const hrAbsenceStatistics = computed(() => {
       description: 'Cuti yang telah disetujui HR',
       badge: 'Cuti',
       color: 'warning',
+      clickable: true,
+      modalType: 'leave',
+    },
+    {
+      title: 'Izin Hari Ini',
+      value: summary.permission_today,
+      description: 'Izin yang telah disetujui HR',
+      badge: 'Izin',
+      color: 'neutral',
+      clickable: true,
+      modalType: 'permission',
+    },
+    {
+      title: 'Sakit Hari Ini',
+      value: summary.sick_today,
+      description: 'Sakit yang telah disetujui HR',
+      badge: 'Sakit',
+      color: 'error',
+      clickable: true,
+      modalType: 'sick',
     },
   ]
 })
@@ -149,14 +175,48 @@ const statistics = computed(() => {
   return adminStatistics
 })
 
-const incompleteAttendanceRecords = computed(
-  () => hrDashboard.value?.yesterday_incomplete_attendance.records || [],
-)
+const displayedAttendanceEmployees = computed(() => {
+  const keyword = attendanceSearch.value.trim().toLowerCase()
+  const employees = selectedAttendanceDepartment.value?.employees || []
 
-const paginatedIncompleteAttendance = computed(() => {
-  const start = (incompleteAttendancePage.value - 1) * incompleteAttendanceItemsPerPage
+  return employees.filter((employee) => matchesEmployeeSearch(employee, keyword))
+})
 
-  return incompleteAttendanceRecords.value.slice(start, start + incompleteAttendanceItemsPerPage)
+const dailyStatusModal = computed(() => {
+  if (!hrDashboard.value || !selectedDailyStatus.value) {
+    return null
+  }
+
+  return {
+    ph: {
+      title: 'PH Hari Ini',
+      records: hrDashboard.value.public_holiday_today,
+      empty: 'Tidak ada karyawan mengambil PH hari ini.',
+    },
+    leave: {
+      title: 'Cuti Hari Ini',
+      records: hrDashboard.value.leave_today,
+      empty: 'Tidak ada karyawan cuti hari ini.',
+    },
+    permission: {
+      title: 'Izin Hari Ini',
+      records: hrDashboard.value.permission_today,
+      empty: 'Tidak ada karyawan izin hari ini.',
+    },
+    sick: {
+      title: 'Sakit Hari Ini',
+      records: hrDashboard.value.sick_today,
+      empty: 'Tidak ada karyawan sakit hari ini.',
+    },
+  }[selectedDailyStatus.value]
+})
+
+const displayedDailyStatusRecords = computed(() => {
+  const keyword = dailyStatusSearch.value.trim().toLowerCase()
+
+  return (dailyStatusModal.value?.records || []).filter((record) =>
+    matchesEmployeeSearch(record, keyword),
+  )
 })
 
 async function loadStaffDashboard() {
@@ -180,7 +240,6 @@ async function loadHrDashboard() {
   try {
     const { data } = await getHrDashboard()
     hrDashboard.value = data
-    incompleteAttendancePage.value = 1
   } catch (error) {
     errorMessage.value = apiError(error, 'Dashboard HR tidak dapat dimuat.')
   } finally {
@@ -198,10 +257,6 @@ async function loadDashboard() {
 
 function formatTime(value) {
   return value ? `${value.slice(0, 5)} WIB` : '-'
-}
-
-function missingScanLabel(record) {
-  return record.missing_scan_in ? 'Tidak absen masuk' : 'Tidak absen pulang'
 }
 
 function subordinateAttendanceLabel(status) {
@@ -254,6 +309,48 @@ function approvalTypeLabel(type) {
   return { leave: 'Cuti', ph: 'PH', permission: 'Izin / Sakit' }[type] || type
 }
 
+function openAttendanceDepartment(department) {
+  selectedAttendanceDepartment.value = department
+  attendanceSearch.value = ''
+}
+
+function closeAttendanceDepartment() {
+  selectedAttendanceDepartment.value = null
+  attendanceSearch.value = ''
+}
+
+function openDailyStatus(type) {
+  if (!type) return
+
+  selectedDailyStatus.value = type
+  dailyStatusSearch.value = ''
+}
+
+function closeDailyStatus() {
+  selectedDailyStatus.value = null
+  dailyStatusSearch.value = ''
+}
+
+function matchesEmployeeSearch(employee, keyword) {
+  if (!keyword) return true
+
+  return [employee.nik, employee.name, employee.position, employee.department].some((value) =>
+    value?.toLowerCase().includes(keyword),
+  )
+}
+
+function dailyStatusDetail(record) {
+  if (selectedDailyStatus.value === 'leave') {
+    return record.leave_type
+  }
+
+  return selectedDailyStatus.value === 'ph'
+    ? 'Public Holiday'
+    : selectedDailyStatus.value === 'sick'
+      ? 'Sakit'
+      : 'Izin'
+}
+
 onMounted(loadDashboard)
 </script>
 
@@ -299,13 +396,7 @@ onMounted(loadDashboard)
       </div>
     </UCard>
 
-    <UAlert
-      v-if="errorMessage"
-      color="error"
-      variant="subtle"
-      title="Dashboard tidak dapat dimuat"
-      :description="errorMessage"
-    />
+    <AlertToastBridge :error="errorMessage" />
 
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
@@ -425,22 +516,16 @@ onMounted(loadDashboard)
     </UCard>
 
     <div v-if="isHr && hrDashboard" class="space-y-4">
-      <div class="grid gap-4 lg:grid-cols-2">
+      <div class="grid gap-4 sm:grid-cols-2">
         <StatCard
           v-for="statistic in hrPrimaryStatistics"
           :key="statistic.title"
           v-bind="statistic"
-        />
-      </div>
-
-      <div class="grid gap-4 xl:grid-cols-4">
-        <StatCard
-          v-for="statistic in hrAbsenceStatistics"
-          :key="statistic.title"
-          v-bind="statistic"
+          @click="openDailyStatus(statistic.modalType)"
         />
 
         <UCard
+          class="h-full"
           :title="`Lembur Hari Ini (${hrDashboard.overtime_today.length})`"
           description="Karyawan dengan pengajuan lembur aktif hari ini."
         >
@@ -468,36 +553,6 @@ onMounted(loadDashboard)
             </p>
           </div>
         </UCard>
-
-        <UCard
-          :title="`Kontrak Akan Habis (${hrDashboard.expiring_contracts.records.length})`"
-          :description="`Dua bulan ke depan sampai ${formatDate(hrDashboard.expiring_contracts.through_date)}.`"
-        >
-          <div class="max-h-56 space-y-3 overflow-y-auto">
-            <div
-              v-for="contract in hrDashboard.expiring_contracts.records"
-              :key="contract.id"
-              class="rounded-lg border border-default p-3 text-sm"
-            >
-              <p class="font-medium text-highlighted">{{ contract.name }}</p>
-              <p class="mt-1 text-muted">{{ contract.department }} - {{ contract.nik }}</p>
-              <div class="mt-2 flex items-center justify-between gap-2">
-                <span class="text-muted">{{ formatDate(contract.end_date) }}</span>
-                <UBadge
-                  color="warning"
-                  variant="subtle"
-                  :label="`${contract.remaining_days} hari`"
-                />
-              </div>
-            </div>
-            <p
-              v-if="!hrDashboard.expiring_contracts.records.length"
-              class="py-3 text-sm text-muted"
-            >
-              Tidak ada kontrak berakhir dalam dua bulan ke depan.
-            </p>
-          </div>
-        </UCard>
       </div>
 
       <UAlert
@@ -509,192 +564,165 @@ onMounted(loadDashboard)
       />
 
       <UCard
-        v-if="hrDashboard.monthly_attendance_monitoring.visible"
-        title="Monitoring Minimum Kehadiran Bulanan"
-        :description="`Tampil mulai tanggal 26. Target: ${hrDashboard.monthly_attendance_monitoring.ideal_attendance_days} hari hadir dan ${hrDashboard.monthly_attendance_monitoring.minimum_work_duration}. PH dan Cuti disetujui dihitung 8 jam.`"
+        title="Hadir per Departemen"
+        description="Klik departemen untuk melihat karyawan yang hadir."
       >
-        <UAlert
-          v-if="!hrDashboard.monthly_attendance_monitoring.records.length"
-          color="success"
-          variant="subtle"
-          description="Seluruh karyawan telah mencapai minimum hari dan durasi kerja pada periode berjalan."
-        />
-        <div v-else class="max-h-80 overflow-auto">
-          <table class="w-full text-sm">
-            <thead class="text-left text-muted">
-              <tr>
-                <th class="p-3">Karyawan</th>
-                <th class="p-3">Departemen</th>
-                <th class="p-3">Kehadiran</th>
-                <th class="p-3">Durasi</th>
-                <th class="p-3">Perhatian</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="record in hrDashboard.monthly_attendance_monitoring.records"
-                :key="record.nik"
-                class="border-t border-default"
-              >
-                <td class="p-3">
-                  <p class="font-medium text-highlighted">{{ record.name }}</p>
-                  <p class="text-xs text-muted">{{ record.nik }}</p>
-                </td>
-                <td class="p-3">{{ record.department }}</td>
-                <td class="p-3">{{ record.total_attendance }} hari</td>
-                <td class="p-3">{{ record.total_work_duration }}</td>
-                <td class="p-3">
-                  <p v-if="record.attendance_shortage" class="text-warning">
-                    Kurang {{ record.attendance_shortage }} hari
-                  </p>
-                  <p v-if="record.work_duration_shortage_minutes" class="text-warning">
-                    Kurang {{ record.work_duration_shortage }}
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="space-y-3">
+          <button
+            v-for="department in hrDashboard.attendance.by_department"
+            :key="department.department"
+            type="button"
+            class="flex w-full items-center justify-between rounded-lg border border-default px-3 py-2 text-left transition hover:border-primary/50 hover:bg-elevated/50"
+            @click="openAttendanceDepartment(department)"
+          >
+            <span class="text-sm text-highlighted">{{ department.department }}</span>
+            <UBadge color="success" variant="subtle" :label="`${department.total} orang`" />
+          </button>
+          <p v-if="!hrDashboard.attendance.by_department.length" class="py-4 text-sm text-muted">
+            Belum ada kehadiran yang terhubung ke data karyawan.
+          </p>
         </div>
       </UCard>
 
-      <div class="grid gap-4 lg:grid-cols-3">
-        <UCard title="Hadir per Departemen" description="Karyawan dengan PIN yang telah terhubung.">
-          <div class="space-y-3">
-            <div
-              v-for="department in hrDashboard.attendance.by_department"
-              :key="department.department"
-              class="flex items-center justify-between rounded-lg border border-default px-3 py-2"
-            >
-              <span class="text-sm text-highlighted">{{ department.department }}</span>
-              <UBadge color="success" variant="subtle" :label="`${department.total} orang`" />
+      <div
+        v-if="selectedAttendanceDepartment"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="`Karyawan hadir departemen ${selectedAttendanceDepartment.department}`"
+      >
+        <button
+          type="button"
+          class="absolute inset-0 bg-slate-950/60"
+          aria-label="Tutup detail kehadiran departemen"
+          @click="closeAttendanceDepartment"
+        ></button>
+        <UCard class="relative max-h-[80vh] w-full overflow-hidden lg:w-2/3">
+          <div class="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-highlighted">
+                Kehadiran {{ selectedAttendanceDepartment.department }}
+              </h3>
+              <p class="mt-1 text-sm text-muted">
+                {{ selectedAttendanceDepartment.total }} karyawan hadir hari ini.
+              </p>
             </div>
-            <p v-if="!hrDashboard.attendance.by_department.length" class="py-4 text-sm text-muted">
-              Belum ada kehadiran yang terhubung ke data karyawan.
-            </p>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              aria-label="Tutup"
+              @click="closeAttendanceDepartment"
+            />
           </div>
-        </UCard>
-
-        <UCard
-          class="lg:col-span-2"
-          title="Manager Hadir Hari Ini"
-          description="Berdasarkan posisi dan scan absensi hari ini."
-        >
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div
-              v-for="employee in hrDashboard.attendance.managers_present"
-              :key="employee.nik"
-              class="rounded-lg border border-default p-3 text-sm"
-            >
-              <p class="font-medium text-highlighted">{{ employee.name }}</p>
-              <p class="mt-1 text-muted">{{ employee.department }} - {{ employee.position }}</p>
-              <div
-                class="mt-3 flex items-start justify-between gap-8 rounded-lg border border-default/60 bg-elevated/35 px-3 py-2"
-              >
-                <div>
-                  <p class="text-xs text-muted">Masuk</p>
-                  <p class="mt-1 font-medium text-highlighted">
-                    {{ formatTime(employee.scan_in) }}
-                  </p>
-                </div>
-                <div class="text-right">
-                  <p class="text-xs text-muted">Keluar</p>
-                  <p class="mt-1 font-medium text-highlighted">
-                    {{ employee.scan_out ? formatTime(employee.scan_out) : 'Belum scan' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p
-              v-if="!hrDashboard.attendance.managers_present.length"
-              class="py-3 text-sm text-muted"
-            >
-              Belum ada Manager terpetakan hadir.
-            </p>
+          <input
+            v-model="attendanceSearch"
+            type="search"
+            placeholder="Cari nama, NIK, posisi, atau departemen..."
+            class="mb-4 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+          />
+          <div class="max-h-[60vh] overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead class="sticky top-0 bg-default text-left text-muted">
+                <tr>
+                  <th class="p-3">Karyawan</th>
+                  <th class="p-3">Posisi</th>
+                  <th class="p-3">Masuk</th>
+                  <th class="p-3">Pulang</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="employee in displayedAttendanceEmployees"
+                  :key="employee.nik"
+                  class="border-t border-default"
+                >
+                  <td class="p-3">
+                    <p class="font-medium text-highlighted">{{ employee.name }}</p>
+                    <p class="text-xs text-muted">{{ employee.nik }}</p>
+                  </td>
+                  <td class="p-3">{{ employee.position }}</td>
+                  <td class="p-3">{{ formatTime(employee.scan_in) }}</td>
+                  <td class="p-3">{{ formatTime(employee.scan_out) }}</td>
+                </tr>
+                <tr v-if="!displayedAttendanceEmployees.length">
+                  <td colspan="4" class="p-6 text-center text-muted">Karyawan tidak ditemukan.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </UCard>
       </div>
 
-      <UCard
-        title="Absensi Belum Lengkap Kemarin"
-        :description="`Data absensi ${formatDate(hrDashboard.yesterday_incomplete_attendance.date)} dengan salah satu scan belum lengkap.`"
+      <div
+        v-if="dailyStatusModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="dailyStatusModal.title"
       >
-        <UAlert
-          v-if="hrDashboard.yesterday_incomplete_attendance.unlinked_pin_count"
-          color="warning"
-          variant="subtle"
-          class="mb-4"
-          :description="`${hrDashboard.yesterday_incomplete_attendance.unlinked_pin_count} karyawan terjadwal belum memiliki PIN sehingga belum dapat diperiksa absensinya.`"
-        />
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead class="text-left text-muted">
-              <tr>
-                <th class="p-3">Karyawan</th>
-                <th class="p-3">Departemen</th>
-                <th class="p-3">Masuk</th>
-                <th class="p-3">Pulang</th>
-                <th class="p-3">Temuan</th>
-                <th class="p-3">Aksi</th>
-                <th class="p-3">Keterangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="item in paginatedIncompleteAttendance"
-                :key="item.nik"
-                class="border-t border-default"
-              >
-                <td class="p-3 font-medium text-highlighted">{{ item.name }}</td>
-                <td class="p-3">{{ item.department }}</td>
-                <td class="p-3">{{ formatTime(item.scan_in) }}</td>
-                <td class="p-3">{{ formatTime(item.scan_out) }}</td>
-                <td class="p-3">
-                  <UBadge color="warning" variant="subtle" :label="missingScanLabel(item)" />
-                </td>
-                <td class="p-3">
-                  <UButton
-                    :to="{
-                      name: 'hr-attendance-corrections',
-                      query: {
-                        date: hrDashboard.yesterday_incomplete_attendance.date,
-                        nik: item.nik,
-                      },
-                    }"
-                    label="Koreksi"
-                    size="xs"
-                    variant="soft"
-                    icon="i-lucide-pencil-line"
-                  />
-                </td>
-                <td class="p-3">
-                  <UBadge
-                    color="success"
-                    variant="subtle"
-                    :label="item.whatsapp_notification_status"
-                  />
-                </td>
-              </tr>
-              <tr v-if="!incompleteAttendanceRecords.length">
-                <td colspan="7" class="p-6 text-center text-muted">
-                  Tidak ada absensi terpetakan yang belum lengkap kemarin.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div
-          v-if="incompleteAttendanceRecords.length > incompleteAttendanceItemsPerPage"
-          class="mt-4 flex justify-end border-t border-default pt-4"
-        >
-          <UPagination
-            v-model:page="incompleteAttendancePage"
-            :total="incompleteAttendanceRecords.length"
-            :items-per-page="incompleteAttendanceItemsPerPage"
-            :sibling-count="1"
-            show-controls
+        <button
+          type="button"
+          class="absolute inset-0 bg-slate-950/60"
+          aria-label="Tutup detail status hari ini"
+          @click="closeDailyStatus"
+        ></button>
+        <UCard class="relative max-h-[80vh] w-full overflow-hidden lg:w-2/3">
+          <div class="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-highlighted">{{ dailyStatusModal.title }}</h3>
+              <p class="mt-1 text-sm text-muted">
+                {{ dailyStatusModal.records.length }} karyawan tercatat hari ini.
+              </p>
+            </div>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              aria-label="Tutup"
+              @click="closeDailyStatus"
+            />
+          </div>
+          <input
+            v-model="dailyStatusSearch"
+            type="search"
+            placeholder="Cari nama, NIK, posisi, atau departemen..."
+            class="mb-4 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
           />
-        </div>
-      </UCard>
+          <div class="max-h-[60vh] overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead class="sticky top-0 bg-default text-left text-muted">
+                <tr>
+                  <th class="p-3">Karyawan</th>
+                  <th class="p-3">Departemen</th>
+                  <th class="p-3">Posisi</th>
+                  <th class="p-3">Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="record in displayedDailyStatusRecords"
+                  :key="record.nik"
+                  class="border-t border-default"
+                >
+                  <td class="p-3">
+                    <p class="font-medium text-highlighted">{{ record.name }}</p>
+                    <p class="text-xs text-muted">{{ record.nik }}</p>
+                  </td>
+                  <td class="p-3">{{ record.department }}</td>
+                  <td class="p-3">{{ record.position }}</td>
+                  <td class="p-3">{{ dailyStatusDetail(record) }}</td>
+                </tr>
+                <tr v-if="!displayedDailyStatusRecords.length">
+                  <td colspan="4" class="p-6 text-center text-muted">
+                    {{ dailyStatusModal.empty }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </UCard>
+      </div>
     </div>
 
     <div v-if="isStaff && dashboard" class="grid gap-4 lg:grid-cols-3">

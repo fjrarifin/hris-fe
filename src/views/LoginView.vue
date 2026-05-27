@@ -15,6 +15,14 @@ const loading = ref(false)
 const errorMessage = ref('')
 const activeSessionMessage = ref('')
 const showPassword = ref(false)
+const resetSuccessMessage =
+  route.query.password_reset === 'success'
+    ? 'Password kamu sudah diganti, silakan login menggunakan password terbaru.'
+    : ''
+const expiredSessionMessage =
+  route.query.session_expired === '1'
+    ? 'Sesi Anda berakhir karena tidak ada aktivitas selama 30 menit. Silakan login kembali.'
+    : ''
 
 function formatSessionTime(value) {
   if (!value) return '-'
@@ -92,31 +100,10 @@ async function submit() {
           <p class="mt-1 text-sm text-muted">Masuk menggunakan NIK dan password Anda.</p>
         </div>
 
-        <UAlert
-          v-if="route.query.password_reset === 'success'"
-          class="mb-5"
-          color="success"
-          variant="subtle"
-          title="Password berhasil diganti"
-          description="Password kamu sudah diganti, silakan login menggunakan password terbaru."
-        />
-
-        <UAlert
-          v-if="activeSessionMessage"
-          class="mb-5"
-          color="warning"
-          variant="subtle"
-          title="Akun sedang aktif"
-          :description="activeSessionMessage"
-        />
-
-        <UAlert
-          v-if="errorMessage"
-          class="mb-5"
-          color="error"
-          variant="subtle"
-          title="Login gagal"
-          :description="errorMessage"
+        <AlertToastBridge
+          :message="resetSuccessMessage"
+          :warning="activeSessionMessage || expiredSessionMessage"
+          :error="errorMessage"
         />
 
         <form class="space-y-5" @submit.prevent="submit">

@@ -20,6 +20,10 @@ export function updateHrContract(contractId, payload) {
   return api.put(`/hr/contracts/records/${contractId}`, payload)
 }
 
+export function getHrContractPdfPreview(contractId) {
+  return api.get(`/hr/contracts/records/${contractId}/pdf-preview`)
+}
+
 export function getHrAttendance(params) {
   return api.get('/hr/attendance', { params })
 }
@@ -52,12 +56,16 @@ export function cancelHrApproval(type, id, payload) {
   return api.post(`/hr/approvals/${type}/${id}/cancel`, payload)
 }
 
-export function getHrScheduleDepartments(params) {
+export function getHrSchedules(params) {
   return api.get('/hr/schedules', { params })
 }
 
-export function getHrDepartmentEmployees(params) {
-  return api.get('/hr/schedules/department', { params })
+export function getHrScheduleOptions() {
+  return api.get('/hr/schedules/options')
+}
+
+export function downloadHrScheduleTemplate(params) {
+  return api.get('/hr/schedules/template', { params, responseType: 'blob' })
 }
 
 export function getHrEmployeeSchedule(nik, params) {

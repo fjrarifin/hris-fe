@@ -68,8 +68,7 @@ onMounted(load)
       <p class="mt-1 text-sm text-muted">Ajukan izin atau sakit kepada atasan langsung Anda.</p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard title="Pengajuan Baru">
       <form class="grid gap-4 lg:grid-cols-2" @submit.prevent="submit">

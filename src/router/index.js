@@ -7,6 +7,7 @@ import VerifyOtpView from '../views/VerifyOtpView.vue'
 import ResetPasswordView from '../views/ResetPasswordView.vue'
 import ChangePasswordView from '../views/ChangePasswordView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import HrInternalDashboardView from '../views/HrInternalDashboardView.vue'
 import EmployeeView from '../views/EmployeeView.vue'
 import EmployeeCreateView from '../views/EmployeeCreateView.vue'
 import EmployeeDetailView from '../views/EmployeeDetailView.vue'
@@ -89,6 +90,16 @@ const router = createRouter({
           name: 'hr-dashboard',
           component: DashboardView,
           meta: { title: 'Dashboard HR', levels: [2], menuKey: 'dashboard' },
+        },
+        {
+          path: 'hr/internal-dashboard',
+          name: 'hr-internal-dashboard',
+          component: HrInternalDashboardView,
+          meta: {
+            title: 'Dashboard Internal',
+            levels: [2],
+            menuKey: 'hr-internal-dashboard',
+          },
         },
         {
           path: 'staff/dashboard',

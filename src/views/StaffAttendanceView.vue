@@ -66,13 +66,7 @@ onMounted(load)
       description="Hubungi HR agar PIN mesin absensi terhubung ke data karyawan Anda."
     />
 
-    <UAlert
-      v-if="errorMessage"
-      color="error"
-      variant="subtle"
-      title="Data absensi gagal dimuat"
-      :description="errorMessage"
-    />
+    <AlertToastBridge :error="errorMessage" />
 
     <UCard title="Filter Periode">
       <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load">

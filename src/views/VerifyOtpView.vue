@@ -10,6 +10,7 @@ const otp = ref('')
 const loading = ref(false)
 const resending = ref(false)
 const errorMessage = ref('')
+const message = ref('')
 const statusMessage = ref('Kode OTP telah dikirim ke nomor telepon terdaftar.')
 const remainingSeconds = ref(0)
 let timer
@@ -58,6 +59,7 @@ async function resend() {
     sessionStorage.removeItem('hris_reset_otp')
     sessionStorage.setItem('hris_reset_expires_at', String(Date.now() + data.expires_in * 1000))
     statusMessage.value = 'Kode OTP baru telah dikirim. Berlaku selama 2 menit.'
+    message.value = statusMessage.value
     updateTimer()
   } catch (error) {
     errorMessage.value =
@@ -92,14 +94,7 @@ onUnmounted(() => {
         <p class="mt-3 text-sm font-semibold text-primary">Berlaku dalam {{ timerText }}</p>
       </div>
 
-      <UAlert
-        v-if="errorMessage"
-        class="mb-5"
-        color="error"
-        variant="subtle"
-        title="Verifikasi gagal"
-        :description="errorMessage"
-      />
+      <AlertToastBridge :message="message" :error="errorMessage" />
 
       <form class="space-y-5" @submit.prevent="submit">
         <div class="space-y-2">

@@ -1,31 +1,37 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 
-defineProps({
+const props = defineProps({
   title: String,
   value: [String, Number],
   description: String,
   badge: String,
   color: String,
   to: {
-    type: String,
-    default: '',
+    type: [String, Object],
+    default: null,
   },
+  clickable: Boolean,
+  modalType: String,
 })
+
+defineEmits(['click'])
 </script>
 
 <template>
   <component
-    :is="to ? RouterLink : 'div'"
-    :to="to || undefined"
-    class="block rounded-xl"
+    :is="props.to ? RouterLink : props.clickable ? 'button' : 'div'"
+    :to="props.to || undefined"
+    :type="props.clickable && !props.to ? 'button' : undefined"
+    class="block w-full rounded-xl text-left"
     :class="
-      to
+      props.to || props.clickable
         ? 'transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-primary'
         : ''
     "
+    @click="$emit('click')"
   >
-    <UCard :class="to ? 'h-full transition hover:border-primary/50' : ''">
+    <UCard :class="props.to || props.clickable ? 'h-full transition hover:border-primary/50' : ''">
       <div class="flex items-start justify-between gap-3">
         <div>
           <p class="text-sm text-muted">{{ title }}</p>

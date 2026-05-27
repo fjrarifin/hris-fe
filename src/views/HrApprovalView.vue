@@ -86,8 +86,7 @@ watch(
         Verifikasi akhir HRD untuk pengajuan yang telah masuk ke antrean persetujuan.
       </p>
     </div>
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard title="Filter Status">
       <form class="flex flex-col gap-3 sm:flex-row sm:items-end" @submit.prevent="load">

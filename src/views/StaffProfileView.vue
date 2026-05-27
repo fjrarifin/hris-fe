@@ -67,6 +67,7 @@ const personalFields = computed(() => [
     value: formatDate(data.value?.employee?.tanggal_lahir),
   },
   { label: 'Jenis Kelamin', value: data.value?.employee?.jenis_kelamin },
+  { label: 'Golongan Darah', value: data.value?.employee?.golongan_darah },
   { label: 'Alamat', value: data.value?.employee?.alamat },
   {
     label: 'Status Pernikahan',
@@ -215,8 +216,7 @@ onBeforeUnmount(clearPhotoSelection)
       <p class="mt-1 text-sm text-muted">Informasi personal yang tercatat pada HRIS.</p>
     </div>
 
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat profil...</div>
 
     <template v-if="!loading && data">

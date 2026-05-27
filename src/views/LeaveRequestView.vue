@@ -64,8 +64,7 @@ onMounted(load)
       <p class="mt-1 text-sm text-muted">Ajukan cuti maksimal 5 hari untuk satu pengajuan.</p>
     </div>
 
-    <UAlert v-if="message" color="success" variant="subtle" :description="message" />
-    <UAlert v-if="errorMessage" color="error" variant="subtle" :description="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <div class="grid gap-4 sm:grid-cols-3">
       <UCard v-for="card in balanceCards" :key="card.label">
