@@ -71,3 +71,19 @@ export function createOvertime(payload) {
 export function deleteOvertime(id) {
   return api.delete(`/staff/overtime/${id}`)
 }
+
+export function getTeamSchedules(params) {
+  return api.get('/staff/team-schedules', { params })
+}
+
+export function getTeamEmployeeSchedule(nik, params) {
+  return api.get(`/staff/team-schedules/employees/${encodeURIComponent(nik)}`, { params })
+}
+
+export function saveTeamEmployeeSchedule(nik, payload) {
+  return api.put(`/staff/team-schedules/employees/${encodeURIComponent(nik)}`, payload)
+}
+
+export function uploadTeamSchedule(payload) {
+  return api.post('/staff/team-schedules/upload', payload)
+}

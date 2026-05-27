@@ -69,6 +69,7 @@ const staffStatistics = computed(() => {
       description: `${formatDate(period.start)} - ${formatDate(period.end)}`,
       badge: 'Hadir',
       color: 'success',
+      to: '/staff/attendance',
     },
     {
       title: 'Saldo Cuti',
@@ -76,6 +77,7 @@ const staffStatistics = computed(() => {
       description: 'Saldo cuti yang masih tersedia',
       badge: 'Cuti',
       color: 'warning',
+      to: '/staff/leave',
     },
     {
       title: 'Saldo PH',
@@ -83,6 +85,7 @@ const staffStatistics = computed(() => {
       description: 'Public Holiday dapat diajukan',
       badge: 'PH',
       color: 'info',
+      to: '/staff/public-holiday',
     },
   ]
 })
@@ -201,6 +204,56 @@ function missingScanLabel(record) {
   return record.missing_scan_in ? 'Tidak absen masuk' : 'Tidak absen pulang'
 }
 
+function subordinateAttendanceLabel(status) {
+  return (
+    {
+      checked_out: 'Sudah Pulang',
+      present: 'Sedang Masuk',
+      missing_in: 'Scan Masuk Kosong',
+      absent: 'Belum Masuk',
+    }[status] || 'Belum Masuk'
+  )
+}
+
+function subordinateAttendanceColor(status) {
+  return (
+    {
+      checked_out: 'success',
+      present: 'success',
+      missing_in: 'warning',
+      absent: 'neutral',
+    }[status] || 'neutral'
+  )
+}
+
+function weeklyAttendanceLabel(status) {
+  return (
+    {
+      checked_out: 'Hadir',
+      present: 'Sedang Masuk',
+      missing_in: 'Scan Masuk Kosong',
+      absent: 'Tidak Hadir',
+      future: 'Belum Berjalan',
+    }[status] || 'Tidak Hadir'
+  )
+}
+
+function weeklyAttendanceColor(status) {
+  return (
+    {
+      checked_out: 'success',
+      present: 'success',
+      missing_in: 'warning',
+      absent: 'error',
+      future: 'neutral',
+    }[status] || 'neutral'
+  )
+}
+
+function approvalTypeLabel(type) {
+  return { leave: 'Cuti', ph: 'PH', permission: 'Izin / Sakit' }[type] || type
+}
+
 onMounted(loadDashboard)
 </script>
 
@@ -259,6 +312,117 @@ onMounted(loadDashboard)
     <div v-else-if="!isHr" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard v-for="statistic in statistics" :key="statistic.title" v-bind="statistic" />
     </div>
+
+    <UCard
+      v-if="isStaff && dashboard && dashboard.has_subordinates"
+      :title="`Bawahan Langsung (${dashboard.subordinates_today.length})`"
+      description="Status kehadiran bawahan berdasarkan scan absensi hari ini."
+    >
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div
+          v-for="employee in dashboard.subordinates_today"
+          :key="employee.nik"
+          class="rounded-xl border border-default p-4 text-sm"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="truncate font-medium text-highlighted">{{ employee.name }}</p>
+              <p class="mt-1 text-xs text-muted">{{ employee.nik }}</p>
+            </div>
+            <UBadge
+              :color="subordinateAttendanceColor(employee.attendance_status)"
+              variant="subtle"
+              :label="subordinateAttendanceLabel(employee.attendance_status)"
+            />
+          </div>
+          <p class="mt-3 text-muted">
+            {{ employee.position }} - {{ employee.department }}
+            <span v-if="employee.unit !== '-'"> / {{ employee.unit }}</span>
+          </p>
+          <div
+            class="mt-3 flex items-start justify-between gap-8 rounded-lg border border-default/60 bg-elevated/35 px-3 py-2"
+          >
+            <div>
+              <p class="text-xs text-muted">Masuk</p>
+              <p class="mt-1 font-medium text-highlighted">{{ formatTime(employee.scan_in) }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-muted">Keluar</p>
+              <p class="mt-1 font-medium text-highlighted">{{ formatTime(employee.scan_out) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </UCard>
+
+    <UCard
+      v-if="isStaff && dashboard"
+      title="Kehadiran Minggu Ini"
+      :description="`${formatDate(dashboard.weekly_attendance.start_date)} - ${formatDate(dashboard.weekly_attendance.end_date)}. Total jam kerja sampai hari ini: ${dashboard.weekly_attendance.total_duration}.`"
+    >
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-muted">
+            <tr>
+              <th class="p-3">Tanggal</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Masuk</th>
+              <th class="p-3">Keluar</th>
+              <th class="p-3">Durasi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="day in dashboard.weekly_attendance.days"
+              :key="day.date"
+              class="border-t border-default"
+            >
+              <td class="p-3 font-medium text-highlighted">{{ formatDate(day.date) }}</td>
+              <td class="p-3">
+                <UBadge
+                  :color="weeklyAttendanceColor(day.status)"
+                  variant="subtle"
+                  :label="weeklyAttendanceLabel(day.status)"
+                />
+              </td>
+              <td class="p-3">{{ formatTime(day.scan_in) }}</td>
+              <td class="p-3">{{ formatTime(day.scan_out) }}</td>
+              <td class="p-3">{{ day.duration }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </UCard>
+
+    <UCard
+      v-if="isStaff && dashboard && dashboard.has_subordinates"
+      :title="`Approval Bawahan (${dashboard.pending_subordinate_approvals.length})`"
+      description="Pengajuan bawahan langsung yang menunggu keputusan Anda."
+    >
+      <div v-if="dashboard.pending_subordinate_approvals.length" class="space-y-3">
+        <div
+          v-for="item in dashboard.pending_subordinate_approvals"
+          :key="`${item.type}-${item.id}`"
+          class="flex flex-col justify-between gap-3 rounded-xl border border-default p-4 text-sm sm:flex-row sm:items-center"
+        >
+          <div>
+            <div class="flex items-center gap-2">
+              <UBadge color="primary" variant="subtle" :label="approvalTypeLabel(item.type)" />
+              <p class="font-medium text-highlighted">{{ item.employee_name }}</p>
+            </div>
+            <p class="mt-2 text-muted">
+              {{ item.label }} - {{ formatDate(item.start_date) }}
+              <span v-if="item.end_date">s.d. {{ formatDate(item.end_date) }}</span>
+            </p>
+          </div>
+          <UButton to="/staff/approvals" label="Proses Approval" size="sm" variant="soft" />
+        </div>
+      </div>
+      <div v-else class="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-muted">Tidak ada pengajuan yang menunggu approval Anda.</p>
+        <UButton to="/staff/approvals" label="Buka Riwayat Approval" size="sm" variant="soft" />
+      </div>
+    </UCard>
 
     <div v-if="isHr && hrDashboard" class="space-y-4">
       <div class="grid gap-4 lg:grid-cols-2">

@@ -20,6 +20,7 @@ import PublicHolidayView from '../views/PublicHolidayView.vue'
 import PermissionView from '../views/PermissionView.vue'
 import StaffApprovalView from '../views/StaffApprovalView.vue'
 import OvertimeView from '../views/OvertimeView.vue'
+import StaffTeamScheduleView from '../views/StaffTeamScheduleView.vue'
 import GuideView from '../views/GuideView.vue'
 import HrApprovalView from '../views/HrApprovalView.vue'
 import HrContractView from '../views/HrContractView.vue'
@@ -136,6 +137,12 @@ const router = createRouter({
           name: 'staff-overtime',
           component: OvertimeView,
           meta: { title: 'Pengajuan Lembur', levels: [3], menuKey: 'staff-overtime' },
+        },
+        {
+          path: 'staff/team-schedules',
+          name: 'staff-team-schedules',
+          component: StaffTeamScheduleView,
+          meta: { title: 'Jadwal Tim', levels: [3], menuKey: 'staff-team-schedules' },
         },
         {
           path: 'staff/guide',
