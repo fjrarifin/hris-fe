@@ -383,8 +383,9 @@ onMounted(loadOptions)
       <UCard title="Rekap Kehadiran Pivot">
         <p class="mb-4 text-xs text-muted">
           M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, C = Cuti, S = Sakit, I = Izin. Hak
-          PH diperoleh hanya jika karyawan masuk pada hari libur nasional. PH dan Cuti yang
-          disetujui dihitung 8 jam kerja. Target bulanan:
+          PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur nasional; jatah
+          sebelumnya tetap berlaku dalam masa 90 hari. PH dan Cuti yang disetujui dihitung 8 jam
+          kerja. Target bulanan:
           {{ data.targets.ideal_attendance_days }} hari dan
           {{ data.targets.minimum_work_duration }}.
         </p>

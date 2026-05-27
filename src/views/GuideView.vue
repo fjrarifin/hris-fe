@@ -16,7 +16,8 @@ const sections = [
     icon: 'i-lucide-calendar-check-2',
     note: 'Claim berlaku maksimal 90 hari setelah tanggal PH.',
     steps: [
-      'Hak PH hanya tersedia bila Anda tercatat masuk pada hari libur nasional terkait.',
+      'PH sebelum 27 Mei 2026 tetap diberikan selama masih dalam masa 90 hari.',
+      'Mulai 27 Mei 2026, hak PH tersedia bila Anda tercatat masuk pada hari libur nasional terkait.',
       'Pilih Public Holiday yang masih tersedia dan tentukan tanggal pengambilan.',
       'Tanggal claim tidak boleh lampau, berbenturan dengan cuti, atau melebihi masa berlaku.',
       'Atasan langsung memproses pengajuan PH.',
