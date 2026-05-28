@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { backendLogoUrl } from '../services/api'
 import { useAuthStore } from '../stores/auth'
 
@@ -10,6 +10,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close-sidebar'])
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
 const links = computed(() => auth.menus)
 const accountMenuOpen = ref(false)
@@ -22,6 +23,15 @@ watch(
   () => auth.user?.photo_url,
   () => {
     accountPhotoFailed.value = false
+  },
+)
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (props.isOpen) {
+      closeSidebar()
+    }
   },
 )
 
@@ -92,7 +102,6 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
       color="primary"
       variant="pill"
       highlight
-      @update:model-value="closeSidebar"
     />
 
     <div ref="accountMenuRef" class="relative mt-auto">
