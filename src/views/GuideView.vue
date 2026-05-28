@@ -6,22 +6,24 @@ const sections = [
     note: 'Maksimal 5 hari per pengajuan.',
     steps: [
       'Buka menu Pengajuan Cuti dan isi jenis, periode, serta alasan.',
-      'Sistem memeriksa bentrok dengan cuti atau Public Holiday yang sudah diajukan.',
+      'Pastikan tanggal yang dipilih tidak bentrok dengan cuti atau PH yang sudah diajukan.',
       'Atasan langsung menyetujui atau menolak pengajuan.',
-      'Pengajuan yang disetujui atasan diteruskan ke HR untuk finalisasi.',
+      'Pengajuan yang disetujui atasan akan dilanjutkan ke HRD.',
+      'Jika Anda tetap masuk kerja pada tanggal cuti yang sudah disetujui, cuti tersebut dapat dibatalkan dan jatah cuti kembali tersedia.',
     ],
   },
   {
     title: 'Public Holiday',
     icon: 'i-lucide-calendar-check-2',
-    note: 'Claim berlaku maksimal 90 hari setelah tanggal PH.',
+    note: 'PH dapat digunakan maksimal 90 hari setelah tanggal libur.',
     steps: [
       'PH sebelum 27 Mei 2026 tetap diberikan selama masih dalam masa 90 hari.',
-      'Mulai 27 Mei 2026, hak PH tersedia bila Anda tercatat masuk pada hari libur nasional terkait.',
+      'Mulai 27 Mei 2026, hak PH muncul bila Anda masuk kerja pada hari libur nasional.',
       'Pilih Public Holiday yang masih tersedia dan tentukan tanggal pengambilan.',
-      'Tanggal claim tidak boleh lampau, berbenturan dengan cuti, atau melebihi masa berlaku.',
+      'Tanggal pengambilan tidak boleh sudah lewat, bentrok dengan cuti, atau melewati masa berlaku.',
       'Atasan langsung memproses pengajuan PH.',
-      'HR memvalidasi pengajuan setelah approval atasan.',
+      'Setelah disetujui atasan, pengajuan akan diperiksa oleh HRD.',
+      'Jika Anda tetap masuk kerja pada tanggal PH yang sudah disetujui, pengajuan dapat dibatalkan dan hak PH dapat digunakan kembali.',
     ],
   },
   {
@@ -31,7 +33,7 @@ const sections = [
     steps: [
       'Pilih Izin atau Sakit dan isi tanggal pengajuan.',
       'Untuk Izin, tuliskan alasan; untuk Sakit, unggah dokumen pendukung.',
-      'Atasan memeriksa pengajuan sebelum diteruskan untuk proses HR.',
+      'Atasan memeriksa pengajuan sebelum diteruskan ke HRD.',
     ],
   },
   {
@@ -42,7 +44,9 @@ const sections = [
       'Buka menu Absensi Saya, lalu tentukan tanggal mulai dan tanggal selesai bila ingin melihat periode tertentu.',
       'Jam masuk berasal dari scan pertama dan jam pulang berasal dari scan terakhir pada tanggal tersebut.',
       'Periksa kartu Hari Tercatat, Scan Lengkap, dan Belum Lengkap serta tabel riwayat harian.',
-      'Jika status Belum Lengkap atau PIN belum terhubung, segera laporkan kepada HRD untuk pengecekan.',
+      'Pada dashboard, status hari ini menjadi Sedang Bekerja bila Anda sudah scan masuk tetapi belum scan pulang.',
+      'Untuk hari sebelumnya, scan yang tidak lengkap tampil sebagai Hadir tanpa scan masuk atau Hadir tanpa scan pulang.',
+      'Jika ada data absensi yang belum lengkap, segera laporkan kepada HRD untuk pengecekan.',
     ],
   },
   {
@@ -53,7 +57,7 @@ const sections = [
       'Menu Pengajuan Lembur muncul apabila Anda terdaftar sebagai atasan langsung.',
       'Pilih satu atau beberapa bawahan, lalu isi tanggal, jam mulai, jam selesai, dan alasan lembur.',
       'Durasi lembur yang dapat diajukan adalah 1 sampai 4 jam dan tidak boleh bertabrakan dengan pengajuan yang sudah ada.',
-      'Kirim pengajuan ke HR dan pantau statusnya pada riwayat; pengajuan pending dapat dibatalkan.',
+      'Kirim pengajuan ke HRD dan pantau statusnya pada riwayat; pengajuan yang belum diproses dapat dibatalkan.',
     ],
   },
   {
@@ -61,10 +65,42 @@ const sections = [
     icon: 'i-lucide-calendar-range',
     note: 'Khusus karyawan pada level Supervisor.',
     steps: [
-      'Menu Jadwal Tim hanya tampil bagi Supervisor dan hanya memuat Leader, Staff, Operator, atau Kasir di bawah pengawasannya sampai dua level.',
+      'Menu Jadwal Tim hanya tampil bagi Supervisor dan menampilkan bawahan yang menjadi tanggung jawabnya.',
       'Pilih periode jadwal terlebih dahulu dengan rentang maksimal 46 hari, lalu pilih Atur Jadwal untuk mengedit jadwal satu karyawan.',
       'Pilih kode shift untuk tiap tanggal dan simpan perubahan; jadwal karyawan di luar tim Anda tidak dapat diubah.',
-      'Untuk pengisian massal, unggah file XLSX, XLS, atau CSV dengan kolom pertama NIK bawahan dan kolom tanggal berisi kode shift.',
+      'Untuk pengisian banyak jadwal sekaligus, gunakan template yang tersedia di halaman tersebut.',
+      'Baca keterangan kode shift di halaman jadwal agar pilihan pagi, siang, libur, cuti, dan PH tidak tertukar.',
+    ],
+  },
+  {
+    title: 'Dashboard Karyawan',
+    icon: 'i-lucide-layout-dashboard',
+    note: 'Ringkasan status pribadi dan tim.',
+    steps: [
+      'Kartu Kehadiran Minggu Ini menampilkan status harian, jam masuk, jam keluar, dan durasi kerja.',
+      'Jika Anda memiliki bawahan, dashboard menampilkan Bawahan Langsung dan Persetujuan Bawahan.',
+      'Gunakan tombol Lihat Profil Saya untuk melihat data pekerjaan, keluarga, rekening, dan kontak darurat.',
+      'Ikon di kanan bawah menampilkan rekan kerja yang sedang aktif membuka aplikasi.',
+    ],
+  },
+  {
+    title: 'Data Keluarga Dinamis',
+    icon: 'i-lucide-baby',
+    note: 'Jumlah anak mengikuti data HRD.',
+    steps: [
+      'Data anak pada profil dapat berisi lebih dari 3 nama bila datanya sudah diisi oleh HRD.',
+      'Jumlah anak dihitung dari daftar nama anak yang diisi pada data karyawan.',
+      'Jika ada perubahan data keluarga, hubungi HRD untuk memperbarui profil.',
+    ],
+  },
+  {
+    title: 'Sesi Login',
+    icon: 'i-lucide-timer-reset',
+    note: 'Berakhir otomatis bila terlalu lama tidak digunakan.',
+    steps: [
+      'Jika aplikasi dibiarkan tanpa aktivitas selama 30 menit, Anda perlu login ulang.',
+      'Satu akun tetap tidak bisa digunakan bersamaan di beberapa perangkat.',
+      'Gunakan logout dari tombol akun di sidebar saat selesai memakai aplikasi.',
     ],
   },
   {
@@ -97,7 +133,7 @@ const sections = [
       'Pada halaman login, pilih Lupa password? dan masukkan NIK Anda.',
       'Kode OTP 6 digit dikirim ke nomor telepon yang terdaftar di HRIS; masukkan kode sebelum waktu habis.',
       'Buat password baru minimal 8 karakter yang memiliki huruf dan angka, lalu login kembali.',
-      'Reset password berhasil akan mengakhiri sesi login aktif lain dan tetap mengikuti batas perubahan 1 kali dalam 30 hari.',
+      'Setelah password berhasil diganti, gunakan password baru untuk login kembali.',
     ],
   },
 ]
@@ -137,10 +173,10 @@ const sections = [
 
     <UCard title="Untuk Atasan">
       <p class="text-sm text-muted">
-        Menu Approval Pengajuan dan Pengajuan Lembur hanya tampil bila Anda memiliki bawahan
-        langsung pada data master karyawan. Dari menu approval, Anda dapat memproses cuti, PH, serta
-        izin/sakit bawahan. Pengajuan lembur dibuat oleh atasan untuk bawahan dan diteruskan ke HRD.
-        Menu Jadwal Tim hanya tampil untuk Supervisor dan mencakup bawahan sampai dua level.
+        Menu Persetujuan Pengajuan dan Pengajuan Lembur hanya tampil bila Anda memiliki bawahan.
+        Dari menu persetujuan, Anda dapat memproses cuti, PH, izin, dan sakit bawahan. Pengajuan
+        lembur dibuat oleh atasan untuk bawahan dan dilanjutkan ke HRD. Menu Jadwal Tim hanya
+        tampil untuk Supervisor.
       </p>
     </UCard>
 
