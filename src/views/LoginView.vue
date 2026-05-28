@@ -59,7 +59,7 @@ async function submit() {
 </script>
 
 <template>
-  <main class="flex min-h-screen bg-white dark:bg-gray-950">
+  <main class="flex min-h-screen bg-white dark:bg-gray-900">
     <!-- Panel kiri -->
     <section
       class="relative hidden min-h-screen w-2/3 overflow-hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-[#65a6ce]"
@@ -69,9 +69,9 @@ async function submit() {
         alt="Ilustrasi rapat karyawan"
         class="absolute inset-0 h-full w-full object-cover object-center opacity-30"
       />
-      <div class="relative z-10 flex flex-col items-center text-center px-12">
+      <div class="relative z-10 flex flex-col items-center text-center px-8">
         <img
-          :src="backendLogoUrl"
+          src="/hompimplay_icon.png"
           alt="HRIS Logo"
           class="mb-1 size-64 object-contain drop-shadow-lg"
         />
