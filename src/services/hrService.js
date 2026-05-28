@@ -36,6 +36,10 @@ export function exportHrAttendance(params) {
   return api.get('/hr/attendance/export', { params, responseType: 'blob' })
 }
 
+export function getHrAttendanceMinimumMonitoring(params) {
+  return api.get('/hr/attendance/minimum-monitoring', { params })
+}
+
 export function getHrAttendanceCorrections(params) {
   return api.get('/hr/attendance-corrections', { params })
 }

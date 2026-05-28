@@ -28,6 +28,7 @@ import HrContractView from '../views/HrContractView.vue'
 import HrScheduleView from '../views/HrScheduleView.vue'
 import HrGuideView from '../views/HrGuideView.vue'
 import HrAttendanceCorrectionView from '../views/HrAttendanceCorrectionView.vue'
+import HrAttendanceMinimumView from '../views/HrAttendanceMinimumView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -190,6 +191,12 @@ const router = createRouter({
           name: 'attendance',
           component: AttendanceView,
           meta: { title: 'Absensi', levels: [1, 2], menuKey: 'attendance' },
+        },
+        {
+          path: 'hr/attendance/minimum-monitoring',
+          name: 'hr-attendance-minimum',
+          component: HrAttendanceMinimumView,
+          meta: { title: 'Monitoring Minimum Absensi', levels: [2], menuKey: 'hr-attendance-minimum' },
         },
         {
           path: 'hr/schedules',

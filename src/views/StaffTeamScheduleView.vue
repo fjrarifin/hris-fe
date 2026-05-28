@@ -1,5 +1,6 @@
 <script setup>
-import { computed, nextTick, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   downloadTeamScheduleTemplate,
   getTeamEmployeeSchedule,
@@ -9,6 +10,7 @@ import {
 } from '../services/staffService'
 import { apiError, formatDate } from '../utils/formatters'
 
+const route = useRoute()
 const filters = reactive({ start_date: '', end_date: '' })
 const team = ref(null)
 const employeeSchedule = ref(null)
@@ -120,6 +122,31 @@ async function upload() {
     uploading.value = false
   }
 }
+
+function firstQueryValue(value) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+function todayDate() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+onMounted(async () => {
+  const startDate = firstQueryValue(route.query.start_date) || todayDate()
+  const endDate = firstQueryValue(route.query.end_date) || startDate
+  const employeeNik = firstQueryValue(route.query.employee_nik)
+  const shouldAutoload = firstQueryValue(route.query.autoload) === '1' || employeeNik
+
+  filters.start_date = startDate
+  filters.end_date = endDate
+
+  if (shouldAutoload) {
+    await loadTeam()
+    if (employeeNik) {
+      await openEmployee(employeeNik)
+    }
+  }
+})
 </script>
 
 <template>

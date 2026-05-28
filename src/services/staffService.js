@@ -12,6 +12,10 @@ export function updateStaffProfilePhoto(payload) {
   return api.post('/staff/profile/photo', payload)
 }
 
+export function updateStaffProfileContact(payload) {
+  return api.patch('/staff/profile/contact', payload)
+}
+
 export function getStaffAttendance(params) {
   return api.get('/staff/attendance', { params })
 }

@@ -18,6 +18,7 @@ const accountMenuRef = ref(null)
 const accountPhotoFailed = ref(false)
 const hasProfilePage = computed(() => auth.user?.level === 3)
 const accountPhotoUrl = computed(() => (accountPhotoFailed.value ? null : auth.user?.photo_url))
+const accountSubtitle = computed(() => auth.user?.position || auth.user?.level_label || 'Portal')
 
 watch(
   () => auth.user?.photo_url,
@@ -153,7 +154,7 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         <UAvatar v-else :text="auth.initials" color="primary" size="md" class="size-10 shrink-0" />
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium text-white">{{ auth.user?.name }}</p>
-          <p class="truncate text-xs text-slate-300">{{ auth.user?.level_label }}</p>
+          <p class="truncate text-xs text-slate-300">{{ accountSubtitle }}</p>
         </div>
         <UIcon
           name="i-lucide-chevron-up"

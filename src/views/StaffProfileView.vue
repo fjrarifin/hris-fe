@@ -1,9 +1,13 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import ProfileSection from '../components/ProfileSection.vue'
-import { getStaffProfile, updateStaffProfilePhoto } from '../services/staffService'
+import {
+  getStaffProfile,
+  updateStaffProfileContact,
+  updateStaffProfilePhoto,
+} from '../services/staffService'
 import { useAuthStore } from '../stores/auth'
-import { apiError, formatDate, formatDateTime } from '../utils/formatters'
+import { apiError, formatDate } from '../utils/formatters'
 
 const auth = useAuthStore()
 const data = ref(null)
@@ -15,8 +19,34 @@ const selectedPhoto = ref(null)
 const photoPreviewUrl = ref('')
 const photoInput = ref(null)
 const uploadingPhoto = ref(false)
+const savingContact = ref(false)
+const contactForm = reactive({
+  email: '',
+  no_hp: '',
+})
 const photoLocked = computed(() => data.value?.user?.can_change_photo === false)
-const nextPhotoChange = computed(() => formatDateTime(data.value?.user?.photo_change_available_at))
+const emailLocked = computed(() => data.value?.user?.can_change_email === false)
+const phoneLocked = computed(() => data.value?.user?.can_change_phone === false)
+const contactLocked = computed(() => emailLocked.value && phoneLocked.value)
+const contactDirty = computed(
+  () =>
+    contactForm.email !== (data.value?.user?.email || data.value?.employee?.email || '') ||
+    contactForm.no_hp !== (data.value?.employee?.no_hp || ''),
+)
+const tenureDays = computed(() => {
+  const joinDate = data.value?.employee?.join_date
+
+  if (!joinDate) return null
+
+  const start = new Date(joinDate)
+  const today = new Date()
+  start.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+
+  if (Number.isNaN(start.getTime()) || start > today) return null
+
+  return Math.floor((today - start) / 86400000) + 1
+})
 const profileInitials = computed(() => {
   const name = data.value?.employee?.nama_karyawan || data.value?.user?.name || 'User'
 
@@ -59,14 +89,23 @@ const personalFields = computed(() => [
   {
     label: 'Email',
     value: data.value?.user?.email || data.value?.employee?.email,
+    tooltip: emailLocked.value
+      ? 'Email tidak bisa diganti kembali. Harap hubungi HRD.'
+      : null,
   },
-  { label: 'Nomor HP', value: data.value?.employee?.no_hp },
+  {
+    label: 'Nomor HP',
+    value: data.value?.employee?.no_hp,
+    tooltip: phoneLocked.value
+      ? 'Nomor handphone tidak bisa diganti kembali. Harap hubungi HRD.'
+      : null,
+  },
   { label: 'Tempat Lahir', value: data.value?.employee?.tempat_lahir },
   {
     label: 'Tanggal Lahir',
     value: formatDate(data.value?.employee?.tanggal_lahir),
   },
-  { label: 'Jenis Kelamin', value: data.value?.employee?.jenis_kelamin },
+  { label: 'Jenis Kelamin', value: genderLabel(data.value?.employee?.jenis_kelamin) },
   { label: 'Golongan Darah', value: data.value?.employee?.golongan_darah },
   { label: 'Alamat', value: data.value?.employee?.alamat },
   {
@@ -131,12 +170,18 @@ async function loadProfile() {
   try {
     const response = await getStaffProfile()
     data.value = response.data
+    assignContactForm()
     photoLoadFailed.value = false
   } catch (error) {
     errorMessage.value = apiError(error, 'Profil tidak dapat dimuat.')
   } finally {
     loading.value = false
   }
+}
+
+function assignContactForm() {
+  contactForm.email = data.value?.user?.email || data.value?.employee?.email || ''
+  contactForm.no_hp = data.value?.employee?.no_hp || ''
 }
 
 function clearPhotoSelection() {
@@ -202,6 +247,41 @@ async function submitPhoto() {
   }
 }
 
+async function submitContact() {
+  if (!contactDirty.value || contactLocked.value) return
+
+  savingContact.value = true
+  errorMessage.value = ''
+  message.value = ''
+
+  try {
+    const payload = {}
+
+    if (!emailLocked.value && contactForm.email !== (data.value?.user?.email || '')) {
+      payload.email = contactForm.email
+    }
+
+    if (!phoneLocked.value && contactForm.no_hp !== (data.value?.employee?.no_hp || '')) {
+      payload.no_hp = contactForm.no_hp
+    }
+
+    const response = await updateStaffProfileContact(payload)
+    Object.assign(data.value.user, response.data.user)
+    Object.assign(data.value.employee, response.data.employee)
+
+    if (auth.user && response.data.user?.email) {
+      auth.user = { ...auth.user, email: response.data.user.email }
+    }
+
+    assignContactForm()
+    message.value = response.data.message
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Kontak tidak dapat diperbarui.')
+  } finally {
+    savingContact.value = false
+  }
+}
+
 function handlePhotoError() {
   photoLoadFailed.value = true
 
@@ -212,7 +292,20 @@ function handlePhotoError() {
 }
 
 function shown(value) {
-  return value === null || value === undefined || value === '' ? '-' : value
+  if (value === null || value === undefined || value === '') {
+    return '-'
+  }
+
+  return String(value).toUpperCase()
+}
+
+function genderLabel(value) {
+  return (
+    {
+      L: 'Laki-laki',
+      P: 'Perempuan',
+    }[value] || value
+  )
 }
 
 onMounted(loadProfile)
@@ -244,7 +337,7 @@ onBeforeUnmount(clearPhotoSelection)
             <UAvatar v-else :text="profileInitials" size="2xl" color="primary" class="shrink-0" />
             <div>
               <h3 class="text-xl font-semibold text-highlighted">
-                {{ data.employee.nama_karyawan }}
+                {{ shown(data.employee.nama_karyawan) }}
               </h3>
               <p class="mt-1 text-sm text-muted">
                 {{ shown(data.employee.jabatan || data.employee.posisi) }} -
@@ -254,8 +347,8 @@ onBeforeUnmount(clearPhotoSelection)
             </div>
           </div>
 
-          <!-- Kanan: form update foto -->
           <form
+            v-if="!photoLocked"
             class="rounded-xl border border-default bg-elevated p-4 text-sm h-full"
             @submit.prevent="submitPhoto"
           >
@@ -264,13 +357,6 @@ onBeforeUnmount(clearPhotoSelection)
             <p class="mt-2 text-xs text-muted">
               Foto profil hanya dapat diganti 1 kali dalam jangka waktu 30 hari.
             </p>
-            <UAlert
-              v-if="photoLocked"
-              class="mt-3"
-              color="warning"
-              variant="subtle"
-              :description="`Dapat diganti kembali pada ${nextPhotoChange}.`"
-            />
             <input
               ref="photoInput"
               type="file"
@@ -300,7 +386,76 @@ onBeforeUnmount(clearPhotoSelection)
               />
             </div>
           </form>
+          <div
+            v-else
+            class="rounded-xl border border-default bg-elevated p-4 text-sm h-full"
+          >
+            <p class="font-medium text-highlighted">Masa Bakti</p>
+            <p class="mt-2 text-2xl font-semibold text-highlighted">
+              {{ tenureDays === null ? '-' : tenureDays.toLocaleString('id-ID') }}
+              <span class="text-sm font-medium text-muted">hari</span>
+            </p>
+            <p class="mt-2 text-sm text-muted">
+              Bergabung sejak {{ formatDate(data.employee.join_date) }}.
+            </p>
+          </div>
         </div>
+      </UCard>
+
+      <UCard v-if="!contactLocked" title="Ubah Kontak Pribadi">
+        <form class="space-y-4" @submit.prevent="submitContact">
+          <div>
+            <p class="text-sm text-muted">
+              Email dan nomor telepon dapat diubah sendiri maksimal 1 kali. Perubahan berikutnya
+              dibantu oleh HRD.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="text-sm text-muted">
+              Email
+              <input
+                v-model="contactForm.email"
+                type="email"
+                class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="emailLocked || savingContact"
+              />
+              <span v-if="emailLocked" class="mt-1 block text-xs text-warning">
+                Email sudah pernah diubah. Hubungi HRD untuk perubahan berikutnya.
+              </span>
+            </label>
+            <label class="text-sm text-muted">
+              Nomor Telepon
+              <input
+                v-model="contactForm.no_hp"
+                type="text"
+                class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="phoneLocked || savingContact"
+              />
+              <span v-if="phoneLocked" class="mt-1 block text-xs text-warning">
+                Nomor telepon sudah pernah diubah. Hubungi HRD untuk perubahan berikutnya.
+              </span>
+            </label>
+          </div>
+
+          <div class="flex gap-2">
+            <UButton
+              type="submit"
+              label="Simpan Kontak"
+              icon="i-lucide-save"
+              :loading="savingContact"
+              :disabled="contactLocked || !contactDirty"
+            />
+            <UButton
+              type="button"
+              label="Batal"
+              color="neutral"
+              variant="outline"
+              :disabled="savingContact || !contactDirty"
+              @click="assignContactForm"
+            />
+          </div>
+        </form>
       </UCard>
 
       <div class="grid gap-5 xl:grid-cols-2">

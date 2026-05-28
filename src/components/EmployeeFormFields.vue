@@ -48,6 +48,7 @@ const taxStatuses = [
   'K/I/2',
   'K/I/3',
 ]
+const maritalStatuses = ['Menikah', 'Tidak Kawin', 'Cerai Hidup', 'Cerai Mati']
 const religions = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha']
 const educationLevels = ['SD', 'SMP', 'SMA / SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3']
 
@@ -85,14 +86,6 @@ const paymentFields = [
 
 const inputClass =
   'mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted disabled:cursor-not-allowed disabled:bg-elevated disabled:text-muted'
-
-function maritalStatusLabel() {
-  if (!props.form.status_pajak) {
-    return props.form.status_pernikahan || '-'
-  }
-
-  return props.form.status_pajak.startsWith('K/') ? 'Menikah' : 'Tidak Kawin'
-}
 
 function employeeStatusLabel() {
   if (props.creating && props.form.status_kontrak === 'AKTIF') {
@@ -289,8 +282,12 @@ function removeChild(index) {
         </label>
         <label class="text-sm text-muted">
           Status Pernikahan
-          <input :value="maritalStatusLabel()" disabled :class="inputClass" />
-          <span class="mt-1 block text-xs text-muted">Otomatis dari status pajak.</span>
+          <select v-model="props.form.status_pernikahan" :class="inputClass">
+            <option value="">Pilih status pernikahan</option>
+            <option v-for="status in maritalStatuses" :key="status" :value="status">
+              {{ status }}
+            </option>
+          </select>
         </label>
         <label class="text-sm text-muted">
           Agama

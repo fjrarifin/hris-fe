@@ -17,6 +17,7 @@ const filters = reactive({
   end_date: typeof route.query.end_date === 'string' ? route.query.end_date : '',
   departments: [],
   employee_niks: [],
+  employee_status: '',
 })
 const options = ref({ departments: [], employees: [] })
 const departmentSearch = ref('')
@@ -129,6 +130,12 @@ async function load(requestedPage = 1) {
   } finally {
     loading.value = false
   }
+}
+
+async function updateEmployeeStatusFilter() {
+  if (!data.value) return
+
+  await load(1)
 }
 
 async function downloadExport(format) {
@@ -392,7 +399,29 @@ onMounted(async () => {
         </UCard>
       </div> -->
 
-      <UCard title="Rekap Kehadiran Pivot">
+      <UCard>
+        <template #header>
+          <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+            <div>
+              <h3 class="font-semibold text-highlighted">Rekap Kehadiran Pivot</h3>
+              <p class="mt-1 text-sm text-muted">
+                Data hasil penarikan absensi berdasarkan filter di atas.
+              </p>
+            </div>
+            <label class="text-sm text-muted">
+              Status Karyawan
+              <select
+                v-model="filters.employee_status"
+                class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted lg:w-48"
+                @change="updateEmployeeStatusFilter"
+              >
+                <option value="">Semua status</option>
+                <option value="AKTIF">Aktif</option>
+                <option value="NONAKTIF">Tidak aktif</option>
+              </select>
+            </label>
+          </div>
+        </template>
         <p class="mb-4 text-xs text-muted">
           M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, C = Cuti, S = Sakit, I = Izin. Hak
           PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur nasional; jatah

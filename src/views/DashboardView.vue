@@ -17,6 +17,7 @@ const selectedAttendanceDepartment = ref(null)
 const attendanceSearch = ref('')
 const selectedDailyStatus = ref(null)
 const dailyStatusSearch = ref('')
+const selectedSubordinateAction = ref(null)
 
 const adminStatistics = [
   {
@@ -263,10 +264,17 @@ function subordinateAttendanceLabel(status) {
   return (
     {
       checked_out: 'Sudah Pulang',
-      present: 'Sedang Masuk',
+      working: 'Sedang Bekerja',
+      present: 'Sedang Bekerja',
+      leave: 'Cuti',
+      ph: 'PH',
+      permission: 'Izin',
+      sick: 'Sakit',
+      off: 'Libur',
       missing_in: 'Scan Masuk Kosong',
-      absent: 'Belum Masuk',
-    }[status] || 'Belum Masuk'
+      missing_out: 'Hadir tanpa scan pulang',
+      absent: 'Tidak Hadir',
+    }[status] || 'Tidak Hadir'
   )
 }
 
@@ -274,11 +282,38 @@ function subordinateAttendanceColor(status) {
   return (
     {
       checked_out: 'success',
+      working: 'success',
       present: 'success',
+      leave: 'warning',
+      ph: 'info',
+      permission: 'neutral',
+      sick: 'error',
+      off: 'neutral',
       missing_in: 'warning',
-      absent: 'neutral',
+      missing_out: 'warning',
+      absent: 'error',
     }[status] || 'neutral'
   )
+}
+
+function subordinateAttendanceStatus(employee) {
+  if (employee.scan_in && employee.scan_out) {
+    return 'checked_out'
+  }
+
+  if (['leave', 'ph', 'permission', 'sick', 'off'].includes(employee.attendance_status)) {
+    return employee.attendance_status
+  }
+
+  if (employee.scan_in) {
+    return 'working'
+  }
+
+  if (employee.scan_out) {
+    return 'missing_in'
+  }
+
+  return employee.attendance_status || 'absent'
 }
 
 function weeklyAttendanceLabel(status) {
@@ -355,6 +390,26 @@ function dailyStatusDetail(record) {
       : 'Izin'
 }
 
+function openSubordinateAction(action) {
+  selectedSubordinateAction.value = action
+}
+
+function closeSubordinateAction() {
+  selectedSubordinateAction.value = null
+}
+
+function scheduleActionRoute(action) {
+  return {
+    name: 'staff-team-schedules',
+    query: {
+      start_date: action.date || dashboard.value?.as_of_date,
+      end_date: action.date || dashboard.value?.as_of_date,
+      employee_nik: action.employee_nik,
+      autoload: '1',
+    },
+  }
+}
+
 onMounted(loadDashboard)
 </script>
 
@@ -425,9 +480,9 @@ onMounted(loadDashboard)
               <p class="mt-1 text-xs text-muted">{{ employee.nik }}</p>
             </div>
             <UBadge
-              :color="subordinateAttendanceColor(employee.attendance_status)"
+              :color="subordinateAttendanceColor(subordinateAttendanceStatus(employee))"
               variant="subtle"
-              :label="subordinateAttendanceLabel(employee.attendance_status)"
+              :label="subordinateAttendanceLabel(subordinateAttendanceStatus(employee))"
             />
           </div>
           <p class="mt-3 text-muted">
@@ -446,9 +501,76 @@ onMounted(loadDashboard)
               <p class="mt-1 font-medium text-highlighted">{{ formatTime(employee.scan_out) }}</p>
             </div>
           </div>
+          <div v-if="employee.status_action" class="mt-3">
+            <UButton
+              v-if="employee.status_action.type === 'edit_schedule'"
+              :to="scheduleActionRoute(employee.status_action)"
+              size="xs"
+              color="warning"
+              variant="soft"
+              icon="i-lucide-calendar-clock"
+              :label="employee.status_action.label"
+            />
+            <UButton
+              v-else
+              size="xs"
+              color="warning"
+              variant="soft"
+              icon="i-lucide-info"
+              :label="employee.status_action.label"
+              @click="openSubordinateAction(employee.status_action)"
+            />
+          </div>
         </div>
       </div>
     </UCard>
+
+    <div
+      v-if="selectedSubordinateAction"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Informasi koreksi status bawahan"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup informasi koreksi status"
+        @click="closeSubordinateAction"
+      ></button>
+      <UCard class="relative w-full max-w-lg">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-semibold text-highlighted">
+              {{ selectedSubordinateAction.label }}
+            </h3>
+            <p class="mt-1 text-sm text-muted">
+              {{ selectedSubordinateAction.employee_name }} -
+              {{ selectedSubordinateAction.employee_nik }}
+            </p>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            aria-label="Tutup"
+            @click="closeSubordinateAction"
+          />
+        </div>
+        <p class="mt-4 text-sm text-muted">{{ selectedSubordinateAction.message }}</p>
+        <div class="mt-4 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p class="font-medium text-highlighted">Langkah yang perlu dilakukan</p>
+          <p class="mt-1 text-muted">
+            Informasikan ke HRD untuk membatalkan pengajuan
+            {{ selectedSubordinateAction.approval_label }} karyawan tersebut. Setelah dibatalkan,
+            jatah akan kembali mengikuti status pembatalan.
+          </p>
+        </div>
+        <div class="mt-5 flex justify-end">
+          <UButton label="Mengerti" @click="closeSubordinateAction" />
+        </div>
+      </UCard>
+    </div>
 
     <UCard
       v-if="isStaff && dashboard"

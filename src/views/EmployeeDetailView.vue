@@ -14,6 +14,7 @@ const errorMessage = ref('')
 const message = ref(route.query.created ? 'Karyawan berhasil ditambahkan.' : '')
 const supervisorOptions = ref([])
 const contracts = ref([])
+const changeLogs = ref([])
 const loadingOptions = ref(false)
 const nik = computed(() => String(route.params.nik || ''))
 const contractFormOpen = ref(false)
@@ -33,6 +34,23 @@ const contractForm = reactive({
 const hasActiveContract = computed(() =>
   contracts.value.some((contract) => contract.status === 'AKTIF'),
 )
+const flattenedChangeLogs = computed(() =>
+  changeLogs.value.flatMap((log) =>
+    (log.changes || []).map((change, index) => ({
+      id: `${log.id}-${change.field}-${index}`,
+      date: formatDate(log.created_at),
+      time: new Date(log.created_at).toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      changed_by_name: log.changed_by_name,
+      source_label: log.source_label,
+      label: change.label,
+      old: change.old,
+      new: change.new,
+    })),
+  ),
+)
 
 function assignForm(data) {
   Object.assign(form, data)
@@ -44,6 +62,7 @@ function assignForm(data) {
   if (!form.children.length) form.children = ['']
   photoLoadFailed.value = false
   contracts.value = data.contracts ?? []
+  changeLogs.value = data.change_logs ?? []
   for (const key of ['join_date', 'start_date', 'end_date', 'tanggal_lahir']) {
     form[key] = form[key] ? String(form[key]).slice(0, 10) : ''
   }
@@ -85,6 +104,7 @@ async function save() {
     'keterangan_kontrak',
     'active_contract_id',
     'contracts',
+    'change_logs',
     'photo_url',
   ]) {
     delete payload[key]
@@ -103,6 +123,14 @@ async function save() {
   } finally {
     saving.value = false
   }
+}
+
+function auditValue(value) {
+  if (Array.isArray(value)) {
+    return value.length ? value.join(', ') : '-'
+  }
+
+  return value === null || value === undefined || value === '' ? '-' : value
 }
 
 function clearContractForm() {
@@ -437,6 +465,57 @@ onBeforeUnmount(closeDocumentPreview)
           </tbody>
         </table>
       </div>
+    </UCard>
+
+    <UCard v-if="!loading && form.nik" title="Riwayat Perubahan Data">
+      <template #header>
+        <div>
+          <h3 class="font-semibold text-highlighted">Riwayat Perubahan Data</h3>
+          <p class="mt-1 text-sm text-muted">
+            Catatan perubahan profil karyawan, termasuk siapa yang mengubah dan kapan dilakukan.
+          </p>
+        </div>
+      </template>
+
+      <div v-if="flattenedChangeLogs.length" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-muted">
+            <tr>
+              <th class="p-3">Tanggal</th>
+              <th class="p-3">Jam</th>
+              <th class="p-3">Diubah Oleh</th>
+              <th class="p-3">Sebagai</th>
+              <th class="p-3">Data Diubah</th>
+              <th class="p-3">Sebelumnya</th>
+              <th class="p-3">Menjadi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="log in flattenedChangeLogs"
+              :key="log.id"
+              class="border-t border-default"
+            >
+              <td class="p-3 whitespace-nowrap">{{ log.date }}</td>
+              <td class="p-3 whitespace-nowrap">{{ log.time }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ log.changed_by_name }}</td>
+              <td class="p-3">
+                <UBadge
+                  :color="log.source_label === 'HRD' ? 'primary' : 'neutral'"
+                  variant="subtle"
+                  :label="log.source_label"
+                />
+              </td>
+              <td class="p-3 font-medium text-highlighted">{{ log.label }}</td>
+              <td class="p-3 text-muted">{{ auditValue(log.old) }}</td>
+              <td class="p-3">{{ auditValue(log.new) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      <p v-else class="py-8 text-center text-sm text-muted">
+        Belum ada riwayat perubahan data karyawan.
+      </p>
     </UCard>
 
     <div
