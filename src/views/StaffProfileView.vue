@@ -78,6 +78,15 @@ const personalFields = computed(() => [
   { label: 'Kewarganegaraan', value: data.value?.employee?.kewarganegaraan },
 ])
 
+const employeeChildren = computed(() => {
+  const employee = data.value?.employee
+  const children = Array.isArray(employee?.children)
+    ? employee.children
+    : [employee?.nama_anak_1, employee?.nama_anak_2, employee?.nama_anak_3]
+
+  return children.map((name) => String(name || '').trim()).filter(Boolean)
+})
+
 const familyAndEducationFields = computed(() => [
   {
     label: 'Pendidikan Terakhir',
@@ -89,10 +98,11 @@ const familyAndEducationFields = computed(() => [
   },
   { label: 'Jurusan', value: data.value?.employee?.jurusan },
   { label: 'Nama Pasangan', value: data.value?.employee?.nama_pasangan },
-  { label: 'Jumlah Anak', value: data.value?.employee?.jumlah_anak },
-  { label: 'Nama Anak Ke-1', value: data.value?.employee?.nama_anak_1 },
-  { label: 'Nama Anak Ke-2', value: data.value?.employee?.nama_anak_2 },
-  { label: 'Nama Anak Ke-3', value: data.value?.employee?.nama_anak_3 },
+  { label: 'Jumlah Anak', value: employeeChildren.value.length || data.value?.employee?.jumlah_anak },
+  ...employeeChildren.value.map((name, index) => ({
+    label: `Nama Anak Ke-${index + 1}`,
+    value: name,
+  })),
   { label: 'Nama Ayah', value: data.value?.employee?.nama_ayah },
   { label: 'Nama Ibu', value: data.value?.employee?.nama_ibu },
   { label: 'Kontak Darurat', value: data.value?.employee?.kontak_darurat_nama },

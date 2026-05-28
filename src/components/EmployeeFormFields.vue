@@ -69,10 +69,6 @@ const familyFields = [
   { key: 'nama_institusi', label: 'Institusi / Nama Sekolah' },
   { key: 'jurusan', label: 'Jurusan' },
   { key: 'nama_pasangan', label: 'Nama Pasangan' },
-  { key: 'jumlah_anak', label: 'Jumlah Anak', type: 'number' },
-  { key: 'nama_anak_1', label: 'Nama Anak Ke-1' },
-  { key: 'nama_anak_2', label: 'Nama Anak Ke-2' },
-  { key: 'nama_anak_3', label: 'Nama Anak Ke-3' },
   { key: 'nama_ayah', label: 'Nama Ayah' },
   { key: 'nama_ibu', label: 'Nama Ibu' },
   { key: 'kontak_darurat_nama', label: 'Nama Kontak Darurat' },
@@ -108,6 +104,35 @@ function employeeStatusLabel() {
 
 function selectContractDocument(event) {
   props.form.document = event.target.files[0] || null
+}
+
+function childrenList() {
+  if (!Array.isArray(props.form.children)) {
+    props.form.children = [props.form.nama_anak_1, props.form.nama_anak_2, props.form.nama_anak_3].filter(
+      (name) => String(name || '').trim(),
+    )
+  }
+
+  if (!props.form.children.length) {
+    props.form.children.push('')
+  }
+
+  return props.form.children
+}
+
+function addChild() {
+  childrenList().push('')
+}
+
+function removeChild(index) {
+  const children = childrenList()
+
+  if (children.length === 1) {
+    children[0] = ''
+    return
+  }
+
+  children.splice(index, 1)
 }
 </script>
 
@@ -368,6 +393,48 @@ function selectContractDocument(event) {
           {{ field.label }}
           <input v-model="props.form[field.key]" :type="field.type || 'text'" :class="inputClass" />
         </label>
+        <div class="sm:col-span-2">
+          <div class="mb-2 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm text-muted">Data Anak</p>
+              <p class="mt-1 text-xs text-muted">
+                Default satu kolom. Tambahkan kolom jika karyawan memiliki lebih banyak anak.
+              </p>
+            </div>
+            <UButton
+              type="button"
+              size="xs"
+              icon="i-lucide-plus"
+              variant="soft"
+              label="Tambah Anak"
+              @click="addChild"
+            />
+          </div>
+          <div class="space-y-3">
+            <div
+              v-for="(_, index) in childrenList()"
+              :key="index"
+              class="flex flex-col gap-2 sm:flex-row sm:items-center"
+            >
+              <label class="min-w-0 flex-1 text-sm text-muted">
+                Nama Anak Ke-{{ index + 1 }}
+                <input v-model="props.form.children[index]" :class="inputClass" />
+              </label>
+              <UButton
+                type="button"
+                color="error"
+                variant="ghost"
+                size="sm"
+                label="Hapus"
+                class="sm:mt-7"
+                @click="removeChild(index)"
+              />
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-muted">
+            Jumlah anak akan dihitung otomatis dari nama anak yang diisi.
+          </p>
+        </div>
       </div>
     </UCard>
 

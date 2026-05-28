@@ -36,6 +36,12 @@ const hasActiveContract = computed(() =>
 
 function assignForm(data) {
   Object.assign(form, data)
+  form.children = Array.isArray(data.children)
+    ? [...data.children]
+    : [data.nama_anak_1, data.nama_anak_2, data.nama_anak_3].filter((name) =>
+        String(name || '').trim(),
+      )
+  if (!form.children.length) form.children = ['']
   photoLoadFailed.value = false
   contracts.value = data.contracts ?? []
   for (const key of ['join_date', 'start_date', 'end_date', 'tanggal_lahir']) {

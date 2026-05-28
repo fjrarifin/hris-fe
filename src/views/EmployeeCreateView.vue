@@ -11,6 +11,7 @@ const form = reactive({
   pin: '',
   nama_karyawan: '',
   golongan_darah: '',
+  children: [''],
   jenis_kontrak: 'PKWT',
   status_kontrak: 'AKTIF',
   kewarganegaraan: 'Indonesia',
@@ -41,6 +42,14 @@ async function submit() {
     const payload = new FormData()
     Object.entries(form).forEach(([key, value]) => {
       if (value === null || value === undefined || value === '') return
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          if (item !== null && item !== undefined && String(item).trim() !== '') {
+            payload.append(`${key}[]`, item)
+          }
+        })
+        return
+      }
       payload.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : value)
     })
     const { data } = await createEmployee(payload)

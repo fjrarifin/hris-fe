@@ -285,8 +285,10 @@ function weeklyAttendanceLabel(status) {
   return (
     {
       checked_out: 'Hadir',
-      present: 'Sedang Masuk',
-      missing_in: 'Scan Masuk Kosong',
+      working: 'Sedang Bekerja',
+      present: 'Sedang Bekerja',
+      missing_in: 'Hadir tanpa scan masuk',
+      missing_out: 'Hadir tanpa scan pulang',
       absent: 'Tidak Hadir',
       future: 'Belum Berjalan',
     }[status] || 'Tidak Hadir'
@@ -297,8 +299,10 @@ function weeklyAttendanceColor(status) {
   return (
     {
       checked_out: 'success',
+      working: 'success',
       present: 'success',
       missing_in: 'warning',
+      missing_out: 'warning',
       absent: 'error',
       future: 'neutral',
     }[status] || 'neutral'
