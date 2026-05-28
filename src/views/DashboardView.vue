@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import StatCard from '../components/StatCard.vue'
 import { getHrDashboard } from '../services/hrService'
-import { getStaffDashboard } from '../services/staffService'
+import { getStaffDashboard, sendAbsenceCancellationNotification } from '../services/staffService'
 import { useAuthStore } from '../stores/auth'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
@@ -12,12 +12,14 @@ const isHr = computed(() => auth.user?.level === 2)
 const dashboard = ref(null)
 const hrDashboard = ref(null)
 const loading = ref(false)
+const message = ref('')
 const errorMessage = ref('')
 const selectedAttendanceDepartment = ref(null)
 const attendanceSearch = ref('')
 const selectedDailyStatus = ref(null)
 const dailyStatusSearch = ref('')
 const selectedSubordinateAction = ref(null)
+const actingSubordinateAction = ref('')
 
 const adminStatistics = [
   {
@@ -222,6 +224,7 @@ const displayedDailyStatusRecords = computed(() => {
 
 async function loadStaffDashboard() {
   loading.value = true
+  message.value = ''
   errorMessage.value = ''
 
   try {
@@ -236,6 +239,7 @@ async function loadStaffDashboard() {
 
 async function loadHrDashboard() {
   loading.value = true
+  message.value = ''
   errorMessage.value = ''
 
   try {
@@ -410,6 +414,28 @@ function scheduleActionRoute(action) {
   }
 }
 
+async function notifyHrCancellation(action) {
+  const reason =
+    action.message || `${action.employee_name} tetap masuk kerja pada tanggal pengajuan.`
+
+  actingSubordinateAction.value = action.key || `${action.approval_type}-${action.approval_id}`
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    const response = await sendAbsenceCancellationNotification({
+      type: action.approval_type,
+      id: action.approval_id,
+      reason,
+    })
+    message.value = response.data.message
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Notifikasi ke HRD tidak dapat dikirim.')
+  } finally {
+    actingSubordinateAction.value = ''
+  }
+}
+
 onMounted(loadDashboard)
 </script>
 
@@ -455,7 +481,7 @@ onMounted(loadDashboard)
       </div>
     </UCard>
 
-    <AlertToastBridge :error="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
@@ -501,25 +527,31 @@ onMounted(loadDashboard)
               <p class="mt-1 font-medium text-highlighted">{{ formatTime(employee.scan_out) }}</p>
             </div>
           </div>
-          <div v-if="employee.status_action" class="mt-3">
-            <UButton
-              v-if="employee.status_action.type === 'edit_schedule'"
-              :to="scheduleActionRoute(employee.status_action)"
-              size="xs"
-              color="warning"
-              variant="soft"
-              icon="i-lucide-calendar-clock"
-              :label="employee.status_action.label"
-            />
-            <UButton
-              v-else
-              size="xs"
-              color="warning"
-              variant="soft"
-              icon="i-lucide-info"
-              :label="employee.status_action.label"
-              @click="openSubordinateAction(employee.status_action)"
-            />
+          <div
+            v-if="employee.status_actions?.length"
+            class="mt-3 flex flex-wrap items-center gap-2"
+          >
+            <template v-for="action in employee.status_actions" :key="action.key">
+              <UButton
+                v-if="action.type === 'edit_schedule'"
+                size="xs"
+                color="warning"
+                variant="soft"
+                icon="i-lucide-calendar-clock"
+                :label="action.label"
+                :to="scheduleActionRoute(action)"
+              />
+              <UButton
+                v-else-if="action.type === 'notify_hr_cancellation'"
+                size="xs"
+                color="warning"
+                variant="soft"
+                icon="i-lucide-send"
+                :label="action.label"
+                :loading="actingSubordinateAction === action.key"
+                @click="notifyHrCancellation(action)"
+              />
+            </template>
           </div>
         </div>
       </div>

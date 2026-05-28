@@ -17,13 +17,11 @@ const sections = [
     icon: 'i-lucide-calendar-check-2',
     note: 'PH dapat digunakan maksimal 90 hari setelah tanggal libur.',
     steps: [
-      'PH sebelum 27 Mei 2026 tetap diberikan selama masih dalam masa 90 hari.',
-      'Mulai 27 Mei 2026, hak PH muncul bila Anda masuk kerja pada hari libur nasional.',
-      'Pilih Public Holiday yang masih tersedia dan tentukan tanggal pengambilan.',
-      'Tanggal pengambilan tidak boleh sudah lewat, bentrok dengan cuti, atau melewati masa berlaku.',
-      'Atasan langsung memproses pengajuan PH.',
-      'Setelah disetujui atasan, pengajuan akan diperiksa oleh HRD.',
-      'Jika Anda tetap masuk kerja pada tanggal PH yang sudah disetujui, pengajuan dapat dibatalkan dan hak PH dapat digunakan kembali.',
+      'Pilih Public Holiday (PH) yang masih tersedia, lalu tentukan tanggal pengambilan yang diinginkan.',
+      'Pengajuan PH tidak dapat diajukan untuk tanggal yang sudah terlewat, bentrok dengan jadwal cuti, maupun melewati masa berlaku PH.',
+      'Pengajuan PH akan diproses terlebih dahulu oleh atasan langsung.',
+      'Setelah mendapatkan persetujuan atasan, pengajuan akan diverifikasi oleh HRD.',
+      'Apabila Anda tetap masuk kerja pada tanggal PH yang telah disetujui, maka pengajuan PH dapat dibatalkan dan hak PH akan dikembalikan untuk digunakan kembali.',
     ],
   },
   {

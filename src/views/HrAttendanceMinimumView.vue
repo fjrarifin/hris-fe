@@ -1,8 +1,11 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import {
+  exportHrAttendanceMinimumMonitoring,
   getHrAttendanceMinimumMonitoring,
   getHrAttendanceOptions,
+  notifyHrAttendanceMinimumEmployee,
+  notifyHrAttendanceMinimumEmployees,
 } from '../services/hrService'
 import { apiError, formatDate } from '../utils/formatters'
 
@@ -17,12 +20,21 @@ const options = ref({ departments: [], employees: [] })
 const data = ref(null)
 const loadingOptions = ref(true)
 const loading = ref(false)
+const exporting = ref(false)
+const bulkNotifying = ref(false)
 const page = ref(1)
+const message = ref('')
 const errorMessage = ref('')
+const actingNik = ref('')
 const departmentSearch = ref('')
 const employeeSearch = ref('')
 const departmentMenuOpen = ref(false)
 const employeeMenuOpen = ref(false)
+const tableFilters = reactive({
+  result_status: 'all',
+  search: '',
+})
+const tablePerPage = 15
 
 const displayedDepartments = computed(() => {
   const keyword = departmentSearch.value.trim().toLowerCase()
@@ -64,6 +76,50 @@ const employeeSummary = computed(() =>
     : `Semua karyawan (${eligibleEmployees.value.length})`,
 )
 
+const filteredRecords = computed(() => {
+  const keyword = tableFilters.search.trim().toLowerCase()
+  const records = data.value?.records || []
+
+  return records.filter((record) => {
+    const matchStatus =
+      tableFilters.result_status === 'all' || record.status === tableFilters.result_status
+    const matchKeyword =
+      !keyword ||
+      [record.nik, record.name, record.position, record.department, record.unit].some((value) =>
+        String(value || '')
+          .toLowerCase()
+          .includes(keyword),
+      )
+
+    return matchStatus && matchKeyword
+  })
+})
+
+const tablePagination = computed(() => {
+  const total = filteredRecords.value.length
+  const lastPage = Math.max(Math.ceil(total / tablePerPage), 1)
+  const currentPage = Math.min(page.value, lastPage)
+
+  return {
+    current_page: currentPage,
+    per_page: tablePerPage,
+    total,
+    last_page: lastPage,
+    from: total ? (currentPage - 1) * tablePerPage + 1 : 0,
+    to: Math.min(currentPage * tablePerPage, total),
+  }
+})
+
+const paginatedRecords = computed(() => {
+  const start = (tablePagination.value.current_page - 1) * tablePerPage
+
+  return filteredRecords.value.slice(start, start + tablePerPage)
+})
+
+const filteredDurationShortRecords = computed(() =>
+  filteredRecords.value.filter((record) => record.work_duration_diff_minutes < 0),
+)
+
 function selectAllDepartments() {
   filters.departments = []
   filters.employee_niks = []
@@ -94,11 +150,18 @@ async function loadOptions() {
 
 async function load(requestedPage = 1) {
   loading.value = true
+  message.value = ''
   errorMessage.value = ''
 
   try {
-    data.value = (await getHrAttendanceMinimumMonitoring({ ...filters, page: requestedPage })).data
-    page.value = data.value.pagination.current_page
+    data.value = (
+      await getHrAttendanceMinimumMonitoring({
+        ...filters,
+        per_page: 'all',
+        page: requestedPage,
+      })
+    ).data
+    page.value = 1
   } catch (error) {
     data.value = null
     errorMessage.value = apiError(error, 'Monitoring minimum absensi tidak dapat dimuat.')
@@ -106,6 +169,82 @@ async function load(requestedPage = 1) {
     loading.value = false
   }
 }
+
+async function downloadExport() {
+  exporting.value = true
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    const response = await exportHrAttendanceMinimumMonitoring({
+      ...filters,
+      result_status: tableFilters.result_status,
+      search: tableFilters.search,
+    })
+    const disposition = response.headers['content-disposition'] || ''
+    const name =
+      disposition.match(/filename="?([^"]+)"?/)?.[1] ||
+      `Monitoring_Minimum_Absensi_${filters.period_month}.xlsx`
+    const url = URL.createObjectURL(response.data)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = name
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Export monitoring minimum gagal.')
+  } finally {
+    exporting.value = false
+  }
+}
+
+async function notifyEmployee(record) {
+  actingNik.value = record.nik
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    message.value = (
+      await notifyHrAttendanceMinimumEmployee({
+        period_month: filters.period_month,
+        nik: record.nik,
+      })
+    ).data.message
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Notifikasi karyawan tidak dapat dikirim.')
+  } finally {
+    actingNik.value = ''
+  }
+}
+
+async function notifyFilteredDurationShortEmployees() {
+  const employeeNiks = filteredDurationShortRecords.value.map((record) => record.nik)
+  if (!employeeNiks.length) return
+
+  bulkNotifying.value = true
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    message.value = (
+      await notifyHrAttendanceMinimumEmployees({
+        period_month: filters.period_month,
+        employee_niks: employeeNiks,
+      })
+    ).data.message
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Notifikasi massal tidak dapat dikirim.')
+  } finally {
+    bulkNotifying.value = false
+  }
+}
+
+watch(
+  () => [tableFilters.result_status, tableFilters.search],
+  () => {
+    page.value = 1
+  },
+)
 
 onMounted(async () => {
   await loadOptions()
@@ -122,7 +261,7 @@ onMounted(async () => {
       </p>
     </div>
 
-    <AlertToastBridge :error="errorMessage" />
+    <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard title="Filter Periode Payroll">
       <form class="space-y-4" @submit.prevent="load()">
@@ -249,7 +388,19 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <UButton type="submit" label="Cari Data" icon="i-lucide-search" :loading="loading" />
+        <div class="flex flex-wrap items-center gap-3">
+          <UButton type="submit" label="Cari Data" icon="i-lucide-search" :loading="loading" />
+          <UButton
+            type="button"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-download"
+            label="Export Data"
+            :disabled="!data || exporting"
+            :loading="exporting"
+            @click="downloadExport"
+          />
+        </div>
       </form>
     </UCard>
 
@@ -273,22 +424,62 @@ onMounted(async () => {
 
       <UCard>
         <template #header>
-          <div>
-            <h3 class="font-semibold text-highlighted">Rekap Minimum Periode {{ data.filters.period_label }}</h3>
-            <p class="mt-1 text-sm text-muted">
-              {{ formatDate(data.filters.start_date) }} - {{ formatDate(data.filters.end_date) }}.
-              Target {{ data.targets.ideal_attendance_days }} hari dan
-              {{ data.targets.minimum_work_duration }}.
-            </p>
+          <div class="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
+            <div>
+              <h3 class="font-semibold text-highlighted">
+                Rekap Minimum Periode {{ data.filters.period_label }}
+              </h3>
+              <p class="mt-1 text-sm text-muted">
+                {{ formatDate(data.filters.start_date) }} -
+                {{ formatDate(data.filters.end_date) }}. Target
+                {{ data.targets.ideal_attendance_days }} hari dan
+                {{ data.targets.minimum_work_duration }}.
+              </p>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-3 xl:min-w-[42rem]">
+              <label class="text-sm text-muted">
+                Filter Status
+                <select
+                  v-model="tableFilters.result_status"
+                  class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+                >
+                  <option value="all">Semua data</option>
+                  <option value="under">Kurang target</option>
+                  <option value="met">Memenuhi / lebih</option>
+                </select>
+              </label>
+              <label class="text-sm text-muted">
+                Cari Data
+                <input
+                  v-model="tableFilters.search"
+                  type="search"
+                  placeholder="Nama, NIK, jabatan..."
+                  class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+                />
+              </label>
+              <div class="flex items-end">
+                <UButton
+                  type="button"
+                  :label="`Kirim Notif Massal (${filteredDurationShortRecords.length})`"
+                  icon="i-lucide-send"
+                  color="warning"
+                  variant="soft"
+                  :disabled="!filteredDurationShortRecords.length || bulkNotifying"
+                  :loading="bulkNotifying"
+                  block
+                  @click="notifyFilteredDurationShortEmployees"
+                />
+              </div>
+            </div>
           </div>
         </template>
 
         <div class="overflow-x-auto">
-          <table class="w-full min-w-max text-sm">
+          <table class="min-w-max text-sm">
             <thead class="text-left text-muted">
               <tr>
-                <th class="p-3">NIK</th>
-                <th class="p-3">Nama Karyawan</th>
+                <th class="sticky left-0 z-20 min-w-32 bg-default p-3">NIK</th>
+                <th class="sticky left-32 z-20 min-w-52 bg-default p-3">Nama Karyawan</th>
                 <th class="p-3">Jabatan</th>
                 <th class="p-3">Departemen</th>
                 <th class="p-3">Unit</th>
@@ -299,12 +490,15 @@ onMounted(async () => {
                 <th class="p-3">Selisih Durasi</th>
                 <th class="p-3">Total Lembur</th>
                 <th class="p-3">Status</th>
+                <th class="sticky right-0 z-20 min-w-40 bg-default p-3">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="record in data.records" :key="record.nik" class="border-t border-default">
-                <td class="p-3">{{ record.nik }}</td>
-                <td class="p-3 font-medium text-highlighted">{{ record.name }}</td>
+              <tr v-for="record in paginatedRecords" :key="record.nik" class="border-t border-default">
+                <td class="sticky left-0 z-10 bg-default p-3">{{ record.nik }}</td>
+                <td class="sticky left-32 z-10 bg-default p-3 font-medium text-highlighted">
+                  {{ record.name }}
+                </td>
                 <td class="p-3">{{ record.position }}</td>
                 <td class="p-3">{{ record.department }}</td>
                 <td class="p-3">{{ record.unit }}</td>
@@ -339,9 +533,22 @@ onMounted(async () => {
                     :label="record.status_label"
                   />
                 </td>
+                <td class="sticky right-0 z-10 bg-default p-3">
+                  <UButton
+                    v-if="record.can_notify"
+                    size="xs"
+                    color="warning"
+                    variant="soft"
+                    icon="i-lucide-send"
+                    label="Kirim Notif"
+                    :loading="actingNik === record.nik"
+                    @click="notifyEmployee(record)"
+                  />
+                  <span v-else class="text-xs text-muted">-</span>
+                </td>
               </tr>
-              <tr v-if="!data.records.length">
-                <td colspan="12" class="p-8 text-center text-muted">
+              <tr v-if="!filteredRecords.length">
+                <td colspan="13" class="p-8 text-center text-muted">
                   Tidak ada data pada periode ini.
                 </td>
               </tr>
@@ -349,20 +556,20 @@ onMounted(async () => {
           </table>
         </div>
         <div
-          v-if="data.pagination.total"
+          v-if="tablePagination.total"
           class="mt-4 flex flex-col items-center justify-between gap-3 border-t border-default pt-4 sm:flex-row"
         >
           <p class="text-sm text-muted">
-            Menampilkan {{ data.pagination.from }}-{{ data.pagination.to }} dari
-            {{ data.pagination.total }} karyawan
+            Menampilkan {{ tablePagination.from }}-{{ tablePagination.to }} dari
+            {{ tablePagination.total }} karyawan
           </p>
           <UPagination
             :page="page"
-            :total="data.pagination.total"
-            :items-per-page="data.pagination.per_page"
+            :total="tablePagination.total"
+            :items-per-page="tablePagination.per_page"
             :sibling-count="1"
             show-controls
-            @update:page="load"
+            @update:page="page = $event"
           />
         </div>
       </UCard>

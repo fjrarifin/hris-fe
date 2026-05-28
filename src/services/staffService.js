@@ -4,6 +4,10 @@ export function getStaffDashboard() {
   return api.get('/staff/dashboard')
 }
 
+export function sendAbsenceCancellationNotification(payload) {
+  return api.post('/staff/dashboard/absence-cancellation-notification', payload)
+}
+
 export function getStaffProfile() {
   return api.get('/staff/profile')
 }

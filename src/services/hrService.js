@@ -40,6 +40,18 @@ export function getHrAttendanceMinimumMonitoring(params) {
   return api.get('/hr/attendance/minimum-monitoring', { params })
 }
 
+export function exportHrAttendanceMinimumMonitoring(params) {
+  return api.get('/hr/attendance/minimum-monitoring/export', { params, responseType: 'blob' })
+}
+
+export function notifyHrAttendanceMinimumEmployee(payload) {
+  return api.post('/hr/attendance/minimum-monitoring/notify', payload)
+}
+
+export function notifyHrAttendanceMinimumEmployees(payload) {
+  return api.post('/hr/attendance/minimum-monitoring/notify-bulk', payload)
+}
+
 export function getHrAttendanceCorrections(params) {
   return api.get('/hr/attendance-corrections', { params })
 }
