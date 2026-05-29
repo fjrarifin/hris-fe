@@ -1,6 +1,17 @@
 <script setup>
 const sections = [
   {
+    title: 'Dashboard Karyawan',
+    icon: 'i-lucide-layout-dashboard',
+    note: 'Ringkasan status pribadi dan tim.',
+    steps: [
+      'Kartu Kehadiran Minggu Ini menampilkan status harian, jam masuk, jam keluar, dan durasi kerja.',
+      'Jika Anda memiliki bawahan, dashboard menampilkan Bawahan Langsung dan Persetujuan Bawahan.',
+      'Gunakan tombol Lihat Profil Saya untuk melihat data pekerjaan, keluarga, rekening, dan kontak darurat.',
+      'Ikon di kanan bawah menampilkan rekan kerja yang sedang aktif membuka aplikasi.',
+    ],
+  },
+  {
     title: 'Pengajuan Cuti',
     icon: 'i-lucide-calendar-minus-2',
     note: 'Maksimal 5 hari per pengajuan.',
@@ -70,27 +81,7 @@ const sections = [
       'Baca keterangan kode shift di halaman jadwal agar pilihan pagi, siang, libur, cuti, dan PH tidak tertukar.',
     ],
   },
-  {
-    title: 'Dashboard Karyawan',
-    icon: 'i-lucide-layout-dashboard',
-    note: 'Ringkasan status pribadi dan tim.',
-    steps: [
-      'Kartu Kehadiran Minggu Ini menampilkan status harian, jam masuk, jam keluar, dan durasi kerja.',
-      'Jika Anda memiliki bawahan, dashboard menampilkan Bawahan Langsung dan Persetujuan Bawahan.',
-      'Gunakan tombol Lihat Profil Saya untuk melihat data pekerjaan, keluarga, rekening, dan kontak darurat.',
-      'Ikon di kanan bawah menampilkan rekan kerja yang sedang aktif membuka aplikasi.',
-    ],
-  },
-  {
-    title: 'Data Keluarga Dinamis',
-    icon: 'i-lucide-baby',
-    note: 'Jumlah anak mengikuti data HRD.',
-    steps: [
-      'Data anak pada profil dapat berisi lebih dari 3 nama bila datanya sudah diisi oleh HRD.',
-      'Jumlah anak dihitung dari daftar nama anak yang diisi pada data karyawan.',
-      'Jika ada perubahan data keluarga, hubungi HRD untuk memperbarui profil.',
-    ],
-  },
+  
   {
     title: 'Sesi Login',
     icon: 'i-lucide-timer-reset',
@@ -108,7 +99,7 @@ const sections = [
     steps: [
       'Buka menu akun di kiri bawah, pilih Profil Saya, kemudian gunakan bagian Perbarui Foto Profil.',
       'Pilih foto formal seorang diri, wajah terlihat jelas menghadap depan, dalam format PNG, JPG, atau JPEG.',
-      'Ukuran file maksimal 1 MB. Periksa preview foto sebelum menekan Simpan Foto.',
+      'Ukuran file maksimal 5 MB. Periksa preview foto sebelum menekan Simpan Foto.',
       'Setelah berhasil disimpan, foto baru tampil pada profil dan tombol akun sidebar.',
     ],
   },

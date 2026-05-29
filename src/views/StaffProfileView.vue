@@ -227,8 +227,8 @@ function choosePhoto(event) {
     return
   }
 
-  if (file.size > 1024 * 1024) {
-    errorMessage.value = 'Ukuran foto profil maksimal 1 MB.'
+  if (file.size > 5 * 1024 * 1024) {
+    errorMessage.value = 'Ukuran foto profil maksimal 5 MB.'
     return
   }
 
@@ -478,7 +478,7 @@ onBeforeUnmount(clearPhotoSelection)
               <div>
                 <h3 class="text-lg font-semibold text-highlighted">Perbarui Foto Profil</h3>
                 <p class="mt-1 text-sm text-muted">
-                  Foto formal, wajah jelas, menghadap depan. Maks 1 MB.
+                  Foto formal, wajah jelas, menghadap depan. Maks 5 MB.
                 </p>
               </div>
               <UButton
