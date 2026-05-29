@@ -18,6 +18,7 @@ const photoLoadFailed = ref(false)
 const selectedPhoto = ref(null)
 const photoPreviewUrl = ref('')
 const photoInput = ref(null)
+const photoModalOpen = ref(false)
 const uploadingPhoto = ref(false)
 const savingContact = ref(false)
 const contactForm = reactive({
@@ -89,9 +90,7 @@ const personalFields = computed(() => [
   {
     label: 'Email',
     value: data.value?.user?.email || data.value?.employee?.email,
-    tooltip: emailLocked.value
-      ? 'Email tidak bisa diganti kembali. Harap hubungi HRD.'
-      : null,
+    tooltip: emailLocked.value ? 'Email tidak bisa diganti kembali. Harap hubungi HRD.' : null,
   },
   {
     label: 'Nomor HP',
@@ -137,7 +136,10 @@ const familyAndEducationFields = computed(() => [
   },
   { label: 'Jurusan', value: data.value?.employee?.jurusan },
   { label: 'Nama Pasangan', value: data.value?.employee?.nama_pasangan },
-  { label: 'Jumlah Anak', value: employeeChildren.value.length || data.value?.employee?.jumlah_anak },
+  {
+    label: 'Jumlah Anak',
+    value: employeeChildren.value.length || data.value?.employee?.jumlah_anak,
+  },
   ...employeeChildren.value.map((name, index) => ({
     label: `Nama Anak Ke-${index + 1}`,
     value: name,
@@ -195,6 +197,21 @@ function clearPhotoSelection() {
   }
 }
 
+function openPhotoModal() {
+  if (photoLocked.value) return
+
+  errorMessage.value = ''
+  message.value = ''
+  photoModalOpen.value = true
+}
+
+function closePhotoModal() {
+  if (uploadingPhoto.value) return
+
+  photoModalOpen.value = false
+  clearPhotoSelection()
+}
+
 function choosePhoto(event) {
   if (photoLocked.value) return
 
@@ -240,6 +257,7 @@ async function submitPhoto() {
     photoLoadFailed.value = false
     message.value = response.data.message
     clearPhotoSelection()
+    photoModalOpen.value = false
   } catch (error) {
     errorMessage.value = apiError(error, 'Foto profil tidak dapat diperbarui.')
   } finally {
@@ -325,7 +343,6 @@ onBeforeUnmount(clearPhotoSelection)
     <template v-if="!loading && data">
       <UCard>
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-center">
-          <!-- Kiri: info profil -->
           <div class="flex items-center gap-4">
             <img
               v-if="photoPreviewUrl || (data.user.photo_url && !photoLoadFailed)"
@@ -343,59 +360,36 @@ onBeforeUnmount(clearPhotoSelection)
                 {{ shown(data.employee.jabatan || data.employee.posisi) }} -
                 {{ shown(data.employee.departement || data.employee.divisi) }}
               </p>
-              <UBadge class="mt-3" color="primary" variant="subtle" :label="data.employee.nik" />
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <UBadge color="primary" variant="subtle" :label="data.employee.nik" />
+                <UButton
+                  v-if="!photoLocked"
+                  size="xs"
+                  variant="soft"
+                  icon="i-lucide-camera"
+                  label="Perbarui Foto Profil"
+                  @click="openPhotoModal"
+                />
+              </div>
             </div>
           </div>
 
-          <form
-            v-if="!photoLocked"
-            class="rounded-xl border border-default bg-elevated p-4 text-sm h-full"
-            @submit.prevent="submitPhoto"
-          >
-            <p class="font-medium text-highlighted">Perbarui Foto Profil</p>
-            <p class="mt-2 text-muted">Foto formal, wajah jelas, menghadap depan. Maks 1 MB.</p>
-            <p class="mt-2 text-xs text-muted">
-              Foto profil hanya dapat diganti 1 kali dalam jangka waktu 30 hari.
-            </p>
-            <input
-              ref="photoInput"
-              type="file"
-              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-              class="mt-4 block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-white"
-              :disabled="photoLocked || uploadingPhoto"
-              @change="choosePhoto"
-            />
-            <p v-if="selectedPhoto" class="mt-2 truncate text-xs text-muted">
-              Preview: {{ selectedPhoto.name }}
-            </p>
-            <div class="mt-4 flex gap-2">
-              <UButton
-                type="submit"
-                label="Simpan Foto"
-                icon="i-lucide-upload"
-                :disabled="photoLocked || !selectedPhoto"
-                :loading="uploadingPhoto"
-              />
-              <UButton
-                v-if="selectedPhoto"
-                type="button"
-                label="Batal"
-                color="neutral"
-                variant="outline"
-                @click="clearPhotoSelection"
-              />
+          <div class="rounded-lg border border-primary/30 bg-primary/5 p-5 text-sm h-full">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="font-medium text-primary">Masa Kerja</p>
+                <p class="mt-2 text-4xl font-semibold text-highlighted">
+                  {{ tenureDays === null ? '-' : tenureDays.toLocaleString('id-ID') }}
+                  <span class="text-base font-medium text-muted">hari</span>
+                </p>
+              </div>
+              <div
+                class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+              >
+                <UIcon name="i-lucide-award" class="size-6" />
+              </div>
             </div>
-          </form>
-          <div
-            v-else
-            class="rounded-xl border border-default bg-elevated p-4 text-sm h-full"
-          >
-            <p class="font-medium text-highlighted">Masa Bakti</p>
-            <p class="mt-2 text-2xl font-semibold text-highlighted">
-              {{ tenureDays === null ? '-' : tenureDays.toLocaleString('id-ID') }}
-              <span class="text-sm font-medium text-muted">hari</span>
-            </p>
-            <p class="mt-2 text-sm text-muted">
+            <p class="mt-3 text-sm text-muted">
               Bergabung sejak {{ formatDate(data.employee.join_date) }}.
             </p>
           </div>
@@ -464,6 +458,101 @@ onBeforeUnmount(clearPhotoSelection)
         <ProfileSection title="Keluarga dan Pendidikan" :fields="familyAndEducationFields" />
         <ProfileSection title="Rekening dan Kepesertaan" :fields="payrollFields" />
       </div>
+
+      <Teleport to="body">
+        <div
+          v-if="photoModalOpen"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Perbarui foto profil"
+        >
+          <button
+            type="button"
+            class="absolute inset-0 bg-slate-950/60"
+            aria-label="Tutup perbarui foto profil"
+            @click="closePhotoModal"
+          ></button>
+          <UCard class="relative w-full max-w-lg">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-semibold text-highlighted">Perbarui Foto Profil</h3>
+                <p class="mt-1 text-sm text-muted">
+                  Foto formal, wajah jelas, menghadap depan. Maks 1 MB.
+                </p>
+              </div>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                aria-label="Tutup"
+                :disabled="uploadingPhoto"
+                @click="closePhotoModal"
+              />
+            </div>
+
+            <form class="mt-5 space-y-4" @submit.prevent="submitPhoto">
+              <div class="flex items-center gap-4">
+                <img
+                  v-if="photoPreviewUrl || (data.user.photo_url && !photoLoadFailed)"
+                  :src="photoPreviewUrl || data.user.photo_url"
+                  :alt="data.employee.nama_karyawan"
+                  class="size-20 shrink-0 rounded-full object-cover"
+                  @error="handlePhotoError"
+                />
+                <UAvatar
+                  v-else
+                  :text="profileInitials"
+                  size="2xl"
+                  color="primary"
+                  class="shrink-0"
+                />
+                <div class="min-w-0 text-sm">
+                  <p class="font-medium text-highlighted">
+                    {{ shown(data.employee.nama_karyawan) }}
+                  </p>
+                  <p class="mt-1 text-muted">{{ data.employee.nik }}</p>
+                  <p v-if="selectedPhoto" class="mt-2 truncate text-xs text-muted">
+                    Preview: {{ selectedPhoto.name }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-default bg-elevated p-4 text-sm">
+                <p class="text-muted">
+                  Foto profil hanya dapat diganti 1 kali dalam jangka waktu 30 hari.
+                </p>
+                <input
+                  ref="photoInput"
+                  type="file"
+                  accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                  class="mt-4 block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-white"
+                  :disabled="photoLocked || uploadingPhoto"
+                  @change="choosePhoto"
+                />
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <UButton
+                  type="button"
+                  label="Batal"
+                  color="neutral"
+                  variant="outline"
+                  :disabled="uploadingPhoto"
+                  @click="closePhotoModal"
+                />
+                <UButton
+                  type="submit"
+                  label="Simpan Foto"
+                  icon="i-lucide-upload"
+                  :disabled="photoLocked || !selectedPhoto"
+                  :loading="uploadingPhoto"
+                />
+              </div>
+            </form>
+          </UCard>
+        </div>
+      </Teleport>
     </template>
   </section>
 </template>

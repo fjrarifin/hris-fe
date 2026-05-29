@@ -2,7 +2,13 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import EmployeeFormFields from '../components/EmployeeFormFields.vue'
-import { getEmployee, getEmployees, updateEmployee } from '../services/employeeService'
+import {
+  getEmployee,
+  getEmployeeFingerspotClouds,
+  getEmployees,
+  sendEmployeeFingerspotUserinfo,
+  updateEmployee,
+} from '../services/employeeService'
 import { createHrContract, getHrContractPdfPreview, updateHrContract } from '../services/hrService'
 import { apiError, formatDate } from '../utils/formatters'
 
@@ -16,6 +22,9 @@ const supervisorOptions = ref([])
 const contracts = ref([])
 const changeLogs = ref([])
 const loadingOptions = ref(false)
+const fingerspotClouds = ref([])
+const selectedFingerspotCloudId = ref('')
+const sendingFingerspotUserinfo = ref(false)
 const nik = computed(() => String(route.params.nik || ''))
 const contractFormOpen = ref(false)
 const editingContractId = ref(null)
@@ -73,19 +82,47 @@ async function loadEmployee() {
   loadingOptions.value = true
   errorMessage.value = ''
   try {
-    const [response, employeesResponse] = await Promise.all([
+    const [response, employeesResponse, fingerspotCloudsResponse] = await Promise.all([
       getEmployee(nik.value),
       getEmployees(),
+      getEmployeeFingerspotClouds(),
     ])
     assignForm(response.data.data ?? response.data)
     supervisorOptions.value = (employeesResponse.data.data ?? []).filter(
       (employee) => employee.nik !== nik.value,
     )
+    fingerspotClouds.value = fingerspotCloudsResponse.data.data ?? []
+    selectedFingerspotCloudId.value =
+      fingerspotClouds.value.length > 1 ? 'all' : fingerspotClouds.value[0]?.id || ''
   } catch (error) {
     errorMessage.value = apiError(error, 'Detail karyawan tidak dapat dimuat.')
   } finally {
     loading.value = false
     loadingOptions.value = false
+  }
+}
+
+async function sendToFingerspot() {
+  if (!selectedFingerspotCloudId.value) return
+
+  sendingFingerspotUserinfo.value = true
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    const response = await sendEmployeeFingerspotUserinfo(nik.value, {
+      cloud_id: selectedFingerspotCloudId.value,
+    })
+
+    if (response.data.ok) {
+      message.value = response.data.message
+    } else {
+      errorMessage.value = response.data.message
+    }
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Data karyawan tidak dapat dikirim ke mesin absensi.')
+  } finally {
+    sendingFingerspotUserinfo.value = false
   }
 }
 
@@ -294,6 +331,56 @@ onBeforeUnmount(closeDocumentPreview)
       </template>
     </form>
 
+    <UCard v-if="!loading && form.nik" title="Mesin Absensi">
+      <template #header>
+        <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+          <div>
+            <h3 class="font-semibold text-highlighted">Kirim ke Mesin Absensi</h3>
+            <p class="mt-1 text-sm text-muted">
+              Kirim nama dan PIN ke Fingerspot supaya karyawan bisa dicari di mesin untuk enroll
+              sidik jari.
+            </p>
+          </div>
+          <UButton
+            type="button"
+            icon="i-lucide-fingerprint"
+            label="Kirim Userinfo"
+            :loading="sendingFingerspotUserinfo"
+            :disabled="!form.pin || !selectedFingerspotCloudId || !fingerspotClouds.length"
+            @click="sendToFingerspot"
+          />
+        </div>
+      </template>
+
+      <div class="grid gap-4 md:grid-cols-3">
+        <label class="text-sm text-muted md:col-span-2">
+          Mesin Tujuan
+          <select
+            v-model="selectedFingerspotCloudId"
+            class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="sendingFingerspotUserinfo || !fingerspotClouds.length"
+          >
+            <option value="" disabled>Pilih mesin</option>
+            <option v-if="fingerspotClouds.length > 1" value="all">Semua mesin</option>
+            <option v-for="cloud in fingerspotClouds" :key="cloud.id" :value="cloud.id">
+              {{ cloud.name }}
+            </option>
+          </select>
+        </label>
+        <div class="rounded-lg border border-default bg-elevated p-4 text-sm">
+          <p class="text-muted">PIN Absensi</p>
+          <p class="mt-1 text-lg font-semibold text-highlighted">{{ form.pin || '-' }}</p>
+          <p v-if="!form.pin" class="mt-2 text-xs text-warning">
+            Isi PIN saat membuat karyawan agar bisa dikirim ke mesin.
+          </p>
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-muted">
+        Template sidik jari/wajah tidak dikirim dari HRIS. Setelah userinfo masuk ke mesin,
+        daftarkan verifikasi langsung dari mesin absensi.
+      </p>
+    </UCard>
+
     <UCard v-if="!loading && form.nik" title="Kelola Kontrak Karyawan">
       <template #header>
         <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
@@ -491,11 +578,7 @@ onBeforeUnmount(closeDocumentPreview)
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="log in flattenedChangeLogs"
-              :key="log.id"
-              class="border-t border-default"
-            >
+            <tr v-for="log in flattenedChangeLogs" :key="log.id" class="border-t border-default">
               <td class="p-3 whitespace-nowrap">{{ log.date }}</td>
               <td class="p-3 whitespace-nowrap">{{ log.time }}</td>
               <td class="p-3 font-medium text-highlighted">{{ log.changed_by_name }}</td>
@@ -512,7 +595,7 @@ onBeforeUnmount(closeDocumentPreview)
             </tr>
           </tbody>
         </table>
-        </div>
+      </div>
       <p v-else class="py-8 text-center text-sm text-muted">
         Belum ada riwayat perubahan data karyawan.
       </p>

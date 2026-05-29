@@ -277,7 +277,9 @@ function subordinateAttendanceLabel(status) {
       off: 'Libur',
       missing_in: 'Scan Masuk Kosong',
       missing_out: 'Hadir tanpa scan pulang',
-      absent: 'Tidak Hadir',
+      not_present: 'Tidak Masuk',
+      alpha: 'Alfa',
+      absent: 'Tidak Masuk',
     }[status] || 'Tidak Hadir'
   )
 }
@@ -295,6 +297,8 @@ function subordinateAttendanceColor(status) {
       off: 'neutral',
       missing_in: 'warning',
       missing_out: 'warning',
+      not_present: 'neutral',
+      alpha: 'error',
       absent: 'error',
     }[status] || 'neutral'
   )
@@ -317,7 +321,7 @@ function subordinateAttendanceStatus(employee) {
     return 'missing_in'
   }
 
-  return employee.attendance_status || 'absent'
+  return employee.attendance_status || 'not_present'
 }
 
 function weeklyAttendanceLabel(status) {

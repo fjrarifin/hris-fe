@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { getStaffAttendance } from '../services/staffService'
 import { apiError, formatDate } from '../utils/formatters'
 
@@ -15,9 +15,116 @@ const filters = reactive({
 })
 const loading = ref(true)
 const errorMessage = ref('')
+const calendarMonth = ref(monthKeyFromDate(new Date()))
+const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+
+const recordsByDate = computed(
+  () => new Map(attendance.value.records.map((record) => [record.date, record])),
+)
+
+const calendarTitle = computed(() =>
+  new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(
+    monthStartFromKey(calendarMonth.value),
+  ),
+)
+
+const calendarAttendanceCount = computed(
+  () => calendarDays.value.filter((day) => day.record).length,
+)
+
+const calendarDays = computed(() => {
+  const start = monthStartFromKey(calendarMonth.value)
+  const year = start.getFullYear()
+  const month = start.getMonth()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const leadingDays = start.getDay()
+  const days = []
+
+  for (let index = 0; index < leadingDays; index += 1) {
+    days.push({ key: `leading-${index}`, inMonth: false })
+  }
+
+  for (let date = 1; date <= daysInMonth; date += 1) {
+    const current = new Date(year, month, date)
+    const key = dateKeyFromDate(current)
+
+    days.push({
+      key,
+      date,
+      inMonth: true,
+      isToday: key === dateKeyFromDate(new Date()),
+      isInFilterRange: isDateInFilterRange(key),
+      record: recordsByDate.value.get(key),
+    })
+  }
+
+  while (days.length % 7 !== 0) {
+    days.push({ key: `trailing-${days.length}`, inMonth: false })
+  }
+
+  return days
+})
+
+function dateKeyFromDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function monthKeyFromDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+
+  return `${year}-${month}`
+}
+
+function monthStartFromKey(value) {
+  const [year, month] = value.split('-').map(Number)
+
+  return new Date(year, month - 1, 1)
+}
+
+function preferredCalendarMonth(periodFilters) {
+  const today = dateKeyFromDate(new Date())
+  const start = periodFilters.start_date
+  const end = periodFilters.end_date
+
+  if (start && end && start <= today && today <= end) {
+    return today.slice(0, 7)
+  }
+
+  return (start || end || today).slice(0, 7)
+}
+
+function isDateInFilterRange(date) {
+  const start = filters.start_date
+  const end = filters.end_date
+
+  if (start && date < start) {
+    return false
+  }
+
+  if (end && date > end) {
+    return false
+  }
+
+  return true
+}
 
 function formatTime(value) {
   return value ? `${value.slice(0, 5)} WIB` : '-'
+}
+
+function formatShortTime(value) {
+  return value ? value.slice(0, 5) : '-'
+}
+
+function changeCalendarMonth(offset) {
+  const current = monthStartFromKey(calendarMonth.value)
+  current.setMonth(current.getMonth() + offset)
+  calendarMonth.value = monthKeyFromDate(current)
 }
 
 async function load() {
@@ -33,6 +140,7 @@ async function load() {
     attendance.value = data
     filters.start_date = data.filters.start_date
     filters.end_date = data.filters.end_date
+    calendarMonth.value = preferredCalendarMonth(data.filters)
   } catch (error) {
     errorMessage.value = apiError(error, 'Riwayat absensi tidak dapat dimuat.')
   } finally {
@@ -119,6 +227,93 @@ onMounted(load)
         </p>
       </UCard>
     </div>
+
+    <UCard>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-muted">Kalender Absensi</p>
+          <h3 class="mt-1 text-xl font-semibold capitalize text-highlighted">
+            {{ calendarTitle }}
+          </h3>
+          <p class="mt-1 text-sm text-muted">
+            {{ calendarAttendanceCount }} hari memiliki data scan pada bulan ini.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <UButton
+            type="button"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-chevron-left"
+            aria-label="Bulan sebelumnya"
+            @click="changeCalendarMonth(-1)"
+          />
+          <UButton
+            type="button"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-chevron-right"
+            aria-label="Bulan berikutnya"
+            @click="changeCalendarMonth(1)"
+          />
+        </div>
+      </div>
+
+      <div v-if="loading" class="py-8 text-center text-sm text-muted">
+        Memuat kalender absensi...
+      </div>
+      <div v-else class="mt-5 overflow-x-auto">
+        <div class="min-w-[760px] overflow-hidden rounded-lg border border-default">
+          <div class="grid grid-cols-7 border-b border-default bg-muted/50">
+            <div
+              v-for="day in weekDays"
+              :key="day"
+              class="border-r border-default px-3 py-2 text-center text-xs font-semibold text-muted last:border-r-0"
+            >
+              {{ day }}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-7 bg-default">
+            <div
+              v-for="day in calendarDays"
+              :key="day.key"
+              class="min-h-28 border-r border-b border-default p-2 last:border-r-0"
+              :class="[
+                day.inMonth ? 'bg-default' : 'bg-muted/30',
+                day.isToday ? 'ring-2 ring-primary ring-inset' : '',
+                day.inMonth && !day.isInFilterRange ? 'text-dimmed' : '',
+              ]"
+            >
+              <template v-if="day.inMonth">
+                <div class="flex items-start justify-between gap-2">
+                  <span class="text-sm font-semibold text-highlighted">{{ day.date }}</span>
+                  <UBadge
+                    v-if="day.record"
+                    size="xs"
+                    variant="subtle"
+                    :color="day.record.is_complete ? 'success' : 'warning'"
+                    :label="day.record.is_complete ? 'Lengkap' : 'Belum'"
+                  />
+                </div>
+
+                <div v-if="day.record" class="mt-3 space-y-1.5 text-[11px] leading-tight">
+                  <div class="rounded-md bg-success/10 px-2 py-1 text-success">
+                    Masuk {{ formatShortTime(day.record.scan_in) }}
+                  </div>
+                  <div class="rounded-md bg-primary/10 px-2 py-1 text-primary">
+                    Pulang {{ formatShortTime(day.record.scan_out) }}
+                  </div>
+                </div>
+                <p v-else class="mt-5 text-xs text-muted">
+                  {{ day.isInFilterRange ? 'Tidak ada scan' : 'Di luar filter' }}
+                </p>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </UCard>
 
     <UCard title="Riwayat Absensi Harian">
       <div v-if="loading" class="py-8 text-center text-sm text-muted">
