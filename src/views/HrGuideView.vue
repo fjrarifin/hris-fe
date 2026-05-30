@@ -16,6 +16,11 @@ const guides = [
     text: 'Pilih tanggal awal dan tanggal akhir untuk melihat data absensi. Jika karyawan hanya scan masuk atau hanya scan pulang, datanya tetap tampil tetapi ditandai belum lengkap. Pada dashboard karyawan, status hari ini menjadi Sedang Bekerja bila sudah scan masuk tetapi belum scan pulang.',
   },
   {
+    title: 'Monitoring Minimum Absensi',
+    icon: 'i-lucide-chart-no-axes-combined',
+    text: 'Gunakan menu Monitoring Minimum Absensi untuk mengecek karyawan yang belum memenuhi target hari hadir dan durasi kerja pada periode tertentu. HRD dapat memfilter departemen atau karyawan, melihat selisih hari dan durasi, mengekspor rekap, serta mengirim notifikasi individual atau massal kepada karyawan yang masih kurang target.',
+  },
+  {
     title: 'Jadwal Karyawan',
     icon: 'i-lucide-calendar-range',
     text: 'Gunakan pilihan tanggal, departemen, dan karyawan untuk mencari jadwal. HRD dapat membuka detail karyawan dan mengubah jadwal yang sudah dibuat oleh atasan. Untuk mengisi banyak jadwal sekaligus, gunakan template yang tersedia. Keterangan kode shift juga tersedia di halaman tersebut.',

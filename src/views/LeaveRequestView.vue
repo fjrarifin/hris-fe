@@ -15,6 +15,16 @@ const balanceCards = computed(() => [
   { label: 'Saldo Tersedia', value: data.value.balance.available || 0 },
 ])
 
+const selectedLeaveLabel = computed(() => {
+  return data.value.leave_types && data.value.leave_types[form.leave_type]
+    ? data.value.leave_types[form.leave_type]
+    : form.leave_type
+})
+
+const isNormatif = computed(() => {
+  return String(selectedLeaveLabel.value || '').toLowerCase().includes('normatif')
+})
+
 async function load() {
   loading.value = true
   try {
@@ -85,6 +95,18 @@ onMounted(load)
               {{ label }}
             </option>
           </select>
+          <div
+            v-if="isNormatif"
+            class="mt-2 flex items-center gap-2 text-xs text-muted"
+            :title="`Cuti normatif: jenis cuti yang tidak dapat dihindari, mis. meninggal keluarga dekat, melahirkan, dan kejadian lain di luar hak cuti tahunan.`"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-9-4a1 1 0 112 0v1a1 1 0 11-2 0V6zm1 3a1 1 0 00-.993.883L9 10v3a1 1 0 001.993.117L11 13v-3a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <span>
+              Cuti normatif: jenis cuti yang tidak dapat dihindari (mis. meninggal keluarga dekat, cuti melahirkan), bukan bagian dari hak cuti tahunan.
+            </span>
+          </div>
         </label>
         <label class="text-sm text-muted">
           Alasan
