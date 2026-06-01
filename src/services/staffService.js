@@ -20,6 +20,10 @@ export function updateStaffProfileContact(payload) {
   return api.patch('/staff/profile/contact', payload)
 }
 
+export function requestStaffProfilePhoneOtp(payload) {
+  return api.post('/staff/profile/contact/phone-otp', payload)
+}
+
 export function getStaffAttendance(params) {
   return api.get('/staff/attendance', { params })
 }

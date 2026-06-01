@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import ProfileSection from '../components/ProfileSection.vue'
 import {
   getStaffProfile,
+  requestStaffProfilePhoneOtp,
   updateStaffProfileContact,
   updateStaffProfilePhoto,
 } from '../services/staffService'
@@ -21,6 +22,9 @@ const photoInput = ref(null)
 const photoModalOpen = ref(false)
 const uploadingPhoto = ref(false)
 const savingContact = ref(false)
+const requestingPhoneOtp = ref(false)
+const phoneOtpRequested = ref(false)
+const phoneOtp = ref('')
 const contactForm = reactive({
   email: '',
   no_hp: '',
@@ -184,6 +188,8 @@ async function loadProfile() {
 function assignContactForm() {
   contactForm.email = data.value?.user?.email || data.value?.employee?.email || ''
   contactForm.no_hp = data.value?.employee?.no_hp || ''
+  phoneOtpRequested.value = false
+  phoneOtp.value = ''
 }
 
 function clearPhotoSelection() {
@@ -281,6 +287,16 @@ async function submitContact() {
 
     if (!phoneLocked.value && contactForm.no_hp !== (data.value?.employee?.no_hp || '')) {
       payload.no_hp = contactForm.no_hp
+
+      if (!phoneOtpRequested.value) {
+        requestingPhoneOtp.value = true
+        const response = await requestStaffProfilePhoneOtp({ no_hp: contactForm.no_hp })
+        phoneOtpRequested.value = true
+        message.value = response.data.message
+        return
+      }
+
+      payload.phone_otp = phoneOtp.value
     }
 
     const response = await updateStaffProfileContact(payload)
@@ -297,6 +313,7 @@ async function submitContact() {
     errorMessage.value = apiError(error, 'Kontak tidak dapat diperbarui.')
   } finally {
     savingContact.value = false
+    requestingPhoneOtp.value = false
   }
 }
 
@@ -430,12 +447,29 @@ onBeforeUnmount(clearPhotoSelection)
                 Nomor telepon sudah pernah diubah. Hubungi HRD untuk perubahan berikutnya.
               </span>
             </label>
+            <label v-if="phoneOtpRequested" class="text-sm text-muted">
+              OTP Nomor Telepon Baru
+              <input
+                v-model="phoneOtp"
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+                placeholder="Masukkan 6 digit OTP WhatsApp"
+              />
+            </label>
           </div>
 
           <div class="flex gap-2">
             <UButton
               type="submit"
-              label="Simpan Kontak"
+              :label="
+                requestingPhoneOtp
+                  ? 'Mengirim OTP...'
+                  : phoneOtpRequested
+                    ? 'Verifikasi & Simpan'
+                    : 'Simpan Kontak'
+              "
               icon="i-lucide-save"
               :loading="savingContact"
               :disabled="contactLocked || !contactDirty"
