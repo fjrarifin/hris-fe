@@ -58,7 +58,10 @@ const selectedPeriod = computed({
   },
 })
 
-const canGenerate = computed(() => Boolean(filters.start_date && filters.end_date))
+const selectedPeriodRecord = computed(() =>
+  periods.value.find((period) => `${period.start_date}|${period.end_date}` === selectedPeriod.value),
+)
+const canGenerate = computed(() => Boolean(filters.start_date && filters.end_date && selectedPeriodRecord.value?.can_generate !== false))
 const sortedDrafts = computed(() => [...drafts.value].sort((a, b) => (a.name || '').localeCompare(b.name || '')))
 const filteredDrafts = computed(() => {
   const needle = tableFilters.q.trim().toLowerCase()
@@ -443,14 +446,14 @@ onMounted(loadPeriods)
   <section class="space-y-6">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Proses Payroll</h2>
-      <p class="mt-1 text-sm text-muted">Generate draft, review komponen, submit, approve, lock, dan kirim slip payroll.</p>
+      <p class="mt-1 text-sm text-muted">Generate draft per periode payroll 25-24, review komponen, submit, approve, lock, dan kirim slip payroll.</p>
     </div>
 
     <UCard>
       <template #header>
         <div>
           <h3 class="font-semibold text-highlighted">Periode Payroll</h3>
-          <p class="text-xs text-muted">Dropdown ini menampilkan periode payroll yang sudah pernah digenerate/tersimpan.</p>
+          <p class="text-xs text-muted">Pilih periode payroll bulanan 25-24. Generate hanya aktif untuk periode yang sudah terlewati.</p>
         </div>
       </template>
       <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
@@ -459,7 +462,12 @@ onMounted(loadPeriods)
             <option v-if="!periods.length && filters.start_date" :value="selectedPeriod">
               {{ filters.start_date }} - {{ filters.end_date }}
             </option>
-            <option v-for="period in periods" :key="`${period.start_date}|${period.end_date}`" :value="`${period.start_date}|${period.end_date}`">
+            <option
+              v-for="period in periods"
+              :key="`${period.start_date}|${period.end_date}`"
+              :value="`${period.start_date}|${period.end_date}`"
+              :disabled="period.can_generate === false"
+            >
               {{ period.label }}
             </option>
           </select>
