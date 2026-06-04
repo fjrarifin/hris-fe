@@ -92,6 +92,14 @@ const staffStatistics = computed(() => {
       color: 'info',
       to: '/staff/public-holiday',
     },
+    {
+      title: 'Saldo EO',
+      value: summary.extra_off_balance,
+      description: 'Extra Off dapat diajukan kapanpun',
+      badge: 'EO',
+      color: 'success',
+      to: '/staff/extra-off',
+    },
   ]
 })
 
@@ -325,8 +333,14 @@ function subordinateAttendanceStatus(employee) {
 }
 
 function weeklyAttendanceLabel(status) {
+  if (status === 'extra_off' || status === 'eo') {
+    return 'Extra Off'
+  }
+
   return (
     {
+      public_holiday: 'Public Holiday',
+      ph: 'Public Holiday',
       checked_out: 'Hadir',
       working: 'Sedang Bekerja',
       present: 'Sedang Bekerja',
@@ -339,8 +353,14 @@ function weeklyAttendanceLabel(status) {
 }
 
 function weeklyAttendanceColor(status) {
+  if (status === 'extra_off' || status === 'eo') {
+    return 'info'
+  }
+
   return (
     {
+      public_holiday: 'info',
+      ph: 'info',
       checked_out: 'success',
       working: 'success',
       present: 'success',
@@ -353,7 +373,7 @@ function weeklyAttendanceColor(status) {
 }
 
 function approvalTypeLabel(type) {
-  return { leave: 'Cuti', ph: 'PH', permission: 'Izin / Sakit' }[type] || type
+  return { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
 }
 
 function openAttendanceDepartment(department) {

@@ -52,6 +52,18 @@ export function deletePublicHoliday(id) {
   return api.delete(`/staff/public-holiday/${id}`)
 }
 
+export function getExtraOffs() {
+  return api.get('/staff/extra-off')
+}
+
+export function createExtraOff(payload) {
+  return api.post('/staff/extra-off', payload)
+}
+
+export function deleteExtraOff(id) {
+  return api.delete(`/staff/extra-off/${id}`)
+}
+
 export function getPermissions() {
   return api.get('/staff/permission')
 }

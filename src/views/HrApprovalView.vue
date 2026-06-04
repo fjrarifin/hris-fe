@@ -12,6 +12,7 @@ const title = computed(
       leave: 'Cuti',
       overtime: 'Lembur',
       ph: 'Public Holiday',
+      extra_off: 'Extra Off',
       permission: 'Izin / Sakit',
     })[type.value],
 )

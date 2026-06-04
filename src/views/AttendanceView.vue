@@ -99,7 +99,7 @@ function dayColor(day) {
   if (day.has_approved_absence_conflict) return 'warning'
   if (day.status === 'M') return 'success'
   if (day.status === 'A') return 'error'
-  if (['PH', 'C', 'S', 'I'].includes(day.status)) return 'info'
+  if (['PH', 'EO', 'C', 'S', 'I'].includes(day.status)) return 'info'
   return 'neutral'
 }
 
@@ -364,7 +364,7 @@ onMounted(async () => {
         color="warning"
         variant="subtle"
         title="Approval ketidakhadiran memiliki data scan"
-        :description="`${data.summary.approved_absence_conflicts} tanggal approval PH, Cuti, Sakit, atau Izin memiliki scan. Kode ditampilkan sebagai M dan HRD dapat membatalkannya pada kolom aksi.`"
+        :description="`${data.summary.approved_absence_conflicts} tanggal approval PH, EO, Cuti, Sakit, atau Izin memiliki scan. Kode ditampilkan sebagai M dan HRD dapat membatalkannya pada kolom aksi.`"
       />
       <!-- <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <UCard>
@@ -423,9 +423,9 @@ onMounted(async () => {
           </div>
         </template>
         <p class="mb-4 text-xs text-muted">
-          M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, C = Cuti, S = Sakit, I = Izin. Hak
+          M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, EO = Extra Off, C = Cuti, S = Sakit, I = Izin. Hak
           PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur nasional; jatah
-          sebelumnya tetap berlaku dalam masa 90 hari. PH dan Cuti yang disetujui dihitung 8 jam
+          sebelumnya tetap berlaku dalam masa 90 hari. PH, EO, dan Cuti yang disetujui dihitung 8 jam
           kerja. Target bulanan:
           {{ data.targets.ideal_attendance_days }} hari dan
           {{ data.targets.minimum_work_duration }}.
@@ -449,6 +449,7 @@ onMounted(async () => {
                 <th class="min-w-20 p-3">M</th>
                 <th class="min-w-20 p-3">A</th>
                 <th class="min-w-20 p-3">PH</th>
+                <th class="min-w-20 p-3">EO</th>
                 <th class="min-w-20 p-3">C</th>
                 <th class="min-w-20 p-3">S</th>
                 <th class="min-w-20 p-3">I</th>
@@ -484,6 +485,7 @@ onMounted(async () => {
                 <td class="p-3 font-medium text-highlighted">{{ record.total_present }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_alpha }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_ph }}</td>
+                <td class="p-3 font-medium text-highlighted">{{ record.total_eo || 0 }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_leave }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_sick }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_permission }}</td>
@@ -513,7 +515,7 @@ onMounted(async () => {
                 </td>
               </tr>
               <tr v-if="!data.records.length">
-                <td :colspan="data.dates.length + 18" class="p-8 text-center text-muted">
+                <td :colspan="data.dates.length + 19" class="p-8 text-center text-muted">
                   Tidak ada absensi pada periode ini.
                 </td>
               </tr>

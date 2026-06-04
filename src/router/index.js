@@ -24,6 +24,7 @@ import StaffProfileView from '../views/StaffProfileView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
 import LeaveRequestView from '../views/LeaveRequestView.vue'
 import PublicHolidayView from '../views/PublicHolidayView.vue'
+import ExtraOffView from '../views/ExtraOffView.vue'
 import PermissionView from '../views/PermissionView.vue'
 import StaffApprovalView from '../views/StaffApprovalView.vue'
 import OvertimeView from '../views/OvertimeView.vue'
@@ -152,6 +153,12 @@ const router = createRouter({
           name: 'staff-public-holiday',
           component: PublicHolidayView,
           meta: { title: 'Public Holiday', levels: [3], menuKey: 'staff-public-holiday' },
+        },
+        {
+          path: 'staff/extra-off',
+          name: 'staff-extra-off',
+          component: ExtraOffView,
+          meta: { title: 'Extra Off', levels: [3], menuKey: 'staff-extra-off' },
         },
         {
           path: 'staff/permission',
@@ -288,6 +295,17 @@ const router = createRouter({
             levels: [2],
             menuKey: 'hr-approval-ph',
             approvalType: 'ph',
+          },
+        },
+        {
+          path: 'hr/approvals/extra-off',
+          name: 'hr-approval-extra-off',
+          component: HrApprovalView,
+          meta: {
+            title: 'Approval Extra Off',
+            levels: [2],
+            menuKey: 'hr-approval-extra-off',
+            approvalType: 'extra_off',
           },
         },
         {

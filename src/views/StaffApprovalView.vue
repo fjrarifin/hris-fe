@@ -10,7 +10,7 @@ const errorMessage = ref('')
 const actingId = ref(null)
 
 function typeLabel(type) {
-  return { leave: 'Cuti', ph: 'PH', permission: 'Izin / Sakit' }[type] || type
+  return { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
 }
 
 async function load() {
