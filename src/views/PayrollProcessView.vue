@@ -469,8 +469,9 @@ onMounted(loadPeriods)
       </div>
     </UCard>
 
-    <div v-if="draftSummary" class="grid gap-4 md:grid-cols-4">
+    <div v-if="draftSummary" class="grid gap-4 md:grid-cols-5">
       <UCard><p class="text-xs text-muted">Payroll Tersimpan</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.total_payrolls }}</p></UCard>
+      <UCard><p class="text-xs text-muted">Jumlah Kehadiran</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.total_hari_masuk || 0 }}</p></UCard>
       <UCard><p class="text-xs text-muted">Total NET</p><p class="mt-1 text-xl font-semibold text-success">{{ rupiah(draftSummary.total_net) }}</p></UCard>
       <UCard><p class="text-xs text-muted">Draft</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.statuses?.draft || 0 }}</p></UCard>
       <UCard><p class="text-xs text-muted">Submitted</p><p class="mt-1 text-xl font-semibold text-warning">{{ draftSummary.statuses?.submitted || 0 }}</p></UCard>
@@ -586,9 +587,10 @@ onMounted(loadPeriods)
     </UCard>
 
     <template v-if="preview">
-      <div class="grid gap-4 md:grid-cols-5">
+      <div class="grid gap-4 md:grid-cols-6">
         <UCard><p class="text-xs text-muted">Karyawan</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.total_employees }}</p></UCard>
         <UCard><p class="text-xs text-muted">Periode Hari Kerja</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.periode_hari_kerja }}</p></UCard>
+        <UCard><p class="text-xs text-muted">Jumlah Kehadiran</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.total_hari_masuk || 0 }}</p></UCard>
         <UCard><p class="text-xs text-muted">Siap Generate</p><p class="mt-1 text-xl font-semibold text-success">{{ preview.summary.can_generate }}</p></UCard>
         <UCard><p class="text-xs text-muted">Master Belum Lengkap</p><p class="mt-1 text-xl font-semibold text-warning">{{ preview.summary.master_incomplete }}</p></UCard>
         <UCard><p class="text-xs text-muted">Blocker Absensi</p><p class="mt-1 text-xl font-semibold text-error">{{ preview.summary.blocker_count }}</p></UCard>
@@ -656,7 +658,8 @@ onMounted(loadPeriods)
           </div>
         </template>
 
-        <div class="grid gap-4 md:grid-cols-4">
+        <div class="grid gap-4 md:grid-cols-5">
+          <UCard><p class="text-xs text-muted">Hari Masuk</p><p class="mt-1 font-semibold">{{ selectedDraft.total_hari_masuk }} / {{ selectedDraft.periode_hari_kerja }}</p><p v-if="selectedDraft.extra_off_days" class="text-xs text-success">Extra off: {{ selectedDraft.extra_off_days }}</p></UCard>
           <UCard><p class="text-xs text-muted">Pendapatan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).earning) }}</p></UCard>
           <UCard><p class="text-xs text-muted">Potongan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).deduction) }}</p></UCard>
           <UCard><p class="text-xs text-muted">BPJS Perusahaan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).employer_contribution) }}</p></UCard>
