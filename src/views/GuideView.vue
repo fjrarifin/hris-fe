@@ -18,8 +18,8 @@ const sections = [
     steps: [
       'Buka menu Pengajuan Cuti dan isi jenis, periode, serta alasan.',
       'Pastikan tanggal yang dipilih tidak bentrok dengan cuti atau PH yang sudah diajukan.',
-      'Atasan langsung menyetujui atau menolak pengajuan.',
-      'Pengajuan yang disetujui atasan akan dilanjutkan ke HRD.',
+      'Atasan langsung menyetujui atau menolak pengajuan sebelum diteruskan ke HRD.',
+      'Khusus karyawan level Manager atau GM, pengajuan langsung masuk ke HRD tanpa approval atasan.',
       'Jika Anda tetap masuk kerja pada tanggal cuti yang sudah disetujui, cuti tersebut dapat dibatalkan dan jatah cuti kembali tersedia.',
     ],
   },
@@ -30,8 +30,8 @@ const sections = [
     steps: [
       'Pilih Public Holiday (PH) yang masih tersedia, lalu tentukan tanggal pengambilan yang diinginkan.',
       'Pengajuan PH tidak dapat diajukan untuk tanggal yang sudah terlewat, bentrok dengan jadwal cuti, maupun melewati masa berlaku PH.',
-      'Pengajuan PH akan diproses terlebih dahulu oleh atasan langsung.',
-      'Setelah mendapatkan persetujuan atasan, pengajuan akan diverifikasi oleh HRD.',
+      'Pengajuan PH diproses terlebih dahulu oleh atasan langsung, lalu diverifikasi oleh HRD.',
+      'Khusus karyawan level Manager atau GM, pengajuan langsung masuk ke HRD tanpa approval atasan.',
       'Apabila Anda tetap masuk kerja pada tanggal PH yang telah disetujui, maka pengajuan PH dapat dibatalkan dan hak PH akan dikembalikan untuk digunakan kembali.',
     ],
   },
@@ -42,7 +42,7 @@ const sections = [
     steps: [
       'Pilih Izin atau Sakit dan isi tanggal pengajuan.',
       'Untuk Izin, tuliskan alasan; untuk Sakit, unggah dokumen pendukung.',
-      'Atasan memeriksa pengajuan sebelum diteruskan ke HRD.',
+      'Atasan memeriksa pengajuan sebelum diteruskan ke HRD. Untuk karyawan level Manager atau GM, pengajuan langsung masuk ke HRD.',
     ],
   },
   {

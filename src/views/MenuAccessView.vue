@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   getMenuAccess,
   updateMenuAccess,
@@ -15,6 +15,56 @@ const selectedUserId = ref('')
 const loading = ref(false)
 const message = ref('')
 const errorMessage = ref('')
+
+const menuGroups = [
+  {
+    key: 'general',
+    label: 'Umum & Admin',
+    matches: (menu) =>
+      ['dashboard', 'employees', 'attendance', 'payroll', 'menu-access', 'audit-logs'].includes(
+        menu.key,
+      ),
+  },
+  {
+    key: 'hr',
+    label: 'Menu HRD',
+    matches: (menu) => menu.key.startsWith('hr-'),
+  },
+  {
+    key: 'staff',
+    label: 'Menu Karyawan',
+    matches: (menu) => menu.key.startsWith('staff-'),
+  },
+]
+
+const groupedMenus = computed(() => {
+  const used = new Set()
+  const groups = menuGroups.map((group) => {
+    const items = menus.value.filter((menu) => {
+      const matched = group.matches(menu)
+
+      if (matched) {
+        used.add(menu.id)
+      }
+
+      return matched
+    })
+
+    return { ...group, items }
+  })
+
+  const others = menus.value.filter((menu) => !used.has(menu.id))
+
+  if (others.length) {
+    groups.push({
+      key: 'other',
+      label: 'Lainnya',
+      items: others,
+    })
+  }
+
+  return groups.filter((group) => group.items.length)
+})
 
 async function loadAccess() {
   loading.value = true
@@ -118,9 +168,6 @@ onMounted(loadAccess)
   <section class="space-y-6">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Akses Menu Frontend</h2>
-      <p class="mt-1 text-sm text-muted">
-        Tentukan menu yang tampil berdasarkan level atau buat pengecualian untuk user tertentu.
-      </p>
     </div>
 
     <AlertToastBridge :message="message" :error="errorMessage" />
@@ -132,46 +179,52 @@ onMounted(loadAccess)
 
       <div v-if="loading" class="py-8 text-center text-sm text-muted">Memuat akses menu...</div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-gray-200 text-muted dark:border-gray-800">
-            <tr>
-              <th class="p-3 font-medium">Menu</th>
-              <th v-for="level in levels" :key="level.value" class="p-3 font-medium">
-                {{ level.label }}
-              </th>
-              <th class="p-3 font-medium">Aktif</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="menu in menus"
-              :key="menu.id"
-              class="border-b border-gray-100 last:border-0 dark:border-gray-800"
-            >
-              <td class="p-3">
-                <p class="font-medium text-highlighted">{{ menu.label }}</p>
-                <p class="text-xs text-muted">{{ menu.path }}</p>
-              </td>
-              <td v-for="level in levels" :key="level.value" class="p-3">
-                <input
-                  type="checkbox"
-                  :checked="levelEnabled(menu, level.value)"
-                  :disabled="lockedMenu(menu)"
-                  @change="toggleLevel(menu, level.value, $event.target.checked)"
-                />
-              </td>
-              <td class="p-3">
-                <input
-                  type="checkbox"
-                  :checked="menu.is_active"
-                  :disabled="lockedMenu(menu)"
-                  @change="toggleActive(menu, $event.target.checked)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else class="space-y-6">
+        <section v-for="group in groupedMenus" :key="group.key" class="space-y-3">
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ group.label }}</h4>
+
+          <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+            <table class="w-full text-left text-sm">
+              <thead class="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900/60">
+                <tr>
+                  <th class="p-3 font-medium">Menu</th>
+                  <th v-for="level in levels" :key="level.value" class="p-3 font-medium">
+                    {{ level.label }}
+                  </th>
+                  <th class="p-3 font-medium">Aktif</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="menu in group.items"
+                  :key="menu.id"
+                  class="border-b border-gray-100 last:border-0 dark:border-gray-800"
+                >
+                  <td class="p-3">
+                    <p class="font-medium text-highlighted">{{ menu.label }}</p>
+                    <p class="text-xs text-muted">{{ menu.path }}</p>
+                  </td>
+                  <td v-for="level in levels" :key="level.value" class="p-3">
+                    <input
+                      type="checkbox"
+                      :checked="levelEnabled(menu, level.value)"
+                      :disabled="lockedMenu(menu)"
+                      @change="toggleLevel(menu, level.value, $event.target.checked)"
+                    />
+                  </td>
+                  <td class="p-3">
+                    <input
+                      type="checkbox"
+                      :checked="menu.is_active"
+                      :disabled="lockedMenu(menu)"
+                      @change="toggleActive(menu, $event.target.checked)"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </UCard>
 
@@ -179,8 +232,8 @@ onMounted(loadAccess)
       <template #header>
         <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h3 class="font-semibold text-highlighted">Pengecualian Per User</h3>
-            <p class="mt-1 text-sm text-muted">Override ini mengalahkan akses berdasarkan level.</p>
+            <h3 class="font-semibold text-highlighted">Akses Per User</h3>
+            <p class="mt-1 text-sm text-muted">Opsional untuk username tertentu.</p>
           </div>
           <select
             v-model="selectedUserId"
@@ -194,24 +247,33 @@ onMounted(loadAccess)
         </div>
       </template>
 
-      <div v-if="selectedUserId" class="space-y-3">
-        <div
-          v-for="menu in menus"
-          :key="menu.id"
-          class="flex flex-col justify-between gap-3 rounded-lg border border-gray-200 p-3 sm:flex-row sm:items-center dark:border-gray-800"
-        >
-          <span class="text-sm font-medium text-highlighted">{{ menu.label }}</span>
-          <select
-            :value="selectedOverride(menu)"
-            class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
-            :disabled="lockedMenu(menu)"
-            @change="saveUserOverride(menu, $event.target.value)"
-          >
-            <option value="">Ikuti level</option>
-            <option value="allow">Izinkan</option>
-            <option value="deny">Tolak</option>
-          </select>
-        </div>
+      <div v-if="selectedUserId" class="space-y-6">
+        <section v-for="group in groupedMenus" :key="group.key" class="space-y-3">
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ group.label }}</h4>
+
+          <div class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+            <div
+              v-for="menu in group.items"
+              :key="menu.id"
+              class="flex flex-col justify-between gap-3 p-3 sm:flex-row sm:items-center"
+            >
+              <div>
+                <p class="text-sm font-medium text-highlighted">{{ menu.label }}</p>
+                <p class="text-xs text-muted">{{ menu.path }}</p>
+              </div>
+              <select
+                :value="selectedOverride(menu)"
+                class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                :disabled="lockedMenu(menu)"
+                @change="saveUserOverride(menu, $event.target.value)"
+              >
+                <option value="">Ikuti level</option>
+                <option value="allow">Tampilkan</option>
+                <option value="deny">Sembunyikan</option>
+              </select>
+            </div>
+          </div>
+        </section>
       </div>
 
       <p v-else class="text-sm text-muted">Pilih user untuk mengatur akses khusus.</p>

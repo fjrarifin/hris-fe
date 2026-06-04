@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { createLeave, deleteLeave, getLeaves } from '../services/staffService'
+import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const data = ref({ balance: {}, leave_types: {}, requests: [] })
@@ -55,7 +56,12 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!window.confirm('Batalkan pengajuan cuti ini?')) return
+  if (!(await askConfirmation({
+    title: 'Batalkan Pengajuan',
+    message: 'Batalkan pengajuan cuti ini?',
+    confirmLabel: 'Batalkan',
+    color: 'error',
+  }))) return
   try {
     message.value = (await deleteLeave(id)).data.message
     await load()

@@ -120,7 +120,7 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
           Profil Saya
         </RouterLink>
         <RouterLink
-          to="/change-password"
+          to="/account/change-password"
           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-100 transition hover:bg-slate-700 hover:text-white"
           @click="selectAccountLink"
         >

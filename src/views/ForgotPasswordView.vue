@@ -65,13 +65,15 @@ async function submit() {
         <UButton type="submit" block label="Kirim Kode OTP" :loading="loading" />
       </form>
 
-      <div class="mt-6 text-center">
-        <RouterLink
-          class="text-sm font-medium text-primary hover:underline"
+      <div class="mt-6">
+        <UButton
+          block
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-arrow-left"
+          label="Kembali ke Login"
           :to="{ name: 'login' }"
-        >
-          Kembali ke login
-        </RouterLink>
+        />
       </div>
     </UCard>
   </main>

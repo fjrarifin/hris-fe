@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { createPermission, deletePermission, getPermissions } from '../services/staffService'
+import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const requests = ref([])
@@ -49,7 +50,12 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!window.confirm('Batalkan pengajuan izin/sakit ini?')) return
+  if (!(await askConfirmation({
+    title: 'Batalkan Pengajuan',
+    message: 'Batalkan pengajuan izin/sakit ini?',
+    confirmLabel: 'Batalkan',
+    color: 'error',
+  }))) return
   try {
     message.value = (await deletePermission(id)).data.message
     await load()

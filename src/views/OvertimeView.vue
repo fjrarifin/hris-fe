@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { createOvertime, deleteOvertime, getOvertime } from '../services/staffService'
+import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const data = ref({ subordinates: [], requests: [] })
@@ -41,7 +42,12 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!window.confirm('Batalkan pengajuan lembur ini?')) return
+  if (!(await askConfirmation({
+    title: 'Batalkan Pengajuan',
+    message: 'Batalkan pengajuan lembur ini?',
+    confirmLabel: 'Batalkan',
+    color: 'error',
+  }))) return
   try {
     message.value = (await deleteOvertime(id)).data.message
     await load()

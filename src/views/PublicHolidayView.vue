@@ -5,6 +5,7 @@ import {
   deletePublicHoliday,
   getPublicHolidays,
 } from '../services/staffService'
+import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const data = ref({ balance: 0, holidays: [], requests: [] })
@@ -42,7 +43,12 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!window.confirm('Batalkan pengajuan Public Holiday ini?')) return
+  if (!(await askConfirmation({
+    title: 'Batalkan Pengajuan',
+    message: 'Batalkan pengajuan Public Holiday ini?',
+    confirmLabel: 'Batalkan',
+    color: 'error',
+  }))) return
   try {
     message.value = (await deletePublicHoliday(id)).data.message
     await load()

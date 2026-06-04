@@ -40,9 +40,13 @@ function toggleTheme() {
         @toggle-theme="toggleTheme"
       />
 
-      <div class="mx-auto min-h-[calc(100vh-4rem)] max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div class="mx-auto min-h-[calc(100vh-8rem)] max-w-7xl p-4 sm:p-6 lg:p-8">
         <RouterView />
       </div>
+
+      <footer class="border-t border-default px-4 py-4 text-center text-xs text-muted sm:px-6">
+        © {{ new Date().getFullYear() }} · CV. 3 Detik · HRIS
+      </footer>
     </main>
   </div>
 </template>

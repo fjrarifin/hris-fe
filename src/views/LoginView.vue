@@ -41,7 +41,9 @@ async function submit() {
 
   try {
     await auth.login(form)
-    await router.push(auth.user.must_change_password ? '/change-password' : auth.dashboardPath)
+    await router.push(
+      auth.user?.level === 3 && auth.user?.must_change_password ? '/change-password' : auth.dashboardPath,
+    )
   } catch (error) {
     if (error.response?.data?.code === 'ACTIVE_SESSION_EXISTS') {
       const session = error.response.data.active_session

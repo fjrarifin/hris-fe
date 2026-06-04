@@ -41,6 +41,31 @@ const guides = [
     text: 'HRD dapat memakai menu Koreksi Absensi untuk memperbaiki data yang sudah dikonfirmasi. Aplikasi juga mengirim pengingat absensi belum lengkap ke grup, karyawan, dan atasan sesuai jadwal yang berlaku.',
   },
   {
+    title: 'Payroll: Master dan Generate Draft',
+    icon: 'i-lucide-calculator',
+    text: 'Buka Payroll > Master Payroll untuk melengkapi gaji pokok, tunjangan tetap, dasar BPJS, dasar JP, dan rate JKK. Setelah itu buka Payroll > Proses Payroll, pilih periode, lalu klik Preview Payroll. Periksa master yang belum lengkap dan blocker absensi. Draft boleh dibuat untuk review, tetapi belum dapat disubmit sebelum seluruh blocker absensi selesai.',
+  },
+  {
+    title: 'Payroll: Review, Approval, dan Slip',
+    icon: 'i-lucide-wallet-cards',
+    text: 'Pada daftar draft payroll, klik Review untuk memeriksa nilai dan mengubah adjustment manual seperti PPh21, kasbon, bonus, atau koreksi gaji. Pendapatan menambah NET, potongan karyawan mengurangi NET, sedangkan kontribusi perusahaan hanya menambah biaya perusahaan dan tidak mengubah NET. Setelah absensi lengkap, klik Submit, lanjutkan Approve, lalu Kirim Slip. Tombol kirim slip hanya tersedia setelah payroll disetujui.',
+  },
+  {
+    title: 'Talent: Mengisi Jobdesk',
+    icon: 'i-lucide-list-checks',
+    text: 'Buka menu Talent > Jobdesk. Tambahkan jobdesk dengan memilih jabatan, kategori, tipe tugas, status aktif, dan deskripsi yang jelas. Dokumen PDF pendukung boleh diunggah bila tersedia, tetapi tidak wajib. Pada daftar jobdesk, gunakan pencarian lalu buka detail jabatan untuk melihat, memperbarui, menghapus, atau meninjau PDF seluruh jobdesk jabatan tersebut. Jobdesk aktif otomatis dapat dilihat oleh karyawan dengan jabatan yang sesuai.',
+  },
+  {
+    title: 'Talent: Mengisi Template KPI',
+    icon: 'i-lucide-target',
+    text: 'Buka menu Talent > Template KPI. Tambahkan KPI sebagai draft dengan memilih jabatan, jobdesk terkait bila ada, nama KPI, deskripsi, target, satuan, bobot, dan formula penilaian. Pada daftar KPI per jabatan, klik Kelola KPI, centang KPI yang akan dipakai, lalu klik Aktifkan Pilihan. Total bobot KPI aktif untuk satu jabatan harus tepat 100%. KPI aktif dapat dilihat secara read-only oleh karyawan terkait dan menjadi snapshot saat review dibuat.',
+  },
+  {
+    title: 'Talent: Periode dan Performance Review',
+    icon: 'i-lucide-chart-no-axes-combined',
+    text: 'Buka Talent > Periode Review untuk membuat periode dan ubah statusnya menjadi active sebelum generate review. Setelah itu buka Talent > Performance Review, pilih periode aktif dan karyawan, lalu tentukan reviewer bila atasan tidak terdeteksi otomatis. Sistem mengambil snapshot jabatan dan KPI aktif. Atasan mengisi realisasi serta skor pada menu Performance Review, mengirim hasil ke HRD, lalu HRD menyetujui atau menolak review.',
+  },
+  {
     title: 'Pengguna Online dan Notifikasi',
     icon: 'i-lucide-users',
     text: 'Ikon kanan bawah menampilkan pengguna yang sedang aktif membuka aplikasi, lengkap dengan foto, nama, jabatan, dan kota. Pesan berhasil, gagal, peringatan, atau isian wajib akan muncul sebagai notifikasi di pojok kanan atas.',

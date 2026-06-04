@@ -103,3 +103,27 @@ export function saveTeamEmployeeSchedule(nik, payload) {
 export function uploadTeamSchedule(payload) {
   return api.post('/staff/team-schedules/upload', payload)
 }
+
+export function getStaffPerformanceReviews() {
+  return api.get('/staff/performance-reviews')
+}
+
+export function getStaffPerformanceReview(id) {
+  return api.get(`/staff/performance-reviews/${id}`)
+}
+
+export function saveStaffPerformanceReview(id, payload) {
+  return api.put(`/staff/performance-reviews/${id}`, payload)
+}
+
+export function submitStaffPerformanceReview(id) {
+  return api.post(`/staff/performance-reviews/${id}/submit`)
+}
+
+export function getStaffTalent() {
+  return api.get('/staff/talent')
+}
+
+export function getStaffJobdeskPdfPreview(id) {
+  return api.get(`/staff/talent/jobdesks/${id}/pdf-preview`)
+}

@@ -1,8 +1,10 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getStaffAttendance } from '../services/staffService'
 import { apiError, formatDate } from '../utils/formatters'
 
+const route = useRoute()
 const attendance = ref({
   employee: {},
   filters: {},
@@ -10,8 +12,8 @@ const attendance = ref({
   records: [],
 })
 const filters = reactive({
-  start_date: '',
-  end_date: '',
+  start_date: typeof route.query.start_date === 'string' ? route.query.start_date : '',
+  end_date: typeof route.query.end_date === 'string' ? route.query.end_date : '',
 })
 const loading = ref(true)
 const errorMessage = ref('')
@@ -153,6 +155,22 @@ async function resetFilters() {
   filters.end_date = ''
   await load()
 }
+
+watch(
+  () => route.fullPath,
+  async () => {
+    const startDate = typeof route.query.start_date === 'string' ? route.query.start_date : ''
+    const endDate = typeof route.query.end_date === 'string' ? route.query.end_date : ''
+
+    if (!startDate && !endDate) {
+      return
+    }
+
+    filters.start_date = startDate || endDate
+    filters.end_date = endDate || startDate
+    await load()
+  },
+)
 
 onMounted(load)
 </script>

@@ -52,6 +52,74 @@ export function notifyHrAttendanceMinimumEmployees(payload) {
   return api.post('/hr/attendance/minimum-monitoring/notify-bulk', payload)
 }
 
+export function getHrPayrollMaster(params) {
+  return api.get('/hr/payroll/master', { params })
+}
+
+export function getHrPayrollMasterEmployee(nik) {
+  return api.get(`/hr/payroll/master/${encodeURIComponent(nik)}`)
+}
+
+export function saveHrPayrollMasterEmployee(nik, payload) {
+  return api.put(`/hr/payroll/master/${encodeURIComponent(nik)}`, payload)
+}
+
+export function getHrPayrollComponents() {
+  return api.get('/hr/payroll/master/components')
+}
+
+export function saveHrPayrollComponent(id, payload) {
+  return api.put(`/hr/payroll/master/components/${id}`, payload)
+}
+
+export function previewHrPayrollProcess(params) {
+  return api.get('/hr/payroll/process/preview', { params })
+}
+
+export function getHrPayrollPeriods() {
+  return api.get('/hr/payroll/process/periods')
+}
+
+export function generateHrPayrollDrafts(payload) {
+  return api.post('/hr/payroll/process/generate', payload)
+}
+
+export function getHrPayrollDrafts(params) {
+  return api.get('/hr/payroll/process/drafts', { params })
+}
+
+export function saveHrPayrollAdjustments(payrollId, adjustments) {
+  return api.put(`/hr/payroll/process/drafts/${payrollId}/adjustments`, { adjustments })
+}
+
+export function submitHrPayrollDraft(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/submit`)
+}
+
+export function approveHrPayrollDraft(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/approve`)
+}
+
+export function cancelSubmitHrPayrollDraft(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/cancel-submit`)
+}
+
+export function cancelApproveHrPayrollDraft(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/cancel-approve`)
+}
+
+export function lockHrPayrollDraft(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/lock`)
+}
+
+export function downloadHrPayrollSlip(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/artifact`, {}, { responseType: 'blob' })
+}
+
+export function sendHrPayrollSlip(payrollId) {
+  return api.post(`/hr/payroll/process/drafts/${payrollId}/send-slip`)
+}
+
 export function getHrAttendanceCorrections(params) {
   return api.get('/hr/attendance-corrections', { params })
 }
@@ -94,4 +162,74 @@ export function saveHrEmployeeSchedule(nik, payload) {
 
 export function uploadHrSchedule(payload) {
   return api.post('/hr/schedules/upload', payload)
+}
+
+export function getHrTalentOptions() {
+  return api.get('/hr/talent/options')
+}
+
+export function getHrJobdesks(params) {
+  return api.get('/hr/talent/jobdesks', { params })
+}
+
+export function createHrJobdesk(payload) {
+  return api.post('/hr/talent/jobdesks', payload)
+}
+
+export function updateHrJobdesk(id, payload) {
+  return api.post(`/hr/talent/jobdesks/${id}`, payload)
+}
+
+export function deleteHrJobdesk(id) {
+  return api.delete(`/hr/talent/jobdesks/${id}`)
+}
+
+export function getHrJobdeskPdfPreview(id) {
+  return api.get(`/hr/talent/jobdesks/${id}/pdf-preview`)
+}
+
+export function getHrKpis(params) {
+  return api.get('/hr/talent/kpis', { params })
+}
+
+export function createHrKpi(payload) {
+  return api.post('/hr/talent/kpis', payload)
+}
+
+export function updateHrKpi(id, payload) {
+  return api.put(`/hr/talent/kpis/${id}`, payload)
+}
+
+export function deleteHrKpi(id) {
+  return api.delete(`/hr/talent/kpis/${id}`)
+}
+
+export function syncActiveHrKpis(jabatanId, templateIds) {
+  return api.post(`/hr/talent/kpis/jabatans/${jabatanId}/sync-active`, {
+    template_ids: templateIds,
+  })
+}
+
+export function getHrPerformancePeriods() {
+  return api.get('/hr/talent/periods')
+}
+
+export function createHrPerformancePeriod(payload) {
+  return api.post('/hr/talent/periods', payload)
+}
+
+export function updateHrPerformancePeriod(id, payload) {
+  return api.put(`/hr/talent/periods/${id}`, payload)
+}
+
+export function getHrPerformanceReviews(params) {
+  return api.get('/hr/talent/reviews', { params })
+}
+
+export function createHrPerformanceReview(payload) {
+  return api.post('/hr/talent/reviews', payload)
+}
+
+export function updateHrPerformanceReviewStatus(id, payload) {
+  return api.patch(`/hr/talent/reviews/${id}/status`, payload)
 }

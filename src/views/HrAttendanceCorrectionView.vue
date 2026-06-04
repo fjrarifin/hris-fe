@@ -5,7 +5,7 @@ import { getHrAttendanceCorrections, saveHrAttendanceCorrection } from '../servi
 import { apiError, formatDate } from '../utils/formatters'
 
 const route = useRoute()
-const filters = reactive({ date: '', q: '' })
+const filters = reactive({ start_date: '', end_date: '', q: '' })
 const data = ref(null)
 const selected = ref(null)
 const form = reactive({
@@ -38,6 +38,16 @@ function findingLabel(record) {
   return record.raw_scan_in ? 'Tidak absen pulang' : 'Tidak absen masuk'
 }
 
+function periodLabel() {
+  if (!data.value) {
+    return `${formatDate(filters.start_date)} - ${formatDate(filters.end_date)}`
+  }
+
+  return data.value.start_date === data.value.end_date
+    ? formatDate(data.value.start_date)
+    : `${formatDate(data.value.start_date)} - ${formatDate(data.value.end_date)}`
+}
+
 function selectRecord(record) {
   selected.value = record
   form.corrected_scan_in = record.correction?.corrected_scan_in?.slice(0, 5) || ''
@@ -52,7 +62,8 @@ async function load(requestedPage = 1) {
   try {
     data.value = (
       await getHrAttendanceCorrections({
-        date: filters.date,
+        start_date: filters.start_date,
+        end_date: filters.end_date,
         q: filters.q || undefined,
         page: requestedPage,
       })
@@ -78,7 +89,7 @@ async function saveCorrection() {
   errorMessage.value = ''
   try {
     const response = await saveHrAttendanceCorrection(selected.value.nik, {
-      attendance_date: filters.date,
+      attendance_date: selected.value.date,
       corrected_scan_in: selected.value.raw_scan_in ? null : form.corrected_scan_in,
       corrected_scan_out: selected.value.raw_scan_out ? null : form.corrected_scan_out,
       has_missing_attendance_form: form.has_missing_attendance_form ? true : null,
@@ -95,7 +106,9 @@ async function saveCorrection() {
 }
 
 onMounted(() => {
-  filters.date = String(route.query.date || yesterdayDate())
+  const date = String(route.query.date || '')
+  filters.start_date = String(route.query.start_date || date || yesterdayDate())
+  filters.end_date = String(route.query.end_date || date || filters.start_date)
   filters.q = String(route.query.nik || '')
   load()
 })
@@ -115,9 +128,18 @@ onMounted(() => {
     <UCard title="Filter Data Absensi Tidak Lengkap">
       <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load(1)">
         <label class="text-sm text-muted">
-          Tanggal Absensi
+          Tanggal Awal
           <input
-            v-model="filters.date"
+            v-model="filters.start_date"
+            type="date"
+            required
+            class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
+          />
+        </label>
+        <label class="text-sm text-muted">
+          Tanggal Akhir
+          <input
+            v-model="filters.end_date"
             type="date"
             required
             class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
@@ -136,7 +158,7 @@ onMounted(() => {
       </form>
     </UCard>
 
-    <UCard :title="`Temuan Absensi - ${formatDate(data?.date || filters.date)}`">
+    <UCard :title="`Temuan Absensi - ${periodLabel()}`">
       <div v-if="loading && !data" class="py-10 text-center text-sm text-muted">
         Memuat temuan absensi...
       </div>
@@ -145,6 +167,7 @@ onMounted(() => {
           <thead class="text-left text-muted">
             <tr>
               <th class="p-3">Karyawan</th>
+              <th class="p-3">Tanggal</th>
               <th class="p-3">Departemen</th>
               <th class="p-3">Scan Masuk</th>
               <th class="p-3">Scan Pulang</th>
@@ -156,13 +179,14 @@ onMounted(() => {
           <tbody>
             <tr
               v-for="record in data?.records || []"
-              :key="record.nik"
+              :key="`${record.date}|${record.nik}`"
               class="border-t border-default"
             >
               <td class="p-3">
                 <p class="font-medium text-highlighted">{{ record.name }}</p>
                 <p class="text-xs text-muted">{{ record.nik }} - {{ record.position }}</p>
               </td>
+              <td class="p-3">{{ formatDate(record.date) }}</td>
               <td class="p-3">{{ record.department }}</td>
               <td class="p-3">{{ formatTime(record.scan_in) }}</td>
               <td class="p-3">{{ formatTime(record.scan_out) }}</td>
@@ -184,8 +208,8 @@ onMounted(() => {
               </td>
             </tr>
             <tr v-if="!data?.records?.length">
-              <td colspan="7" class="p-8 text-center text-muted">
-                Tidak ada scan masuk atau pulang yang perlu dikoreksi pada tanggal ini.
+              <td colspan="8" class="p-8 text-center text-muted">
+                Tidak ada scan masuk atau pulang yang perlu dikoreksi pada rentang tanggal ini.
               </td>
             </tr>
           </tbody>
@@ -212,7 +236,7 @@ onMounted(() => {
           <label class="text-sm text-muted">
             Tanggal Absensi
             <input
-              :value="filters.date"
+              :value="formatDate(selected.date)"
               disabled
               class="mt-2 block w-full rounded-lg border border-default bg-elevated p-2.5 text-muted"
             />
