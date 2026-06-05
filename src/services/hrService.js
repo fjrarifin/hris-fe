@@ -76,6 +76,10 @@ export function previewHrPayrollProcess(params) {
   return api.get('/hr/payroll/process/preview', { params })
 }
 
+export function autoCorrectHrPayrollProcessAttendance(payload) {
+  return api.post('/hr/payroll/process/preview/auto-correct', payload)
+}
+
 export function getHrPayrollPeriods() {
   return api.get('/hr/payroll/process/periods')
 }
@@ -86,6 +90,10 @@ export function generateHrPayrollDrafts(payload) {
 
 export function getHrPayrollDrafts(params) {
   return api.get('/hr/payroll/process/drafts', { params })
+}
+
+export function exportHrPayrollDrafts(params) {
+  return api.get('/hr/payroll/process/drafts/export', { params, responseType: 'blob' })
 }
 
 export function saveHrPayrollAdjustments(payrollId, adjustments) {

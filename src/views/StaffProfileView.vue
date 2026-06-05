@@ -8,6 +8,7 @@ import {
   updateStaffProfilePhoto,
 } from '../services/staffService'
 import { useAuthStore } from '../stores/auth'
+import SecureImage from '../components/SecureImage.vue'
 import { apiError, formatDate } from '../utils/formatters'
 
 const auth = useAuthStore()
@@ -361,12 +362,11 @@ onBeforeUnmount(clearPhotoSelection)
       <UCard>
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-center">
           <div class="flex items-center gap-4">
-            <img
+            <SecureImage
               v-if="photoPreviewUrl || (data.user.photo_url && !photoLoadFailed)"
               :src="photoPreviewUrl || data.user.photo_url"
               :alt="data.employee.nama_karyawan"
               class="size-20 rounded-full object-cover shrink-0"
-              @error="handlePhotoError"
             />
             <UAvatar v-else :text="profileInitials" size="2xl" color="primary" class="shrink-0" />
             <div>
@@ -527,12 +527,11 @@ onBeforeUnmount(clearPhotoSelection)
 
             <form class="mt-5 space-y-4" @submit.prevent="submitPhoto">
               <div class="flex items-center gap-4">
-                <img
+                <SecureImage
                   v-if="photoPreviewUrl || (data.user.photo_url && !photoLoadFailed)"
                   :src="photoPreviewUrl || data.user.photo_url"
                   :alt="data.employee.nama_karyawan"
                   class="size-20 shrink-0 rounded-full object-cover"
-                  @error="handlePhotoError"
                 />
                 <UAvatar
                   v-else

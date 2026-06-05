@@ -8,9 +8,11 @@ import {
   downloadHrPayrollSlip,
   generateHrPayrollDrafts,
   getHrPayrollDrafts,
+  exportHrPayrollDrafts,
   getHrPayrollPeriods,
   lockHrPayrollDraft,
   previewHrPayrollProcess,
+  autoCorrectHrPayrollProcessAttendance,
   saveHrPayrollAdjustments,
   sendHrPayrollSlip,
   submitHrPayrollDraft,
@@ -23,8 +25,13 @@ const router = useRouter()
 const filters = reactive({ start_date: '', end_date: '' })
 const tableFilters = reactive({ q: '', status: 'all', validation: 'all' })
 const preview = ref(null)
+const downloadingPdf = ref([])
+const exporting = ref(false)
 const loading = ref(false)
-const generating = ref(false)
+const generatingState = reactive({
+  loading: false,
+  message: ''
+})
 const drafts = ref([])
 const draftSummary = ref(null)
 const periods = ref([])
@@ -61,7 +68,7 @@ const selectedPeriod = computed({
 const selectedPeriodRecord = computed(() =>
   periods.value.find((period) => `${period.start_date}|${period.end_date}` === selectedPeriod.value),
 )
-const canGenerate = computed(() => Boolean(filters.start_date && filters.end_date && selectedPeriodRecord.value?.can_generate !== false))
+const canGenerate = computed(() => Boolean(filters.start_date && filters.end_date && selectedPeriodRecord.value?.can_generate !== false && preview.value))
 const sortedDrafts = computed(() => [...drafts.value].sort((a, b) => (a.name || '').localeCompare(b.name || '')))
 const filteredDrafts = computed(() => {
   const needle = tableFilters.q.trim().toLowerCase()
@@ -76,9 +83,45 @@ const filteredDrafts = computed(() => {
     return matchSearch && matchStatus && matchValidation
   })
 })
+const previewFilters = reactive({
+  q: '',
+  hariMasuk: 'all',
+})
+
 const totalPages = computed(() => Math.max(Math.ceil(filteredDrafts.value.length / perPage), 1))
 const paginatedDrafts = computed(() => filteredDrafts.value.slice((page.value - 1) * perPage, page.value * perPage))
-const previewRows = computed(() => preview.value?.records || [])
+
+const hariMasukOptions = [
+  { value: 'all', label: 'Semua Kehadiran' },
+  { value: '0', label: '0 Hari Masuk' },
+  { value: 'kurang', label: 'Kurang dari Periode' },
+  { value: 'pas', label: 'Pas dengan Periode' },
+  { value: 'lebih', label: 'Lebih dari Periode' },
+]
+
+const previewRows = computed(() => {
+  let rows = preview.value?.records || []
+  if (previewFilters.q.trim()) {
+    const q = previewFilters.q.trim().toLowerCase()
+    rows = rows.filter((r) => r.name?.toLowerCase().includes(q) || r.nik?.toLowerCase().includes(q))
+  }
+  if (previewFilters.hariMasuk !== 'all') {
+    rows = rows.filter((r) => {
+      const masuk = r.total_hari_masuk || 0
+      const periode = r.periode_hari_kerja || 0
+      if (previewFilters.hariMasuk === '0') return masuk === 0
+      if (previewFilters.hariMasuk === 'kurang') return masuk > 0 && masuk < periode
+      if (previewFilters.hariMasuk === 'pas') return masuk === periode
+      if (previewFilters.hariMasuk === 'lebih') return masuk > periode
+      return true
+    })
+  }
+  return rows
+})
+const previewPage = ref(1)
+const previewPerPage = 10
+const totalPreviewPages = computed(() => Math.max(Math.ceil(previewRows.value.length / previewPerPage), 1))
+const paginatedPreviewRows = computed(() => previewRows.value.slice((previewPage.value - 1) * previewPerPage, previewPage.value * previewPerPage))
 const unlockedApprovedDrafts = computed(() => drafts.value.filter((draft) => draft.status === 'approved' && !draft.is_locked))
 const sendableDrafts = computed(() => drafts.value.filter((draft) => draft.status === 'approved' && draft.is_locked))
 const canSendSlip = computed(() => sendableDrafts.value.length > 0 && unlockedApprovedDrafts.value.length === 0)
@@ -132,7 +175,11 @@ function groupedTotals(draft) {
 }
 
 async function loadPreview() {
+  preview.value = null
   loading.value = true
+  previewFilters.q = ''
+  previewFilters.hariMasuk = 'all'
+  previewPage.value = 1
   try {
     preview.value = (await previewHrPayrollProcess({ ...filters })).data
     await loadDrafts()
@@ -141,6 +188,72 @@ async function loadPreview() {
     notifier.error(apiError(error, 'Preview payroll tidak dapat dimuat.'))
   } finally {
     loading.value = false
+  }
+}
+
+const autoCorrecting = ref([])
+async function autoCorrectAttendance(nik) {
+  autoCorrecting.value.push(nik)
+  try {
+    const response = await autoCorrectHrPayrollProcessAttendance({
+      nik,
+      start_date: filters.start_date,
+      end_date: filters.end_date,
+    })
+    notifier.success(response.data?.message || 'Koreksi berhasil.')
+    // Refresh preview to get updated attendance
+    preview.value = (await previewHrPayrollProcess({ ...filters })).data
+  } catch (error) {
+    notifier.error(apiError(error, 'Gagal mengoreksi absensi otomatis.'))
+  } finally {
+    autoCorrecting.value = autoCorrecting.value.filter((n) => n !== nik)
+  }
+}
+
+const autoCorrectingAll = ref(false)
+async function autoCorrectAll() {
+  const confirmed = await askConfirmation({
+    title: 'Konfirmasi Auto Koreksi Semua',
+    description: `Apakah Anda yakin ingin mengoreksi otomatis semua absensi "Lupa Scan" pada periode ini?`,
+    confirmLabel: 'Auto Koreksi Semua',
+    color: 'warning',
+  })
+  if (!confirmed) return
+
+  autoCorrectingAll.value = true
+  try {
+    const response = await autoCorrectHrPayrollProcessAttendance({
+      nik: null, // null means all
+      start_date: filters.start_date,
+      end_date: filters.end_date,
+    })
+    notifier.success(response.data?.message || 'Koreksi massal berhasil.')
+    // Refresh preview
+    preview.value = (await previewHrPayrollProcess({ ...filters })).data
+  } catch (error) {
+    notifier.error(apiError(error, 'Gagal mengoreksi semua absensi otomatis.'))
+  } finally {
+    autoCorrectingAll.value = false
+  }
+}
+
+async function exportDrafts() {
+  exporting.value = true
+  try {
+    const response = await exportHrPayrollDrafts({ ...filters })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    const fileName = `Report_Payroll_${filters.start_date || 'all'}.xlsx`
+    link.setAttribute('download', fileName)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    notifier.success('Data payroll berhasil diexport ke Excel')
+  } catch (error) {
+    notifier.error(apiError(error, 'Gagal export data payroll'))
+  } finally {
+    exporting.value = false
   }
 }
 
@@ -153,16 +266,18 @@ async function generateDrafts() {
   })
   if (!confirmed) return
 
-  generating.value = true
+  generatingState.loading = true
+  generatingState.message = `Memproses ${preview.value?.records?.length || 0} karyawan... Mohon tunggu.`
   try {
     const response = await generateHrPayrollDrafts({ ...filters })
-    notifier.success(response.data.message)
-    preview.value = response.data.preview
+    notifier.success(response.data?.message || 'Payroll berhasil digenerate.')
     await loadDrafts()
+    preview.value = null
   } catch (error) {
-    notifier.error(apiError(error, 'Draft payroll tidak dapat dibuat.'))
+    notifier.error(apiError(error, 'Gagal generate payroll.'))
   } finally {
-    generating.value = false
+    generatingState.loading = false
+    generatingState.message = ''
   }
 }
 
@@ -439,6 +554,10 @@ watch(filteredDrafts, () => {
   if (page.value > totalPages.value) page.value = totalPages.value
 })
 
+watch(previewRows, () => {
+  previewPage.value = 1
+})
+
 onMounted(loadPeriods)
 </script>
 
@@ -473,16 +592,20 @@ onMounted(loadPeriods)
           </select>
         </UFormField>
         <UButton label="Preview Payroll" icon="i-lucide-search" :loading="loading" @click="loadPreview" />
-        <UButton label="Generate Payroll" icon="i-lucide-calculator" color="success" :disabled="!canGenerate" :loading="generating" @click="generateDrafts" />
+        <div class="flex items-center gap-2">
+          <UButton label="Generate Payroll" icon="i-lucide-calculator" color="success" :disabled="!canGenerate || generatingState.loading" :loading="generatingState.loading" @click="generateDrafts" />
+          <p v-if="generatingState.loading" class="text-xs text-muted">{{ generatingState.message }}</p>
+        </div>
       </div>
     </UCard>
 
-    <div v-if="draftSummary" class="grid gap-4 md:grid-cols-5">
+    <div v-if="draftSummary" class="sticky top-[60px] z-10 -mx-4 mb-4 grid gap-4 px-4 py-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
       <UCard><p class="text-xs text-muted">Payroll Tersimpan</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.total_payrolls }}</p></UCard>
-      <UCard><p class="text-xs text-muted">Jumlah Kehadiran</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.total_hari_masuk || 0 }}</p></UCard>
+      <UCard><p class="text-xs text-muted">Total Gross</p><p class="mt-1 text-xl font-semibold text-highlighted">{{ rupiah(draftSummary.total_gross) }}</p></UCard>
+      <UCard><p class="text-xs text-muted">Total Lembur</p><p class="mt-1 text-xl font-semibold text-highlighted">{{ rupiah(draftSummary.total_lembur) }}</p></UCard>
+      <UCard><p class="text-xs text-muted">BPJS Karyawan</p><p class="mt-1 text-xl font-semibold text-info">{{ rupiah(draftSummary.total_bpjs_karyawan) }}</p></UCard>
+      <UCard><p class="text-xs text-muted">BPJS Perusahaan</p><p class="mt-1 text-xl font-semibold text-info">{{ rupiah(draftSummary.total_bpjs_perusahaan) }}</p></UCard>
       <UCard><p class="text-xs text-muted">Total NET</p><p class="mt-1 text-xl font-semibold text-success">{{ rupiah(draftSummary.total_net) }}</p></UCard>
-      <UCard><p class="text-xs text-muted">Draft</p><p class="mt-1 text-xl font-semibold">{{ draftSummary.statuses?.draft || 0 }}</p></UCard>
-      <UCard><p class="text-xs text-muted">Submitted</p><p class="mt-1 text-xl font-semibold text-warning">{{ draftSummary.statuses?.submitted || 0 }}</p></UCard>
     </div>
 
     <UCard v-if="drafts.length">
@@ -494,15 +617,26 @@ onMounted(loadPeriods)
           </div>
           <div class="flex flex-col items-start gap-2 sm:items-end">
             <p class="text-xs text-muted">Tampil {{ filteredDrafts.length }} dari {{ drafts.length }} payroll</p>
-            <UButton
-              label="Mass Send Email"
-              icon="i-lucide-mails"
-              color="info"
-              size="sm"
-              :disabled="!canSendSlip"
-              :loading="massSending"
-              @click="massSendSlips"
-            />
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                label="Export Excel"
+                icon="i-lucide-download"
+                color="success"
+                size="sm"
+                variant="soft"
+                :loading="exporting"
+                @click="exportDrafts"
+              />
+              <UButton
+                label="Mass Send Email"
+                icon="i-lucide-mails"
+                color="info"
+                size="sm"
+                :disabled="!canSendSlip"
+                :loading="massSending"
+                @click="massSendSlips"
+              />
+            </div>
             <p v-if="unlockedApprovedDrafts.length" class="text-xs text-error">
               {{ unlockedApprovedDrafts.length }} payroll approved belum locked.
             </p>
@@ -510,29 +644,25 @@ onMounted(loadPeriods)
         </div>
       </template>
 
-      <div class="mb-4 grid gap-3 lg:grid-cols-3">
-        <UFormField label="Cari Nama / NIK">
-          <UInput v-model="tableFilters.q" icon="i-lucide-search" placeholder="Contoh: FAJAR / HPP25120147" />
-        </UFormField>
-        <UFormField label="Filter Status">
-          <select v-model="tableFilters.status" class="w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted">
-            <option v-for="status in statusOptions" :key="status" :value="status">{{ status === 'all' ? 'Semua Status' : statusLabel(status) }}</option>
-          </select>
-        </UFormField>
-        <UFormField label="Filter Validasi">
-          <select v-model="tableFilters.validation" class="w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted">
-            <option v-for="status in validationOptions" :key="status || 'empty'" :value="status">{{ status === 'all' ? 'Semua Validasi' : (status || '-') }}</option>
-          </select>
-        </UFormField>
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div class="w-full sm:w-1/3">
+          <UFormField label="Cari Nama / NIK">
+            <UInput v-model="tableFilters.q" icon="i-lucide-search" placeholder="Contoh: FAJAR / HPP25120147" />
+          </UFormField>
+        </div>
+        <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <UFormField label="Filter Status" class="w-full sm:w-48">
+            <select v-model="tableFilters.status" class="w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted">
+              <option v-for="status in statusOptions" :key="status" :value="status">{{ status === 'all' ? 'Semua Status' : statusLabel(status) }}</option>
+            </select>
+          </UFormField>
+          <UFormField label="Filter Validasi" class="w-full sm:w-48">
+            <select v-model="tableFilters.validation" class="w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted">
+              <option v-for="status in validationOptions" :key="status || 'empty'" :value="status">{{ status === 'all' ? 'Semua Validasi' : (status || '-') }}</option>
+            </select>
+          </UFormField>
+        </div>
       </div>
-
-      <UAlert
-        class="mb-4"
-        color="info"
-        variant="subtle"
-        title="Apa itu blocker absensi?"
-        description="Blocker adalah data absensi yang belum beres untuk approval payroll, misalnya jadwal belum ada, hari kerja belum punya scan/izin/cuti approved, scan masuk-pulang belum lengkap, atau ada konflik absence dengan scan."
-      />
 
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
@@ -594,31 +724,68 @@ onMounted(loadPeriods)
       </div>
     </UCard>
 
-    <template v-if="preview">
-      <div class="grid gap-4 md:grid-cols-6">
-        <UCard><p class="text-xs text-muted">Karyawan</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.total_employees }}</p></UCard>
-        <UCard><p class="text-xs text-muted">Periode Hari Kerja</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.periode_hari_kerja }}</p></UCard>
-        <UCard><p class="text-xs text-muted">Jumlah Kehadiran</p><p class="mt-1 text-xl font-semibold">{{ preview.summary.total_hari_masuk || 0 }}</p></UCard>
-        <UCard><p class="text-xs text-muted">Siap Generate</p><p class="mt-1 text-xl font-semibold text-success">{{ preview.summary.can_generate }}</p></UCard>
-        <UCard><p class="text-xs text-muted">Master Belum Lengkap</p><p class="mt-1 text-xl font-semibold text-warning">{{ preview.summary.master_incomplete }}</p></UCard>
-        <UCard><p class="text-xs text-muted">Blocker Absensi</p><p class="mt-1 text-xl font-semibold text-error">{{ preview.summary.blocker_count }}</p></UCard>
-      </div>
-
+    <div v-if="preview" class="space-y-6">
       <UAlert
-        v-if="!preview.can_submit"
-        color="warning"
-        variant="subtle"
+        v-if="!canSubmit && preview"
         title="Draft boleh dibuat, tetapi belum boleh disubmit"
         description="Periksa jadwal, scan absensi, izin/sakit/cuti approved, dan konflik pengajuan sampai blocker absensi bernilai nol."
+        color="warning"
+        variant="subtle"
       />
+      <UAlert
+        v-if="preview && preview.summary?.incomplete_scan_count > 0"
+        title="Peringatan Absensi"
+        :description="`Ada ${preview.summary.incomplete_scan_count} absensi belum lengkap (lupa absen masuk/pulang).`"
+        color="error"
+        variant="subtle"
+        class="mt-3"
+      />
+      <UAlert
+        v-if="preview && preview.summary?.master_incomplete > 0"
+        title="Master Payroll Belum Lengkap"
+        :description="`Terdapat ${preview.summary.master_incomplete} karyawan tidak bisa digenerate karena master payroll belum diisi/tidak valid.`"
+        color="warning"
+        variant="subtle"
+        class="mt-3"
+      />
+
+      <div class="sticky top-[60px] z-10 -mx-4 grid gap-4 px-4 py-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+        <UCard><p class="text-xs text-muted">Total Karyawan</p><p class="mt-1 text-xl font-semibold">{{ preview.records?.length || 0 }}</p></UCard>
+        <UCard><p class="text-xs text-muted">Total Gross</p><p class="mt-1 text-xl font-semibold text-highlighted">{{ rupiah(preview.summary?.total_gross || 0) }}</p></UCard>
+        <UCard><p class="text-xs text-muted">Total Lembur</p><p class="mt-1 text-xl font-semibold text-highlighted">{{ rupiah(preview.summary?.total_lembur || 0) }}</p></UCard>
+        <UCard><p class="text-xs text-muted">BPJS Karyawan</p><p class="mt-1 text-xl font-semibold text-info">{{ rupiah(preview.summary?.total_bpjs_karyawan || 0) }}</p></UCard>
+        <UCard><p class="text-xs text-muted">BPJS Perusahaan</p><p class="mt-1 text-xl font-semibold text-info">{{ rupiah(preview.summary?.total_bpjs_perusahaan || 0) }}</p></UCard>
+        <UCard><p class="text-xs text-muted">Estimasi NET</p><p class="mt-1 text-xl font-semibold text-success">{{ rupiah(preview.summary?.total_net_estimation || 0) }}</p></UCard>
+      </div>
 
       <UCard>
         <template #header>
           <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <h3 class="font-semibold">Preview Absensi & Estimasi</h3>
-            <p class="text-xs text-muted">{{ previewRows.length }} karyawan</p>
+            <div class="flex items-center gap-3">
+              <p class="text-xs text-muted">{{ previewRows.length }} karyawan</p>
+              <UButton 
+                v-if="preview.summary.incomplete_scan_days > 0"
+                size="sm"
+                color="warning"
+                label="Auto Koreksi Semua"
+                icon="i-lucide-wand-2"
+                :loading="autoCorrectingAll"
+                @click="autoCorrectAll"
+              />
+            </div>
           </div>
         </template>
+        <div class="mb-4 grid gap-3 border-b border-default pb-4 lg:grid-cols-3">
+          <UFormField label="Cari Nama / NIK">
+            <UInput v-model="previewFilters.q" icon="i-lucide-search" placeholder="Cari karyawan di preview..." />
+          </UFormField>
+          <UFormField label="Filter Hari Masuk">
+            <select v-model="previewFilters.hariMasuk" class="w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted">
+              <option v-for="opt in hariMasukOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+            </select>
+          </UFormField>
+        </div>
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="border-b border-default text-left text-xs text-muted">
@@ -628,10 +795,11 @@ onMounted(loadPeriods)
                 <th class="px-3 py-3">Extra Off</th>
                 <th class="px-3 py-3">Blocker</th>
                 <th class="px-3 py-3">NET Estimasi</th>
+                <th class="px-3 py-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="record in previewRows" :key="record.nik" class="border-b border-default">
+              <tr v-for="record in paginatedPreviewRows" :key="record.nik" class="border-b border-default">
                 <td class="px-3 py-3"><p class="font-medium">{{ record.name }}</p><p class="text-xs text-muted">{{ record.nik }}</p></td>
                 <td class="px-3 py-3">{{ record.total_hari_masuk }} / {{ record.periode_hari_kerja }}</td>
                 <td class="px-3 py-3">{{ record.extra_off_days }}</td>
@@ -643,12 +811,34 @@ onMounted(loadPeriods)
                   </p>
                 </td>
                 <td class="px-3 py-3 font-medium">{{ rupiah(record.calculation?.take_home_pay) }}</td>
+                <td class="px-3 py-3 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <UButton size="xs" color="primary" variant="soft" label="Koreksi Absen" :to="{ name: 'hr-attendance-corrections', query: { nik: record.nik, date: filters.start_date } }" />
+                    <UButton 
+                      v-if="record.issues?.some((i) => i.code === 'incomplete_scan' || i.message?.includes('belum lengkap'))" 
+                      size="xs" 
+                      color="warning" 
+                      variant="soft" 
+                      label="Auto Koreksi" 
+                      :loading="autoCorrecting.includes(record.nik)"
+                      @click="autoCorrectAttendance(record.nik)" 
+                    />
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <div class="mt-4 flex flex-col gap-3 border-t border-default pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm text-muted">Halaman {{ previewPage }} dari {{ totalPreviewPages }}. Tampil {{ paginatedPreviewRows.length }} dari {{ previewRows.length }} data.</p>
+          <div class="flex gap-2">
+            <UButton size="xs" color="neutral" variant="outline" label="Prev" :disabled="previewPage <= 1" @click="previewPage--" />
+            <UButton size="xs" color="neutral" variant="outline" label="Next" :disabled="previewPage >= totalPreviewPages" @click="previewPage++" />
+          </div>
+        </div>
       </UCard>
-    </template>
+    </div>
 
     <div v-if="selectedDraft" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button class="absolute inset-0 bg-slate-950/60" aria-label="Tutup review payroll" @click="closeReview"></button>
@@ -669,29 +859,66 @@ onMounted(loadPeriods)
         <div class="grid gap-4 md:grid-cols-5">
           <UCard><p class="text-xs text-muted">Hari Masuk</p><p class="mt-1 font-semibold">{{ selectedDraft.total_hari_masuk }} / {{ selectedDraft.periode_hari_kerja }}</p><p v-if="selectedDraft.extra_off_days" class="text-xs text-success">Extra off: {{ selectedDraft.extra_off_days }}</p></UCard>
           <UCard><p class="text-xs text-muted">Pendapatan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).earning) }}</p></UCard>
-          <UCard><p class="text-xs text-muted">Potongan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).deduction) }}</p></UCard>
+          <UCard><p class="text-xs text-muted">BPJS Karyawan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).deduction) }}</p></UCard>
           <UCard><p class="text-xs text-muted">BPJS Perusahaan</p><p class="mt-1 font-semibold">{{ rupiah(groupedTotals(selectedDraft).employer_contribution) }}</p></UCard>
           <UCard><p class="text-xs text-muted">NET</p><p class="mt-1 font-semibold text-success">{{ rupiah(selectedDraft.total_dibayarkan) }}</p></UCard>
         </div>
 
-        <div class="mt-5 overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="border-b border-default text-left text-xs text-muted">
-              <tr><th class="px-3 py-3">Komponen</th><th class="px-3 py-3">Tipe</th><th class="px-3 py-3">Mode</th><th class="px-3 py-3 text-right">Nominal</th></tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in componentRows(selectedDraft)" :key="item.id" class="border-b border-default">
-                <td class="px-3 py-3">{{ item.name }}</td>
-                <td class="px-3 py-3">{{ typeLabels[item.type] || item.type }}</td>
-                <td class="px-3 py-3">{{ item.input_mode }}</td>
-                <td class="px-3 py-3 text-right font-medium">{{ rupiah(item.amount) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="mt-5 grid items-start gap-4 lg:grid-cols-2">
+          <!-- PENDAPATAN -->
+          <UCard class="border border-default bg-transparent shadow-none ring-0">
+            <template #header>
+              <h4 class="font-semibold text-highlighted">PENDAPATAN</h4>
+            </template>
+            <div class="flex flex-col gap-2">
+              <div v-for="item in selectedDraft.items.filter((i) => i.type === 'earning')" :key="item.id" class="flex justify-between text-sm">
+                <span class="text-muted">{{ item.name }}</span>
+                <span class="font-medium">{{ rupiah(item.amount) }}</span>
+              </div>
+            </div>
+            <template #footer>
+              <div class="flex justify-between font-semibold">
+                <span>Total Pendapatan</span>
+                <span>{{ rupiah(groupedTotals(selectedDraft).earning) }}</span>
+              </div>
+            </template>
+          </UCard>
+
+          <!-- POTONGAN -->
+          <UCard class="border border-default bg-transparent shadow-none ring-0">
+            <template #header>
+              <h4 class="font-semibold text-highlighted">POTONGAN</h4>
+            </template>
+            <div class="flex flex-col gap-2">
+              <div v-for="item in selectedDraft.items.filter((i) => i.type === 'deduction')" :key="item.id" class="flex justify-between text-sm">
+                <span class="text-muted">{{ item.name }}</span>
+                <span class="font-medium">{{ rupiah(item.amount) }}</span>
+              </div>
+            </div>
+            <template #footer>
+              <div class="flex justify-between font-semibold">
+                <span>Total Potongan</span>
+                <span>{{ rupiah(groupedTotals(selectedDraft).deduction) }}</span>
+              </div>
+            </template>
+          </UCard>
         </div>
 
+        <!-- BENEFIT LAINNYA -->
+        <UCard v-if="selectedDraft.items.filter((i) => i.type === 'employer_contribution').length" class="mt-4 border border-default bg-transparent shadow-none ring-0">
+          <template #header>
+            <h4 class="font-semibold text-highlighted">BENEFIT LAINNYA</h4>
+          </template>
+          <div class="flex flex-col gap-2">
+            <div v-for="item in selectedDraft.items.filter((i) => i.type === 'employer_contribution')" :key="item.id" class="flex justify-between text-sm">
+              <span class="text-muted">{{ item.name }}</span>
+              <span class="font-medium">{{ rupiah(item.amount) }}</span>
+            </div>
+          </div>
+        </UCard>
+
         <details v-if="!selectedDraft.is_locked && ['draft', 'reviewed'].includes(selectedDraft.status)" class="mt-5 rounded-xl border border-default p-4">
-          <summary class="cursor-pointer font-medium text-highlighted">Adjustment Manual</summary>
+          <summary class="cursor-pointer font-medium text-highlighted">Adjustment Manual (Penyesuaian Pembulatan, dll)</summary>
           <div class="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             <UFormField v-for="adjustment in adjustments" :key="adjustment.component_id" :label="adjustment.name">
               <UInput v-model.number="adjustment.amount" type="number" min="0" />

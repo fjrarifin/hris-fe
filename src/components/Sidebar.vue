@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { backendLogoUrl } from '../services/api'
 import { useAuthStore } from '../stores/auth'
-
+import SecureImage from './SecureImage.vue'
 const props = defineProps({
   isOpen: Boolean,
 })
@@ -144,12 +144,11 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         aria-label="Buka menu akun"
         @click="toggleAccountMenu"
       >
-        <img
+        <SecureImage
           v-if="accountPhotoUrl"
           :src="accountPhotoUrl"
           :alt="auth.user?.name || 'Foto profil'"
           class="size-10 shrink-0 rounded-full object-cover ring-1 ring-slate-600"
-          @error="accountPhotoFailed = true"
         />
         <UAvatar v-else :text="auth.initials" color="primary" size="md" class="size-10 shrink-0" />
         <div class="min-w-0 flex-1">
