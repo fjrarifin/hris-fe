@@ -509,7 +509,7 @@ onMounted(loadDashboard)
 
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
-    <div v-else-if="!isHr" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div v-else-if="!isHr" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       <StatCard v-for="statistic in statistics" :key="statistic.title" v-bind="statistic" />
     </div>
 

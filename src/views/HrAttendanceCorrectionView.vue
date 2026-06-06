@@ -5,7 +5,7 @@ import { getHrAttendanceCorrections, saveHrAttendanceCorrection } from '../servi
 import { apiError, formatDate } from '../utils/formatters'
 
 const route = useRoute()
-const filters = reactive({ start_date: '', end_date: '', q: '' })
+const filters = reactive({ start_date: '', end_date: '', q: '', status_filter: 'alpha_only' })
 const data = ref(null)
 const selected = ref(null)
 const form = reactive({
@@ -35,7 +35,7 @@ function formatTime(value) {
 }
 
 function findingLabel(record) {
-  return record.raw_scan_in ? 'Tidak absen pulang' : 'Tidak absen masuk'
+  return record.finding
 }
 
 function periodLabel() {
@@ -65,6 +65,7 @@ async function load(requestedPage = 1) {
         start_date: filters.start_date,
         end_date: filters.end_date,
         q: filters.q || undefined,
+        status_filter: filters.status_filter,
         page: requestedPage,
       })
     ).data
@@ -154,6 +155,16 @@ onMounted(() => {
             class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
           />
         </label>
+        <label class="text-sm text-muted">
+          Filter Status
+          <select
+            v-model="filters.status_filter"
+            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+          >
+            <option value="alpha_only">Hanya Alpha & Tidak Lengkap</option>
+            <option value="all">Semua (Termasuk Cuti/Izin)</option>
+          </select>
+        </label>
         <UButton type="submit" label="Tampilkan" icon="i-lucide-search" :loading="loading" />
       </form>
     </UCard>
@@ -172,7 +183,8 @@ onMounted(() => {
               <th class="p-3">Scan Masuk</th>
               <th class="p-3">Scan Pulang</th>
               <th class="p-3">Temuan</th>
-              <th class="p-3">Status</th>
+              <th class="p-3">Status Absensi</th>
+              <th class="p-3">Status Koreksi</th>
               <th class="p-3">Aksi</th>
             </tr>
           </thead>
@@ -191,6 +203,20 @@ onMounted(() => {
               <td class="p-3">{{ formatTime(record.scan_in) }}</td>
               <td class="p-3">{{ formatTime(record.scan_out) }}</td>
               <td class="p-3">{{ findingLabel(record) }}</td>
+              <td class="p-3">
+                <UBadge
+                  v-if="record.status_code === 'M' || record.status_code === 'H'"
+                  :color="record.status_code === 'M' ? 'danger' : 'warning'"
+                  variant="subtle"
+                  :label="record.status_label"
+                />
+                <UBadge
+                  v-else
+                  color="info"
+                  variant="subtle"
+                  :label="record.status_label"
+                />
+              </td>
               <td class="p-3">
                 <UBadge
                   :color="record.is_resolved ? 'success' : 'warning'"
