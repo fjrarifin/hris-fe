@@ -31,6 +31,7 @@ const form = reactive({
   email: '',
   level: 3,
   is_active: true,
+  allow_mobile_attendance: false,
 })
 
 const levelOptions = [
@@ -73,6 +74,7 @@ function editUser(user) {
     email: user.email || '',
     level: user.level,
     is_active: user.is_active,
+    allow_mobile_attendance: user.allow_mobile_attendance,
   })
   clearMessages()
 }
@@ -141,6 +143,7 @@ async function toggleActive(user) {
     email: user.email || '',
     level: user.level,
     is_active: !user.is_active,
+    allow_mobile_attendance: user.allow_mobile_attendance,
   })
   await saveUser()
 }
@@ -228,6 +231,10 @@ onMounted(() => loadUsers())
         <label class="flex items-end gap-2 pb-2 text-sm font-medium text-highlighted">
           <input v-model="form.is_active" type="checkbox" class="size-4 rounded border-default" />
           User aktif
+        </label>
+        <label class="flex items-end gap-2 pb-2 text-sm font-medium text-highlighted">
+          <input v-model="form.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
+          Akses Absensi Mobile
         </label>
         <div class="md:col-span-2 xl:col-span-5">
           <UButton type="submit" icon="i-lucide-save" label="Simpan Perubahan" :loading="saving" />
