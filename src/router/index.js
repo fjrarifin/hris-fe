@@ -81,7 +81,7 @@ const router = createRouter({
       path: '/approval/:token',
       name: 'public-approval-redirect',
       beforeEnter: (to) => {
-        window.location.replace(`${backendUrl}/approval/${encodeURIComponent(to.params.token)}`)
+        window.location.replace(`${backendUrl}/api/approval/${encodeURIComponent(to.params.token)}`)
         return false
       },
     },
