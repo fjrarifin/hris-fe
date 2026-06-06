@@ -793,7 +793,6 @@ onMounted(loadPeriods)
                 <th class="px-3 py-3">Karyawan</th>
                 <th class="px-3 py-3">Hari Masuk</th>
                 <th class="px-3 py-3">Extra Off</th>
-                <th class="px-3 py-3">Blocker</th>
                 <th class="px-3 py-3">NET Estimasi</th>
                 <th class="px-3 py-3 text-center">Aksi</th>
               </tr>
@@ -803,13 +802,6 @@ onMounted(loadPeriods)
                 <td class="px-3 py-3"><p class="font-medium">{{ record.name }}</p><p class="text-xs text-muted">{{ record.nik }}</p></td>
                 <td class="px-3 py-3">{{ record.total_hari_masuk }} / {{ record.periode_hari_kerja }}</td>
                 <td class="px-3 py-3">{{ record.extra_off_days }}</td>
-                <td class="px-3 py-3">
-                  <span>{{ record.blocker_count }}</span>
-                  <p v-if="record.issues?.length" class="mt-1 max-w-xs text-xs text-warning">
-                    {{ record.issues.slice(0, 2).map((issue) => `${issue.date}: ${issue.message}`).join(' | ') }}
-                    <span v-if="record.issues.length > 2"> | +{{ record.issues.length - 2 }} lagi</span>
-                  </p>
-                </td>
                 <td class="px-3 py-3 font-medium">{{ rupiah(record.calculation?.take_home_pay) }}</td>
                 <td class="px-3 py-3 text-center">
                   <div class="flex items-center justify-center gap-2">
