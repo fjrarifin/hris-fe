@@ -31,7 +31,11 @@ const calendarTitle = computed(() =>
 )
 
 const calendarAttendanceCount = computed(
-  () => calendarDays.value.filter((day) => day.record).length,
+  () => calendarDays.value.filter((day) => day.record?.has_scan).length,
+)
+
+const calendarApprovedAbsenceCount = computed(
+  () => calendarDays.value.filter((day) => isApprovedAbsence(day.record)).length,
 )
 
 const calendarDays = computed(() => {
@@ -121,6 +125,48 @@ function formatTime(value) {
 
 function formatShortTime(value) {
   return value ? value.slice(0, 5) : '-'
+}
+
+function normalizedStatus(record) {
+  return record?.status?.toLowerCase?.() || ''
+}
+
+function isApprovedAbsence(record) {
+  return record?.attendance_source === 'approved_absence'
+    || ['leave', 'cuti', 'public_holiday', 'ph', 'extra_off', 'eo'].includes(normalizedStatus(record))
+}
+
+function attendanceStatusLabel(record) {
+  if (!record) {
+    return '-'
+  }
+
+  const status = normalizedStatus(record)
+
+  if (status === 'public_holiday' || status === 'ph') return 'PH'
+  if (status === 'extra_off' || status === 'eo') return 'Extra Off'
+  if (status === 'leave' || status === 'cuti') return record.status_label || 'Cuti'
+
+  return record.is_complete ? 'Lengkap' : 'Belum Lengkap'
+}
+
+function attendanceStatusColor(record) {
+  const status = normalizedStatus(record)
+
+  if (status === 'public_holiday' || status === 'ph') return 'info'
+  if (status === 'extra_off' || status === 'eo') return 'info'
+  if (status === 'leave' || status === 'cuti') return 'warning'
+
+  return record?.is_complete ? 'success' : 'warning'
+}
+
+function approvedAbsenceClass(record) {
+  const status = normalizedStatus(record)
+
+  if (status === 'leave' || status === 'cuti') return 'bg-warning/10 text-warning'
+  if (status === 'extra_off' || status === 'eo') return 'bg-info/10 text-info'
+
+  return 'bg-primary/10 text-primary'
 }
 
 function changeCalendarMonth(offset) {
@@ -254,7 +300,7 @@ onMounted(load)
             {{ calendarTitle }}
           </h3>
           <p class="mt-1 text-sm text-muted">
-            {{ calendarAttendanceCount }} hari memiliki data scan pada bulan ini.
+            {{ calendarAttendanceCount }} hari memiliki data scan, {{ calendarApprovedAbsenceCount }} hari approved CUTI/PH/EO.
           </p>
         </div>
         <div class="flex items-center gap-2">
@@ -310,12 +356,23 @@ onMounted(load)
                     v-if="day.record"
                     size="xs"
                     variant="subtle"
-                    :color="day.record.is_complete ? 'success' : 'warning'"
-                    :label="day.record.is_complete ? 'Lengkap' : 'Belum'"
+                    :color="attendanceStatusColor(day.record)"
+                    :label="attendanceStatusLabel(day.record)"
                   />
                 </div>
 
-                <div v-if="day.record" class="mt-3 space-y-1.5 text-[11px] leading-tight">
+                <div v-if="day.record && isApprovedAbsence(day.record)" class="mt-3 space-y-1.5 text-[11px] leading-tight">
+                  <div class="rounded-md px-2 py-1 font-medium" :class="approvedAbsenceClass(day.record)">
+                    {{ attendanceStatusLabel(day.record) }} disetujui
+                  </div>
+                  <div v-if="day.record.has_scan" class="rounded-md bg-success/10 px-2 py-1 text-success">
+                    Scan {{ formatShortTime(day.record.scan_in) }} - {{ formatShortTime(day.record.scan_out) }}
+                  </div>
+                  <div v-if="day.record.schedule_code" class="rounded-md bg-muted px-2 py-1 text-muted">
+                    Jadwal {{ day.record.schedule_code }}
+                  </div>
+                </div>
+                <div v-else-if="day.record" class="mt-3 space-y-1.5 text-[11px] leading-tight">
                   <div class="rounded-md bg-success/10 px-2 py-1 text-success">
                     Masuk {{ formatShortTime(day.record.scan_in) }}
                   </div>
@@ -360,9 +417,9 @@ onMounted(load)
               <td class="p-3">{{ record.total_scans }}</td>
               <td class="p-3">
                 <UBadge
-                  :color="record.is_complete ? 'success' : 'warning'"
+                  :color="attendanceStatusColor(record)"
                   variant="subtle"
-                  :label="record.is_complete ? 'Lengkap' : 'Belum Lengkap'"
+                  :label="attendanceStatusLabel(record)"
                 />
               </td>
             </tr>

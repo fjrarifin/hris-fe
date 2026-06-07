@@ -155,6 +155,41 @@ function resetFilters() {
   loadUsers(1)
 }
 
+function actionItems(user) {
+  return [
+    {
+      label: 'Edit',
+      icon: 'i-lucide-pencil',
+      onSelect: () => editUser(user)
+    },
+    {
+      label: user.is_active ? 'Nonaktifkan' : 'Aktifkan',
+      icon: user.is_active ? 'i-lucide-user-x' : 'i-lucide-user-check',
+      onSelect: () => toggleActive(user)
+    },
+    {
+      label: 'Reset Password',
+      icon: 'i-lucide-key-round',
+      onSelect: () => runAction(user, resetItUserPassword, 'Reset password user ini ke default 12345678?')
+    },
+    {
+      label: 'Reset Batas Password',
+      icon: 'i-lucide-clock-3',
+      onSelect: () => runAction(user, resetItUserPasswordLimit, 'Kosongkan password_changed_at user ini?')
+    },
+    {
+      label: 'Reset Email',
+      icon: 'i-lucide-mail',
+      onSelect: () => runAction(user, resetItUserEmailLimit, 'Kosongkan email_updated_at user ini?')
+    },
+    {
+      label: 'Reset Foto',
+      icon: 'i-lucide-image',
+      onSelect: () => runAction(user, resetItUserPhotoLimit, 'Kosongkan photo_changed_at user ini?')
+    }
+  ]
+}
+
 onMounted(() => loadUsers())
 </script>
 
@@ -228,14 +263,16 @@ onMounted(() => loadUsers())
             <option v-for="level in levelOptions" :key="level.value" :value="level.value">{{ level.label }}</option>
           </select>
         </div>
-        <label class="flex items-end gap-2 pb-2 text-sm font-medium text-highlighted">
-          <input v-model="form.is_active" type="checkbox" class="size-4 rounded border-default" />
-          User aktif
-        </label>
-        <label class="flex items-end gap-2 pb-2 text-sm font-medium text-highlighted">
-          <input v-model="form.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
-          Akses Absensi Mobile
-        </label>
+        <div class="md:col-span-2 xl:col-span-5 flex items-center gap-6 pb-2">
+          <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+            <input v-model="form.is_active" type="checkbox" class="size-4 rounded border-default" />
+            User aktif
+          </label>
+          <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+            <input v-model="form.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
+            Akses Absensi Mobile
+          </label>
+        </div>
         <div class="md:col-span-2 xl:col-span-5">
           <UButton type="submit" icon="i-lucide-save" label="Simpan Perubahan" :loading="saving" />
         </div>
@@ -280,21 +317,13 @@ onMounted(() => loadUsers())
                 <p>Foto: {{ formatDateTime(user.photo_changed_at) }}</p>
               </td>
               <td class="px-4 py-3">
-                <div class="flex flex-wrap gap-2">
-                  <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-pencil" label="Edit" @click="editUser(user)" />
-                  <UButton
-                    size="xs"
-                    :color="user.is_active ? 'error' : 'success'"
-                    variant="soft"
-                    :icon="user.is_active ? 'i-lucide-user-x' : 'i-lucide-user-check'"
-                    :label="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
-                    :loading="saving && selectedUser?.id === user.id"
-                    @click="toggleActive(user)"
-                  />
-                  <UButton size="xs" color="warning" variant="soft" icon="i-lucide-key-round" label="Reset Password" @click="runAction(user, resetItUserPassword, 'Reset password user ini ke default 12345678?')" />
-                  <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-clock-3" label="Reset Batas Password" @click="runAction(user, resetItUserPasswordLimit, 'Kosongkan password_changed_at user ini?')" />
-                  <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-mail" label="Reset Email" @click="runAction(user, resetItUserEmailLimit, 'Kosongkan email_updated_at user ini?')" />
-                  <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-image" label="Reset Foto" @click="runAction(user, resetItUserPhotoLimit, 'Kosongkan photo_changed_at user ini?')" />
+                <div class="flex items-center">
+                  <UDropdownMenu
+                    :items="actionItems(user)"
+                    :content="{ align: 'end', sideOffset: 8 }"
+                  >
+                    <UButton size="sm" color="neutral" variant="ghost" icon="i-lucide-more-vertical" />
+                  </UDropdownMenu>
                 </div>
               </td>
             </tr>
