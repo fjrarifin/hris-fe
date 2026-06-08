@@ -279,19 +279,5 @@ onBeforeUnmount(() => {
         </template>
       </div>
     </div>
-
-    <button
-      type="button"
-      class="relative flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-xl transition hover:scale-105"
-      aria-label="Lihat user online"
-      @click="toggle"
-    >
-      <UIcon name="i-lucide-users-round" class="size-6" />
-      <span
-        class="absolute -right-1 -top-1 rounded-full border-2 border-default bg-green-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
-      >
-        {{ onlineCount }}
-      </span>
-    </button>
   </div>
 </template>
