@@ -51,7 +51,7 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Approval Pengajuan Tim</h2>
       <p class="mt-1 text-sm text-muted">
-        Pengajuan bawahan langsung yang menunggu keputusan Anda.
+        Pengajuan dan riwayat keputusan bawahan langsung Anda.
       </p>
     </div>
 
@@ -60,7 +60,7 @@ onMounted(load)
     <UCard>
       <div v-if="loading" class="py-10 text-center text-sm text-muted">Memuat pengajuan...</div>
       <div v-else-if="!requests.length" class="py-10 text-center text-sm text-muted">
-        Tidak ada pengajuan yang menunggu approval.
+        Belum ada riwayat pengajuan bawahan.
       </div>
       <div v-else class="space-y-4">
         <div
@@ -80,8 +80,9 @@ onMounted(load)
                 }}<span v-if="item.end_date"> - {{ formatDate(item.end_date) }}</span>
               </p>
               <p v-if="item.reason" class="mt-2 text-sm text-highlighted">{{ item.reason }}</p>
+              <p v-if="item.reject_reason" class="mt-2 text-sm text-error">Alasan: {{ item.reject_reason }}</p>
             </div>
-            <div class="flex gap-2">
+            <div v-if="item.can_decide" class="flex gap-2">
               <UButton
                 color="success"
                 variant="soft"

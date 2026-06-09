@@ -10,6 +10,7 @@ const loading = ref(true)
 const saving = ref(false)
 const message = ref('')
 const errorMessage = ref('')
+const todayDate = new Date().toISOString().slice(0, 10)
 
 async function load() {
   loading.value = true
@@ -93,6 +94,7 @@ onMounted(load)
           <input
             v-model="form.date"
             type="date"
+            :min="form.type === 'izin' ? todayDate : null"
             class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             required
           />
