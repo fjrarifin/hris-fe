@@ -5,7 +5,7 @@ import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const requests = ref([])
-const form = reactive({ type: 'izin', date: '', reason: '', document: null })
+const form = reactive({ type: 'izin', start_date: '', end_date: '', reason: '', document: null })
 const loading = ref(true)
 const saving = ref(false)
 const message = ref('')
@@ -30,7 +30,8 @@ function selectDocument(event) {
 async function submit() {
   const payload = new FormData()
   payload.append('type', form.type)
-  payload.append('date', form.date)
+  payload.append('start_date', form.start_date)
+  payload.append('end_date', form.end_date || form.start_date)
   payload.append('reason', form.reason)
   if (form.document) payload.append('document', form.document)
 
@@ -39,7 +40,8 @@ async function submit() {
   errorMessage.value = ''
   try {
     message.value = (await createPermission(payload)).data.message
-    form.date = ''
+    form.start_date = ''
+    form.end_date = ''
     form.reason = ''
     form.document = null
     await load()
@@ -48,6 +50,14 @@ async function submit() {
   } finally {
     saving.value = false
   }
+}
+
+function permissionDateLabel(item) {
+  const start = formatDate(item.start_date || item.date)
+  const endValue = item.end_date || item.date
+  const end = formatDate(endValue)
+
+  return endValue && endValue !== (item.start_date || item.date) ? `${start} - ${end}` : start
 }
 
 async function remove(id) {
@@ -90,11 +100,21 @@ onMounted(load)
           </select>
         </label>
         <label class="text-sm text-muted">
-          Tanggal
+          Dari Tanggal
           <input
-            v-model="form.date"
+            v-model="form.start_date"
             type="date"
             :min="form.type === 'izin' ? todayDate : null"
+            class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            required
+          />
+        </label>
+        <label class="text-sm text-muted">
+          Sampai Tanggal
+          <input
+            v-model="form.end_date"
+            type="date"
+            :min="form.start_date || (form.type === 'izin' ? todayDate : null)"
             class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             required
           />
@@ -142,7 +162,7 @@ onMounted(load)
           </thead>
           <tbody>
             <tr v-for="item in requests" :key="item.id" class="border-t border-default">
-              <td class="p-3">{{ formatDate(item.date) }}</td>
+              <td class="p-3">{{ permissionDateLabel(item) }}</td>
               <td class="p-3">{{ item.type === 'sakit' ? 'Sakit' : 'Izin' }}</td>
               <td class="p-3">
                 <a
