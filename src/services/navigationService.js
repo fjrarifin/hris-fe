@@ -22,6 +22,10 @@ export function getItUsers(params) {
   return api.get('/it/users', { params })
 }
 
+export function createItUser(payload) {
+  return api.post('/it/users', payload)
+}
+
 export function updateItUser(userId, payload) {
   return api.put(`/it/users/${userId}`, payload)
 }

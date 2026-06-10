@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import {
+  createItUser,
+  getMenuAccess,
   getItUsers,
   resetItUserEmailLimit,
   resetItUserPassword,
@@ -18,6 +20,10 @@ const successMessage = ref('')
 const records = ref([])
 const pagination = ref({})
 const selectedUser = ref(null)
+const createDialogOpen = ref(false)
+const menuOptions = ref([])
+const menuLoading = ref(false)
+const selectedCreateMenuIds = ref([])
 const filters = reactive({
   q: '',
   level: '',
@@ -33,6 +39,14 @@ const form = reactive({
   is_active: true,
   allow_mobile_attendance: false,
 })
+const createForm = reactive({
+  name: '',
+  username: '',
+  email: '',
+  level: 2,
+  is_active: true,
+  allow_mobile_attendance: false,
+})
 
 const levelOptions = [
   { value: 0, label: 'IT' },
@@ -43,10 +57,79 @@ const levelOptions = [
 const formControlClass =
   'w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20'
 const hasRecords = computed(() => records.value.length > 0)
+const selectableMenus = computed(() => menuOptions.value.filter((menu) => menu.key !== 'dashboard'))
 
 function clearMessages() {
   errorMessage.value = ''
   successMessage.value = ''
+}
+
+function menuAllowedForLevel(menu, level) {
+  return (menu.allowed_levels || []).map(Number).includes(Number(level))
+}
+
+function resetCreateForm() {
+  Object.assign(createForm, {
+    name: '',
+    username: '',
+    email: '',
+    level: 2,
+    is_active: true,
+    allow_mobile_attendance: false,
+  })
+  applyDefaultMenusForLevel()
+}
+
+function applyDefaultMenusForLevel() {
+  const level = Number(createForm.level)
+  selectedCreateMenuIds.value = selectableMenus.value
+    .filter((menu) => level === 0 || menuAllowedForLevel(menu, level))
+    .map((menu) => menu.id)
+}
+
+async function loadMenuOptions() {
+  if (menuOptions.value.length) return
+
+  menuLoading.value = true
+  try {
+    const { data } = await getMenuAccess()
+    menuOptions.value = data.menus || []
+  } catch {
+    errorMessage.value = 'Data menu tidak dapat dimuat.'
+  } finally {
+    menuLoading.value = false
+  }
+}
+
+async function openCreateDialog() {
+  clearMessages()
+  await loadMenuOptions()
+  resetCreateForm()
+  createDialogOpen.value = true
+}
+
+function closeCreateDialog() {
+  createDialogOpen.value = false
+}
+
+async function saveNewUser() {
+  saving.value = true
+  clearMessages()
+
+  try {
+    const payload = {
+      ...createForm,
+      menu_ids: selectedCreateMenuIds.value,
+    }
+    const { data } = await createItUser(payload)
+    successMessage.value = data.message || 'User berhasil dibuat.'
+    closeCreateDialog()
+    await loadUsers(1)
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {})?.flat()?.[0] || 'User tidak dapat dibuat.'
+  } finally {
+    saving.value = false
+  }
 }
 
 async function loadUsers(page = 1) {
@@ -200,10 +283,112 @@ onMounted(() => loadUsers())
         <h2 class="text-2xl font-semibold text-highlighted">Kelola User</h2>
         <p class="mt-1 text-sm text-muted">Aktifkan, nonaktifkan, edit akun, dan reset batas perubahan user.</p>
       </div>
-      <UBadge color="primary" variant="subtle" :label="`${pagination.total || 0} user`" />
+      <div class="flex items-center gap-2">
+        <UButton icon="i-lucide-user-plus" label="Tambah User" @click="openCreateDialog" />
+        <UBadge color="primary" variant="subtle" :label="`${pagination.total || 0} user`" />
+      </div>
     </div>
 
     <AlertToastBridge :error="errorMessage" :message="successMessage" />
+
+    <div
+      v-if="createDialogOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tambah user"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup tambah user"
+        @click="closeCreateDialog"
+      ></button>
+      <UCard class="relative max-h-[88vh] w-full max-w-5xl overflow-hidden">
+        <template #header>
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-highlighted">Tambah User</p>
+              <p class="mt-1 text-xs text-muted">Buat akun aplikasi untuk HRD, admin, IT, atau user internal non-karyawan.</p>
+            </div>
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeCreateDialog" />
+          </div>
+        </template>
+
+        <form class="space-y-5" @submit.prevent="saveNewUser">
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-muted">Nama</label>
+              <input v-model="createForm.name" :class="formControlClass" placeholder="Nama user" required />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-muted">Username</label>
+              <input v-model="createForm.username" :class="formControlClass" placeholder="contoh: hrd0005" required />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-muted">Email</label>
+              <input v-model="createForm.email" type="email" :class="formControlClass" placeholder="opsional" />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-muted">Role / Level</label>
+              <select v-model.number="createForm.level" :class="formControlClass" @change="applyDefaultMenusForLevel">
+                <option v-for="level in levelOptions" :key="level.value" :value="level.value">{{ level.label }}</option>
+              </select>
+            </div>
+            <div class="flex items-end gap-6 pb-2 xl:col-span-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+                <input v-model="createForm.is_active" type="checkbox" class="size-4 rounded border-default" />
+                User aktif
+              </label>
+              <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+                <input v-model="createForm.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
+                Akses Absensi Mobile
+              </label>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-default bg-muted/30 p-4">
+            <div class="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+              <div>
+                <p class="text-sm font-semibold text-highlighted">Menu yang Ditampilkan</p>
+                <p class="text-xs text-muted">Dashboard selalu aktif. Centang menu lain yang boleh muncul untuk user ini.</p>
+              </div>
+              <UButton
+                type="button"
+                size="xs"
+                color="neutral"
+                variant="soft"
+                icon="i-lucide-list-checks"
+                label="Default Role"
+                @click="applyDefaultMenusForLevel"
+              />
+            </div>
+            <div v-if="menuLoading" class="py-6 text-center text-sm text-muted">Memuat menu...</div>
+            <div v-else class="grid max-h-[34vh] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+              <label
+                v-for="menu in selectableMenus"
+                :key="menu.id"
+                class="flex items-start gap-2 rounded-lg border border-default bg-default p-3 text-sm"
+              >
+                <input v-model="selectedCreateMenuIds" type="checkbox" class="mt-0.5 size-4 rounded border-default" :value="menu.id" />
+                <span>
+                  <span class="block font-medium text-highlighted">{{ menu.label }}</span>
+                  <span class="block text-xs text-muted">{{ menu.path }}</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2 border-t border-default pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-xs text-muted">Password awal user baru: <span class="font-semibold text-highlighted">12345678</span>, lalu wajib diganti saat login.</p>
+            <div class="flex gap-2">
+              <UButton type="button" color="neutral" variant="soft" label="Batal" @click="closeCreateDialog" />
+              <UButton type="submit" icon="i-lucide-save" label="Simpan User" :loading="saving" />
+            </div>
+          </div>
+        </form>
+      </UCard>
+    </div>
 
     <UCard>
       <form class="grid gap-3 md:grid-cols-2 xl:grid-cols-5" @submit.prevent="loadUsers(1)">
