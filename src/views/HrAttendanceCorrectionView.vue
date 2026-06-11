@@ -9,8 +9,11 @@ const filters = reactive({ start_date: '', end_date: '', q: '', status_filter: '
 const data = ref(null)
 const selected = ref(null)
 const form = reactive({
+  correction_type: 'time',
   corrected_scan_in: '',
   corrected_scan_out: '',
+  public_holiday_id: '',
+  extra_off_source: '',
   has_missing_attendance_form: false,
   notes: '',
 })
@@ -20,10 +23,7 @@ const message = ref('')
 const errorMessage = ref('')
 const flattenedAuditLogs = computed(() =>
   (data.value?.audit_logs || []).flatMap((log) =>
-    (log.changes?.length
-      ? log.changes
-      : [{ field: 'action', label: 'Aktivitas', old: '-', new: actionLabel(log.action) }]
-    ).map((change, index) => ({
+    (log.changes || []).map((change, index) => ({
       id: `${log.id}-${change.field}-${index}`,
       date: formatDate(log.created_at),
       time: new Date(log.created_at).toLocaleTimeString('id-ID', {
@@ -63,12 +63,39 @@ function auditValue(value) {
   return value === null || value === undefined || value === '' ? '-' : value
 }
 
-function actionLabel(action) {
-  return action === 'created' ? 'Dibuat' : action === 'deleted' ? 'Dihapus' : 'Diubah'
-}
-
 function findingLabel(record) {
   return record.finding
+}
+
+const isAbsenceCorrection = computed(() => ['leave', 'public_holiday', 'extra_off'].includes(form.correction_type))
+
+function absenceTypeLabel(value) {
+  return {
+    time: 'Koreksi Jam Absen',
+    leave: 'Cuti',
+    public_holiday: 'PH',
+    extra_off: 'Extra Off',
+  }[value] || value
+}
+
+function clearAbsenceSelectors() {
+  form.public_holiday_id = ''
+  form.extra_off_source = ''
+}
+
+function handleCorrectionTypeChange() {
+  if (isAbsenceCorrection.value) {
+    form.corrected_scan_in = ''
+    form.corrected_scan_out = ''
+    form.has_missing_attendance_form = false
+  }
+
+  if (form.correction_type !== 'public_holiday') {
+    form.public_holiday_id = ''
+  }
+  if (form.correction_type !== 'extra_off') {
+    form.extra_off_source = ''
+  }
 }
 
 function periodLabel() {
@@ -83,12 +110,21 @@ function periodLabel() {
 
 function selectRecord(record) {
   selected.value = record
+  form.correction_type = record.correction?.correction_type || 'time'
   form.corrected_scan_in =
     record.correction?.corrected_scan_in?.slice(0, 5) || record.scan_in?.slice(0, 5) || ''
   form.corrected_scan_out =
     record.correction?.corrected_scan_out?.slice(0, 5) || record.scan_out?.slice(0, 5) || ''
+  clearAbsenceSelectors()
+  if (record.correction?.public_holiday_id) {
+    form.public_holiday_id = String(record.correction.public_holiday_id)
+  }
+  if (record.correction?.extra_off_source_period_start && record.correction?.extra_off_source_period_end) {
+    form.extra_off_source = `${record.correction.extra_off_source_period_start}|${record.correction.extra_off_source_period_end}`
+  }
   form.has_missing_attendance_form = record.correction?.has_missing_attendance_form === true
   form.notes = record.correction?.notes || ''
+  handleCorrectionTypeChange()
 }
 
 async function load(requestedPage = 1) {
@@ -126,9 +162,15 @@ async function saveCorrection() {
   try {
     const response = await saveHrAttendanceCorrection(selected.value.nik, {
       attendance_date: selected.value.date,
-      corrected_scan_in: form.corrected_scan_in,
-      corrected_scan_out: form.corrected_scan_out,
-      has_missing_attendance_form: form.has_missing_attendance_form ? true : null,
+      correction_type: form.correction_type,
+      corrected_scan_in: form.correction_type === 'time' ? form.corrected_scan_in : null,
+      corrected_scan_out: form.correction_type === 'time' ? form.corrected_scan_out : null,
+      public_holiday_id: form.correction_type === 'public_holiday' ? form.public_holiday_id : null,
+      extra_off_source_period_start:
+        form.correction_type === 'extra_off' ? form.extra_off_source.split('|')[0] : null,
+      extra_off_source_period_end:
+        form.correction_type === 'extra_off' ? form.extra_off_source.split('|')[1] : null,
+      has_missing_attendance_form: form.correction_type === 'time' && form.has_missing_attendance_form ? true : null,
       notes: form.notes || null,
     })
     message.value = response.data.message
@@ -158,7 +200,7 @@ onMounted(() => {
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Koreksi Absensi</h2>
       <p class="mt-1 text-sm text-muted">
-        Lengkapi jam masuk atau jam pulang yang terlewat tanpa mengubah log mesin absensi asli.
+        Lengkapi jam masuk/pulang, atau ubah hari menjadi Cuti, PH, atau Extra Off dengan pemakaian saldo karyawan.
       </p>
     </div>
 
@@ -251,7 +293,12 @@ onMounted(() => {
                   variant="subtle"
                   :label="record.status_label"
                 />
-                <UBadge v-else color="info" variant="subtle" :label="record.status_label" />
+                <UBadge
+                  v-else
+                  :color="['C', 'PH', 'EO'].includes(record.status_code) ? 'success' : 'info'"
+                  variant="subtle"
+                  :label="record.status_label"
+                />
               </td>
               <td class="p-3">
                 <UBadge
@@ -270,7 +317,7 @@ onMounted(() => {
               </td>
             </tr>
             <tr v-if="!data?.records?.length">
-              <td colspan="9" class="p-8 text-center text-muted">
+              <td colspan="10" class="p-8 text-center text-muted">
                 Tidak ada data absensi pada filter ini.
               </td>
             </tr>
@@ -304,6 +351,25 @@ onMounted(() => {
             />
           </label>
           <label class="text-sm text-muted">
+            Jenis Koreksi
+            <select
+              v-model="form.correction_type"
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+              @change="handleCorrectionTypeChange"
+            >
+              <option value="time">Koreksi Jam Absen</option>
+              <option value="leave" :disabled="(selected.absence_options?.leave_balance || 0) < 1">
+                Cuti - sisa {{ selected.absence_options?.leave_balance || 0 }}
+              </option>
+              <option value="public_holiday" :disabled="!selected.absence_options?.public_holidays?.length">
+                PH
+              </option>
+              <option value="extra_off" :disabled="!selected.absence_options?.extra_off_sources?.length">
+                Extra Off
+              </option>
+            </select>
+          </label>
+          <label class="text-sm text-muted">
             Scan Masuk Tercatat
             <input
               :value="formatTime(selected.raw_scan_in)"
@@ -324,8 +390,9 @@ onMounted(() => {
             <input
               v-model="form.corrected_scan_in"
               type="time"
-              :required="!selected.raw_scan_in"
-              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+              :disabled="isAbsenceCorrection"
+              :required="form.correction_type === 'time' && !selected.raw_scan_in"
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:bg-elevated disabled:text-muted"
             />
           </label>
           <label class="text-sm text-muted">
@@ -333,13 +400,59 @@ onMounted(() => {
             <input
               v-model="form.corrected_scan_out"
               type="time"
-              :required="!selected.raw_scan_out"
-              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+              :disabled="isAbsenceCorrection"
+              :required="form.correction_type === 'time' && !selected.raw_scan_out"
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:bg-elevated disabled:text-muted"
             />
           </label>
         </div>
 
-        <label class="flex items-center gap-3 text-sm text-highlighted">
+        <div v-if="form.correction_type === 'public_holiday'" class="grid gap-4 sm:grid-cols-2">
+          <label class="text-sm text-muted">
+            Jatah PH yang Dipakai
+            <select
+              v-model="form.public_holiday_id"
+              required
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            >
+              <option value="" disabled>Pilih PH</option>
+              <option
+                v-for="holiday in selected.absence_options?.public_holidays || []"
+                :key="holiday.id"
+                :value="holiday.id"
+              >
+                {{ holiday.label }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div v-if="form.correction_type === 'extra_off'" class="grid gap-4 sm:grid-cols-2">
+          <label class="text-sm text-muted">
+            Sumber Extra Off
+            <select
+              v-model="form.extra_off_source"
+              required
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            >
+              <option value="" disabled>Pilih sumber EO</option>
+              <option
+                v-for="source in selected.absence_options?.extra_off_sources || []"
+                :key="`${source.source_period_start}|${source.source_period_end}`"
+                :value="`${source.source_period_start}|${source.source_period_end}`"
+              >
+                {{ source.label }} - sisa {{ source.remaining_days }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <p v-if="isAbsenceCorrection" class="rounded-lg border border-default bg-elevated p-3 text-sm text-muted">
+          Koreksi {{ absenceTypeLabel(form.correction_type) }} akan mengosongkan jam masuk dan jam pulang pada tanggal ini,
+          lalu membuat pengajuan approved agar saldo karyawan ikut terpakai.
+        </p>
+
+        <label v-if="form.correction_type === 'time'" class="flex items-center gap-3 text-sm text-highlighted">
           <input v-model="form.has_missing_attendance_form" type="checkbox" class="size-4" />
           Karyawan sudah mengisi form tidak absen
         </label>
