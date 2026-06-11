@@ -1,11 +1,11 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getHrAttendanceCorrections, saveHrAttendanceCorrection } from '../services/hrService'
 import { apiError, formatDate } from '../utils/formatters'
 
 const route = useRoute()
-const filters = reactive({ start_date: '', end_date: '', q: '', status_filter: 'alpha_only' })
+const filters = reactive({ start_date: '', end_date: '', q: '', status_filter: 'attention_only' })
 const data = ref(null)
 const selected = ref(null)
 const form = reactive({
@@ -18,6 +18,27 @@ const loading = ref(false)
 const saving = ref(false)
 const message = ref('')
 const errorMessage = ref('')
+const flattenedAuditLogs = computed(() =>
+  (data.value?.audit_logs || []).flatMap((log) =>
+    (log.changes?.length
+      ? log.changes
+      : [{ field: 'action', label: 'Aktivitas', old: '-', new: actionLabel(log.action) }]
+    ).map((change, index) => ({
+      id: `${log.id}-${change.field}-${index}`,
+      date: formatDate(log.created_at),
+      time: new Date(log.created_at).toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      changed_by_name: log.changed_by_name,
+      source_label: log.source_label,
+      subject_label: log.subject_label,
+      label: change.label,
+      old: change.old,
+      new: change.new,
+    })),
+  ),
+)
 
 function yesterdayDate() {
   const date = new Date()
@@ -32,6 +53,18 @@ function yesterdayDate() {
 
 function formatTime(value) {
   return value ? `${value.slice(0, 5)} WIB` : '-'
+}
+
+function auditValue(value) {
+  if (Array.isArray(value)) {
+    return value.length ? value.join(', ') : '-'
+  }
+
+  return value === null || value === undefined || value === '' ? '-' : value
+}
+
+function actionLabel(action) {
+  return action === 'created' ? 'Dibuat' : action === 'deleted' ? 'Dihapus' : 'Diubah'
 }
 
 function findingLabel(record) {
@@ -50,8 +83,10 @@ function periodLabel() {
 
 function selectRecord(record) {
   selected.value = record
-  form.corrected_scan_in = record.correction?.corrected_scan_in?.slice(0, 5) || ''
-  form.corrected_scan_out = record.correction?.corrected_scan_out?.slice(0, 5) || ''
+  form.corrected_scan_in =
+    record.correction?.corrected_scan_in?.slice(0, 5) || record.scan_in?.slice(0, 5) || ''
+  form.corrected_scan_out =
+    record.correction?.corrected_scan_out?.slice(0, 5) || record.scan_out?.slice(0, 5) || ''
   form.has_missing_attendance_form = record.correction?.has_missing_attendance_form === true
   form.notes = record.correction?.notes || ''
 }
@@ -91,8 +126,8 @@ async function saveCorrection() {
   try {
     const response = await saveHrAttendanceCorrection(selected.value.nik, {
       attendance_date: selected.value.date,
-      corrected_scan_in: selected.value.raw_scan_in ? null : form.corrected_scan_in,
-      corrected_scan_out: selected.value.raw_scan_out ? null : form.corrected_scan_out,
+      corrected_scan_in: form.corrected_scan_in,
+      corrected_scan_out: form.corrected_scan_out,
       has_missing_attendance_form: form.has_missing_attendance_form ? true : null,
       notes: form.notes || null,
     })
@@ -111,6 +146,9 @@ onMounted(() => {
   filters.start_date = String(route.query.start_date || date || yesterdayDate())
   filters.end_date = String(route.query.end_date || date || filters.start_date)
   filters.q = String(route.query.nik || '')
+  if (filters.q) {
+    filters.status_filter = 'all'
+  }
   load()
 })
 </script>
@@ -126,7 +164,7 @@ onMounted(() => {
 
     <AlertToastBridge :message="message" :error="errorMessage" />
 
-    <UCard title="Filter Data Absensi Tidak Lengkap">
+    <UCard title="Filter Data Koreksi Absensi">
       <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load(1)">
         <label class="text-sm text-muted">
           Tanggal Awal
@@ -161,8 +199,9 @@ onMounted(() => {
             v-model="filters.status_filter"
             class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
           >
-            <option value="alpha_only">Hanya Alpha & Tidak Lengkap</option>
-            <option value="all">Semua (Termasuk Cuti/Izin)</option>
+            <option value="attention_only">Perlu Dicek</option>
+            <option value="alpha_only">Hanya Alpha & Scan Tidak Lengkap</option>
+            <option value="all">Semua Tanggal</option>
           </select>
         </label>
         <UButton type="submit" label="Tampilkan" icon="i-lucide-search" :loading="loading" />
@@ -182,6 +221,7 @@ onMounted(() => {
               <th class="p-3">Departemen</th>
               <th class="p-3">Scan Masuk</th>
               <th class="p-3">Scan Pulang</th>
+              <th class="p-3">Durasi</th>
               <th class="p-3">Temuan</th>
               <th class="p-3">Status Absensi</th>
               <th class="p-3">Status Koreksi</th>
@@ -202,6 +242,7 @@ onMounted(() => {
               <td class="p-3">{{ record.department }}</td>
               <td class="p-3">{{ formatTime(record.scan_in) }}</td>
               <td class="p-3">{{ formatTime(record.scan_out) }}</td>
+              <td class="p-3">{{ record.duration || '-' }}</td>
               <td class="p-3">{{ findingLabel(record) }}</td>
               <td class="p-3">
                 <UBadge
@@ -210,12 +251,7 @@ onMounted(() => {
                   variant="subtle"
                   :label="record.status_label"
                 />
-                <UBadge
-                  v-else
-                  color="info"
-                  variant="subtle"
-                  :label="record.status_label"
-                />
+                <UBadge v-else color="info" variant="subtle" :label="record.status_label" />
               </td>
               <td class="p-3">
                 <UBadge
@@ -234,8 +270,8 @@ onMounted(() => {
               </td>
             </tr>
             <tr v-if="!data?.records?.length">
-              <td colspan="8" class="p-8 text-center text-muted">
-                Tidak ada scan masuk atau pulang yang perlu dikoreksi pada rentang tanggal ini.
+              <td colspan="9" class="p-8 text-center text-muted">
+                Tidak ada data absensi pada filter ini.
               </td>
             </tr>
           </tbody>
@@ -283,21 +319,21 @@ onMounted(() => {
               class="mt-2 block w-full rounded-lg border border-default bg-elevated p-2.5 text-muted"
             />
           </label>
-          <label v-if="!selected.raw_scan_in" class="text-sm text-muted">
+          <label class="text-sm text-muted">
             Koreksi Jam Masuk
             <input
               v-model="form.corrected_scan_in"
               type="time"
-              required
+              :required="!selected.raw_scan_in"
               class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             />
           </label>
-          <label v-if="!selected.raw_scan_out" class="text-sm text-muted">
+          <label class="text-sm text-muted">
             Koreksi Jam Pulang
             <input
               v-model="form.corrected_scan_out"
               type="time"
-              required
+              :required="!selected.raw_scan_out"
               class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             />
           </label>
@@ -320,6 +356,47 @@ onMounted(() => {
 
         <UButton type="submit" label="Simpan Koreksi" icon="i-lucide-save" :loading="saving" />
       </form>
+    </UCard>
+
+    <UCard v-if="data" title="Riwayat Perubahan Koreksi Absensi">
+      <template #header>
+        <div>
+          <h3 class="font-semibold text-highlighted">Riwayat Perubahan Koreksi Absensi</h3>
+          <p class="mt-1 text-sm text-muted">
+            Catatan perubahan koreksi absensi pada karyawan dan periode filter saat ini.
+          </p>
+        </div>
+      </template>
+
+      <div v-if="flattenedAuditLogs.length" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-muted">
+            <tr>
+              <th class="p-3">Tanggal</th>
+              <th class="p-3">Jam</th>
+              <th class="p-3">Diubah Oleh</th>
+              <th class="p-3">Data</th>
+              <th class="p-3">Field</th>
+              <th class="p-3">Sebelumnya</th>
+              <th class="p-3">Menjadi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="log in flattenedAuditLogs" :key="log.id" class="border-t border-default">
+              <td class="p-3 whitespace-nowrap">{{ log.date }}</td>
+              <td class="p-3 whitespace-nowrap">{{ log.time }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ log.changed_by_name }}</td>
+              <td class="p-3">{{ log.subject_label }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ log.label }}</td>
+              <td class="p-3 text-muted">{{ auditValue(log.old) }}</td>
+              <td class="p-3">{{ auditValue(log.new) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p v-else class="py-8 text-center text-sm text-muted">
+        Belum ada riwayat perubahan koreksi absensi pada filter ini.
+      </p>
     </UCard>
   </section>
 </template>

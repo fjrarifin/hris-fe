@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
   cancelHrApproval,
@@ -11,6 +11,7 @@ import {
 import { apiError } from '../utils/formatters'
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 const filters = reactive({
   start_date: typeof route.query.start_date === 'string' ? route.query.start_date : '',
@@ -30,9 +31,16 @@ const loading = ref(false)
 const exporting = ref(false)
 const page = ref(1)
 const actingRow = ref('')
+const detailRecord = ref(null)
 const message = ref('')
 const errorMessage = ref('')
 const exportItems = [
+  {
+    label: 'Export lengkap per hari',
+    description: 'Status, jam masuk, jam pulang, durasi, dan keterangan per tanggal.',
+    icon: 'i-lucide-file-spreadsheet',
+    onSelect: () => downloadExport('full'),
+  },
   {
     label: 'Export dengan breakdown per hari',
     description: 'Menampilkan kode pada setiap tanggal periode.',
@@ -96,6 +104,7 @@ function formatColumnDate(value) {
 }
 
 function dayColor(day) {
+  if (day.status === 'M' && day.needs_attention) return 'warning'
   if (day.has_approved_absence_conflict) return 'warning'
   if (day.status === 'M') return 'success'
   if (day.status === 'A') return 'error'
@@ -105,6 +114,50 @@ function dayColor(day) {
 
 function conflictDays(record) {
   return Object.values(record.days).filter((day) => day.has_approved_absence_conflict)
+}
+
+const detailDays = computed(() =>
+  detailRecord.value ? Object.values(detailRecord.value.days) : [],
+)
+
+const attentionDays = computed(() =>
+  detailDays.value.filter((day) => day.needs_attention || day.has_approved_absence_conflict),
+)
+
+function formatTime(value) {
+  return value ? `${value.slice(0, 5)} WIB` : '-'
+}
+
+function detailNote(day) {
+  if (day.status === 'S' && day.has_document === false) return 'Sakit tanpa surat, dihitung alfa.'
+  if (day.status === 'S' && day.has_document === true) return 'Sakit dengan surat.'
+  if (day.note) return day.note
+  if (day.needs_attention) {
+    return [
+      day.has_incomplete_scan ? 'Scan tidak lengkap' : '',
+      day.is_under_daily_target ? 'Durasi kurang dari 8 jam' : '',
+    ]
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  return '-'
+}
+
+function openDetail(record) {
+  detailRecord.value = record
+}
+
+function openCorrection(day) {
+  if (!detailRecord.value) return
+
+  router.push({
+    name: 'hr-attendance-corrections',
+    query: {
+      date: day.date,
+      nik: detailRecord.value.nik,
+    },
+  })
 }
 
 async function loadOptions() {
@@ -423,10 +476,12 @@ onMounted(async () => {
           </div>
         </template>
         <p class="mb-4 text-xs text-muted">
-          M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, EO = Extra Off, C = Cuti, S = Sakit, I = Izin. Hak
-          PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur nasional; jatah
-          sebelumnya tetap berlaku dalam masa 90 hari. PH, EO, dan Cuti yang disetujui dihitung 8 jam
-          kerja. Target bulanan:
+          M = Masuk, A = Alfa, PH = Pengambilan Public Holiday, EO = Extra Off, C = Cuti, S = Sakit,
+          I = Izin. Badge M berwarna kuning jika scan tidak lengkap atau durasi kerja kurang dari 8
+          jam. Sakit dengan surat dihitung sebagai kehadiran, sedangkan sakit tanpa surat masuk
+          hitungan alfa. Hak PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur
+          nasional; jatah sebelumnya tetap berlaku dalam masa 90 hari. PH, EO, Cuti, dan Sakit
+          dengan surat yang disetujui dihitung 8 jam kerja. Target bulanan:
           {{ data.targets.ideal_attendance_days }} hari dan
           {{ data.targets.minimum_work_duration }}.
         </p>
@@ -451,11 +506,13 @@ onMounted(async () => {
                 <th class="min-w-20 p-3">PH</th>
                 <th class="min-w-20 p-3">EO</th>
                 <th class="min-w-20 p-3">C</th>
-                <th class="min-w-20 p-3">S</th>
+                <th class="min-w-32 p-3">S Surat</th>
+                <th class="min-w-36 p-3">S Tanpa Surat</th>
                 <th class="min-w-20 p-3">I</th>
                 <th class="min-w-28 p-3">M Libur Nasional</th>
                 <th class="min-w-28 p-3">A Libur Nasional</th>
                 <th class="min-w-40 p-3">Aksi Konflik</th>
+                <th class="min-w-24 p-3 text-right">Detail</th>
               </tr>
             </thead>
             <tbody>
@@ -476,6 +533,7 @@ onMounted(async () => {
                     :color="dayColor(record.days[date])"
                     variant="subtle"
                     :label="record.days[date].status"
+                    :title="detailNote(record.days[date])"
                   />
                 </td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_period_days }}</td>
@@ -487,7 +545,12 @@ onMounted(async () => {
                 <td class="p-3 font-medium text-highlighted">{{ record.total_ph }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_eo || 0 }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_leave }}</td>
-                <td class="p-3 font-medium text-highlighted">{{ record.total_sick }}</td>
+                <td class="p-3 font-medium text-highlighted">
+                  {{ record.total_sick_with_document || 0 }}
+                </td>
+                <td class="p-3 font-medium text-highlighted">
+                  {{ record.total_sick_without_document || 0 }}
+                </td>
                 <td class="p-3 font-medium text-highlighted">{{ record.total_permission }}</td>
                 <td class="p-3 font-medium text-highlighted">
                   {{ record.total_national_holiday_attendance }}
@@ -513,9 +576,19 @@ onMounted(async () => {
                   </div>
                   <span v-else class="text-xs text-muted">-</span>
                 </td>
+                <td class="p-3 text-right">
+                  <UButton
+                    size="xs"
+                    color="neutral"
+                    variant="soft"
+                    icon="i-lucide-list-search"
+                    label="Detail"
+                    @click="openDetail(record)"
+                  />
+                </td>
               </tr>
               <tr v-if="!data.records.length">
-                <td :colspan="data.dates.length + 19" class="p-8 text-center text-muted">
+                <td :colspan="data.dates.length + 21" class="p-8 text-center text-muted">
                   Tidak ada absensi pada periode ini.
                 </td>
               </tr>
@@ -546,5 +619,81 @@ onMounted(async () => {
         Data belum ditarik. Gunakan filter tanggal di atas.
       </p>
     </UCard>
+
+    <div
+      v-if="detailRecord"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="detailRecord = null"
+    >
+      <div class="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-default shadow-2xl">
+        <div
+          class="flex flex-col gap-3 border-b border-default p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h3 class="font-semibold text-highlighted">Detail Absensi - {{ detailRecord.name }}</h3>
+            <p class="mt-1 text-sm text-muted">
+              {{ detailRecord.nik }} - {{ detailRecord.department }}.
+              {{ attentionDays.length }} tanggal perlu dicek.
+            </p>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            aria-label="Tutup detail"
+            @click="detailRecord = null"
+          />
+        </div>
+        <div class="max-h-[72vh] overflow-auto p-4">
+          <table class="w-full min-w-[920px] text-sm">
+            <thead class="text-left text-muted">
+              <tr>
+                <th class="p-3">Tanggal</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Scan Masuk</th>
+                <th class="p-3">Scan Pulang</th>
+                <th class="p-3">Durasi</th>
+                <th class="p-3">Keterangan</th>
+                <th class="p-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="day in detailDays"
+                :key="`${detailRecord.nik}-detail-${day.date}`"
+                class="border-t border-default"
+                :class="day.needs_attention ? 'bg-warning/5' : ''"
+              >
+                <td class="p-3">{{ formatColumnDate(day.date) }}</td>
+                <td class="p-3">
+                  <UBadge :color="dayColor(day)" variant="subtle" :label="day.status" />
+                </td>
+                <td class="p-3">{{ formatTime(day.scan_in) }}</td>
+                <td class="p-3">{{ formatTime(day.scan_out) }}</td>
+                <td class="p-3">
+                  {{ day.duration_label || formatDuration(day.duration_minutes || 0) }}
+                </td>
+                <td class="p-3">
+                  <span :class="day.needs_attention ? 'font-medium text-warning' : 'text-muted'">
+                    {{ detailNote(day) }}
+                  </span>
+                </td>
+                <td class="p-3 text-right">
+                  <UButton
+                    v-if="day.status === 'M' || day.status === 'A'"
+                    size="xs"
+                    variant="soft"
+                    icon="i-lucide-pencil"
+                    label="Koreksi"
+                    @click="openCorrection(day)"
+                  />
+                  <span v-else class="text-xs text-muted">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </section>
 </template>

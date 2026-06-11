@@ -14,15 +14,25 @@ const route = useRoute()
 const allowedStatuses = [
   'all',
   'active',
+  'expiring_60_days',
+  'expiring_45_days',
+  'expiring_30_days',
   'expiring_two_months',
   'expiring_this_month',
   'expiring_next_month',
   'expired',
   'no_contract',
 ]
+
+function normalizeStatus(status) {
+  if (status === 'expiring_two_months') return 'expiring_60_days'
+
+  return allowedStatuses.includes(status) ? status : 'all'
+}
+
 const filters = reactive({
   q: '',
-  status: allowedStatuses.includes(route.query.status) ? route.query.status : 'all',
+  status: normalizeStatus(route.query.status),
 })
 const data = ref(null)
 const detail = ref(null)
@@ -49,6 +59,27 @@ let searchTimer = null
 const hasActiveContract = computed(() =>
   (detail.value?.contracts ?? []).some((contract) => contract.status === 'AKTIF'),
 )
+const flattenedAuditLogs = computed(() =>
+  (detail.value?.audit_logs || []).flatMap((log) =>
+    (log.changes?.length
+      ? log.changes
+      : [{ field: 'action', label: 'Aktivitas', old: '-', new: actionLabel(log.action) }]
+    ).map((change, index) => ({
+      id: `${log.id}-${change.field}-${index}`,
+      date: formatDate(log.created_at),
+      time: new Date(log.created_at).toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      changed_by_name: log.changed_by_name,
+      source_label: log.source_label,
+      subject_label: log.subject_label,
+      label: change.label,
+      old: change.old,
+      new: change.new,
+    })),
+  ),
+)
 
 const stateLabels = {
   active: 'Aktif',
@@ -72,6 +103,18 @@ function stateColor(state) {
       no_contract: 'info',
     }[state] || 'neutral'
   )
+}
+
+function auditValue(value) {
+  if (Array.isArray(value)) {
+    return value.length ? value.join(', ') : '-'
+  }
+
+  return value === null || value === undefined || value === '' ? '-' : value
+}
+
+function actionLabel(action) {
+  return action === 'created' ? 'Dibuat' : action === 'deleted' ? 'Dihapus' : 'Diubah'
 }
 
 function clearForm() {
@@ -219,7 +262,7 @@ watch(
 watch(
   () => route.query.status,
   (status) => {
-    filters.status = allowedStatuses.includes(status) ? status : 'all'
+    filters.status = normalizeStatus(status)
   },
 )
 
@@ -241,21 +284,27 @@ onMounted(() => load())
 
     <AlertToastBridge :message="message" :error="errorMessage" />
 
-    <div v-if="data" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div v-if="data" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
       <UCard>
         <p class="text-sm text-muted">Kontrak Berjalan</p>
         <p class="mt-2 text-3xl font-semibold text-highlighted">{{ data.summary.active }}</p>
       </UCard>
       <UCard>
-        <p class="text-sm text-muted">Berakhir Bulan Ini</p>
+        <p class="text-sm text-muted">Berakhir 46-60 Hari</p>
         <p class="mt-2 text-3xl font-semibold text-highlighted">
-          {{ data.summary.expiring_this_month }}
+          {{ data.summary.expiring_60_days }}
         </p>
       </UCard>
       <UCard>
-        <p class="text-sm text-muted">Berakhir Bulan Depan</p>
+        <p class="text-sm text-muted">Berakhir 31-45 Hari</p>
         <p class="mt-2 text-3xl font-semibold text-highlighted">
-          {{ data.summary.expiring_next_month }}
+          {{ data.summary.expiring_45_days }}
+        </p>
+      </UCard>
+      <UCard>
+        <p class="text-sm text-muted">Berakhir 0-30 Hari</p>
+        <p class="mt-2 text-3xl font-semibold text-highlighted">
+          {{ data.summary.expiring_30_days }}
         </p>
       </UCard>
       <UCard>
@@ -287,9 +336,9 @@ onMounted(() => load())
           >
             <option value="all">Semua kondisi</option>
             <option value="active">Kontrak berjalan</option>
-            <option value="expiring_two_months">Berakhir dalam 2 bulan</option>
-            <option value="expiring_this_month">Berakhir bulan ini</option>
-            <option value="expiring_next_month">Berakhir bulan depan</option>
+            <option value="expiring_60_days">Berakhir 46-60 hari</option>
+            <option value="expiring_45_days">Berakhir 31-45 hari</option>
+            <option value="expiring_30_days">Berakhir 0-30 hari</option>
             <option value="expired">Sudah berakhir</option>
             <option value="no_contract">Belum ada kontrak</option>
           </select>
@@ -552,6 +601,48 @@ onMounted(() => load())
           </table>
         </div>
       </template>
+    </UCard>
+
+    <UCard v-if="detail && !loadingDetail" title="Riwayat Perubahan Kontrak">
+      <template #header>
+        <div>
+          <h3 class="font-semibold text-highlighted">Riwayat Perubahan Kontrak</h3>
+          <p class="mt-1 text-sm text-muted">
+            Catatan perubahan kontrak {{ detail.employee.name }}, termasuk siapa yang mengubah dan
+            kapan dilakukan.
+          </p>
+        </div>
+      </template>
+
+      <div v-if="flattenedAuditLogs.length" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-muted">
+            <tr>
+              <th class="p-3">Tanggal</th>
+              <th class="p-3">Jam</th>
+              <th class="p-3">Diubah Oleh</th>
+              <th class="p-3">Kontrak</th>
+              <th class="p-3">Field</th>
+              <th class="p-3">Sebelumnya</th>
+              <th class="p-3">Menjadi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="log in flattenedAuditLogs" :key="log.id" class="border-t border-default">
+              <td class="p-3 whitespace-nowrap">{{ log.date }}</td>
+              <td class="p-3 whitespace-nowrap">{{ log.time }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ log.changed_by_name }}</td>
+              <td class="p-3">{{ log.subject_label }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ log.label }}</td>
+              <td class="p-3 text-muted">{{ auditValue(log.old) }}</td>
+              <td class="p-3">{{ auditValue(log.new) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p v-else class="py-8 text-center text-sm text-muted">
+        Belum ada riwayat perubahan kontrak untuk karyawan ini.
+      </p>
     </UCard>
 
     <div

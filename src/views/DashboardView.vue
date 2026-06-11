@@ -123,10 +123,10 @@ const hrPrimaryStatistics = computed(() => {
     {
       title: 'Kontrak Akan Habis',
       value: summary.expiring_contracts,
-      description: 'Kontrak berakhir dalam dua bulan ke depan',
+      description: 'Kontrak berakhir dalam 60 hari ke depan',
       badge: 'Kontrak',
       color: 'warning',
-      to: { name: 'hr-contracts', query: { status: 'expiring_two_months' } },
+      to: { name: 'hr-contracts', query: { status: 'expiring_60_days' } },
     },
     {
       title: 'Hadir Hari Ini',
