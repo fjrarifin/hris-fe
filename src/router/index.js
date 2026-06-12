@@ -19,6 +19,7 @@ import PayrollProcessView from '../views/PayrollProcessView.vue'
 import AttendanceView from '../views/AttendanceView.vue'
 import MenuAccessView from '../views/MenuAccessView.vue'
 import AuditLogView from '../views/AuditLogView.vue'
+import ItPushNotificationView from '../views/ItPushNotificationView.vue'
 import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
@@ -394,6 +395,12 @@ const router = createRouter({
           name: 'it-users',
           component: ItUserManagementView,
           meta: { title: 'Kelola User', levels: [0], menuKey: 'user-management' },
+        },
+        {
+          path: 'it/push-notifications',
+          name: 'it-push-notifications',
+          component: ItPushNotificationView,
+          meta: { title: 'Push Notification', levels: [0], menuKey: 'it-push-notifications' },
         },
       ],
     },

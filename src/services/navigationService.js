@@ -45,3 +45,15 @@ export function resetItUserEmailLimit(userId) {
 export function resetItUserPasswordLimit(userId) {
   return api.post(`/it/users/${userId}/reset-password-limit`)
 }
+
+export function getItPushNotifications(params) {
+  return api.get('/it/push-notifications', { params })
+}
+
+export function getItPushNotificationRecipients(params) {
+  return api.get('/it/push-notifications/recipients', { params })
+}
+
+export function sendItPushNotification(payload) {
+  return api.post('/it/push-notifications', payload)
+}
