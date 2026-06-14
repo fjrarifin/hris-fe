@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
 
         <div
           v-if="notificationOpen"
-          class="absolute right-0 top-full mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-default bg-default text-default shadow-2xl"
+          class="fixed inset-x-3 top-[4.5rem] max-h-[calc(100dvh-5.5rem)] overflow-hidden rounded-lg border border-default bg-default text-default shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[min(26rem,calc(100vw-2rem))] sm:max-h-none"
         >
           <div class="flex items-center justify-between gap-3 border-b border-default px-4 py-3">
             <div>
@@ -150,7 +150,10 @@ onBeforeUnmount(() => {
               @click.stop="readAllNotifications"
             />
           </div>
-          <div v-if="notifications.length" class="max-h-96 overflow-y-auto">
+          <div
+            v-if="notifications.length"
+            class="max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-contain sm:max-h-96"
+          >
             <div
               v-for="notification in notifications"
               :key="notification.id"
@@ -166,8 +169,10 @@ onBeforeUnmount(() => {
                 :class="notification.read_at ? 'bg-muted' : 'bg-primary'"
               />
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-highlighted">{{ notification.title }}</p>
-                <p class="mt-1 text-sm text-muted">{{ notification.message }}</p>
+                <p class="break-words text-sm font-semibold text-highlighted">
+                  {{ notification.title }}
+                </p>
+                <p class="mt-1 break-words text-sm text-muted">{{ notification.message }}</p>
                 <p class="mt-2 text-xs text-muted">{{ formatDateTime(notification.created_at) }}</p>
               </div>
               <UButton
