@@ -13,6 +13,7 @@ const props = defineProps({
   },
   clickable: Boolean,
   modalType: String,
+  compact: Boolean,
 })
 
 defineEmits(['click'])
@@ -31,17 +32,24 @@ defineEmits(['click'])
     "
     @click="$emit('click')"
   >
-    <UCard :class="props.to || props.clickable ? 'h-full transition hover:border-primary/50' : ''">
+    <UCard :class="[props.to || props.clickable ? 'h-full transition hover:border-primary/50' : '', props.compact ? 'h-full' : '']">
       <div class="flex items-start justify-between gap-3">
-        <div>
+        <div class="min-w-0">
           <p class="text-sm text-muted">{{ title }}</p>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">{{ value }}</p>
+          <p
+            class="mt-2 font-semibold text-highlighted"
+            :class="props.compact ? 'text-2xl sm:text-3xl' : 'text-3xl'"
+          >
+            {{ value }}
+          </p>
         </div>
 
         <UBadge :color="color" variant="subtle" :label="badge" />
       </div>
 
-      <p class="mt-5 text-sm text-muted">{{ description }}</p>
+      <p class="text-sm text-muted" :class="props.compact ? 'mt-4 line-clamp-2' : 'mt-5'">
+        {{ description }}
+      </p>
     </UCard>
   </component>
 </template>

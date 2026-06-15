@@ -62,13 +62,6 @@ const staffStatistics = computed(() => {
 
   return [
     {
-      title: 'Total Hari Kerja',
-      value: summary.working_days,
-      description: `Sejak bergabung ${formatDate(dashboard.value.employee.join_date)}`,
-      badge: 'Hari',
-      color: 'primary',
-    },
-    {
       title: 'Kehadiran Periode Ini',
       value: summary.attendance_days,
       description: `${formatDate(period.start)} - ${formatDate(period.end)}`,
@@ -102,6 +95,75 @@ const staffStatistics = computed(() => {
     },
   ]
 })
+
+const staffEmployeeName = computed(() => dashboard.value?.employee?.name || auth.user?.name || 'Karyawan')
+const staffEmployeeInitials = computed(() => {
+  const words = staffEmployeeName.value.trim().split(/\s+/).filter(Boolean)
+
+  return words
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+    .toUpperCase() || 'K'
+})
+const staffTodayAttendance = computed(() => {
+  const today = dashboard.value?.as_of_date
+
+  return dashboard.value?.weekly_attendance?.days?.find((day) => day.date === today) || null
+})
+const staffTodayDateLabel = computed(() => {
+  const date = dashboard.value?.as_of_date ? new Date(dashboard.value.as_of_date) : new Date()
+
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+})
+const staffTodayStatus = computed(() => {
+  const status = staffTodayAttendance.value?.status
+
+  return status ? weeklyAttendanceLabel(status) : 'Belum Absen'
+})
+const staffQuickActions = computed(() => [
+  {
+    label: 'Absensi',
+    icon: 'i-lucide-fingerprint',
+    to: '/staff/attendance',
+    color: 'primary',
+  },
+  {
+    label: 'Cuti',
+    icon: 'i-lucide-calendar-days',
+    to: '/staff/leave',
+    color: 'warning',
+  },
+  {
+    label: 'PH',
+    icon: 'i-lucide-shield-check',
+    to: '/staff/public-holiday',
+    color: 'info',
+  },
+  {
+    label: 'EO',
+    icon: 'i-lucide-calendar-plus',
+    to: '/staff/extra-off',
+    color: 'success',
+  },
+  {
+    label: 'Izin',
+    icon: 'i-lucide-file-text',
+    to: '/staff/permission',
+    color: 'neutral',
+  },
+  {
+    label: 'Profil',
+    icon: 'i-lucide-user-round',
+    to: '/staff/profile',
+    color: 'primary',
+  },
+])
 
 const hrPrimaryStatistics = computed(() => {
   if (!hrDashboard.value) {
@@ -466,6 +528,7 @@ onMounted(loadDashboard)
 <template>
   <section class="space-y-6">
     <UCard
+      v-if="!isStaff"
       class="dashboard-hero overflow-hidden border border-blue-100 bg-linear-to-br from-white via-blue-50 to-blue-100"
     >
       <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
@@ -508,6 +571,127 @@ onMounted(loadDashboard)
     <AlertToastBridge :message="message" :error="errorMessage" />
 
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
+
+    <div v-else-if="isStaff && dashboard" class="mx-auto max-w-7xl space-y-5">
+      <section
+        class="overflow-hidden rounded-2xl border border-default bg-default shadow-sm"
+      >
+        <div
+          class="relative overflow-hidden bg-linear-to-br from-primary-950 via-slate-900 to-slate-950 px-5 py-5 text-white sm:px-6"
+        >
+          <div class="absolute -right-12 -top-16 size-44 rounded-full bg-primary-400/15"></div>
+          <div class="absolute -left-16 bottom-0 size-36 rounded-full bg-info-400/10"></div>
+          <div class="relative flex items-start justify-between gap-4">
+            <div class="flex min-w-0 items-center gap-4">
+              <div
+                class="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-lg font-semibold shadow-lg"
+              >
+                {{ staffEmployeeInitials }}
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-medium uppercase tracking-wide text-primary-100/80">
+                  Portal Karyawan
+                </p>
+                <h2 class="mt-1 truncate text-2xl font-semibold sm:text-3xl">
+                  {{ staffEmployeeName }}
+                </h2>
+                <p class="mt-1 truncate text-sm text-slate-300">
+                  {{ dashboard.employee.position || 'Karyawan' }} -
+                  {{ dashboard.employee.department || '-' }}
+                </p>
+              </div>
+            </div>
+            <UButton
+              to="/staff/profile"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              icon="i-lucide-user-round"
+              label="Profil"
+              class="hidden sm:inline-flex"
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-4 p-4 lg:grid-cols-[1.2fr_1fr]">
+          <div class="min-w-0 rounded-xl border border-default bg-elevated/30 p-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="text-sm text-muted">Hari ini</p>
+                <p class="mt-1 font-medium text-highlighted">{{ staffTodayDateLabel }}</p>
+              </div>
+              <UBadge
+                :color="weeklyAttendanceColor(staffTodayAttendance?.status)"
+                variant="subtle"
+                :label="staffTodayStatus"
+              />
+            </div>
+            <div class="mt-5 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
+              <div class="min-w-0 rounded-lg border border-default bg-default px-4 py-3">
+                <div class="flex items-center gap-2 text-xs text-muted">
+                  <span class="size-2 rounded-full bg-success"></span>
+                  Masuk
+                </div>
+                <p class="mt-2 truncate text-xl font-semibold text-highlighted sm:text-2xl">
+                  {{ formatTime(staffTodayAttendance?.scan_in) }}
+                </p>
+              </div>
+              <div class="min-w-0 rounded-lg border border-default bg-default px-4 py-3">
+                <div class="flex items-center gap-2 text-xs text-muted">
+                  <span class="size-2 rounded-full bg-warning"></span>
+                  Pulang
+                </div>
+                <p class="mt-2 truncate text-xl font-semibold text-highlighted sm:text-2xl">
+                  {{ formatTime(staffTodayAttendance?.scan_out) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="min-w-0 rounded-xl border border-default bg-elevated/30 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm text-muted">Menu cepat</p>
+                <p class="mt-1 font-medium text-highlighted">Akses pengajuan dan data diri</p>
+              </div>
+              <UButton
+                to="/staff/profile"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                icon="i-lucide-arrow-up-right"
+                aria-label="Buka profil"
+                class="sm:hidden"
+              />
+            </div>
+            <div class="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-1 lg:grid lg:grid-cols-6 lg:overflow-visible">
+              <UButton
+                v-for="action in staffQuickActions"
+                :key="action.label"
+                :to="action.to"
+                :color="action.color"
+                variant="soft"
+                class="min-w-24 justify-center lg:min-w-0"
+              >
+                <span class="flex flex-col items-center gap-2 py-1">
+                  <UIcon :name="action.icon" class="size-5" />
+                  <span class="text-xs font-medium">{{ action.label }}</span>
+                </span>
+              </UButton>
+            </div>
+          </div> -->
+        </div>
+      </section>
+
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatCard
+          v-for="statistic in statistics"
+          :key="statistic.title"
+          v-bind="statistic"
+          compact
+        />
+      </div>
+    </div>
 
     <div v-else-if="!isHr" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       <StatCard v-for="statistic in statistics" :key="statistic.title" v-bind="statistic" />
@@ -907,34 +1091,5 @@ onMounted(loadDashboard)
       </div>
     </div>
 
-    <div v-if="isStaff && dashboard" class="grid gap-4 lg:grid-cols-3">
-      <UCard class="lg:col-span-2" title="Akses Cepat" description="Pengajuan personal Anda.">
-        <div class="grid gap-3 sm:grid-cols-3">
-          <UButton to="/staff/leave" color="neutral" variant="soft" label="Ajukan Cuti" block />
-          <UButton
-            to="/staff/public-holiday"
-            color="neutral"
-            variant="soft"
-            label="Ajukan PH"
-            block
-          />
-          <UButton
-            to="/staff/permission"
-            color="neutral"
-            variant="soft"
-            label="Ajukan Izin"
-            block
-          />
-        </div>
-      </UCard>
-
-      <UCard title="Data Diri" description="Identitas karyawan Anda.">
-        <p class="font-medium text-highlighted">{{ dashboard.employee.name }}</p>
-        <p class="mt-1 text-sm text-muted">{{ dashboard.employee.nik }}</p>
-        <p class="mt-3 text-sm text-muted">
-          {{ dashboard.employee.position || '-' }} - {{ dashboard.employee.department || '-' }}
-        </p>
-      </UCard>
-    </div>
   </section>
 </template>
