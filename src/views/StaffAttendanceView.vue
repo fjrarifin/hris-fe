@@ -160,13 +160,52 @@ function attendanceStatusColor(record) {
   return record?.is_complete ? 'success' : 'warning'
 }
 
-function approvedAbsenceClass(record) {
+function calendarStatusClass(record) {
   const status = normalizedStatus(record)
 
-  if (status === 'leave' || status === 'cuti') return 'bg-warning/10 text-warning'
-  if (status === 'extra_off' || status === 'eo') return 'bg-info/10 text-info'
+  if (status === 'public_holiday' || status === 'ph') {
+    return 'border-blue-700 bg-blue-600 text-white dark:border-blue-400/60 dark:bg-blue-500 dark:text-white'
+  }
 
-  return 'bg-primary/10 text-primary'
+  if (status === 'extra_off' || status === 'eo') {
+    return 'border-cyan-700 bg-cyan-600 text-white dark:border-cyan-400/60 dark:bg-cyan-500 dark:text-white'
+  }
+
+  if (status === 'leave' || status === 'cuti') {
+    return 'border-amber-700 bg-amber-500 text-slate-950 dark:border-amber-300/70 dark:bg-amber-400 dark:text-slate-950'
+  }
+
+  if (record?.is_complete) {
+    return 'border-emerald-700 bg-emerald-600 text-white dark:border-emerald-400/60 dark:bg-emerald-500 dark:text-white'
+  }
+
+  return 'border-amber-700 bg-amber-500 text-slate-950 dark:border-amber-300/70 dark:bg-amber-400 dark:text-slate-950'
+}
+
+function calendarApprovedAbsenceClass(record) {
+  const status = normalizedStatus(record)
+
+  if (status === 'leave' || status === 'cuti') {
+    return 'border border-amber-700 bg-amber-500 text-slate-950 dark:border-amber-300/70 dark:bg-amber-400 dark:text-slate-950'
+  }
+
+  if (status === 'extra_off' || status === 'eo') {
+    return 'border border-cyan-700 bg-cyan-600 text-white dark:border-cyan-400/60 dark:bg-cyan-500 dark:text-white'
+  }
+
+  return 'border border-blue-700 bg-blue-600 text-white dark:border-blue-400/60 dark:bg-blue-500 dark:text-white'
+}
+
+function calendarScanClass(type) {
+  if (type === 'in') {
+    return 'border border-emerald-700 bg-emerald-600 text-white dark:border-emerald-400/60 dark:bg-emerald-500 dark:text-white'
+  }
+
+  if (type === 'out') {
+    return 'border border-blue-700 bg-blue-600 text-white dark:border-blue-400/60 dark:bg-blue-500 dark:text-white'
+  }
+
+  return 'border border-slate-700 bg-slate-600 text-white dark:border-slate-500 dark:bg-slate-600 dark:text-white'
 }
 
 function changeCalendarMonth(offset) {
@@ -241,24 +280,24 @@ onMounted(load)
     <AlertToastBridge :error="errorMessage" />
 
     <UCard title="Filter Periode">
-      <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load">
-        <label class="text-sm text-muted">
+      <form class="grid grid-cols-2 gap-3 sm:flex sm:items-end" @submit.prevent="load">
+        <label class="min-w-0 text-sm text-muted">
           Tanggal Mulai
           <input
             v-model="filters.start_date"
             type="date"
-            class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
           />
         </label>
-        <label class="text-sm text-muted">
+        <label class="min-w-0 text-sm text-muted">
           Tanggal Selesai
           <input
             v-model="filters.end_date"
             type="date"
-            class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
           />
         </label>
-        <div class="flex gap-2">
+        <div class="col-span-2 flex gap-2 sm:col-span-1">
           <UButton type="submit" label="Tampilkan" :loading="loading" />
           <UButton
             type="button"
@@ -271,25 +310,25 @@ onMounted(load)
       </form>
     </UCard>
 
-    <div class="grid gap-4 sm:grid-cols-3">
-      <UCard>
-        <p class="text-sm text-muted">Hari Tercatat</p>
-        <p class="mt-2 text-3xl font-semibold text-highlighted">
+    <div class="grid grid-cols-3 gap-2 sm:gap-4">
+      <div class="rounded-lg border border-default bg-default p-3 sm:rounded-xl sm:p-4">
+        <p class="text-xs text-muted sm:text-sm">Hari Tercatat</p>
+        <p class="mt-2 text-2xl font-semibold text-highlighted sm:text-3xl">
           {{ attendance.summary.attendance_days || 0 }}
         </p>
-      </UCard>
-      <UCard>
-        <p class="text-sm text-muted">Scan Lengkap</p>
-        <p class="mt-2 text-3xl font-semibold text-highlighted">
+      </div>
+      <div class="rounded-lg border border-default bg-default p-3 sm:rounded-xl sm:p-4">
+        <p class="text-xs text-muted sm:text-sm">Scan Lengkap</p>
+        <p class="mt-2 text-2xl font-semibold text-highlighted sm:text-3xl">
           {{ attendance.summary.complete_days || 0 }}
         </p>
-      </UCard>
-      <UCard>
-        <p class="text-sm text-muted">Belum Lengkap</p>
-        <p class="mt-2 text-3xl font-semibold text-highlighted">
+      </div>
+      <div class="rounded-lg border border-default bg-default p-3 sm:rounded-xl sm:p-4">
+        <p class="text-xs text-muted sm:text-sm">Belum Lengkap</p>
+        <p class="mt-2 text-2xl font-semibold text-highlighted sm:text-3xl">
           {{ attendance.summary.incomplete_days || 0 }}
         </p>
-      </UCard>
+      </div>
     </div>
 
     <UCard>
@@ -352,35 +391,35 @@ onMounted(load)
               <template v-if="day.inMonth">
                 <div class="flex items-start justify-between gap-2">
                   <span class="text-sm font-semibold text-highlighted">{{ day.date }}</span>
-                  <UBadge
+                  <span
                     v-if="day.record"
-                    size="xs"
-                    variant="subtle"
-                    :color="attendanceStatusColor(day.record)"
-                    :label="attendanceStatusLabel(day.record)"
-                  />
+                    class="inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold leading-none"
+                    :class="calendarStatusClass(day.record)"
+                  >
+                    {{ attendanceStatusLabel(day.record) }}
+                  </span>
                 </div>
 
                 <div v-if="day.record && isApprovedAbsence(day.record)" class="mt-3 space-y-1.5 text-[11px] leading-tight">
-                  <div class="rounded-md px-2 py-1 font-medium" :class="approvedAbsenceClass(day.record)">
+                  <div class="rounded-md px-2 py-1 font-medium" :class="calendarApprovedAbsenceClass(day.record)">
                     {{ attendanceStatusLabel(day.record) }} disetujui
                   </div>
-                  <div v-if="day.record.has_scan" class="rounded-md bg-success/10 px-2 py-1 text-success">
+                  <div v-if="day.record.has_scan" class="rounded-md px-2 py-1" :class="calendarScanClass('in')">
                     Scan {{ formatShortTime(day.record.scan_in) }} - {{ formatShortTime(day.record.scan_out) }}
                   </div>
-                  <div v-if="day.record.schedule_code" class="rounded-md bg-muted px-2 py-1 text-muted">
+                  <div v-if="day.record.schedule_code" class="rounded-md px-2 py-1" :class="calendarScanClass('schedule')">
                     Jadwal {{ day.record.schedule_code }}
                   </div>
                 </div>
                 <div v-else-if="day.record" class="mt-3 space-y-1.5 text-[11px] leading-tight">
-                  <div class="rounded-md bg-success/10 px-2 py-1 text-success">
+                  <div class="rounded-md px-2 py-1 font-medium" :class="calendarScanClass('in')">
                     Masuk {{ formatShortTime(day.record.scan_in) }}
                   </div>
-                  <div class="rounded-md bg-primary/10 px-2 py-1 text-primary">
+                  <div class="rounded-md px-2 py-1 font-medium" :class="calendarScanClass('out')">
                     Pulang {{ formatShortTime(day.record.scan_out) }}
                   </div>
                 </div>
-                <p v-else class="mt-5 text-xs text-muted">
+                <p v-else class="mt-5 text-xs font-medium text-slate-600 dark:text-slate-300">
                   {{ day.isInFilterRange ? 'Tidak ada scan' : 'Di luar filter' }}
                 </p>
               </template>
