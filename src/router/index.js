@@ -19,6 +19,7 @@ import PayrollProcessView from '../views/PayrollProcessView.vue'
 import AttendanceView from '../views/AttendanceView.vue'
 import MenuAccessView from '../views/MenuAccessView.vue'
 import AuditLogView from '../views/AuditLogView.vue'
+import ItActiveSessionsView from '../views/ItActiveSessionsView.vue'
 import ItPushNotificationView from '../views/ItPushNotificationView.vue'
 import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
@@ -401,6 +402,12 @@ const router = createRouter({
           name: 'it-push-notifications',
           component: ItPushNotificationView,
           meta: { title: 'Push Notification', levels: [0], menuKey: 'it-push-notifications' },
+        },
+        {
+          path: 'it/active-sessions',
+          name: 'it-active-sessions',
+          component: ItActiveSessionsView,
+          meta: { title: 'Sesi Login Aktif', levels: [0], menuKey: 'it-active-sessions' },
         },
       ],
     },

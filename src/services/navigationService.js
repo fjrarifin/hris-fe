@@ -57,3 +57,15 @@ export function getItPushNotificationRecipients(params) {
 export function sendItPushNotification(payload) {
   return api.post('/it/push-notifications', payload)
 }
+
+export function getItActiveSessions(params) {
+  return api.get('/it/active-sessions', { params })
+}
+
+export function forceLogoutItSession(sessionId) {
+  return api.delete(`/it/active-sessions/${sessionId}`)
+}
+
+export function forceLogoutItUserSessions(userId) {
+  return api.delete(`/it/active-sessions/users/${userId}`)
+}
