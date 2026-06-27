@@ -17,6 +17,9 @@ export function createHrContract(nik, payload) {
 }
 
 export function updateHrContract(contractId, payload) {
+  if (payload instanceof FormData) {
+    return api.post(`/hr/contracts/records/${contractId}`, payload)
+  }
   return api.put(`/hr/contracts/records/${contractId}`, payload)
 }
 

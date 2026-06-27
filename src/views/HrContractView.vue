@@ -43,6 +43,9 @@ const saving = ref(false)
 const detailCardRef = ref(null)
 const formOpen = ref(false)
 const editingId = ref(null)
+const currentContractHasDocument = ref(false)
+const replaceDocumentActive = ref(false)
+const deleteDocumentPending = ref(false)
 const form = reactive({
   jenis_kontrak: 'PKWT',
   status_kontrak: 'AKTIF',
@@ -125,6 +128,9 @@ function clearForm() {
   form.end_date = ''
   form.keterangan = ''
   form.document = null
+  currentContractHasDocument.value = false
+  replaceDocumentActive.value = false
+  deleteDocumentPending.value = false
 }
 
 async function load(requestedPage = 1) {
@@ -172,11 +178,32 @@ function editContract(contract) {
   form.end_date = contract.end_date || ''
   form.keterangan = contract.description || ''
   form.document = null
+  currentContractHasDocument.value = contract.has_document
+  replaceDocumentActive.value = false
+  deleteDocumentPending.value = false
   formOpen.value = true
 }
 
 function selectDocument(event) {
   form.document = event.target.files[0] || null
+}
+
+function activateReplaceDocument() {
+  replaceDocumentActive.value = true
+  deleteDocumentPending.value = false
+  form.document = null
+}
+
+function cancelReplaceDocument() {
+  replaceDocumentActive.value = false
+  deleteDocumentPending.value = false
+  form.document = null
+}
+
+function deleteDocumentAction() {
+  deleteDocumentPending.value = true
+  replaceDocumentActive.value = false
+  form.document = null
 }
 
 function closeDocumentPreview() {
@@ -222,11 +249,18 @@ async function saveContract() {
     end_date: form.end_date,
     keterangan: form.keterangan || null,
   }
-  const payload = editingId.value ? values : new FormData()
-  if (!editingId.value) {
-    Object.entries(values).forEach(([key, value]) => {
-      if (value !== null) payload.append(key, value)
-    })
+  const payload = new FormData()
+  Object.entries(values).forEach(([key, value]) => {
+    if (value !== null) payload.append(key, value)
+  })
+  if (editingId.value) {
+    payload.append('_method', 'PUT')
+    if (deleteDocumentPending.value) {
+      payload.append('document', 'null')
+    } else if (form.document) {
+      payload.append('document', form.document)
+    }
+  } else {
     if (form.document) payload.append('document', form.document)
   }
 
@@ -507,15 +541,68 @@ onMounted(() => load())
                 class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
               />
             </label>
-            <label v-if="!editingId" class="text-sm text-muted sm:col-span-2 xl:col-span-5">
-              Dokumen Kontrak (opsional, PDF, maksimal 2 MB)
+            <div class="text-sm text-muted sm:col-span-2 xl:col-span-5">
+              <span class="block">Dokumen Kontrak (opsional, PDF, maksimal 10 MB)</span>
+              
+              <div v-if="editingId && currentContractHasDocument && !deleteDocumentPending" class="mt-2 flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-500">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  Sudah ada dokumen
+                </span>
+                
+                <UButton
+                  v-if="!replaceDocumentActive"
+                  type="button"
+                  size="xs"
+                  color="warning"
+                  variant="soft"
+                  label="Ganti Dokumen"
+                  @click="activateReplaceDocument"
+                />
+                
+                <UButton
+                  v-if="!replaceDocumentActive"
+                  type="button"
+                  size="xs"
+                  color="error"
+                  variant="soft"
+                  label="Hapus Dokumen"
+                  @click="deleteDocumentAction"
+                />
+
+                <UButton
+                  v-if="replaceDocumentActive"
+                  type="button"
+                  size="xs"
+                  color="neutral"
+                  variant="soft"
+                  label="Batal Ganti"
+                  @click="cancelReplaceDocument"
+                />
+              </div>
+
+              <div v-else-if="editingId && deleteDocumentPending" class="mt-2 flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded bg-rose-500/10 px-2 py-1 text-xs font-medium text-rose-500">
+                  Dokumen akan dihapus saat disimpan
+                </span>
+                <UButton
+                  type="button"
+                  size="xs"
+                  color="neutral"
+                  variant="soft"
+                  label="Batal Hapus"
+                  @click="cancelReplaceDocument"
+                />
+              </div>
+              
               <input
+                v-if="!editingId || !currentContractHasDocument || replaceDocumentActive"
                 type="file"
                 accept=".pdf,application/pdf"
                 class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
                 @change="selectDocument"
               />
-            </label>
+            </div>
           </div>
           <p class="mt-3 text-xs text-muted">
             Durasi kontrak dihitung otomatis dari tanggal mulai sampai tanggal selesai.
