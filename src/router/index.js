@@ -10,6 +10,7 @@ import ResetPasswordView from '../views/ResetPasswordView.vue'
 import ChangePasswordView from '../views/ChangePasswordView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import HrInternalDashboardView from '../views/HrInternalDashboardView.vue'
+import ItDashboardView from '../views/ItDashboardView.vue'
 import EmployeeView from '../views/EmployeeView.vue'
 import EmployeeCreateView from '../views/EmployeeCreateView.vue'
 import EmployeeDetailView from '../views/EmployeeDetailView.vue'
@@ -101,7 +102,7 @@ const router = createRouter({
         {
           path: 'it/dashboard',
           name: 'it-dashboard',
-          component: DashboardView,
+          component: ItDashboardView,
           meta: { title: 'Dashboard IT', levels: [0], menuKey: 'dashboard' },
         },
         {

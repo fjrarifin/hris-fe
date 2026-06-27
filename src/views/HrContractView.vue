@@ -227,7 +227,7 @@ async function saveContract() {
     Object.entries(values).forEach(([key, value]) => {
       if (value !== null) payload.append(key, value)
     })
-    payload.append('document', form.document)
+    if (form.document) payload.append('document', form.document)
   }
 
   try {
@@ -508,11 +508,10 @@ onMounted(() => load())
               />
             </label>
             <label v-if="!editingId" class="text-sm text-muted sm:col-span-2 xl:col-span-5">
-              Dokumen Kontrak (PDF, maksimal 2 MB)
+              Dokumen Kontrak (opsional, PDF, maksimal 2 MB)
               <input
                 type="file"
                 accept=".pdf,application/pdf"
-                required
                 class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
                 @change="selectDocument"
               />

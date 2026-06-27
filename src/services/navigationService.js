@@ -18,6 +18,30 @@ export function getAuditLogs(params) {
   return api.get('/audit-logs', { params })
 }
 
+export function getItDashboard(params) {
+  return api.get('/it/dashboard', { params })
+}
+
+export function forceLogoutItDashboardSession(sessionId) {
+  return api.delete(`/it/dashboard/active-sessions/${sessionId}`)
+}
+
+export function forceLogoutItDashboardUserSessions(userId) {
+  return api.delete(`/it/dashboard/active-sessions/users/${userId}`)
+}
+
+export function resetItDashboardUserPassword(userId) {
+  return api.post(`/it/dashboard/users/${userId}/reset-password`)
+}
+
+export function resetItDashboardUserPasswordLimit(userId) {
+  return api.post(`/it/dashboard/users/${userId}/reset-password-limit`)
+}
+
+export function resetItDashboardUserPhotoLimit(userId) {
+  return api.post(`/it/dashboard/users/${userId}/reset-photo-limit`)
+}
+
 export function getItUsers(params) {
   return api.get('/it/users', { params })
 }

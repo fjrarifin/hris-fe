@@ -101,9 +101,11 @@ function selectContractDocument(event) {
 
 function childrenList() {
   if (!Array.isArray(props.form.children)) {
-    props.form.children = [props.form.nama_anak_1, props.form.nama_anak_2, props.form.nama_anak_3].filter(
-      (name) => String(name || '').trim(),
-    )
+    props.form.children = [
+      props.form.nama_anak_1,
+      props.form.nama_anak_2,
+      props.form.nama_anak_3,
+    ].filter((name) => String(name || '').trim())
   }
 
   if (!props.form.children.length) {
@@ -357,11 +359,10 @@ function removeChild(index) {
           <textarea v-model="props.form.keterangan_kontrak" rows="2" :class="inputClass"></textarea>
         </label>
         <label class="text-sm text-muted sm:col-span-2 lg:col-span-4">
-          Dokumen Kontrak (PDF, maksimal 2 MB)
+          Dokumen Kontrak (opsional, PDF, maksimal 2 MB)
           <input
             type="file"
             accept=".pdf,application/pdf"
-            required
             :class="inputClass"
             @change="selectContractDocument"
           />

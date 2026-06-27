@@ -250,7 +250,7 @@ async function saveContract() {
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null) payload.append(key, value)
       })
-      payload.append('document', contractForm.document)
+      if (contractForm.document) payload.append('document', contractForm.document)
     }
     const response = editingContractId.value
       ? await updateHrContract(editingContractId.value, payload)
@@ -464,11 +464,10 @@ onBeforeUnmount(closeDocumentPreview)
             />
           </label>
           <label v-if="!editingContractId" class="text-sm text-muted sm:col-span-2 xl:col-span-5">
-            Dokumen Kontrak (PDF, maksimal 2 MB)
+            Dokumen Kontrak (opsional, PDF, maksimal 2 MB)
             <input
               type="file"
               accept=".pdf,application/pdf"
-              required
               class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
               @change="selectContractDocument"
             />
