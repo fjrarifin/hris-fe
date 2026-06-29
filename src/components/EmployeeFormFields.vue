@@ -359,7 +359,7 @@ function removeChild(index) {
           <textarea v-model="props.form.keterangan_kontrak" rows="2" :class="inputClass"></textarea>
         </label>
         <label class="text-sm text-muted sm:col-span-2 lg:col-span-4">
-          Dokumen Kontrak (opsional, PDF, maksimal 2 MB)
+          Dokumen Kontrak (opsional, PDF, maksimal 10 MB)
           <input
             type="file"
             accept=".pdf,application/pdf"

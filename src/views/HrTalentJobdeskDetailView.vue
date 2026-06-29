@@ -160,7 +160,7 @@ onBeforeUnmount(closeDocumentPreview)
           class="rounded-lg border border-default bg-default p-2.5 md:col-span-2"
         ></textarea>
         <label class="text-sm text-muted md:col-span-2">
-          Dokumen Jobdesk (opsional, PDF maksimal 2 MB)
+          Dokumen Jobdesk (opsional, PDF maksimal 10 MB)
           <input
             type="file"
             accept=".pdf,application/pdf"

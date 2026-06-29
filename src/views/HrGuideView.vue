@@ -8,7 +8,7 @@ const guides = [
   {
     title: 'Kontrak Karyawan',
     icon: 'i-lucide-file-signature',
-    text: 'Saat menambah kontrak baru, dokumen kontrak boleh diunggah dalam bentuk PDF maksimal 2 MB, tetapi tidak wajib. HRD dapat melihat isi dokumen dari detail karyawan atau menu Kontrak Karyawan bila dokumen tersedia. Kontrak yang tanggal selesainya sudah lewat akan menjadi tidak aktif, dan status karyawan ikut tidak aktif bila tidak ada kontrak aktif lain.',
+    text: 'Saat menambah kontrak baru, dokumen kontrak boleh diunggah dalam bentuk PDF maksimal 10 MB, tetapi tidak wajib. HRD dapat melihat isi dokumen dari detail karyawan atau menu Kontrak Karyawan bila dokumen tersedia. Kontrak yang tanggal selesainya sudah lewat akan menjadi tidak aktif, dan status karyawan ikut tidak aktif bila tidak ada kontrak aktif lain.',
   },
   {
     title: 'Absensi',
