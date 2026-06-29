@@ -82,6 +82,14 @@ export function sendItPushNotification(payload) {
   return api.post('/it/push-notifications', payload)
 }
 
+export function getItServiceToggles() {
+  return api.get('/it/service-toggles')
+}
+
+export function updateItServiceToggle(toggleId, payload) {
+  return api.put(`/it/service-toggles/${toggleId}`, payload)
+}
+
 export function getItActiveSessions(params) {
   return api.get('/it/active-sessions', { params })
 }

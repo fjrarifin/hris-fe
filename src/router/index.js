@@ -22,6 +22,7 @@ import MenuAccessView from '../views/MenuAccessView.vue'
 import AuditLogView from '../views/AuditLogView.vue'
 import ItActiveSessionsView from '../views/ItActiveSessionsView.vue'
 import ItPushNotificationView from '../views/ItPushNotificationView.vue'
+import ItServiceTogglesView from '../views/ItServiceTogglesView.vue'
 import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
@@ -403,6 +404,12 @@ const router = createRouter({
           name: 'it-push-notifications',
           component: ItPushNotificationView,
           meta: { title: 'Push Notification', levels: [0], menuKey: 'it-push-notifications' },
+        },
+        {
+          path: 'it/service-toggles',
+          name: 'it-service-toggles',
+          component: ItServiceTogglesView,
+          meta: { title: 'Layanan Terjadwal', levels: [0], menuKey: 'it-service-toggles' },
         },
         {
           path: 'it/active-sessions',
