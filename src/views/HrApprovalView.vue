@@ -18,10 +18,24 @@ const title = computed(
 )
 const requests = ref([])
 const status = ref('waiting_hr')
+const searchQuery = ref('')
 const loading = ref(false)
 const actingId = ref(null)
 const message = ref('')
 const errorMessage = ref('')
+
+const filteredRequests = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return requests.value
+
+  return requests.value.filter((item) => {
+    return (
+      (item.employee_name && item.employee_name.toLowerCase().includes(query)) ||
+      (item.employee_nik && item.employee_nik.toLowerCase().includes(query)) ||
+      (item.department && item.department.toLowerCase().includes(query))
+    )
+  })
+})
 
 async function load() {
   loading.value = true
@@ -104,6 +118,15 @@ watch(
             <option value="cancelled">Dibatalkan</option>
           </select>
         </label>
+        <label class="flex-1 text-sm text-muted">
+          Cari Karyawan
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Cari nama, NIK, atau departemen..."
+            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+          />
+        </label>
         <UButton type="submit" label="Tampilkan" :loading="loading" />
       </form>
     </UCard>
@@ -123,7 +146,7 @@ watch(
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in requests" :key="item.id" class="border-t border-default">
+            <tr v-for="item in filteredRequests" :key="item.id" class="border-t border-default">
               <td class="p-3">
                 <p class="font-medium text-highlighted">{{ item.employee_name }}</p>
                 <p class="text-xs text-muted">{{ item.employee_nik }} - {{ item.department }}</p>
@@ -183,7 +206,7 @@ watch(
                 <span v-else class="text-xs text-muted">Selesai</span>
               </td>
             </tr>
-            <tr v-if="!requests.length">
+            <tr v-if="!filteredRequests.length">
               <td colspan="6" class="p-8 text-center text-muted">
                 Tidak ada pengajuan pada filter ini.
               </td>

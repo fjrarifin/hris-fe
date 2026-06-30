@@ -1,11 +1,30 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getHrAttendanceCorrections, saveHrAttendanceCorrection } from '../services/hrService'
+import {
+  getHrAttendanceCorrections,
+  saveHrAttendanceCorrection,
+  autoCorrectHrPayrollProcessAttendance,
+  getHrAttendanceOptions,
+} from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate } from '../utils/formatters'
 
 const route = useRoute()
-const filters = reactive({ start_date: '', end_date: '', q: '', status_filter: 'attention_only' })
+const filters = reactive({
+  start_date: '',
+  end_date: '',
+  q: '',
+  status_filter: 'attention_only',
+  departments: [],
+  employee_niks: [],
+})
+const options = ref({ departments: [], employees: [] })
+const departmentSearch = ref('')
+const employeeSearch = ref('')
+const departmentMenuOpen = ref(false)
+const employeeMenuOpen = ref(false)
+const loadingOptions = ref(true)
 const data = ref(null)
 const selected = ref(null)
 const form = reactive({
@@ -21,6 +40,122 @@ const loading = ref(false)
 const saving = ref(false)
 const message = ref('')
 const errorMessage = ref('')
+
+const autoCorrecting = ref([])
+const autoCorrectingAll = ref(false)
+
+const displayedDepartments = computed(() => {
+  const keyword = departmentSearch.value.trim().toLowerCase()
+  return options.value.departments.filter(
+    (department) => !keyword || department.toLowerCase().includes(keyword),
+  )
+})
+
+const eligibleEmployees = computed(() =>
+  options.value.employees.filter(
+    (employee) => !filters.departments.length || filters.departments.includes(employee.department),
+  ),
+)
+
+const displayedEmployees = computed(() => {
+  const keyword = employeeSearch.value.trim().toLowerCase()
+  return eligibleEmployees.value.filter(
+    (employee) =>
+      !keyword ||
+      employee.name.toLowerCase().includes(keyword) ||
+      employee.nik.toLowerCase().includes(keyword) ||
+      employee.department.toLowerCase().includes(keyword),
+  )
+})
+
+const departmentSummary = computed(() =>
+  filters.departments.length
+    ? `${filters.departments.length} departemen dipilih`
+    : 'Semua departemen',
+)
+
+const employeeSummary = computed(() =>
+  filters.employee_niks.length
+    ? `${filters.employee_niks.length} karyawan dipilih`
+    : `Semua karyawan (${eligibleEmployees.value.length})`,
+)
+
+function selectAllDepartments() {
+  filters.departments = []
+  filters.employee_niks = []
+}
+
+function updateDepartments() {
+  filters.employee_niks = []
+}
+
+function selectAllEmployees() {
+  filters.employee_niks = []
+}
+
+async function loadOptions() {
+  loadingOptions.value = true
+  try {
+    options.value = (await getHrAttendanceOptions()).data
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Pilihan filter tidak dapat dimuat.')
+  } finally {
+    loadingOptions.value = false
+  }
+}
+
+const hasIncompleteScans = computed(() => {
+  return (data.value?.records || []).some(
+    (record) => !record.is_resolved && record.has_incomplete_scan
+  )
+})
+
+async function autoCorrectSingle(record) {
+  const key = `${record.nik}|${record.date}`
+  autoCorrecting.value.push(key)
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const response = await autoCorrectHrPayrollProcessAttendance({
+      nik: record.nik,
+      start_date: record.date,
+      end_date: record.date,
+    })
+    message.value = response.data?.message || 'Koreksi otomatis berhasil.'
+    await load(data.value?.pagination?.current_page || 1)
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal mengoreksi absensi otomatis.')
+  } finally {
+    autoCorrecting.value = autoCorrecting.value.filter((k) => k !== key)
+  }
+}
+
+async function autoCorrectAll() {
+  const confirmed = await askConfirmation({
+    title: 'Konfirmasi Auto Koreksi Semua',
+    description: 'Apakah Anda yakin ingin mengoreksi otomatis semua absensi "Lupa Scan" pada periode filter ini?',
+    confirmLabel: 'Auto Koreksi Semua',
+    color: 'warning',
+  })
+  if (!confirmed) return
+
+  autoCorrectingAll.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const response = await autoCorrectHrPayrollProcessAttendance({
+      nik: null,
+      start_date: filters.start_date,
+      end_date: filters.end_date,
+    })
+    message.value = response.data?.message || 'Koreksi massal berhasil.'
+    await load(1)
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal mengoreksi semua absensi otomatis.')
+  } finally {
+    autoCorrectingAll.value = false
+  }
+}
 const flattenedAuditLogs = computed(() =>
   (data.value?.audit_logs || []).flatMap((log) =>
     (log.changes || []).map((change, index) => ({
@@ -137,6 +272,8 @@ async function load(requestedPage = 1) {
         end_date: filters.end_date,
         q: filters.q || undefined,
         status_filter: filters.status_filter,
+        departments: filters.departments.length ? filters.departments : undefined,
+        employee_niks: filters.employee_niks.length ? filters.employee_niks : undefined,
         page: requestedPage,
       })
     ).data
@@ -183,7 +320,8 @@ async function saveCorrection() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadOptions()
   const date = String(route.query.date || '')
   filters.start_date = String(route.query.start_date || date || yesterdayDate())
   filters.end_date = String(route.query.end_date || date || filters.start_date)
@@ -207,50 +345,177 @@ onMounted(() => {
     <AlertToastBridge :message="message" :error="errorMessage" />
 
     <UCard title="Filter Data Koreksi Absensi">
-      <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="load(1)">
-        <label class="text-sm text-muted">
-          Tanggal Awal
-          <input
-            v-model="filters.start_date"
-            type="date"
-            required
-            class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
-          />
-        </label>
-        <label class="text-sm text-muted">
-          Tanggal Akhir
-          <input
-            v-model="filters.end_date"
-            type="date"
-            required
-            class="mt-2 block rounded-lg border border-default bg-default p-2.5 text-highlighted"
-          />
-        </label>
-        <label class="flex-1 text-sm text-muted">
-          Cari Karyawan
-          <input
-            v-model="filters.q"
-            type="search"
-            placeholder="Nama atau NIK"
-            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
-          />
-        </label>
-        <label class="text-sm text-muted">
-          Filter Status
-          <select
-            v-model="filters.status_filter"
-            class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
-          >
-            <option value="attention_only">Perlu Dicek</option>
-            <option value="alpha_only">Hanya Alpha & Scan Tidak Lengkap</option>
-            <option value="all">Semua Tanggal</option>
-          </select>
-        </label>
-        <UButton type="submit" label="Tampilkan" icon="i-lucide-search" :loading="loading" />
+      <form class="space-y-4" @submit.prevent="load(1)">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <label class="text-sm text-muted">
+            Tanggal Awal
+            <input
+              v-model="filters.start_date"
+              type="date"
+              required
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            />
+          </label>
+          <label class="text-sm text-muted">
+            Tanggal Akhir
+            <input
+              v-model="filters.end_date"
+              type="date"
+              required
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            />
+          </label>
+          
+          <!-- Department Select -->
+          <div class="text-sm text-muted">
+            Departemen
+            <button
+              type="button"
+              class="mt-2 flex w-full items-center justify-between rounded-lg border border-default bg-default p-2.5 text-left text-highlighted"
+              @click="departmentMenuOpen = !departmentMenuOpen"
+            >
+              <span class="truncate">{{ departmentSummary }}</span>
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0" />
+            </button>
+            <div
+              v-if="departmentMenuOpen"
+              class="mt-2 rounded-xl border border-default bg-default p-3 shadow-xl"
+            >
+              <input
+                v-model="departmentSearch"
+                placeholder="Cari departemen..."
+                class="mb-3 w-full rounded-lg border border-default bg-default p-2 text-highlighted"
+              />
+              <label class="mb-2 flex items-center gap-2 text-highlighted">
+                <input
+                  type="checkbox"
+                  :checked="!filters.departments.length"
+                  @change="selectAllDepartments"
+                />
+                Semua departemen
+              </label>
+              <div class="max-h-52 space-y-2 overflow-auto border-t border-default pt-2">
+                <label
+                  v-for="department in displayedDepartments"
+                  :key="department"
+                  class="flex items-center gap-2 text-highlighted font-normal"
+                >
+                  <input
+                    v-model="filters.departments"
+                    type="checkbox"
+                    :value="department"
+                    @change="updateDepartments"
+                  />
+                  {{ department }}
+                </label>
+                <p v-if="!displayedDepartments.length" class="py-2 text-xs text-muted">
+                  Departemen tidak ditemukan.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employee Select -->
+          <div class="text-sm text-muted">
+            Pilih Karyawan
+            <button
+              type="button"
+              class="mt-2 flex w-full items-center justify-between rounded-lg border border-default bg-default p-2.5 text-left text-highlighted"
+              :disabled="loadingOptions"
+              @click="employeeMenuOpen = !employeeMenuOpen"
+            >
+              <span class="truncate">{{ employeeSummary }}</span>
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0" />
+            </button>
+            <div
+              v-if="employeeMenuOpen"
+              class="mt-2 rounded-xl border border-default bg-default p-3 shadow-xl"
+            >
+              <input
+                v-model="employeeSearch"
+                placeholder="Cari nama atau NIK..."
+                class="mb-3 w-full rounded-lg border border-default bg-default p-2 text-highlighted"
+              />
+              <label class="mb-2 flex items-center gap-2 text-highlighted">
+                <input
+                  type="checkbox"
+                  :checked="!filters.employee_niks.length"
+                  @change="selectAllEmployees"
+                />
+                Semua karyawan
+              </label>
+              <div class="max-h-64 space-y-2 overflow-auto border-t border-default pt-2">
+                <label
+                  v-for="employee in displayedEmployees"
+                  :key="employee.nik"
+                  class="flex items-start gap-2 text-highlighted font-normal"
+                >
+                  <input
+                    v-model="filters.employee_niks"
+                    type="checkbox"
+                    :value="employee.nik"
+                    class="mt-1"
+                  />
+                  <span>
+                    {{ employee.name }} ({{ employee.nik }})
+                    <span class="block text-xs text-muted">{{ employee.department }}</span>
+                  </span>
+                </label>
+                <p v-if="!displayedEmployees.length" class="py-2 text-xs text-muted">
+                  Karyawan tidak ditemukan.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <label class="text-sm text-muted">
+            Cari Nama / NIK (Direct)
+            <input
+              v-model="filters.q"
+              type="search"
+              placeholder="Nama atau NIK"
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            />
+          </label>
+          
+          <label class="text-sm text-muted">
+            Filter Status
+            <select
+              v-model="filters.status_filter"
+              class="mt-2 block w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
+            >
+              <option value="attention_only">Perlu Dicek</option>
+              <option value="alpha_only">Hanya Alpha</option>
+              <option value="incomplete_only">Scan Tidak Lengkap</option>
+              <option value="all">Semua Status</option>
+            </select>
+          </label>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <UButton type="submit" label="Tampilkan" icon="i-lucide-search" :loading="loading" />
+        </div>
       </form>
     </UCard>
 
-    <UCard :title="`Temuan Absensi - ${periodLabel()}`">
+    <UCard>
+      <template #header>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-semibold text-highlighted">Temuan Absensi - {{ periodLabel() }}</h3>
+            <p class="text-xs text-muted">Daftar scan masuk atau pulang yang belum lengkap</p>
+          </div>
+          <UButton
+            v-if="hasIncompleteScans"
+            size="sm"
+            color="warning"
+            label="Auto Koreksi Semua"
+            icon="i-lucide-wand-2"
+            :loading="autoCorrectingAll"
+            @click="autoCorrectAll"
+          />
+        </div>
+      </template>
       <div v-if="loading && !data" class="py-10 text-center text-sm text-muted">
         Memuat temuan absensi...
       </div>
@@ -308,12 +573,23 @@ onMounted(() => {
                 />
               </td>
               <td class="p-3">
-                <UButton
-                  size="xs"
-                  variant="soft"
-                  :label="record.is_resolved ? 'Lihat / Edit' : 'Koreksi'"
-                  @click="selectRecord(record)"
-                />
+                <div class="flex items-center gap-2">
+                  <UButton
+                    size="xs"
+                    variant="soft"
+                    :label="record.is_resolved ? 'Lihat / Edit' : 'Koreksi'"
+                    @click="selectRecord(record)"
+                  />
+                  <UButton
+                    v-if="!record.is_resolved && record.has_incomplete_scan"
+                    size="xs"
+                    color="warning"
+                    variant="soft"
+                    label="Auto Koreksi"
+                    :loading="autoCorrecting.includes(`${record.nik}|${record.date}`)"
+                    @click="autoCorrectSingle(record)"
+                  />
+                </div>
               </td>
             </tr>
             <tr v-if="!data?.records?.length">
