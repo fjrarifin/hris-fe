@@ -317,7 +317,7 @@ function reviewDraft(draft) {
     component_id: component.id,
     name: component.nama,
     type: component.type,
-    amount: draft.items.find((item) => item.component_id === component.id)?.amount || 0,
+    amount: (draft.raw_items || draft.items).find((item) => item.component_id === component.id)?.amount || 0,
   }))
 }
 
