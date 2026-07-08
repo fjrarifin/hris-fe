@@ -921,7 +921,7 @@ onMounted(loadPeriods)
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'earning')" :key="adjustment.component_id" :label="adjustment.name" class="text-xs">
                   <div class="space-y-1.5">
-                    <UInput v-model.number="adjustment.amount" type="number" min="0" class="w-full font-medium" />
+                    <UInput v-model.number="adjustment.amount" type="number" min="0" max="999999999" class="w-full font-medium" />
                     <div class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono bg-emerald-500/[0.04] border border-emerald-500/10 px-2 py-0.5 rounded inline-block">
                       {{ rupiah(adjustment.amount) }}
                     </div>
@@ -938,7 +938,7 @@ onMounted(loadPeriods)
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'deduction')" :key="adjustment.component_id" :label="adjustment.name" class="text-xs">
                   <div class="space-y-1.5">
-                    <UInput v-model.number="adjustment.amount" type="number" min="0" class="w-full font-medium" />
+                    <UInput v-model.number="adjustment.amount" type="number" min="0" max="999999999" class="w-full font-medium" />
                     <div class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 font-mono bg-rose-500/[0.04] border border-rose-500/10 px-2 py-0.5 rounded inline-block">
                       {{ rupiah(adjustment.amount) }}
                     </div>
