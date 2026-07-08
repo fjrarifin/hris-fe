@@ -911,22 +911,38 @@ onMounted(loadPeriods)
 
         <details v-if="!selectedDraft.is_locked && ['draft', 'reviewed'].includes(selectedDraft.status)" class="mt-5 rounded-xl border border-default p-4" open>
           <summary class="cursor-pointer font-medium text-highlighted">Adjustment Manual (Penyesuaian Pembulatan, dll)</summary>
-          <div class="mt-4 grid gap-6 md:grid-cols-2">
+          <div class="mt-4 grid gap-6 lg:grid-cols-2">
             <!-- Kolom Penambahan -->
-            <div class="space-y-4">
-              <h4 class="font-semibold text-emerald-500 border-b border-default pb-2">Penambahan (Earning)</h4>
-              <div class="grid gap-3">
-                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'earning')" :key="adjustment.component_id" :label="adjustment.name">
-                  <UInput v-model.number="adjustment.amount" type="number" min="0" />
+            <div class="p-5 rounded-2xl bg-emerald-500/[0.02] border border-emerald-500/10 space-y-4">
+              <h4 class="font-bold text-emerald-500 border-b border-emerald-500/10 pb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                Penambahan (Earning)
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'earning')" :key="adjustment.component_id" :label="adjustment.name" class="text-xs">
+                  <div class="space-y-1.5">
+                    <UInput v-model.number="adjustment.amount" type="number" min="0" class="w-full font-medium" />
+                    <div class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono bg-emerald-500/[0.04] border border-emerald-500/10 px-2 py-0.5 rounded inline-block">
+                      {{ rupiah(adjustment.amount) }}
+                    </div>
+                  </div>
                 </UFormField>
               </div>
             </div>
             <!-- Kolom Pengurangan -->
-            <div class="space-y-4">
-              <h4 class="font-semibold text-rose-500 border-b border-default pb-2">Pengurangan (Deduction)</h4>
-              <div class="grid gap-3">
-                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'deduction')" :key="adjustment.component_id" :label="adjustment.name">
-                  <UInput v-model.number="adjustment.amount" type="number" min="0" />
+            <div class="p-5 rounded-2xl bg-rose-500/[0.02] border border-rose-500/10 space-y-4">
+              <h4 class="font-bold text-rose-500 border-b border-rose-500/10 pb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                Pengurangan (Deduction)
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'deduction')" :key="adjustment.component_id" :label="adjustment.name" class="text-xs">
+                  <div class="space-y-1.5">
+                    <UInput v-model.number="adjustment.amount" type="number" min="0" class="w-full font-medium" />
+                    <div class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 font-mono bg-rose-500/[0.04] border border-rose-500/10 px-2 py-0.5 rounded inline-block">
+                      {{ rupiah(adjustment.amount) }}
+                    </div>
+                  </div>
                 </UFormField>
               </div>
             </div>
