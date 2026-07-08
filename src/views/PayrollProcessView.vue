@@ -909,14 +909,29 @@ onMounted(loadPeriods)
           </div>
         </UCard>
 
-        <details v-if="!selectedDraft.is_locked && ['draft', 'reviewed'].includes(selectedDraft.status)" class="mt-5 rounded-xl border border-default p-4">
+        <details v-if="!selectedDraft.is_locked && ['draft', 'reviewed'].includes(selectedDraft.status)" class="mt-5 rounded-xl border border-default p-4" open>
           <summary class="cursor-pointer font-medium text-highlighted">Adjustment Manual (Penyesuaian Pembulatan, dll)</summary>
-          <div class="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            <UFormField v-for="adjustment in adjustments" :key="adjustment.component_id" :label="adjustment.name">
-              <UInput v-model.number="adjustment.amount" type="number" min="0" />
-            </UFormField>
+          <div class="mt-4 grid gap-6 md:grid-cols-2">
+            <!-- Kolom Penambahan -->
+            <div class="space-y-4">
+              <h4 class="font-semibold text-emerald-500 border-b border-default pb-2">Penambahan (Earning)</h4>
+              <div class="grid gap-3">
+                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'earning')" :key="adjustment.component_id" :label="adjustment.name">
+                  <UInput v-model.number="adjustment.amount" type="number" min="0" />
+                </UFormField>
+              </div>
+            </div>
+            <!-- Kolom Pengurangan -->
+            <div class="space-y-4">
+              <h4 class="font-semibold text-rose-500 border-b border-default pb-2">Pengurangan (Deduction)</h4>
+              <div class="grid gap-3">
+                <UFormField v-for="adjustment in adjustments.filter(a => a.type === 'deduction')" :key="adjustment.component_id" :label="adjustment.name">
+                  <UInput v-model.number="adjustment.amount" type="number" min="0" />
+                </UFormField>
+              </div>
+            </div>
           </div>
-          <UButton class="mt-4" label="Simpan Adjustment" :loading="saving" @click="saveAdjustments" />
+          <UButton class="mt-6" label="Simpan Adjustment" :loading="saving" @click="saveAdjustments" />
         </details>
 
         <div class="mt-5 flex flex-wrap justify-end gap-2 border-t border-default pt-4">
