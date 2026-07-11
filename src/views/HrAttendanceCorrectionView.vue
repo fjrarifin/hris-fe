@@ -202,7 +202,7 @@ function findingLabel(record) {
   return record.finding
 }
 
-const isAbsenceCorrection = computed(() => ['leave', 'public_holiday', 'extra_off'].includes(form.correction_type))
+const isAbsenceCorrection = computed(() => ['leave', 'public_holiday', 'extra_off', 'sdc'].includes(form.correction_type))
 
 function absenceTypeLabel(value) {
   return {
@@ -210,6 +210,7 @@ function absenceTypeLabel(value) {
     leave: 'Cuti',
     public_holiday: 'PH',
     extra_off: 'Extra Off',
+    sdc: 'SDC',
   }[value] || value
 }
 
@@ -640,9 +641,10 @@ onMounted(async () => {
               <option value="public_holiday" :disabled="!selected.absence_options?.public_holidays?.length">
                 PH
               </option>
-              <option value="extra_off" :disabled="!selected.absence_options?.extra_off_sources?.length">
-                Extra Off
-              </option>
+               <option value="extra_off" :disabled="!selected.absence_options?.extra_off_sources?.length">
+                 Extra Off
+               </option>
+               <option value="sdc">SDC</option>
             </select>
           </label>
           <label class="text-sm text-muted">
