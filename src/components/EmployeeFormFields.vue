@@ -8,27 +8,27 @@ const props = defineProps({
   loadingOptions: Boolean,
 })
 
+import { onMounted, ref } from 'vue'
+import { getEmployeeOptions } from '../services/hrService'
+
 const positionLevels = ['Sr.', 'Md.', 'Jr.']
-const positionTitles = [
-  'Operator',
-  'Staff',
-  'Leader',
-  'Supervisor',
-  'Asst. Manager',
-  'Manager',
-  'GM',
-]
-const divisions = ['Business Partner', 'Commercial Business']
-const departments = [
-  'GM',
-  'Marketing',
-  'Sales',
-  'Finance',
-  'HRBP',
-  'Activity',
-  'General Affair',
-  'Hompim Store',
-]
+const positionTitles = ref([])
+const divisions = ref([])
+const departments = ref([])
+const units = ref([])
+
+onMounted(async () => {
+  try {
+    const response = await getEmployeeOptions()
+    positionTitles.value = response.data.position_titles || []
+    divisions.value = response.data.divisions || []
+    departments.value = response.data.departments || []
+    units.value = response.data.units || []
+  } catch (error) {
+    console.error('Failed to load employee organization options:', error)
+  }
+})
+
 const contractTypes = ['PKWT', 'PKWTT']
 const contractStatuses = [
   { value: 'AKTIF', label: 'AKTIF' },
@@ -55,8 +55,8 @@ const educationLevels = ['SD', 'SMP', 'SMA / SMK', 'D1', 'D2', 'D3', 'D4', 'S1',
 const workFields = [
   { key: 'nama_karyawan', label: 'Nama Karyawan', required: true },
   { key: 'jabatan', label: 'Jabatan', required: true },
-  { key: 'unit', label: 'Unit' },
 ]
+
 
 const personalFields = [
   { key: 'email', label: 'Email', type: 'email' },
@@ -194,46 +194,47 @@ function removeChild(index) {
             </option>
           </select>
         </label>
-        <label v-for="field in workFields.slice(2)" :key="field.key" class="text-sm text-muted">
-          {{ field.label }}
-          <input v-model="props.form[field.key]" :class="inputClass" />
+        <label class="text-sm text-muted">
+          Unit
+          <select v-model="props.form.unit" :class="inputClass">
+            <option value="">Pilih unit</option>
+            <option v-for="option in units" :key="option" :value="option">{{ option }}</option>
+          </select>
         </label>
         <label class="text-sm text-muted">
           Atasan Langsung
-          <input
-            v-model="props.form.nama_atasan_langsung"
-            list="supervisor-options-direct"
+          <select
+            v-model="props.form.atasan_langsung_nik"
             :disabled="props.loadingOptions"
-            placeholder="Cari nama atau NIK karyawan..."
             :class="inputClass"
-          />
+          >
+            <option value="">Pilih atasan langsung</option>
+            <option
+              v-for="employee in props.supervisorOptions"
+              :key="employee.nik"
+              :value="employee.nik"
+            >
+              {{ employee.nik }} - {{ employee.name }} ({{ employee.position || '-' }})
+            </option>
+          </select>
         </label>
         <label class="text-sm text-muted">
           Atasan Tidak Langsung
-          <input
-            v-model="props.form.atasan_tidak_langsung"
-            list="supervisor-options-indirect"
+          <select
+            v-model="props.form.atasan_tidak_langsung_nik"
             :disabled="props.loadingOptions"
-            placeholder="Cari nama atau NIK karyawan..."
             :class="inputClass"
-          />
+          >
+            <option value="">Pilih atasan tidak langsung</option>
+            <option
+              v-for="employee in props.supervisorOptions"
+              :key="employee.nik"
+              :value="employee.nik"
+            >
+              {{ employee.nik }} - {{ employee.name }} ({{ employee.position || '-' }})
+            </option>
+          </select>
         </label>
-        <datalist id="supervisor-options-direct">
-          <option
-            v-for="employee in props.supervisorOptions"
-            :key="employee.nik"
-            :value="employee.name"
-            :label="`${employee.nik} - ${employee.position || '-'}`"
-          />
-        </datalist>
-        <datalist id="supervisor-options-indirect">
-          <option
-            v-for="employee in props.supervisorOptions"
-            :key="employee.nik"
-            :value="employee.name"
-            :label="`${employee.nik} - ${employee.position || '-'}`"
-          />
-        </datalist>
         <label class="text-sm text-muted">
           Status Karyawan
           <input :value="employeeStatusLabel()" disabled :class="inputClass" />

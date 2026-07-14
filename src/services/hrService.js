@@ -244,3 +244,74 @@ export function createHrPerformanceReview(payload) {
 export function updateHrPerformanceReviewStatus(id, payload) {
   return api.patch(`/hr/talent/reviews/${id}/status`, payload)
 }
+
+export function getHrVacancies(params) {
+  return api.get('/hr/recruitment/vacancies', { params })
+}
+
+export function createHrVacancy(payload) {
+  return api.post('/hr/recruitment/vacancies', payload)
+}
+
+export function updateHrVacancy(id, payload) {
+  return api.put(`/hr/recruitment/vacancies/${id}`, payload)
+}
+
+export function deleteHrVacancy(id) {
+  return api.delete(`/hr/recruitment/vacancies/${id}`)
+}
+
+export function getHrCandidates(params) {
+  return api.get('/hr/recruitment/candidates', { params })
+}
+
+export function createHrCandidate(payload) {
+  return api.post('/hr/recruitment/candidates', payload)
+}
+
+export function updateHrCandidate(id, payload) {
+  return api.put(`/hr/recruitment/candidates/${id}`, payload)
+}
+
+export function deleteHrCandidate(id) {
+  return api.delete(`/hr/recruitment/candidates/${id}`)
+}
+
+export function uploadHrCandidateResume(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-resume`, payload)
+}
+
+export function getHrCandidateResumePreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/resume-preview`)
+}
+
+export function getHrRecruitmentRequests() {
+  return api.get('/hr/recruitment/requests')
+}
+
+export function decideHrRecruitmentRequest(id, payload) {
+  return api.post(`/hr/recruitment/requests/${id}/decide`, payload)
+}
+
+export function getHrMasterOrgs(type) {
+  return api.get(`/hr/master-orgs/${type}`)
+}
+
+export function createHrMasterOrg(type, payload) {
+  return api.post(`/hr/master-orgs/${type}`, payload)
+}
+
+export function updateHrMasterOrg(type, id, payload) {
+  return api.put(`/hr/master-orgs/${type}/${id}`, payload)
+}
+
+export function deleteHrMasterOrg(type, id) {
+  return api.delete(`/hr/master-orgs/${type}/${id}`)
+}
+
+export function getEmployeeOptions() {
+  return api.get('/employee-options')
+}
+
+
+

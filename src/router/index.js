@@ -46,8 +46,15 @@ import HrPerformanceReviewView from '../views/HrPerformanceReviewView.vue'
 import HrTalentJobdeskView from '../views/HrTalentJobdeskView.vue'
 import HrTalentJobdeskDetailView from '../views/HrTalentJobdeskDetailView.vue'
 import HrTalentKpiTemplateView from '../views/HrTalentKpiTemplateView.vue'
+import HrRecruitmentCandidateView from '../views/HrRecruitmentCandidateView.vue'
+import HrRecruitmentVacancyView from '../views/HrRecruitmentVacancyView.vue'
+import HrRecruitmentRequestView from '../views/HrRecruitmentRequestView.vue'
+import StaffRecruitmentRequestView from '../views/StaffRecruitmentRequestView.vue'
 import StaffPerformanceReviewView from '../views/StaffPerformanceReviewView.vue'
 import StaffTalentView from '../views/StaffTalentView.vue'
+import HrMasterOrgStructureView from '../views/HrMasterOrgStructureView.vue'
+
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -266,6 +273,30 @@ const router = createRouter({
           meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
         },
         {
+          path: 'hr/master/positions',
+          name: 'hr-master-positions',
+          component: HrMasterOrgStructureView,
+          meta: { title: 'Master Posisi', levels: [2], menuKey: 'hr-master-positions', type: 'positions' },
+        },
+        {
+          path: 'hr/master/divisions',
+          name: 'hr-master-divisions',
+          component: HrMasterOrgStructureView,
+          meta: { title: 'Master Divisi', levels: [2], menuKey: 'hr-master-divisions', type: 'divisions' },
+        },
+        {
+          path: 'hr/master/departments',
+          name: 'hr-master-departments',
+          component: HrMasterOrgStructureView,
+          meta: { title: 'Master Departemen', levels: [2], menuKey: 'hr-master-departments', type: 'departments' },
+        },
+        {
+          path: 'hr/master/units',
+          name: 'hr-master-units',
+          component: HrMasterOrgStructureView,
+          meta: { title: 'Master Unit', levels: [2], menuKey: 'hr-master-units', type: 'units' },
+        },
+        {
           path: 'hr/attendance-corrections',
           name: 'hr-attendance-corrections',
           component: HrAttendanceCorrectionView,
@@ -365,6 +396,30 @@ const router = createRouter({
           name: 'hr-talent-reviews',
           component: HrPerformanceReviewView,
           meta: { title: 'Performance Review', levels: [2], menuKey: 'hr-talent-reviews' },
+        },
+        {
+          path: 'hr/recruitment/vacancies',
+          name: 'hr-recruitment-vacancies',
+          component: HrRecruitmentVacancyView,
+          meta: { title: 'Lowongan Kerja', levels: [2], menuKey: 'hr-recruitment-vacancies' },
+        },
+        {
+          path: 'hr/recruitment/candidates',
+          name: 'hr-recruitment-candidates',
+          component: HrRecruitmentCandidateView,
+          meta: { title: 'Pipeline Pelamar', levels: [2], menuKey: 'hr-recruitment-candidates' },
+        },
+        {
+          path: 'hr/recruitment/requests',
+          name: 'hr-recruitment-requests',
+          component: HrRecruitmentRequestView,
+          meta: { title: 'Persetujuan Lowongan', levels: [2], menuKey: 'hr-recruitment-requests' },
+        },
+        {
+          path: 'staff/recruitment/requests',
+          name: 'staff-recruitment-requests',
+          component: StaffRecruitmentRequestView,
+          meta: { title: 'Pengajuan Rekrutmen', levels: [3], menuKey: 'staff-recruitment-requests' },
         },
         {
           path: 'staff/performance-reviews',

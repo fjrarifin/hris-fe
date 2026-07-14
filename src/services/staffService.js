@@ -147,3 +147,12 @@ export function getStaffTalent() {
 export function getStaffJobdeskPdfPreview(id) {
   return api.get(`/staff/talent/jobdesks/${id}/pdf-preview`)
 }
+
+export function getStaffRecruitmentRequests() {
+  return api.get('/staff/recruitment/requests')
+}
+
+export function createStaffRecruitmentRequest(payload) {
+  return api.post('/staff/recruitment/requests', payload)
+}
+
