@@ -28,6 +28,14 @@ export function getStaffAttendance(params) {
   return api.get('/staff/attendance', { params })
 }
 
+export function getStaffContracts() {
+  return api.get('/staff/contracts')
+}
+
+export function getStaffContractPdfPreview(id) {
+  return api.get(`/staff/contracts/${id}/pdf-preview`)
+}
+
 export function getLeaves() {
   return api.get('/staff/leave')
 }

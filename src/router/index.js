@@ -26,6 +26,7 @@ import ItServiceTogglesView from '../views/ItServiceTogglesView.vue'
 import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
+import StaffContractView from '../views/StaffContractView.vue'
 import LeaveRequestView from '../views/LeaveRequestView.vue'
 import PublicHolidayView from '../views/PublicHolidayView.vue'
 import ExtraOffView from '../views/ExtraOffView.vue'
@@ -145,6 +146,12 @@ const router = createRouter({
           name: 'staff-attendance',
           component: StaffAttendanceView,
           meta: { title: 'Absensi Saya', levels: [3], menuKey: 'staff-attendance' },
+        },
+        {
+          path: 'staff/contracts',
+          name: 'staff-contracts',
+          component: StaffContractView,
+          meta: { title: 'Kontrak Kerja', levels: [3], menuKey: 'staff-contracts' },
         },
         {
           path: 'staff/leave',
