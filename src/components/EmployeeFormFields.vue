@@ -8,8 +8,19 @@ const props = defineProps({
   loadingOptions: Boolean,
 })
 
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { getEmployeeOptions } from '../services/hrService'
+
+const formattedSupervisors = computed(() => {
+  const list = (props.supervisorOptions || []).map((employee) => ({
+    nik: employee.nik,
+    label: `${employee.nik} - ${employee.name} (${employee.position || '-'})`,
+  }))
+  return [
+    { nik: '', label: 'Pilih atasan...' },
+    ...list
+  ]
+})
 
 const positionLevels = ['Sr.', 'Md.', 'Jr.']
 const positionTitles = ref([])
@@ -203,37 +214,29 @@ function removeChild(index) {
         </label>
         <label class="text-sm text-muted">
           Atasan Langsung
-          <select
+          <USelectMenu
             v-model="props.form.atasan_langsung_nik"
+            :options="formattedSupervisors"
+            value-attribute="nik"
+            option-attribute="label"
+            searchable
+            placeholder="Pilih atasan langsung"
             :disabled="props.loadingOptions"
-            :class="inputClass"
-          >
-            <option value="">Pilih atasan langsung</option>
-            <option
-              v-for="employee in props.supervisorOptions"
-              :key="employee.nik"
-              :value="employee.nik"
-            >
-              {{ employee.nik }} - {{ employee.name }} ({{ employee.position || '-' }})
-            </option>
-          </select>
+            class="mt-2 w-full"
+          />
         </label>
         <label class="text-sm text-muted">
           Atasan Tidak Langsung
-          <select
+          <USelectMenu
             v-model="props.form.atasan_tidak_langsung_nik"
+            :options="formattedSupervisors"
+            value-attribute="nik"
+            option-attribute="label"
+            searchable
+            placeholder="Pilih atasan tidak langsung"
             :disabled="props.loadingOptions"
-            :class="inputClass"
-          >
-            <option value="">Pilih atasan tidak langsung</option>
-            <option
-              v-for="employee in props.supervisorOptions"
-              :key="employee.nik"
-              :value="employee.nik"
-            >
-              {{ employee.nik }} - {{ employee.name }} ({{ employee.position || '-' }})
-            </option>
-          </select>
+            class="mt-2 w-full"
+          />
         </label>
         <label class="text-sm text-muted">
           Status Karyawan
