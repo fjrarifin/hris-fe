@@ -216,10 +216,9 @@ function removeChild(index) {
           Atasan Langsung
           <USelectMenu
             v-model="props.form.atasan_langsung_nik"
-            :options="formattedSupervisors"
-            value-attribute="nik"
-            option-attribute="label"
-            searchable
+            :items="formattedSupervisors"
+            value-key="nik"
+            label-key="label"
             placeholder="Pilih atasan langsung"
             :disabled="props.loadingOptions"
             class="mt-2 w-full"
@@ -229,10 +228,9 @@ function removeChild(index) {
           Atasan Tidak Langsung
           <USelectMenu
             v-model="props.form.atasan_tidak_langsung_nik"
-            :options="formattedSupervisors"
-            value-attribute="nik"
-            option-attribute="label"
-            searchable
+            :items="formattedSupervisors"
+            value-key="nik"
+            label-key="label"
             placeholder="Pilih atasan tidak langsung"
             :disabled="props.loadingOptions"
             class="mt-2 w-full"
