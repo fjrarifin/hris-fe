@@ -1,4 +1,5 @@
 <script setup>
+import { ref, watch } from 'vue'
 import { cancelAction, confirmAction, confirmDialog } from '../utils/confirmDialog'
 
 const colorClass = {
@@ -6,6 +7,17 @@ const colorClass = {
   warning: 'bg-amber-500 text-white hover:bg-amber-600',
   error: 'bg-red-500 text-white hover:bg-red-600',
 }
+
+const checkboxChecked = ref(false)
+
+watch(
+  () => confirmDialog.open,
+  (newVal) => {
+    if (newVal) {
+      checkboxChecked.value = false
+    }
+  },
+)
 </script>
 
 <template>
@@ -66,6 +78,7 @@ const colorClass = {
               <div class="space-y-5 bg-white px-[30px] py-[30px]">
                 <p class="text-[14px] leading-[20px] text-slate-600">{{ confirmDialog.message }}</p>
                 <div
+                  v-if="confirmDialog.warningMessage"
                   class="rounded-[10px] border border-[#f5c76e] bg-[#fff8ea] px-[15px] py-[15px] text-[#844019]"
                 >
                   <div>
@@ -76,6 +89,21 @@ const colorClass = {
                       {{ confirmDialog.warningMessage }}
                     </p>
                   </div>
+                </div>
+
+                <div v-if="confirmDialog.checkboxLabel">
+                  <label
+                    class="flex items-start gap-2.5 cursor-pointer text-[13px] select-none p-2.5 bg-slate-50 rounded-lg border border-slate-200"
+                  >
+                    <input
+                      v-model="checkboxChecked"
+                      type="checkbox"
+                      class="mt-0.5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-400"
+                    />
+                    <span class="text-slate-600 leading-relaxed">
+                      {{ confirmDialog.checkboxLabel }}
+                    </span>
+                  </label>
                 </div>
               </div>
               <footer
@@ -90,7 +118,8 @@ const colorClass = {
                 </button>
                 <button
                   type="button"
-                  class="inline-flex min-h-9 items-center gap-2 rounded-md bg-[#3ee59a] px-4 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#31d58c]"
+                  class="inline-flex min-h-9 items-center gap-2 rounded-md bg-[#3ee59a] px-4 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#31d58c] disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="confirmDialog.checkboxLabel && !checkboxChecked"
                   @click="confirmAction"
                 >
                   <UIcon

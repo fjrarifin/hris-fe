@@ -240,6 +240,8 @@ const submitSignature = async () => {
     warningTitle: 'PENTING:',
     warningMessage:
       'Tindakan ini bersifat final. Dengan menyetujui, tanda tangan digital Anda akan dicatat pada sistem sebagai persetujuan resmi atas penawaran kerja ini.',
+    checkboxLabel:
+      'Saya secara sadar dan sukarela menyetujui seluruh ketentuan penawaran kerja yang tertera.',
     confirmLabel: 'Ya, Setujui',
     cancelLabel: 'Batal',
     variant: 'structured',

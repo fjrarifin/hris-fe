@@ -239,6 +239,8 @@ const submitSignature = async () => {
     warningTitle: 'PENTING:',
     warningMessage:
       'Tindakan ini bersifat final. Tanda tangan digital Anda akan dicatat pada sistem HRIS sebagai bukti persetujuan dokumen PKB ini.',
+    checkboxLabel:
+      'Saya menyetujui rekrutmen calon karyawan di atas dengan pengajuan gaji yang tertera.',
     confirmLabel: 'Ya, Setujui',
     cancelLabel: 'Batal',
     variant: 'structured',

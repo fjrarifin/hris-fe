@@ -829,3 +829,162 @@ select:focus-visible {
     background: #fff;
   }
 }
+
+/* Custom Confirmation Modal Styles */
+.career-modal-overlay {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 27, 43, 0.7);
+  backdrop-filter: blur(5px);
+}
+.career-modal-card {
+  position: relative;
+  width: min(480px, 100%);
+  max-width: 100%;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(6, 27, 43, 0.25);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.career-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+.career-modal-header h3 {
+  margin: 0;
+  font: 800 15px/1.4 Manrope;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+.career-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.career-modal-close:hover {
+  background: rgba(18, 65, 91, 0.08);
+}
+.career-modal-body {
+  padding: 24px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.career-modal-body p {
+  margin: 0;
+}
+.career-modal-body .highlight-title {
+  color: var(--primary);
+  font-weight: 700;
+}
+.career-warning-box {
+  background: #fff8ea;
+  border: 1px solid #f5c76e;
+  border-radius: 10px;
+  padding: 14px;
+  color: #844019;
+  font-size: 12.5px;
+}
+.career-warning-box .warning-title {
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.career-checkbox-label {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 10px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.career-checkbox {
+  margin-top: 3px;
+  accent-color: var(--primary);
+}
+.career-checkbox-label .checkbox-text {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.career-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  background: #ffffff;
+}
+.career-modal-footer .button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 0;
+  transition: background 0.18s ease, transform 0.1s ease;
+}
+.career-modal-footer .button-secondary {
+  background: var(--soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.career-modal-footer .button-secondary:hover {
+  background: rgba(18, 65, 91, 0.08);
+}
+.career-modal-footer .button-primary {
+  background: #3ee59a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(62, 229, 154, 0.2);
+}
+.career-modal-footer .button-primary:hover:not(:disabled) {
+  background: #31d58c;
+}
+.career-modal-footer .button-primary:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+@media (max-width: 500px) {
+  .career-modal-overlay {
+    padding: 0;
+    align-items: end;
+  }
+  .career-modal-card {
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 20px 20px 0 0;
+  }
+}
+

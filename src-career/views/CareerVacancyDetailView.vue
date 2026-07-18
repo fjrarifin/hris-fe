@@ -16,6 +16,8 @@ const showModal = ref(false);
 const step = ref(1);
 const applicationCard = ref(null);
 const showMobileCta = ref(true);
+const showConfirmModal = ref(false);
+const confirmChecked = ref(false);
 const form = reactive({
   name: "",
   email: "",
@@ -182,9 +184,13 @@ async function load() {
     updateMobileCta();
   }
 }
-async function apply() {
+function apply() {
   if (submitting.value || !validateStep(1) || !validateStep(2)) return;
-  if (!window.confirm("Apakah Anda yakin ingin mengirim lamaran pekerjaan ini? Pastikan seluruh informasi pribadi dan berkas CV Anda sudah terisi dengan benar.")) return;
+  confirmChecked.value = false;
+  showConfirmModal.value = true;
+}
+async function executeApply() {
+  showConfirmModal.value = false;
   submitting.value = true;
   formError.value = "";
   errors.value = {};
@@ -645,5 +651,64 @@ onBeforeUnmount(() => {
         </div>
       </div></Teleport
     >
+
+    <!-- Custom Confirmation Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showConfirmModal"
+        class="career-modal-overlay"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="career-modal-card">
+          <header class="career-modal-header">
+            <h3>Konfirmasi Kirim Lamaran Pekerjaan</h3>
+            <button type="button" class="career-modal-close" @click="showConfirmModal = false">
+              <span class="i-lucide-x"></span>
+            </button>
+          </header>
+
+          <div class="career-modal-body">
+            <p>
+              Anda akan mengirimkan berkas lamaran pekerjaan untuk posisi <strong class="highlight-title">{{ vacancy?.title }}</strong>.
+            </p>
+
+            <div class="career-warning-box">
+              <p class="warning-title"><span class="i-lucide-alert-triangle"></span> PENTING:</p>
+              <p>Pastikan seluruh informasi pribadi, detail kontak, dan berkas CV Anda sudah terisi dengan benar. Lamaran yang sudah dikirim bersifat final dan tidak dapat diubah kembali.</p>
+            </div>
+
+            <label class="career-checkbox-label">
+              <input
+                v-model="confirmChecked"
+                type="checkbox"
+                class="career-checkbox"
+              />
+              <span class="checkbox-text">
+                Saya menyatakan bahwa data lamaran saya sudah benar dan siap untuk dikirim.
+              </span>
+            </label>
+          </div>
+
+          <footer class="career-modal-footer">
+            <button
+              type="button"
+              class="button button-secondary"
+              @click="showConfirmModal = false"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="button button-primary"
+              :disabled="!confirmChecked"
+              @click="executeApply"
+            >
+              Ya, Kirim Sekarang
+            </button>
+          </footer>
+        </div>
+      </div>
+    </Teleport>
   </template>
 </template>

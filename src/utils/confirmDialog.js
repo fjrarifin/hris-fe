@@ -10,6 +10,7 @@ export const confirmDialog = reactive({
   variant: 'default',
   warningTitle: '',
   warningMessage: '',
+  checkboxLabel: '',
   loading: false,
   resolve: null,
 })
@@ -24,6 +25,7 @@ export function askConfirmation(options = {}) {
   confirmDialog.variant = options.variant || 'default'
   confirmDialog.warningTitle = options.warningTitle || ''
   confirmDialog.warningMessage = options.warningMessage || ''
+  confirmDialog.checkboxLabel = options.checkboxLabel || ''
   confirmDialog.loading = false
 
   return new Promise((resolve) => {

@@ -328,6 +328,8 @@ async function handleSubmit() {
     warningTitle: 'PENTING:',
     warningMessage:
       'Pastikan semua evaluasi dan penilaian yang diberikan sudah sesuai. Penilaian yang telah dikirim bersifat final dan tidak dapat diubah kembali.',
+    checkboxLabel:
+      'Saya menyatakan bahwa penilaian dan evaluasi referensi kerja ini diberikan secara objektif dan jujur.',
     confirmLabel: 'Ya, Kirim',
     cancelLabel: 'Batal',
     variant: 'structured',

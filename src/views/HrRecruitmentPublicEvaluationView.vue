@@ -326,6 +326,8 @@ async function handleSubmit() {
     warningTitle: 'PENTING:',
     warningMessage:
       'Pastikan semua nilai, catatan evaluasi, dan rekomendasi keputusan rekrutmen sudah sesuai. Penilaian yang terkirim bersifat final dan tidak dapat diubah kembali.',
+    checkboxLabel:
+      'Saya menyatakan bahwa data evaluasi wawancara ini diisi secara jujur, objektif, dan siap untuk diserahkan ke sistem.',
     confirmLabel: 'Ya, Kirim',
     cancelLabel: 'Batal',
     variant: 'structured',

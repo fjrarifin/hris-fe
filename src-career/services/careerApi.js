@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://10.20.10.70:8000'
+export const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://api-hr.hompimplay.id'
 
 const careerApi = axios.create({
   baseURL: `${backendUrl}/api/public/careers`,

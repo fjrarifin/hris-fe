@@ -193,6 +193,8 @@ const submitCaseStudyFile = async () => {
     warningTitle: 'PENTING:',
     warningMessage:
       'Pastikan berkas dokumen yang Anda unggah sudah benar. Jawaban yang sudah dikirim tidak dapat dibatalkan atau diunggah ulang secara mandiri.',
+    checkboxLabel:
+      'Saya menyatakan bahwa dokumen jawaban studi kasus yang saya kirim adalah hasil karya saya sendiri.',
     confirmLabel: 'Ya, Kirim',
     cancelLabel: 'Batal',
     variant: 'structured',

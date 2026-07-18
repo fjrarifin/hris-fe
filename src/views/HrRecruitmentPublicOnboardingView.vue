@@ -397,6 +397,8 @@ const handleSubmit = async () => {
     warningTitle: 'PENTING:',
     warningMessage:
       'Pastikan semua informasi pribadi, detail rekening, kontak darurat, dan berkas dokumen sudah diisi dengan benar sebelum dikirim.',
+    checkboxLabel:
+      'Saya menyatakan bahwa seluruh data onboarding yang saya isikan sudah benar dan siap dikirim.',
     confirmLabel: 'Ya, Kirim',
     cancelLabel: 'Batal',
     variant: 'structured',

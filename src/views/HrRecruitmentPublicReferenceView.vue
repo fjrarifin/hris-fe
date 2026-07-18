@@ -255,6 +255,8 @@ const handleSubmit = async () => {
     warningTitle: 'PENTING:',
     warningMessage:
       'Pastikan semua informasi kontak referensi sudah benar dan valid. Kontak ini akan dihubungi untuk proses verifikasi referensi kerja Anda.',
+    checkboxLabel:
+      'Saya menyatakan bahwa data kontak referensi kerja yang saya berikan adalah benar dan dapat dihubungi.',
     confirmLabel: 'Ya, Kirim',
     cancelLabel: 'Batal',
     variant: 'structured',
