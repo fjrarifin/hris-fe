@@ -187,9 +187,7 @@ onBeforeUnmount(() => {
               />
             </div>
           </div>
-          <div v-else class="px-4 py-6 text-center text-sm text-muted">
-            Belum ada notifikasi.
-          </div>
+          <div v-else class="px-4 py-6 text-center text-sm text-muted">Belum ada notifikasi.</div>
         </div>
       </div>
       <UButton

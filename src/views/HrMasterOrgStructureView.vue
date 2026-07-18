@@ -31,9 +31,21 @@ const editDialog = ref({
 const type = computed(() => route.meta.type || 'positions')
 
 const typeLabels = {
-  positions: { title: 'Master Posisi (Titel)', singular: 'Posisi', placeholder: 'Contoh: Supervisor, Manager' },
-  divisions: { title: 'Master Divisi', singular: 'Divisi', placeholder: 'Contoh: Commercial Business' },
-  departments: { title: 'Master Departemen', singular: 'Departemen', placeholder: 'Contoh: Marketing, Finance' },
+  positions: {
+    title: 'Master Posisi (Titel)',
+    singular: 'Posisi',
+    placeholder: 'Contoh: Supervisor, Manager',
+  },
+  divisions: {
+    title: 'Master Divisi',
+    singular: 'Divisi',
+    placeholder: 'Contoh: Commercial Business',
+  },
+  departments: {
+    title: 'Master Departemen',
+    singular: 'Departemen',
+    placeholder: 'Contoh: Marketing, Finance',
+  },
   units: { title: 'Master Unit', singular: 'Unit', placeholder: 'Contoh: Zona 1, HSSE' },
 }
 
@@ -141,7 +153,9 @@ onMounted(load)
   <section class="space-y-6">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">{{ labels.title }}</h2>
-      <p class="mt-1 text-sm text-muted">Kelola data master {{ labels.singular.toLowerCase() }} untuk struktur organisasi.</p>
+      <p class="mt-1 text-sm text-muted">
+        Kelola data master {{ labels.singular.toLowerCase() }} untuk struktur organisasi.
+      </p>
     </div>
 
     <AlertToastBridge :message="message" :error="errorMessage" />
@@ -152,7 +166,9 @@ onMounted(load)
         <UCard :title="`Tambah ${labels.singular}`">
           <form class="space-y-4" @submit.prevent="save">
             <div>
-              <label class="mb-1 block text-sm font-medium text-muted">Nama {{ labels.singular }}</label>
+              <label class="mb-1 block text-sm font-medium text-muted"
+                >Nama {{ labels.singular }}</label
+              >
               <input
                 v-model="form.name"
                 required
@@ -162,10 +178,17 @@ onMounted(load)
             </div>
             <div class="flex items-center gap-2">
               <input v-model="form.is_active" type="checkbox" id="is_active_check" class="size-4" />
-              <label for="is_active_check" class="text-sm font-medium text-highlighted">Status Aktif</label>
+              <label for="is_active_check" class="text-sm font-medium text-highlighted"
+                >Status Aktif</label
+              >
             </div>
             <div>
-              <UButton type="submit" :label="`Buat ${labels.singular}`" :loading="isSubmitting" class="w-full justify-center" />
+              <UButton
+                type="submit"
+                :label="`Buat ${labels.singular}`"
+                :loading="isSubmitting"
+                class="w-full justify-center"
+              />
             </div>
           </form>
         </UCard>
@@ -178,7 +201,9 @@ onMounted(load)
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 class="font-semibold text-highlighted">Daftar {{ labels.singular }}</h3>
-                <p class="mt-1 text-sm text-muted">Seluruh data master {{ labels.singular.toLowerCase() }} aktif & tidak aktif.</p>
+                <p class="mt-1 text-sm text-muted">
+                  Seluruh data master {{ labels.singular.toLowerCase() }} aktif & tidak aktif.
+                </p>
               </div>
               <input
                 v-model="search"
@@ -199,7 +224,11 @@ onMounted(load)
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="record in filteredRecords" :key="record.id" class="border-t border-default hover:bg-muted/10 transition">
+                <tr
+                  v-for="record in filteredRecords"
+                  :key="record.id"
+                  class="border-t border-default hover:bg-muted/10 transition"
+                >
                   <td class="p-3 font-medium text-highlighted">{{ record.name }}</td>
                   <td class="p-3">
                     <UBadge :color="record.is_active ? 'success' : 'neutral'" variant="soft">
@@ -250,21 +279,42 @@ onMounted(load)
               <p class="text-sm font-semibold text-highlighted">Edit {{ labels.singular }}</p>
               <p class="mt-1 text-xs text-muted">Ubah informasi master data.</p>
             </div>
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeEdit" />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="closeEdit"
+            />
           </div>
         </template>
 
         <form class="space-y-4" @submit.prevent="updateRecord">
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted">Nama {{ labels.singular }}</label>
+            <label class="mb-1 block text-sm font-medium text-muted"
+              >Nama {{ labels.singular }}</label
+            >
             <input v-model="editDialog.name" required :class="formControlClass" />
           </div>
           <div class="flex items-center gap-2">
-            <input v-model="editDialog.is_active" type="checkbox" id="edit_is_active_check" class="size-4" />
-            <label for="edit_is_active_check" class="text-sm font-medium text-highlighted">Status Aktif</label>
+            <input
+              v-model="editDialog.is_active"
+              type="checkbox"
+              id="edit_is_active_check"
+              class="size-4"
+            />
+            <label for="edit_is_active_check" class="text-sm font-medium text-highlighted"
+              >Status Aktif</label
+            >
           </div>
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="closeEdit" />
+            <UButton
+              type="button"
+              label="Batal"
+              color="neutral"
+              variant="ghost"
+              @click="closeEdit"
+            />
             <UButton type="submit" label="Simpan Perubahan" :loading="isSubmitting" />
           </div>
         </form>

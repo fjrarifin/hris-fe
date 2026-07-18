@@ -499,13 +499,18 @@ onBeforeUnmount(closeDocumentPreview)
           </label>
           <div class="text-sm text-muted sm:col-span-2 xl:col-span-5">
             <span class="block">Dokumen Kontrak (opsional, PDF, maksimal 10 MB)</span>
-            
-            <div v-if="editingContractId && currentContractHasDocument && !deleteDocumentPending" class="mt-2 flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-500">
+
+            <div
+              v-if="editingContractId && currentContractHasDocument && !deleteDocumentPending"
+              class="mt-2 flex items-center gap-2"
+            >
+              <span
+                class="inline-flex items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-500"
+              >
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                 Sudah ada dokumen
               </span>
-              
+
               <UButton
                 type="button"
                 size="xs"
@@ -514,7 +519,7 @@ onBeforeUnmount(closeDocumentPreview)
                 label="Ganti Dokumen"
                 @click="activateReplaceDocument"
               />
-              
+
               <UButton
                 type="button"
                 size="xs"
@@ -535,8 +540,13 @@ onBeforeUnmount(closeDocumentPreview)
               />
             </div>
 
-            <div v-else-if="editingContractId && deleteDocumentPending" class="mt-2 flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 rounded bg-rose-500/10 px-2 py-1 text-xs font-medium text-rose-500">
+            <div
+              v-else-if="editingContractId && deleteDocumentPending"
+              class="mt-2 flex items-center gap-2"
+            >
+              <span
+                class="inline-flex items-center gap-1.5 rounded bg-rose-500/10 px-2 py-1 text-xs font-medium text-rose-500"
+              >
                 Dokumen akan dihapus saat disimpan
               </span>
               <UButton
@@ -548,7 +558,7 @@ onBeforeUnmount(closeDocumentPreview)
                 @click="cancelReplaceDocument"
               />
             </div>
-            
+
             <input
               v-if="!editingContractId || !currentContractHasDocument || replaceDocumentActive"
               type="file"

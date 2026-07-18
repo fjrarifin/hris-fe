@@ -43,12 +43,15 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!(await askConfirmation({
-    title: 'Batalkan Pengajuan',
-    message: 'Batalkan pengajuan Public Holiday ini?',
-    confirmLabel: 'Batalkan',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Batalkan Pengajuan',
+      message: 'Batalkan pengajuan Public Holiday ini?',
+      confirmLabel: 'Batalkan',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deletePublicHoliday(id)).data.message
     await load()

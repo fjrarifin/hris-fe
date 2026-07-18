@@ -6,7 +6,8 @@
         <div class="logo-placeholder">HRIS Portal</div>
         <h1>Pengumpulan Jawaban Case Study</h1>
         <p class="subtitle" v-if="candidate">
-          Pengerjaan Case Study untuk: <span class="highlight">{{ candidate.name }}</span> - Posisi <span class="highlight">{{ candidate.vacancy_title }}</span>
+          Pengerjaan Case Study untuk: <span class="highlight">{{ candidate.name }}</span> - Posisi
+          <span class="highlight">{{ candidate.vacancy_title }}</span>
         </p>
       </div>
 
@@ -16,7 +17,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>Tautan Tidak Dapat Digunakan</h2>
         <p>{{ error }}</p>
       </div>
@@ -24,14 +27,18 @@
       <div v-else-if="submitted" class="success-state">
         <div class="status-icon status-icon--success"><span class="i-lucide-check"></span></div>
         <h2>Jawaban Berhasil Dikirim</h2>
-        <p>Terima kasih. Jawaban case study Anda telah berhasil diunggah dan tersimpan dalam sistem kami.</p>
+        <p>
+          Terima kasih. Jawaban case study Anda telah berhasil diunggah dan tersimpan dalam sistem
+          kami.
+        </p>
         <p class="follow-up">Tim rekrutmen kami akan segera meninjau hasil pengerjaan Anda.</p>
       </div>
 
       <form v-else-if="!candidate" class="access-form" @submit.prevent="handleUnlock">
         <div class="access-instructions">
           <span class="i-lucide-info info-box-icon"></span>
-          Masukkan PIN 6 digit yang tercantum pada email instruksi Case Study untuk mengakses halaman pengumpulan.
+          Masukkan PIN 6 digit yang tercantum pada email instruksi Case Study untuk mengakses
+          halaman pengumpulan.
         </div>
         <label for="case-study-password">PIN Case Study</label>
         <input
@@ -57,19 +64,25 @@
         <div class="submission-form-panel">
           <div class="warning-alert-box">
             <span class="i-lucide-triangle-alert info-box-icon"></span>
-            <span><strong>Penting:</strong> Kirim jawaban hanya setelah Anda benar-benar selesai mengerjakan case study.</span>
+            <span
+              ><strong>Penting:</strong> Kirim jawaban hanya setelah Anda benar-benar selesai
+              mengerjakan case study.</span
+            >
           </div>
 
           <div v-if="candidate.case_study_submitted" class="submitted-badge">
-            <span class="badge-icon i-lucide-check"></span> Anda sudah mengunggah jawaban sebelumnya. Anda masih dapat mengunggah berkas baru untuk memperbaruinya.
+            <span class="badge-icon i-lucide-check"></span> Anda sudah mengunggah jawaban
+            sebelumnya. Anda masih dapat mengunggah berkas baru untuk memperbaruinya.
           </div>
 
           <div class="form-group">
             <label for="submission-file">Unggah Berkas Jawaban Case Study</label>
-            <p class="field-desc">Tipe berkas yang diizinkan: PDF, DOCX, DOC, ZIP, atau RAR (Maks. 15MB)</p>
-            <input 
-              type="file" 
-              id="submission-file" 
+            <p class="field-desc">
+              Tipe berkas yang diizinkan: PDF, DOCX, DOC, ZIP, atau RAR (Maks. 15MB)
+            </p>
+            <input
+              type="file"
+              id="submission-file"
               ref="fileInputRef"
               accept=".pdf,.docx,.doc,.zip,.rar"
               class="file-input"
@@ -81,10 +94,10 @@
             {{ validationError }}
           </div>
 
-          <button 
-            type="button" 
-            @click="submitCaseStudyFile" 
-            class="submit-btn w-full mt-6" 
+          <button
+            type="button"
+            @click="submitCaseStudyFile"
+            class="submit-btn w-full mt-6"
             :disabled="submitting || !selectedFile"
           >
             {{ submitting ? 'Mengunggah jawaban...' : 'Upload & Kirim Jawaban' }}
@@ -99,6 +112,7 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicCaseStudy, submitPublicCaseStudy } from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 
 const route = useRoute()
 const token = route.params.token
@@ -156,7 +170,8 @@ const handleFileChange = (e) => {
   const allowedExtensions = ['pdf', 'docx', 'doc', 'zip', 'rar']
   const fileExtension = file.name.split('.').pop().toLowerCase()
   if (!allowedExtensions.includes(fileExtension)) {
-    validationError.value = 'Kesalahan: Format berkas tidak diizinkan. Gunakan berkas bertipe: PDF, DOCX, DOC, ZIP, atau RAR.'
+    validationError.value =
+      'Kesalahan: Format berkas tidak diizinkan. Gunakan berkas bertipe: PDF, DOCX, DOC, ZIP, atau RAR.'
     selectedFile.value = null
     if (fileInputRef.value) fileInputRef.value.value = ''
     return
@@ -172,8 +187,21 @@ const submitCaseStudyFile = async () => {
     return
   }
 
+  const confirmed = await askConfirmation({
+    title: 'Kirim Jawaban Case Study',
+    message: 'Apakah Anda yakin ingin mengirim berkas jawaban studi kasus ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Pastikan berkas dokumen yang Anda unggah sudah benar. Jawaban yang sudah dikirim tidak dapat dibatalkan atau diunggah ulang secara mandiri.',
+    confirmLabel: 'Ya, Kirim',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
+
   submitting.value = true
-  
+
   try {
     const formData = new FormData()
     formData.append('password', password.value)
@@ -183,12 +211,13 @@ const submitCaseStudyFile = async () => {
     submitted.value = true
     selectedFile.value = null
     if (fileInputRef.value) fileInputRef.value.value = ''
-    
+
     // Refresh candidate state
     const res = await getPublicCaseStudy(token, password.value)
     candidate.value = res.data
   } catch (err) {
-    validationError.value = err.response?.data?.message || 'Gagal mengirim berkas jawaban. Silakan coba kembali.'
+    validationError.value =
+      err.response?.data?.message || 'Gagal mengirim berkas jawaban. Silakan coba kembali.'
   } finally {
     submitting.value = false
   }
@@ -397,7 +426,9 @@ h1 {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state, .success-state {
+.loading-state,
+.error-state,
+.success-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -413,8 +444,12 @@ h1 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {

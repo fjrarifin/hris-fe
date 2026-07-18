@@ -177,7 +177,9 @@ onMounted(() => loadDashboard())
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-sm text-muted">Online Saat Ini</p>
-              <p class="mt-2 text-3xl font-semibold text-highlighted">{{ summary.online_now || 0 }}</p>
+              <p class="mt-2 text-3xl font-semibold text-highlighted">
+                {{ summary.online_now || 0 }}
+              </p>
             </div>
             <UBadge color="success" variant="subtle" label="2 menit" />
           </div>
@@ -227,9 +229,14 @@ onMounted(() => loadDashboard())
             <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
               <div>
                 <p class="text-sm font-semibold text-highlighted">User yang Sedang Login</p>
-                <p class="text-xs text-muted">Logout satu sesi atau semua sesi user langsung dari sini.</p>
+                <p class="text-xs text-muted">
+                  Logout satu sesi atau semua sesi user langsung dari sini.
+                </p>
               </div>
-              <RouterLink class="text-sm font-medium text-primary hover:underline" :to="{ name: 'it-active-sessions' }">
+              <RouterLink
+                class="text-sm font-medium text-primary hover:underline"
+                :to="{ name: 'it-active-sessions' }"
+              >
                 Lihat semua
               </RouterLink>
             </div>
@@ -247,12 +254,19 @@ onMounted(() => loadDashboard())
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="session in activeSessions" :key="session.id" class="border-b border-default/70 last:border-0">
+                <tr
+                  v-for="session in activeSessions"
+                  :key="session.id"
+                  class="border-b border-default/70 last:border-0"
+                >
                   <td class="p-3 align-top">
                     <p class="font-medium text-highlighted">{{ session.user_name }}</p>
-                    <p class="mt-1 text-xs text-muted">{{ session.username || '-' }} - {{ session.level_label }}</p>
                     <p class="mt-1 text-xs text-muted">
-                      {{ session.position || '-' }}<span v-if="session.department"> / {{ session.department }}</span>
+                      {{ session.username || '-' }} - {{ session.level_label }}
+                    </p>
+                    <p class="mt-1 text-xs text-muted">
+                      {{ session.position || '-'
+                      }}<span v-if="session.department"> / {{ session.department }}</span>
                     </p>
                   </td>
                   <td class="p-3 align-top">
@@ -271,9 +285,13 @@ onMounted(() => loadDashboard())
                   </td>
                   <td class="p-3 align-top">
                     <p class="max-w-64 text-highlighted">{{ session.device_name }}</p>
-                    <p class="mt-1 text-xs text-muted">{{ session.network_address || 'IP tidak tersedia' }}</p>
+                    <p class="mt-1 text-xs text-muted">
+                      {{ session.network_address || 'IP tidak tersedia' }}
+                    </p>
                   </td>
-                  <td class="whitespace-nowrap p-3 align-top">{{ formatDateTime(session.last_active_at) }}</td>
+                  <td class="whitespace-nowrap p-3 align-top">
+                    {{ formatDateTime(session.last_active_at) }}
+                  </td>
                   <td class="p-3 align-top">
                     <div class="flex justify-end gap-2">
                       <UButton
@@ -302,7 +320,10 @@ onMounted(() => loadDashboard())
             </table>
           </div>
 
-          <div v-else class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+          <div
+            v-else
+            class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+          >
             Tidak ada sesi login aktif.
           </div>
         </UCard>
@@ -325,7 +346,9 @@ onMounted(() => loadDashboard())
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="truncate font-medium text-highlighted">{{ employee.name }}</p>
-                  <p class="mt-1 text-xs text-muted">{{ employee.nik }} - {{ employee.position || '-' }}</p>
+                  <p class="mt-1 text-xs text-muted">
+                    {{ employee.nik }} - {{ employee.position || '-' }}
+                  </p>
                   <p class="mt-1 text-xs text-muted">{{ employee.department || '-' }}</p>
                 </div>
                 <UBadge color="neutral" variant="subtle" :label="formatDate(employee.join_date)" />
@@ -333,7 +356,10 @@ onMounted(() => loadDashboard())
             </RouterLink>
           </div>
 
-          <div v-else class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+          <div
+            v-else
+            class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+          >
             Belum ada data karyawan.
           </div>
         </UCard>
@@ -345,10 +371,14 @@ onMounted(() => loadDashboard())
             <div>
               <p class="text-sm font-semibold text-highlighted">Quick Action User</p>
               <p class="text-xs text-muted">
-                Cari user lalu reset password, batas password, atau batas foto tanpa membuka halaman kelola user.
+                Cari user lalu reset password, batas password, atau batas foto tanpa membuka halaman
+                kelola user.
               </p>
             </div>
-            <form class="flex w-full flex-col gap-2 sm:flex-row xl:max-w-xl" @submit.prevent="loadDashboard">
+            <form
+              class="flex w-full flex-col gap-2 sm:flex-row xl:max-w-xl"
+              @submit.prevent="loadDashboard"
+            >
               <input
                 v-model="filters.user_q"
                 type="search"
@@ -382,12 +412,19 @@ onMounted(() => loadDashboard())
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.id" class="border-b border-default/70 last:border-0">
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                class="border-b border-default/70 last:border-0"
+              >
                 <td class="p-3 align-top">
                   <p class="font-medium text-highlighted">{{ user.name }}</p>
-                  <p class="mt-1 text-xs text-muted">{{ user.username }}<span v-if="user.email"> - {{ user.email }}</span></p>
                   <p class="mt-1 text-xs text-muted">
-                    {{ user.position || '-' }}<span v-if="user.department"> / {{ user.department }}</span>
+                    {{ user.username }}<span v-if="user.email"> - {{ user.email }}</span>
+                  </p>
+                  <p class="mt-1 text-xs text-muted">
+                    {{ user.position || '-'
+                    }}<span v-if="user.department"> / {{ user.department }}</span>
                   </p>
                 </td>
                 <td class="p-3 align-top">
@@ -407,7 +444,9 @@ onMounted(() => loadDashboard())
                     label="Wajib ganti password"
                   />
                 </td>
-                <td class="whitespace-nowrap p-3 align-top">{{ formatDateTime(user.last_seen_at) }}</td>
+                <td class="whitespace-nowrap p-3 align-top">
+                  {{ formatDateTime(user.last_seen_at) }}
+                </td>
                 <td class="p-3 align-top text-xs text-muted">
                   <p>Password: {{ formatDateTime(user.password_changed_at) }}</p>
                   <p>Foto: {{ formatDateTime(user.photo_changed_at) }}</p>
@@ -421,7 +460,13 @@ onMounted(() => loadDashboard())
                       icon="i-lucide-key-round"
                       label="Password"
                       :loading="saving"
-                      @click="runUserAction(user, resetItDashboardUserPassword, `Reset password ${user.name} ke default 12345678?`)"
+                      @click="
+                        runUserAction(
+                          user,
+                          resetItDashboardUserPassword,
+                          `Reset password ${user.name} ke default 12345678?`,
+                        )
+                      "
                     />
                     <UButton
                       size="xs"
@@ -430,7 +475,13 @@ onMounted(() => loadDashboard())
                       icon="i-lucide-clock-3"
                       label="Limit Pass"
                       :loading="saving"
-                      @click="runUserAction(user, resetItDashboardUserPasswordLimit, `Kosongkan batas ganti password ${user.name}?`)"
+                      @click="
+                        runUserAction(
+                          user,
+                          resetItDashboardUserPasswordLimit,
+                          `Kosongkan batas ganti password ${user.name}?`,
+                        )
+                      "
                     />
                     <UButton
                       size="xs"
@@ -439,7 +490,13 @@ onMounted(() => loadDashboard())
                       icon="i-lucide-image"
                       label="Limit Foto"
                       :loading="saving"
-                      @click="runUserAction(user, resetItDashboardUserPhotoLimit, `Kosongkan batas ganti foto ${user.name}?`)"
+                      @click="
+                        runUserAction(
+                          user,
+                          resetItDashboardUserPhotoLimit,
+                          `Kosongkan batas ganti foto ${user.name}?`,
+                        )
+                      "
                     />
                   </div>
                 </td>
@@ -448,7 +505,10 @@ onMounted(() => loadDashboard())
           </table>
         </div>
 
-        <div v-else class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+        <div
+          v-else
+          class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+        >
           Tidak ada user sesuai pencarian.
         </div>
       </UCard>

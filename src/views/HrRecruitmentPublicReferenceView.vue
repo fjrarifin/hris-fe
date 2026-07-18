@@ -6,7 +6,9 @@
         <div class="logo-placeholder">HRIS Portal</div>
         <h1>Referensi Kerja Profesional</h1>
         <p class="subtitle" v-if="candidate">
-          Formulir referensi untuk calon kandidat: <span class="highlight">{{ candidate.name }}</span> - Posisi <span class="highlight">{{ candidate.vacancy_title }}</span>
+          Formulir referensi untuk calon kandidat:
+          <span class="highlight">{{ candidate.name }}</span> - Posisi
+          <span class="highlight">{{ candidate.vacancy_title }}</span>
         </p>
       </div>
 
@@ -16,7 +18,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>Tautan Tidak Dapat Digunakan</h2>
         <p>{{ error }}</p>
       </div>
@@ -24,7 +28,10 @@
       <div v-else-if="submitted" class="success-state">
         <div class="status-icon status-icon--success"><span class="i-lucide-check"></span></div>
         <h2>Terima Kasih</h2>
-        <p>Referensi kerja profesional Anda berhasil disimpan. Anda dapat menutup halaman ini sekarang.</p>
+        <p>
+          Referensi kerja profesional Anda berhasil disimpan. Anda dapat menutup halaman ini
+          sekarang.
+        </p>
       </div>
 
       <form v-else-if="!candidate" @submit.prevent="handleUnlock" class="portal-form access-form">
@@ -61,7 +68,12 @@
       <form v-else @submit.prevent="handleSubmit" class="portal-form">
         <div class="instructions">
           <span class="i-lucide-info info-box-icon"></span>
-          <p>Silakan isi detail kontak untuk minimal {{ requiredReferenceCount }} ({{ requiredReferenceCount === 2 ? 'dua' : 'tiga' }}) orang referensi kerja profesional yang terpisah (misalnya: mantan atasan, rekan sejawat, atau pihak manajemen di perusahaan sebelumnya).</p>
+          <p>
+            Silakan isi detail kontak untuk minimal {{ requiredReferenceCount }} ({{
+              requiredReferenceCount === 2 ? 'dua' : 'tiga'
+            }}) orang referensi kerja profesional yang terpisah (misalnya: mantan atasan, rekan
+            sejawat, atau pihak manajemen di perusahaan sebelumnya).
+          </p>
         </div>
 
         <div v-for="(ref, index) in form.references" :key="index" class="reference-section">
@@ -76,63 +88,65 @@
               Hapus
             </button>
           </div>
-          
+
           <div class="form-grid">
             <div class="form-group">
               <label :for="'name-' + index">Nama Lengkap <span class="required">*</span></label>
-              <input 
-                :id="'name-' + index" 
-                v-model="ref.name" 
-                type="text" 
+              <input
+                :id="'name-' + index"
+                v-model="ref.name"
+                type="text"
                 :class="{ 'input-error': getNameError(index) }"
-                placeholder="Masukkan nama lengkap" 
-                required 
+                placeholder="Masukkan nama lengkap"
+                required
               />
               <span v-if="getNameError(index)" class="field-error">{{ getNameError(index) }}</span>
             </div>
 
             <div class="form-group">
-              <label :for="'phone-' + index">Nomor Telepon/WA <span class="required">*</span></label>
-              <input 
-                :id="'phone-' + index" 
-                v-model="ref.phone" 
-                type="tel" 
+              <label :for="'phone-' + index"
+                >Nomor Telepon/WA <span class="required">*</span></label
+              >
+              <input
+                :id="'phone-' + index"
+                v-model="ref.phone"
+                type="tel"
                 :class="{ 'input-error': getPhoneError(index) }"
-                placeholder="Contoh: 08123456789" 
-                required 
+                placeholder="Contoh: 08123456789"
+                required
               />
-              <span v-if="getPhoneError(index)" class="field-error">{{ getPhoneError(index) }}</span>
+              <span v-if="getPhoneError(index)" class="field-error">{{
+                getPhoneError(index)
+              }}</span>
             </div>
 
             <div class="form-group">
               <label :for="'company-' + index">Perusahaan <span class="required">*</span></label>
-              <input 
-                :id="'company-' + index" 
-                v-model="ref.company" 
-                type="text" 
-                placeholder="Perusahaan tempat bekerja" 
-                required 
+              <input
+                :id="'company-' + index"
+                v-model="ref.company"
+                type="text"
+                placeholder="Perusahaan tempat bekerja"
+                required
               />
             </div>
 
             <div class="form-group">
               <label :for="'position-' + index">Jabatan <span class="required">*</span></label>
-              <input 
-                :id="'position-' + index" 
-                v-model="ref.position" 
-                type="text" 
-                placeholder="Jabatan terakhir" 
-                required 
+              <input
+                :id="'position-' + index"
+                v-model="ref.position"
+                type="text"
+                placeholder="Jabatan terakhir"
+                required
               />
             </div>
 
             <div class="form-group">
-              <label :for="'relationship-' + index">Hubungan / Tipe Referensi <span class="required">*</span></label>
-              <select 
-                :id="'relationship-' + index" 
-                v-model="ref.relationship" 
-                required
+              <label :for="'relationship-' + index"
+                >Hubungan / Tipe Referensi <span class="required">*</span></label
               >
+              <select :id="'relationship-' + index" v-model="ref.relationship" required>
                 <option value="" disabled>Pilih Hubungan</option>
                 <option value="Atasan Langsung">Atasan Langsung (Direct Report/Supervisor)</option>
                 <option value="Peer (Rekan Kerja)">Peer (Rekan Kerja)</option>
@@ -167,6 +181,7 @@
 import { ref, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicReferenceCheck, submitPublicReferenceCheck } from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 
 const route = useRoute()
 const token = route.params.token
@@ -182,7 +197,7 @@ const candidate = ref(null)
 const requiredReferenceCount = ref(2)
 
 const form = reactive({
-  references: []
+  references: [],
 })
 
 const emptyReference = () => ({ name: '', phone: '', company: '', position: '', relationship: '' })
@@ -215,23 +230,37 @@ const handleUnlock = async () => {
 
 const handleSubmit = async () => {
   validationError.value = null
-  
+
   // Validate that all names and phones are distinct
-  const names = form.references.map(r => r.name.trim().toLowerCase())
-  const phones = form.references.map(r => r.phone.trim())
-  
+  const names = form.references.map((r) => r.name.trim().toLowerCase())
+  const phones = form.references.map((r) => r.phone.trim())
+
   const uniqueNames = new Set(names)
   const uniquePhones = new Set(phones)
-  
+
   if (uniqueNames.size !== form.references.length) {
-    validationError.value = 'Kesalahan: Masing-masing nama referensi harus diisi dengan nama individu yang berbeda.'
+    validationError.value =
+      'Kesalahan: Masing-masing nama referensi harus diisi dengan nama individu yang berbeda.'
     return
   }
-  
+
   if (uniquePhones.size !== form.references.length) {
     validationError.value = 'Kesalahan: Masing-masing nomor telepon referensi harus berbeda.'
     return
   }
+
+  const confirmed = await askConfirmation({
+    title: 'Kirim Data Referensi',
+    message: 'Apakah Anda yakin ingin mengirim data kontak pemberi referensi kerja ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Pastikan semua informasi kontak referensi sudah benar dan valid. Kontak ini akan dihubungi untuk proses verifikasi referensi kerja Anda.',
+    confirmLabel: 'Ya, Kirim',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
 
   submitting.value = true
   try {
@@ -241,7 +270,8 @@ const handleSubmit = async () => {
     })
     submitted.value = true
   } catch (err) {
-    validationError.value = err.response?.data?.message || 'Gagal mengirim data. Silakan coba kembali.'
+    validationError.value =
+      err.response?.data?.message || 'Gagal mengirim data. Silakan coba kembali.'
   } finally {
     submitting.value = false
   }
@@ -260,7 +290,9 @@ const getPhoneError = (index) => {
 const getNameError = (index) => {
   const name = form.references[index]?.name?.trim()?.toLowerCase()
   if (!name) return null
-  const duplicates = form.references.filter((r, idx) => idx !== index && r.name?.trim()?.toLowerCase() === name)
+  const duplicates = form.references.filter(
+    (r, idx) => idx !== index && r.name?.trim()?.toLowerCase() === name,
+  )
   if (duplicates.length > 0) {
     return 'Nama ini duplikat dengan referensi lain.'
   }
@@ -420,7 +452,8 @@ label {
   color: #ef4444;
 }
 
-input, select {
+input,
+select {
   padding: 10px 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -429,7 +462,8 @@ input, select {
   background-color: white;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
@@ -469,7 +503,9 @@ input:focus, select:focus {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state, .success-state {
+.loading-state,
+.error-state,
+.success-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -485,8 +521,12 @@ input:focus, select:focus {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {

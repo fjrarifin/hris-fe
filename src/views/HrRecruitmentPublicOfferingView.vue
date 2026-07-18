@@ -6,7 +6,8 @@
         <div class="logo-placeholder">HRIS Portal</div>
         <h1>Surat Penawaran Kerja (Offering Letter)</h1>
         <p class="subtitle" v-if="candidate">
-          Persetujuan kontrak kerja untuk: <span class="highlight">{{ candidate.name }}</span> - Posisi <span class="highlight">{{ candidate.vacancy_title }}</span>
+          Persetujuan kontrak kerja untuk: <span class="highlight">{{ candidate.name }}</span> -
+          Posisi <span class="highlight">{{ candidate.vacancy_title }}</span>
         </p>
       </div>
 
@@ -16,7 +17,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>Offering Letter Tidak Tersedia</h2>
         <p>{{ error }}</p>
       </div>
@@ -24,8 +27,13 @@
       <div v-else-if="submitted" class="success-state">
         <div class="status-icon status-icon--success"><span class="i-lucide-check"></span></div>
         <h2>Persetujuan Berhasil Dikirim</h2>
-        <p>Terima kasih. Surat penawaran kerja Anda telah berhasil ditandatangani dan dikirim kembali ke HRD.</p>
-        <p class="follow-up">Tim rekrutmen kami akan segera menghubungi Anda untuk langkah selanjutnya.</p>
+        <p>
+          Terima kasih. Surat penawaran kerja Anda telah berhasil ditandatangani dan dikirim kembali
+          ke HRD.
+        </p>
+        <p class="follow-up">
+          Tim rekrutmen kami akan segera menghubungi Anda untuk langkah selanjutnya.
+        </p>
       </div>
 
       <form v-else-if="!candidate" class="access-form" @submit.prevent="handleUnlock">
@@ -57,11 +65,11 @@
         <div class="document-preview-panel">
           <h2>Pratinjau Dokumen</h2>
           <div class="pdf-container" v-if="candidate.pdf_base64">
-            <iframe 
-              :src="'data:application/pdf;base64,' + candidate.pdf_base64 + '#toolbar=0&navpanes=0'" 
-              width="100%" 
-              height="500px" 
-              style="border: none; border-radius: 8px;"
+            <iframe
+              :src="'data:application/pdf;base64,' + candidate.pdf_base64 + '#toolbar=0&navpanes=0'"
+              width="100%"
+              height="500px"
+              style="border: none; border-radius: 8px"
             ></iframe>
           </div>
           <div v-else class="no-pdf">
@@ -72,10 +80,16 @@
         <!-- Signature Panel -->
         <div class="signature-form-panel">
           <h2>Tanda Tangan Digital</h2>
-          <p class="sign-inst"><span class="i-lucide-info info-box-icon"></span><span>Dengan membubuhkan tanda tangan di bawah ini, saya menyatakan menyetujui seluruh ketentuan pekerjaan dan penawaran gaji yang diajukan oleh perusahaan.</span></p>
-          
+          <p class="sign-inst">
+            <span class="i-lucide-info info-box-icon"></span
+            ><span
+              >Dengan membubuhkan tanda tangan di bawah ini, saya menyatakan menyetujui seluruh
+              ketentuan pekerjaan dan penawaran gaji yang diajukan oleh perusahaan.</span
+            >
+          </p>
+
           <div class="canvas-wrapper">
-            <canvas 
+            <canvas
               ref="canvasRef"
               @mousedown="startDrawing"
               @mousemove="draw"
@@ -95,12 +109,7 @@
             {{ validationError }}
           </div>
 
-          <button 
-            type="button" 
-            @click="submitSignature" 
-            class="submit-btn" 
-            :disabled="submitting"
-          >
+          <button type="button" @click="submitSignature" class="submit-btn" :disabled="submitting">
             {{ submitting ? 'Mengirim persetujuan...' : 'Kirim Tanda Tangan & Setujui' }}
           </button>
         </div>
@@ -113,6 +122,7 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicOffering, submitPublicOfferingSignature } from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 
 const route = useRoute()
 const token = route.params.token
@@ -142,7 +152,8 @@ const handleUnlock = async () => {
     } else if (err.response?.status === 429) {
       passwordError.value = 'Terlalu banyak percobaan. Tunggu satu menit lalu coba kembali.'
     } else {
-      error.value = 'Tautan surat penawaran tidak valid, sudah kedaluwarsa, atau sudah ditandatangani.'
+      error.value =
+        'Tautan surat penawaran tidak valid, sudah kedaluwarsa, atau sudah ditandatangani.'
     }
   } finally {
     loading.value = false
@@ -155,16 +166,16 @@ const getCanvasCoords = (e) => {
   const rect = canvas.getBoundingClientRect()
   const scaleX = canvas.width / rect.width
   const scaleY = canvas.height / rect.height
-  
+
   if (e.touches && e.touches.length > 0) {
     return {
       x: (e.touches[0].clientX - rect.left) * scaleX,
-      y: (e.touches[0].clientY - rect.top) * scaleY
+      y: (e.touches[0].clientY - rect.top) * scaleY,
     }
   } else {
     return {
       x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      y: (e.clientY - rect.top) * scaleY,
     }
   }
 }
@@ -218,15 +229,29 @@ const isCanvasBlank = () => {
 
 const submitSignature = async () => {
   validationError.value = null
-  
+
   if (isCanvasBlank()) {
-    validationError.value = 'Kesalahan: Harap coretkan tanda tangan Anda pada kolom yang disediakan.'
+    validationError.value =
+      'Kesalahan: Harap coretkan tanda tangan Anda pada kolom yang disediakan.'
     return
   }
 
+  const confirmed = await askConfirmation({
+    title: 'Setujui & Tandatangani Offering Letter',
+    message: 'Apakah Anda yakin ingin menyetujui penawaran kerja ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Tindakan ini bersifat final. Dengan menyetujui, tanda tangan digital Anda akan dicatat pada sistem sebagai persetujuan resmi atas penawaran kerja ini.',
+    confirmLabel: 'Ya, Setujui',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
+
   submitting.value = true
   const signatureData = canvasRef.value.toDataURL('image/png')
-  
+
   try {
     await submitPublicOfferingSignature(token, {
       password: password.value,
@@ -234,7 +259,8 @@ const submitSignature = async () => {
     })
     submitted.value = true
   } catch (err) {
-    validationError.value = err.response?.data?.message || 'Gagal mengirim persetujuan. Silakan coba kembali.'
+    validationError.value =
+      err.response?.data?.message || 'Gagal mengirim persetujuan. Silakan coba kembali.'
   } finally {
     submitting.value = false
   }
@@ -349,7 +375,8 @@ h1 {
   }
 }
 
-.document-preview-panel h2, .signature-form-panel h2 {
+.document-preview-panel h2,
+.signature-form-panel h2 {
   font-size: 18px;
   font-weight: 600;
   color: #0f172a;
@@ -392,7 +419,7 @@ h1 {
   padding: 10px;
   margin-bottom: 20px;
   text-align: center;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .sig-canvas {
@@ -452,7 +479,9 @@ h1 {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state, .success-state {
+.loading-state,
+.error-state,
+.success-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -468,8 +497,12 @@ h1 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {

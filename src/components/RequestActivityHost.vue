@@ -20,7 +20,9 @@ import {
       aria-live="assertive"
       aria-busy="true"
     >
-      <div class="flex w-full max-w-sm items-center gap-3 rounded-xl border border-primary/30 bg-default p-4 shadow-2xl">
+      <div
+        class="flex w-full max-w-sm items-center gap-3 rounded-xl border border-primary/30 bg-default p-4 shadow-2xl"
+      >
         <span class="relative flex size-10 shrink-0 items-center justify-center">
           <span class="absolute inset-0 animate-ping rounded-full bg-primary/15"></span>
           <UIcon name="i-lucide-loader-circle" class="relative size-7 animate-spin text-primary" />
@@ -28,7 +30,9 @@ import {
         <div class="min-w-0 flex-1">
           <p class="text-sm font-semibold text-highlighted">Sedang Memproses</p>
           <p class="mt-0.5 text-xs text-muted">{{ pendingMutationMessage }}</p>
-          <p class="mt-1 text-[10px] text-muted-dimmed">Mohon tunggu dan jangan klik tombol berulang kali.</p>
+          <p class="mt-1 text-[10px] text-muted-dimmed">
+            Mohon tunggu dan jangan klik tombol berulang kali.
+          </p>
         </div>
         <UBadge v-if="pendingMutationCount > 1" color="primary" variant="soft">
           {{ pendingMutationCount }} proses

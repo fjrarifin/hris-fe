@@ -81,7 +81,7 @@ const sections = [
       'Baca keterangan kode shift di halaman jadwal agar pilihan pagi, siang, libur, cuti, dan PH tidak tertukar.',
     ],
   },
-  
+
   {
     title: 'Sesi Login',
     icon: 'i-lucide-timer-reset',
@@ -164,8 +164,8 @@ const sections = [
       <p class="text-sm text-muted">
         Menu Persetujuan Pengajuan dan Pengajuan Lembur hanya tampil bila Anda memiliki bawahan.
         Dari menu persetujuan, Anda dapat memproses cuti, PH, izin, dan sakit bawahan. Pengajuan
-        lembur dibuat oleh atasan untuk bawahan dan dilanjutkan ke HRD. Menu Jadwal Tim hanya
-        tampil untuk Supervisor.
+        lembur dibuat oleh atasan untuk bawahan dan dilanjutkan ke HRD. Menu Jadwal Tim hanya tampil
+        untuk Supervisor.
       </p>
     </UCard>
 

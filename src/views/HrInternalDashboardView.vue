@@ -49,7 +49,8 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Dashboard Internal HR</h2>
       <p class="mt-1 text-sm text-muted">
-        Monitoring internal kehadiran atasan operasional, minimum bulanan, dan absensi yang perlu koreksi.
+        Monitoring internal kehadiran atasan operasional, minimum bulanan, dan absensi yang perlu
+        koreksi.
       </p>
     </div>
 

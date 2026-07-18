@@ -52,10 +52,10 @@ const confirmationError = computed(() => {
 const formIsValid = computed(() =>
   Boolean(
     form.current_password &&
-      form.password &&
-      form.password_confirmation &&
-      passwordErrors.value.length === 0 &&
-      !confirmationError.value,
+    form.password &&
+    form.password_confirmation &&
+    passwordErrors.value.length === 0 &&
+    !confirmationError.value,
   ),
 )
 
@@ -63,7 +63,8 @@ async function submit() {
   errorMessage.value = ''
 
   if (!formIsValid.value) {
-    errorMessage.value = confirmationError.value || passwordErrors.value[0] || 'Lengkapi form password.'
+    errorMessage.value =
+      confirmationError.value || passwordErrors.value[0] || 'Lengkapi form password.'
     return
   }
 
@@ -128,7 +129,10 @@ async function submit() {
           :disabled="passwordLocked"
           required
         />
-        <ul v-if="form.password && passwordErrors.length" class="-mt-2 space-y-1 text-xs text-red-500">
+        <ul
+          v-if="form.password && passwordErrors.length"
+          class="-mt-2 space-y-1 text-xs text-red-500"
+        >
           <li v-for="error in passwordErrors" :key="error">{{ error }}</li>
         </ul>
         <UInput

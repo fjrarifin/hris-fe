@@ -430,9 +430,8 @@ onMounted(async () => {
                 Rekap Minimum Periode {{ data.filters.period_label }}
               </h3>
               <p class="mt-1 text-sm text-muted">
-                {{ formatDate(data.filters.start_date) }} -
-                {{ formatDate(data.filters.end_date) }}. Target
-                {{ data.targets.ideal_attendance_days }} hari dan
+                {{ formatDate(data.filters.start_date) }} - {{ formatDate(data.filters.end_date) }}.
+                Target {{ data.targets.ideal_attendance_days }} hari dan
                 {{ data.targets.minimum_work_duration }}.
               </p>
             </div>
@@ -494,7 +493,11 @@ onMounted(async () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="record in paginatedRecords" :key="record.nik" class="border-t border-default">
+              <tr
+                v-for="record in paginatedRecords"
+                :key="record.nik"
+                class="border-t border-default"
+              >
                 <td class="sticky left-0 z-10 bg-default p-3">{{ record.nik }}</td>
                 <td class="sticky left-32 z-10 bg-default p-3 font-medium text-highlighted">
                   {{ record.name }}

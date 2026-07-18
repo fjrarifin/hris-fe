@@ -122,12 +122,15 @@ async function save() {
   }
 }
 async function remove(item) {
-  if (!(await askConfirmation({
-    title: 'Hapus KPI',
-    message: 'Hapus KPI ini?',
-    confirmLabel: 'Hapus',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Hapus KPI',
+      message: 'Hapus KPI ini?',
+      confirmLabel: 'Hapus',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deleteHrKpi(item.id)).data.message
     await load()

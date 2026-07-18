@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { getStaffRecruitmentRequests, createStaffRecruitmentRequest } from '../services/staffService'
+import {
+  getStaffRecruitmentRequests,
+  createStaffRecruitmentRequest,
+} from '../services/staffService'
 import { getEmployeeOptions } from '../services/hrService'
 import { apiError } from '../utils/formatters'
 
@@ -42,7 +45,7 @@ async function load() {
   try {
     const [reqsRes, optsRes] = await Promise.all([
       getStaffRecruitmentRequests(),
-      getEmployeeOptions()
+      getEmployeeOptions(),
     ])
     records.value = reqsRes.data
     positionTitles.value = optsRes.data.position_titles || []
@@ -104,16 +107,15 @@ onMounted(load)
   <section class="space-y-6">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 class="text-2xl font-semibold text-highlighted">Pengajuan Rekrutmen (Manpower Request)</h2>
-        <p class="mt-1 text-sm text-muted">Ajukan kebutuhan penambahan karyawan baru untuk divisi Anda dan pantau prosesnya.</p>
+        <h2 class="text-2xl font-semibold text-highlighted">
+          Pengajuan Rekrutmen (Manpower Request)
+        </h2>
+        <p class="mt-1 text-sm text-muted">
+          Ajukan kebutuhan penambahan karyawan baru untuk divisi Anda dan pantau prosesnya.
+        </p>
       </div>
       <div>
-        <UButton
-          size="sm"
-          icon="i-lucide-plus"
-          label="Ajukan Manpower"
-          @click="openCreateDialog"
-        />
+        <UButton size="sm" icon="i-lucide-plus" label="Ajukan Manpower" @click="openCreateDialog" />
       </div>
     </div>
 
@@ -124,7 +126,9 @@ onMounted(load)
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 class="font-semibold text-highlighted">Histori Pengajuan Manpower</h3>
-            <p class="mt-1 text-sm text-muted">Pantau status persetujuan dan tahapan pelamar lowongan kerja Anda.</p>
+            <p class="mt-1 text-sm text-muted">
+              Pantau status persetujuan dan tahapan pelamar lowongan kerja Anda.
+            </p>
           </div>
           <input
             v-model="search"
@@ -147,10 +151,16 @@ onMounted(load)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in filteredRecords" :key="item.id" class="border-t border-default hover:bg-muted/10 transition">
+            <tr
+              v-for="item in filteredRecords"
+              :key="item.id"
+              class="border-t border-default hover:bg-muted/10 transition"
+            >
               <td class="p-3">
                 <p class="font-semibold text-highlighted">{{ item.title }}</p>
-                <p class="mt-0.5 text-xs text-muted max-w-xs truncate">{{ item.description || 'Tidak ada justifikasi' }}</p>
+                <p class="mt-0.5 text-xs text-muted max-w-xs truncate">
+                  {{ item.description || 'Tidak ada justifikasi' }}
+                </p>
               </td>
               <td class="p-3 text-highlighted">
                 {{ item.department || '-' }}
@@ -161,11 +171,18 @@ onMounted(load)
                 <UBadge :color="getStatusColor(item.status)" variant="soft">
                   {{ item.status.toUpperCase() }}
                 </UBadge>
-                <p v-if="item.hrd_notes" class="mt-1 text-xs text-danger italic">Catatan: {{ item.hrd_notes }}</p>
+                <p v-if="item.hrd_notes" class="mt-1 text-xs text-danger italic">
+                  Catatan: {{ item.hrd_notes }}
+                </p>
               </td>
               <td class="p-3">
-                <div v-if="item.status === 'approved' && item.stats" class="flex flex-wrap gap-1.5 items-center">
-                  <span class="text-xs text-muted font-medium mr-1">Total: {{ item.stats.total }}</span>
+                <div
+                  v-if="item.status === 'approved' && item.stats"
+                  class="flex flex-wrap gap-1.5 items-center"
+                >
+                  <span class="text-xs text-muted font-medium mr-1"
+                    >Total: {{ item.stats.total }}</span
+                  >
                   <UBadge v-if="item.stats.applied > 0" color="neutral" variant="soft" size="xs">
                     Applied: {{ item.stats.applied }}
                   </UBadge>
@@ -185,7 +202,9 @@ onMounted(load)
                     Rejected: {{ item.stats.rejected }}
                   </UBadge>
                 </div>
-                <span v-else-if="item.status === 'approved'" class="text-xs text-muted italic">Mempersiapkan lowongan...</span>
+                <span v-else-if="item.status === 'approved'" class="text-xs text-muted italic"
+                  >Mempersiapkan lowongan...</span
+                >
                 <span v-else class="text-xs text-muted">-</span>
               </td>
             </tr>
@@ -205,15 +224,27 @@ onMounted(load)
       aria-modal="true"
       aria-label="Ajukan Manpower Baru"
     >
-      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="closeCreateDialog"></button>
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        @click="closeCreateDialog"
+      ></button>
       <UCard class="relative max-h-[88vh] w-full max-w-lg overflow-hidden">
         <template #header>
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-sm font-semibold text-highlighted">Buat Pengajuan Manpower</p>
-              <p class="mt-1 text-xs text-muted">Isi formulir kebutuhan penambahan karyawan baru.</p>
+              <p class="mt-1 text-xs text-muted">
+                Isi formulir kebutuhan penambahan karyawan baru.
+              </p>
             </div>
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeCreateDialog" />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="closeCreateDialog"
+            />
           </div>
         </template>
 
@@ -241,14 +272,33 @@ onMounted(load)
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-muted">Jumlah Orang (Qty)</label>
-            <input v-model.number="form.quantity" type="number" min="1" required :class="formControlClass" />
+            <input
+              v-model.number="form.quantity"
+              type="number"
+              min="1"
+              required
+              :class="formControlClass"
+            />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted">Deskripsi Tugas & Justifikasi Kebutuhan</label>
-            <textarea v-model="form.description" rows="4" placeholder="Mengapa membutuhkan penambahan staf dan apa saja jobdesk singkatnya?" :class="formControlClass"></textarea>
+            <label class="mb-1 block text-sm font-medium text-muted"
+              >Deskripsi Tugas & Justifikasi Kebutuhan</label
+            >
+            <textarea
+              v-model="form.description"
+              rows="4"
+              placeholder="Mengapa membutuhkan penambahan staf dan apa saja jobdesk singkatnya?"
+              :class="formControlClass"
+            ></textarea>
           </div>
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="closeCreateDialog" />
+            <UButton
+              type="button"
+              label="Batal"
+              color="neutral"
+              variant="ghost"
+              @click="closeCreateDialog"
+            />
             <UButton type="submit" label="Kirim Pengajuan" :loading="isSubmitting" />
           </div>
         </form>

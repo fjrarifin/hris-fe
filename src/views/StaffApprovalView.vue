@@ -10,7 +10,9 @@ const errorMessage = ref('')
 const actingId = ref(null)
 
 function typeLabel(type) {
-  return { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
+  return (
+    { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
+  )
 }
 
 async function load() {
@@ -50,9 +52,7 @@ onMounted(load)
   <section class="space-y-6">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Approval Pengajuan Tim</h2>
-      <p class="mt-1 text-sm text-muted">
-        Pengajuan dan riwayat keputusan bawahan langsung Anda.
-      </p>
+      <p class="mt-1 text-sm text-muted">Pengajuan dan riwayat keputusan bawahan langsung Anda.</p>
     </div>
 
     <AlertToastBridge :message="message" :error="errorMessage" />
@@ -80,7 +80,9 @@ onMounted(load)
                 }}<span v-if="item.end_date"> - {{ formatDate(item.end_date) }}</span>
               </p>
               <p v-if="item.reason" class="mt-2 text-sm text-highlighted">{{ item.reason }}</p>
-              <p v-if="item.reject_reason" class="mt-2 text-sm text-error">Alasan: {{ item.reject_reason }}</p>
+              <p v-if="item.reject_reason" class="mt-2 text-sm text-error">
+                Alasan: {{ item.reject_reason }}
+              </p>
             </div>
             <div v-if="item.can_decide" class="flex gap-2">
               <UButton

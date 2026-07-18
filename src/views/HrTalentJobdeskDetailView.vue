@@ -104,12 +104,15 @@ async function save() {
   }
 }
 async function remove(item) {
-  if (!(await askConfirmation({
-    title: 'Hapus Jobdesk',
-    message: 'Hapus jobdesk ini?',
-    confirmLabel: 'Hapus',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Hapus Jobdesk',
+      message: 'Hapus jobdesk ini?',
+      confirmLabel: 'Hapus',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deleteHrJobdesk(item.id)).data.message
     await load()

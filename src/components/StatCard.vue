@@ -32,7 +32,12 @@ defineEmits(['click'])
     "
     @click="$emit('click')"
   >
-    <UCard :class="[props.to || props.clickable ? 'h-full transition hover:border-primary/50' : '', props.compact ? 'h-full' : '']">
+    <UCard
+      :class="[
+        props.to || props.clickable ? 'h-full transition hover:border-primary/50' : '',
+        props.compact ? 'h-full' : '',
+      ]"
+    >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <p class="text-sm text-muted">{{ title }}</p>

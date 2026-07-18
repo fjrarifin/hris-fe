@@ -43,12 +43,15 @@ async function save() {
   }
 }
 async function submit() {
-  if (!(await askConfirmation({
-    title: 'Kirim Review',
-    message: 'Kirim review ini ke HRD?',
-    confirmLabel: 'Kirim',
-    color: 'primary',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Kirim Review',
+      message: 'Kirim review ini ke HRD?',
+      confirmLabel: 'Kirim',
+      color: 'primary',
+    }))
+  )
+    return
   try {
     message.value = (await submitStaffPerformanceReview(selected.value.id)).data.message
     selected.value = null

@@ -31,13 +31,18 @@ function stateColor(state) {
         : 'border border-default bg-default',
     ]"
   >
-    <div v-if="featured" class="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/10 blur-3xl"></div>
+    <div
+      v-if="featured"
+      class="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/10 blur-3xl"
+    ></div>
 
     <div class="relative flex items-start justify-between gap-4">
       <div class="flex items-center gap-3">
         <span
           class="flex size-11 shrink-0 items-center justify-center rounded-2xl"
-          :class="contract.state === 'active' ? 'bg-success/10 text-success' : 'bg-elevated text-muted'"
+          :class="
+            contract.state === 'active' ? 'bg-success/10 text-success' : 'bg-elevated text-muted'
+          "
         >
           <UIcon name="i-lucide-file-check-2" class="size-5" />
         </span>
@@ -46,29 +51,43 @@ function stateColor(state) {
           <h3 class="mt-0.5 text-lg font-bold text-highlighted">{{ contract.contract_type }}</h3>
         </div>
       </div>
-      <UBadge :label="stateLabel(contract.state)" :color="stateColor(contract.state)" variant="subtle" />
+      <UBadge
+        :label="stateLabel(contract.state)"
+        :color="stateColor(contract.state)"
+        variant="subtle"
+      />
     </div>
 
-    <div class="relative mt-5 grid gap-4 rounded-xl border border-default/70 bg-elevated/60 p-4 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center">
+    <div
+      class="relative mt-5 grid gap-4 rounded-xl border border-default/70 bg-elevated/60 p-4 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center"
+    >
       <div class="flex items-center gap-3">
-        <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-default text-primary">
+        <span
+          class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-default text-primary"
+        >
           <UIcon name="i-lucide-calendar-plus" class="size-4" />
         </span>
         <div>
           <p class="text-[11px] font-medium text-muted">Mulai Kontrak</p>
-          <p class="mt-0.5 text-sm font-semibold text-highlighted">{{ formatDate(contract.start_date) }}</p>
+          <p class="mt-0.5 text-sm font-semibold text-highlighted">
+            {{ formatDate(contract.start_date) }}
+          </p>
         </div>
       </div>
 
       <UIcon name="i-lucide-arrow-right" class="hidden size-4 text-dimmed sm:block" />
 
       <div class="flex items-center gap-3 sm:justify-center">
-        <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-default text-primary">
+        <span
+          class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-default text-primary"
+        >
           <UIcon name="i-lucide-calendar-x" class="size-4" />
         </span>
         <div>
           <p class="text-[11px] font-medium text-muted">Berakhir</p>
-          <p class="mt-0.5 text-sm font-semibold text-highlighted">{{ formatDate(contract.end_date) }}</p>
+          <p class="mt-0.5 text-sm font-semibold text-highlighted">
+            {{ formatDate(contract.end_date) }}
+          </p>
         </div>
       </div>
 
@@ -76,7 +95,10 @@ function stateColor(state) {
 
       <div>
         <p class="text-[11px] font-medium text-muted">Sisa Masa Kontrak</p>
-        <p v-if="contract.state === 'active' && contract.remaining_days !== null" class="mt-0.5 text-sm font-bold text-success">
+        <p
+          v-if="contract.state === 'active' && contract.remaining_days !== null"
+          class="mt-0.5 text-sm font-bold text-success"
+        >
           {{ contract.remaining_days }} hari
         </p>
         <p v-else class="mt-0.5 text-sm font-semibold text-highlighted">Selesai</p>

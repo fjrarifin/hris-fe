@@ -54,7 +54,8 @@ onMounted(loadServiceToggles)
       <p class="text-sm font-medium text-primary">IT Tools</p>
       <h1 class="text-2xl font-semibold text-highlighted">Layanan Terjadwal</h1>
       <p class="mt-1 text-sm text-muted">
-        Matikan atau hidupkan layanan scheduler yang menjalankan pengiriman notifikasi absensi terjadwal.
+        Matikan atau hidupkan layanan scheduler yang menjalankan pengiriman notifikasi absensi
+        terjadwal.
       </p>
     </div>
 
@@ -78,7 +79,9 @@ onMounted(loadServiceToggles)
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 class="font-semibold text-highlighted">Daftar Layanan Scheduler</h3>
-            <p class="text-sm text-muted">Kelola toggle untuk perintah yang berjalan secara otomatis.</p>
+            <p class="text-sm text-muted">
+              Kelola toggle untuk perintah yang berjalan secara otomatis.
+            </p>
           </div>
         </div>
       </template>
@@ -92,7 +95,9 @@ onMounted(loadServiceToggles)
 
         <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900/60">
+            <thead
+              class="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900/60"
+            >
               <tr>
                 <th class="p-3 font-medium">Layanan</th>
                 <th class="p-3 font-medium">Deskripsi</th>

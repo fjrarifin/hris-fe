@@ -42,12 +42,15 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!(await askConfirmation({
-    title: 'Batalkan Pengajuan',
-    message: 'Batalkan pengajuan lembur ini?',
-    confirmLabel: 'Batalkan',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Batalkan Pengajuan',
+      message: 'Batalkan pengajuan lembur ini?',
+      confirmLabel: 'Batalkan',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deleteOvertime(id)).data.message
     await load()

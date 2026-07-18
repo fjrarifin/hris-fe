@@ -2,27 +2,18 @@
   <div
     class="public-portal-container min-h-screen bg-slate-900 flex items-center justify-center p-4"
   >
-    <div
-      class="portal-card"
-      :class="{ 'portal-card--compact': loading || error || submitted }"
-    >
+    <div class="portal-card" :class="{ 'portal-card--compact': loading || error || submitted }">
       <div class="portal-header text-center mb-8">
-        <img
-          src="/hompimplay_icon.png"
-          alt="Hompimplay"
-          class="brand-logo-public"
-        />
+        <img src="/hompimplay_icon.png" alt="Hompimplay" class="brand-logo-public" />
         <div
           class="logo-placeholder inline-block bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 shadow-md shadow-primary/20"
         >
           HRIS Portal
         </div>
-        <h1 class="text-2xl font-bold text-white tracking-tight">
-          Formulir Reference Check
-        </h1>
+        <h1 class="text-2xl font-bold text-white tracking-tight">Formulir Reference Check</h1>
         <p v-if="data" class="subtitle text-slate-400 mt-2 text-sm">
-          Kandidat: <span class="highlight">{{ data.candidate_name }}</span> —
-          Posisi <span class="highlight">{{ data.vacancy_title }}</span>
+          Kandidat: <span class="highlight">{{ data.candidate_name }}</span> — Posisi
+          <span class="highlight">{{ data.vacancy_title }}</span>
         </p>
       </div>
 
@@ -38,9 +29,7 @@
         </div>
         <h2>Reference Check Tidak Tersedia</h2>
         <p>{{ error }}</p>
-        <p class="state-note">
-          Reference Check telah selesai atau link sudah tidak berlaku.
-        </p>
+        <p class="state-note">Reference Check telah selesai atau link sudah tidak berlaku.</p>
       </div>
       <div v-else-if="submitted" class="success-state text-center py-12">
         <div class="status-icon status-icon--success">
@@ -49,8 +38,7 @@
         <h2>Jawaban Berhasil Diterima</h2>
         <p>Terima kasih atas waktu dan informasi yang telah Anda berikan.</p>
         <p class="state-note">
-          Tautan ini telah selesai digunakan. Anda dapat menutup halaman
-          sekarang.
+          Tautan ini telah selesai digunakan. Anda dapat menutup halaman sekarang.
         </p>
       </div>
 
@@ -58,9 +46,9 @@
         <div class="instructions">
           <span class="i-lucide-info info-box-icon"></span>
           <p>
-            <strong>Petunjuk:</strong> Mohon isi seluruh pertanyaan berdasarkan
-            pengalaman profesional Anda bersama kandidat. Jawaban akan dijaga
-            kerahasiaannya oleh tim recruitment.
+            <strong>Petunjuk:</strong> Mohon isi seluruh pertanyaan berdasarkan pengalaman
+            profesional Anda bersama kandidat. Jawaban akan dijaga kerahasiaannya oleh tim
+            recruitment.
           </p>
         </div>
 
@@ -93,11 +81,7 @@
               ><input v-model.trim="form.candidate_last_position" required
             /></Field>
             <Field label="Alasan Kandidat Keluar" full>
-              <textarea
-                v-model.trim="form.candidate_exit_reason"
-                rows="3"
-                required
-              ></textarea>
+              <textarea v-model.trim="form.candidate_exit_reason" rows="3" required></textarea>
             </Field>
             <Field label="Kepergian Kandidat" full
               ><select v-model="form.exit_initiator" required>
@@ -114,10 +98,7 @@
             v-model="form.achievements"
             label="Apa saja pencapaian kandidat selama bekerja?"
           />
-          <Narrative
-            v-model="form.top_strengths"
-            label="Sebutkan 3 kelebihan utama kandidat."
-          />
+          <Narrative v-model="form.top_strengths" label="Sebutkan 3 kelebihan utama kandidat." />
           <Narrative
             v-model="form.teamwork"
             label="Bagaimana kemampuan kandidat dalam kerja sama tim?"
@@ -177,25 +158,18 @@
                 :key="score"
                 class="score-option"
                 :class="{ 'is-selected': form.rating === score }"
-                ><input
-                  v-model="form.rating"
-                  class="hidden"
-                  type="radio"
-                  :value="score"
-                /><span class="text-base font-extrabold">{{ score }}</span
-                ><span
-                  class="text-[8px] uppercase tracking-wide mt-0.5 font-bold"
-                  >{{ ratingLabels[score] }}</span
-                ></label
+                ><input v-model="form.rating" class="hidden" type="radio" :value="score" /><span
+                  class="text-base font-extrabold"
+                  >{{ score }}</span
+                ><span class="text-[8px] uppercase tracking-wide mt-0.5 font-bold">{{
+                  ratingLabels[score]
+                }}</span></label
               >
             </div>
           </div>
         </FormSection>
 
-        <FormSection
-          v-if="type === 'managerial'"
-          title="E. Teamwork & Leadership"
-        >
+        <FormSection v-if="type === 'managerial'" title="E. Teamwork & Leadership">
           <Narrative
             v-model="form.leadership"
             label="Apakah kandidat menunjukkan kemampuan kepemimpinan? Berikan contoh."
@@ -213,12 +187,8 @@
         <div v-if="validationError" class="validation-warning">
           {{ validationError }}
         </div>
-        <button
-          class="submit-btn"
-          type="submit"
-          :disabled="submitting || !complete"
-        >
-          {{ submitting ? "Mengirim jawaban..." : "Kirim Reference Check" }}
+        <button class="submit-btn" type="submit" :disabled="submitting || !complete">
+          {{ submitting ? 'Mengirim jawaban...' : 'Kirim Reference Check' }}
         </button>
       </form>
     </div>
@@ -226,151 +196,158 @@
 </template>
 
 <script setup>
-import { computed, defineComponent, h, onMounted, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
+import { computed, defineComponent, h, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { askConfirmation } from '../utils/confirmDialog'
 import {
   getPublicReferenceEvaluation,
   getPublicReferenceEvaluationShort,
   submitPublicReferenceEvaluation,
   submitPublicReferenceEvaluationShort,
-} from "../services/hrService";
+} from '../services/hrService'
 
 const FormSection = defineComponent({
   props: { title: String },
   setup:
     (props, { slots }) =>
     () =>
-      h("section", { class: "reference-question-section" }, [
-        h("h2", { class: "reference-section-title" }, props.title),
-        h("div", { class: "space-y-4" }, slots.default?.()),
+      h('section', { class: 'reference-question-section' }, [
+        h('h2', { class: 'reference-section-title' }, props.title),
+        h('div', { class: 'space-y-4' }, slots.default?.()),
       ]),
-});
+})
 const Field = defineComponent({
   props: { label: String, full: Boolean },
   setup:
     (props, { slots }) =>
     () =>
-      h(
-        "label",
-        { class: ["reference-field", props.full && "reference-field--full"] },
-        [h("span", [props.label, h("b", " *")]), ...(slots.default?.() || [])],
-      ),
-});
+      h('label', { class: ['reference-field', props.full && 'reference-field--full'] }, [
+        h('span', [props.label, h('b', ' *')]),
+        ...(slots.default?.() || []),
+      ]),
+})
 const Narrative = defineComponent({
   props: { label: String, modelValue: String },
-  emits: ["update:modelValue"],
+  emits: ['update:modelValue'],
   setup:
     (props, { emit }) =>
     () =>
-      h("label", { class: "reference-field reference-field--full" }, [
-        h("span", [props.label, h("b", " *")]),
-        h("textarea", {
+      h('label', { class: 'reference-field reference-field--full' }, [
+        h('span', [props.label, h('b', ' *')]),
+        h('textarea', {
           rows: 4,
           required: true,
           value: props.modelValue,
-          onInput: (event) => emit("update:modelValue", event.target.value),
+          onInput: (event) => emit('update:modelValue', event.target.value),
         }),
       ]),
-});
-const route = useRoute();
-const type = ref(route.params.type || "");
-const token = route.params.token;
-const code = route.params.code;
-const loading = ref(true);
-const submitting = ref(false);
-const submitted = ref(false);
-const error = ref("");
-const validationError = ref("");
-const data = ref(null);
+})
+const route = useRoute()
+const type = ref(route.params.type || '')
+const token = route.params.token
+const code = route.params.code
+const loading = ref(true)
+const submitting = ref(false)
+const submitted = ref(false)
+const error = ref('')
+const validationError = ref('')
+const data = ref(null)
 const form = reactive({
-  reference_name: "",
-  reference_position: "",
-  work_relationship: "",
-  worked_together_duration: "",
-  company_together: "",
-  candidate_last_position: "",
-  candidate_exit_reason: "",
-  exit_initiator: "",
-  achievements: "",
-  top_strengths: "",
-  teamwork: "",
-  learning_adaptability: "",
-  conflict_handling: "",
-  improvement_areas: "",
-  reliability: "",
-  pressure_handling: "",
-  commitment_attendance: "",
-  work_again: "",
-  recommendation: "",
-  additional_notes: "",
+  reference_name: '',
+  reference_position: '',
+  work_relationship: '',
+  worked_together_duration: '',
+  company_together: '',
+  candidate_last_position: '',
+  candidate_exit_reason: '',
+  exit_initiator: '',
+  achievements: '',
+  top_strengths: '',
+  teamwork: '',
+  learning_adaptability: '',
+  conflict_handling: '',
+  improvement_areas: '',
+  reliability: '',
+  pressure_handling: '',
+  commitment_attendance: '',
+  work_again: '',
+  recommendation: '',
+  additional_notes: '',
   rating: null,
-  leadership: "",
-  leadership_conflict: "",
-  team_relationship: "",
-});
+  leadership: '',
+  leadership_conflict: '',
+  team_relationship: '',
+})
 const ratingLabels = {
-  1: "Sangat Tidak",
-  2: "Tidak",
-  3: "Netral",
-  4: "Rekomendasi",
-  5: "Sangat",
-};
+  1: 'Sangat Tidak',
+  2: 'Tidak',
+  3: 'Netral',
+  4: 'Rekomendasi',
+  5: 'Sangat',
+}
 const complete = computed(() =>
   Object.entries(form)
     .filter(
       ([key]) =>
-        type.value === "managerial" ||
-        !["leadership", "leadership_conflict", "team_relationship"].includes(
-          key,
-        ),
+        type.value === 'managerial' ||
+        !['leadership', 'leadership_conflict', 'team_relationship'].includes(key),
     )
-    .every(([, value]) => value !== null && String(value).trim() !== ""),
-);
+    .every(([, value]) => value !== null && String(value).trim() !== ''),
+)
 onMounted(async () => {
   try {
     const response = code
       ? await getPublicReferenceEvaluationShort(code)
-      : await getPublicReferenceEvaluation(type.value, token);
-    data.value = response.data.data;
-    type.value = data.value.type;
+      : await getPublicReferenceEvaluation(type.value, token)
+    data.value = response.data.data
+    type.value = data.value.type
     Object.assign(form, {
       reference_name: data.value.reference.name,
       reference_position: data.value.reference.position,
-      work_relationship: ["Peer", "Direct Report", "Subordinate"].includes(
+      work_relationship: ['Peer', 'Direct Report', 'Subordinate'].includes(
         data.value.reference.relationship,
       )
         ? data.value.reference.relationship
-        : "",
+        : '',
       company_together: data.value.reference.company,
-    });
+    })
   } catch {
-    error.value =
-      "Reference Check telah selesai atau link sudah tidak berlaku.";
+    error.value = 'Reference Check telah selesai atau link sudah tidak berlaku.'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-});
+})
 async function handleSubmit() {
   if (!complete.value) {
-    validationError.value = "Semua field dan rating wajib diisi.";
-    return;
+    validationError.value = 'Semua field dan rating wajib diisi.'
+    return
   }
-  submitting.value = true;
-  validationError.value = "";
+  const confirmed = await askConfirmation({
+    title: 'Kirim Penilaian Referensi',
+    message: 'Apakah Anda yakin ingin mengirim formulir penilaian referensi kerja ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Pastikan semua evaluasi dan penilaian yang diberikan sudah sesuai. Penilaian yang telah dikirim bersifat final dan tidak dapat diubah kembali.',
+    confirmLabel: 'Ya, Kirim',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
+  submitting.value = true
+  validationError.value = ''
   try {
-    if (code) await submitPublicReferenceEvaluationShort(code, form);
-    else await submitPublicReferenceEvaluation(type.value, token, form);
-    submitted.value = true;
+    if (code) await submitPublicReferenceEvaluationShort(code, form)
+    else await submitPublicReferenceEvaluation(type.value, token, form)
+    submitted.value = true
   } catch (err) {
     if ([404, 410].includes(err.response?.status))
-      error.value =
-        "Reference Check telah selesai atau link sudah tidak berlaku.";
+      error.value = 'Reference Check telah selesai atau link sudah tidak berlaku.'
     else
       validationError.value =
-        err.response?.data?.message ||
-        "Jawaban gagal dikirim. Silakan coba kembali.";
+        err.response?.data?.message || 'Jawaban gagal dikirim. Silakan coba kembali.'
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
 }
 </script>
@@ -378,7 +355,7 @@ async function handleSubmit() {
 <style scoped>
 .public-portal-container {
   font-family:
-    "Inter",
+    'Inter',
     system-ui,
     -apple-system,
     sans-serif;

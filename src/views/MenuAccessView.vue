@@ -181,11 +181,15 @@ onMounted(loadAccess)
 
       <div v-else class="space-y-6">
         <section v-for="group in groupedMenus" :key="group.key" class="space-y-3">
-          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ group.label }}</h4>
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">
+            {{ group.label }}
+          </h4>
 
           <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
             <table class="w-full text-left text-sm">
-              <thead class="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900/60">
+              <thead
+                class="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900/60"
+              >
                 <tr>
                   <th class="p-3 font-medium">Menu</th>
                   <th v-for="level in levels" :key="level.value" class="p-3 font-medium">
@@ -249,9 +253,13 @@ onMounted(loadAccess)
 
       <div v-if="selectedUserId" class="space-y-6">
         <section v-for="group in groupedMenus" :key="group.key" class="space-y-3">
-          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ group.label }}</h4>
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-muted">
+            {{ group.label }}
+          </h4>
 
-          <div class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+          <div
+            class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800"
+          >
             <div
               v-for="menu in group.items"
               :key="menu.id"

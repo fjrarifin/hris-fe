@@ -46,12 +46,15 @@ async function submit() {
 }
 
 async function remove(id) {
-  if (!(await askConfirmation({
-    title: 'Batalkan Pengajuan',
-    message: 'Batalkan pengajuan Extra Off ini?',
-    confirmLabel: 'Batalkan',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Batalkan Pengajuan',
+      message: 'Batalkan pengajuan Extra Off ini?',
+      confirmLabel: 'Batalkan',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deleteExtraOff(id)).data.message
     await load()
@@ -68,8 +71,8 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Extra Off</h2>
       <p class="mt-1 text-sm text-muted">
-        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Saldo EO tidak memiliki masa expired
-        dan dapat digunakan selama karyawan masih aktif.
+        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Saldo EO tidak memiliki masa
+        expired dan dapat digunakan selama karyawan masih aktif.
       </p>
     </div>
 
@@ -92,11 +95,19 @@ onMounted(load)
           <select
             class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
             required
-            :value="form.source_period_start && form.source_period_end ? `${form.source_period_start}|${form.source_period_end}` : ''"
+            :value="
+              form.source_period_start && form.source_period_end
+                ? `${form.source_period_start}|${form.source_period_end}`
+                : ''
+            "
             @change="chooseSource($event.target.value)"
           >
             <option disabled value="">Pilih Periode Payroll</option>
-            <option v-for="source in data.sources" :key="`${source.source_period_start}|${source.source_period_end}`" :value="`${source.source_period_start}|${source.source_period_end}`">
+            <option
+              v-for="source in data.sources"
+              :key="`${source.source_period_start}|${source.source_period_end}`"
+              :value="`${source.source_period_start}|${source.source_period_end}`"
+            >
               {{ source.label }} - sisa {{ source.remaining_days }} hari
             </option>
           </select>
@@ -110,7 +121,12 @@ onMounted(load)
             required
           />
         </label>
-        <UButton type="submit" label="Kirim Pengajuan EO" :loading="saving" class="lg:col-span-2 lg:w-fit" />
+        <UButton
+          type="submit"
+          label="Kirim Pengajuan EO"
+          :loading="saving"
+          class="lg:col-span-2 lg:w-fit"
+        />
       </form>
     </UCard>
 
@@ -128,10 +144,17 @@ onMounted(load)
           </thead>
           <tbody>
             <tr v-for="item in data.requests" :key="item.id" class="border-t border-default">
-              <td class="p-3">{{ formatDate(item.source_period_start) }} - {{ formatDate(item.source_period_end) }}</td>
+              <td class="p-3">
+                {{ formatDate(item.source_period_start) }} -
+                {{ formatDate(item.source_period_end) }}
+              </td>
               <td class="p-3">{{ formatDate(item.claim_date) }}</td>
               <td class="p-3">
-                <UBadge :color="statusColor(item.status)" variant="subtle" :label="statusLabel(item.status)" />
+                <UBadge
+                  :color="statusColor(item.status)"
+                  variant="subtle"
+                  :label="statusLabel(item.status)"
+                />
               </td>
               <td class="p-3">
                 <UButton

@@ -16,10 +16,7 @@ const formattedSupervisors = computed(() => {
     nik: employee.nik,
     label: `${employee.nik} - ${employee.name} (${employee.position || '-'})`,
   }))
-  return [
-    { nik: '', label: 'Pilih atasan...' },
-    ...list
-  ]
+  return [{ nik: '', label: 'Pilih atasan...' }, ...list]
 })
 
 const positionLevels = ['Sr.', 'Md.', 'Jr.']
@@ -67,7 +64,6 @@ const workFields = [
   { key: 'nama_karyawan', label: 'Nama Karyawan', required: true },
   { key: 'jabatan', label: 'Jabatan', required: true },
 ]
-
 
 const personalFields = [
   { key: 'email', label: 'Email', type: 'email' },

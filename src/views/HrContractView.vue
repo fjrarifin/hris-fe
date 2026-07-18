@@ -543,13 +543,18 @@ onMounted(() => load())
             </label>
             <div class="text-sm text-muted sm:col-span-2 xl:col-span-5">
               <span class="block">Dokumen Kontrak (opsional, PDF, maksimal 10 MB)</span>
-              
-              <div v-if="editingId && currentContractHasDocument && !deleteDocumentPending" class="mt-2 flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-500">
+
+              <div
+                v-if="editingId && currentContractHasDocument && !deleteDocumentPending"
+                class="mt-2 flex items-center gap-2"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-500"
+                >
                   <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                   Sudah ada dokumen
                 </span>
-                
+
                 <UButton
                   v-if="!replaceDocumentActive"
                   type="button"
@@ -559,7 +564,7 @@ onMounted(() => load())
                   label="Ganti Dokumen"
                   @click="activateReplaceDocument"
                 />
-                
+
                 <UButton
                   v-if="!replaceDocumentActive"
                   type="button"
@@ -581,8 +586,13 @@ onMounted(() => load())
                 />
               </div>
 
-              <div v-else-if="editingId && deleteDocumentPending" class="mt-2 flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 rounded bg-rose-500/10 px-2 py-1 text-xs font-medium text-rose-500">
+              <div
+                v-else-if="editingId && deleteDocumentPending"
+                class="mt-2 flex items-center gap-2"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 rounded bg-rose-500/10 px-2 py-1 text-xs font-medium text-rose-500"
+                >
                   Dokumen akan dihapus saat disimpan
                 </span>
                 <UButton
@@ -594,7 +604,7 @@ onMounted(() => load())
                   @click="cancelReplaceDocument"
                 />
               </div>
-              
+
               <input
                 v-if="!editingId || !currentContractHasDocument || replaceDocumentActive"
                 type="file"

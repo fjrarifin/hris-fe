@@ -155,4 +155,3 @@ export function getStaffRecruitmentRequests() {
 export function createStaffRecruitmentRequest(payload) {
   return api.post('/staff/recruitment/requests', payload)
 }
-

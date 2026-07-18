@@ -41,7 +41,8 @@
           </div>
         </template>
         <p class="text-sm text-muted">
-          Periksa kesiapan absensi, generate draft payroll, review komponen, approval, lock, dan kirim slip.
+          Periksa kesiapan absensi, generate draft payroll, review komponen, approval, lock, dan
+          kirim slip.
         </p>
         <UButton
           class="mt-5"

@@ -1,12 +1,16 @@
 <template>
   <div class="public-portal-container">
-    <div class="portal-card" :class="{ 'portal-card--compact': loading || error || submitted || !unlocked }">
+    <div
+      class="portal-card"
+      :class="{ 'portal-card--compact': loading || error || submitted || !unlocked }"
+    >
       <div class="portal-header">
         <img src="/hompimplay_icon.png" alt="Logo" class="brand-logo-public" />
         <div class="logo-placeholder">HRIS Portal</div>
         <h1>Formulir Onboarding Mandiri Karyawan Baru</h1>
         <p class="subtitle" v-if="candidate">
-          Selamat datang, <span class="highlight">{{ candidate.name }}</span>! Silakan lengkapi biodata Anda di bawah ini.
+          Selamat datang, <span class="highlight">{{ candidate.name }}</span
+          >! Silakan lengkapi biodata Anda di bawah ini.
         </p>
       </div>
 
@@ -16,7 +20,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>Formulir Tidak Tersedia</h2>
         <p>{{ error }}</p>
       </div>
@@ -24,7 +30,10 @@
       <div v-else-if="submitted" class="success-state">
         <div class="status-icon status-icon--success"><span class="i-lucide-check"></span></div>
         <h2>Onboarding Selesai</h2>
-        <p>Terima kasih. Seluruh data pribadi Anda telah berhasil disimpan dan didaftarkan pada sistem database karyawan.</p>
+        <p>
+          Terima kasih. Seluruh data pribadi Anda telah berhasil disimpan dan didaftarkan pada
+          sistem database karyawan.
+        </p>
         <p class="follow-up">HRD kami akan segera memproses detail akun Anda.</p>
       </div>
 
@@ -32,15 +41,18 @@
       <div v-else-if="!unlocked" class="lock-screen">
         <div class="status-icon status-icon--info"><span class="i-lucide-lock-keyhole"></span></div>
         <h2>Formulir Terkunci</h2>
-        <p class="lock-desc">Silakan masukkan kode sandi 6-digit yang dikirimkan dalam email undangan onboarding Anda untuk membuka formulir.</p>
-        
+        <p class="lock-desc">
+          Silakan masukkan kode sandi 6-digit yang dikirimkan dalam email undangan onboarding Anda
+          untuk membuka formulir.
+        </p>
+
         <form @submit.prevent="unlockForm" class="lock-form">
-          <input 
-            v-model="password" 
-            type="text" 
-            maxlength="6" 
-            placeholder="KODE SANDI 6-DIGIT" 
-            required 
+          <input
+            v-model="password"
+            type="text"
+            maxlength="6"
+            placeholder="KODE SANDI 6-DIGIT"
+            required
             class="password-input"
           />
           <button type="submit" class="unlock-btn">Buka Formulir</button>
@@ -53,7 +65,7 @@
         <!-- Section 1: Data Diri Utama -->
         <div class="form-section">
           <h2>1. Data Pribadi Utama</h2>
-          
+
           <div class="form-grid">
             <div class="form-group">
               <label>Nama Lengkap <span class="required">*</span></label>
@@ -126,7 +138,7 @@
             </div>
           </div>
 
-          <div class="form-group full-width" style="margin-top: 15px;">
+          <div class="form-group full-width" style="margin-top: 15px">
             <label>Alamat Lengkap (Sesuai KTP) <span class="required">*</span></label>
             <textarea v-model="form.alamat" required rows="3"></textarea>
           </div>
@@ -142,13 +154,7 @@
 
             <div class="form-group">
               <label>Jumlah Anak <span class="required">*</span></label>
-              <input
-                v-model.number="form.jumlah_anak"
-                type="number"
-                min="0"
-                max="20"
-                required
-              />
+              <input v-model.number="form.jumlah_anak" type="number" min="0" max="20" required />
               <small class="field-hint">Isi 0 jika belum memiliki anak.</small>
             </div>
           </div>
@@ -171,13 +177,21 @@
             </div>
 
             <div class="form-group">
-              <label>Nomor BPJS (Kesehatan/Ketenagakerjaan) <span class="optional">(Opsional)</span></label>
+              <label
+                >Nomor BPJS (Kesehatan/Ketenagakerjaan)
+                <span class="optional">(Opsional)</span></label
+              >
               <input v-model="form.no_bpjs" type="text" />
             </div>
 
             <div class="form-group">
               <label>Nama Bank <span class="required">*</span></label>
-              <input v-model="form.bank" type="text" required placeholder="BCA, Mandiri, BNI, dll." />
+              <input
+                v-model="form.bank"
+                type="text"
+                required
+                placeholder="BCA, Mandiri, BNI, dll."
+              />
             </div>
 
             <div class="form-group">
@@ -189,7 +203,9 @@
 
         <!-- Section 3: Latar Belakang Pendidikan -->
         <div class="form-section">
-          <h2>{{ form.status_pernikahan === 'Menikah' ? '4' : '3' }}. Riwayat Pendidikan Terakhir</h2>
+          <h2>
+            {{ form.status_pernikahan === 'Menikah' ? '4' : '3' }}. Riwayat Pendidikan Terakhir
+          </h2>
           <div class="form-grid">
             <div class="form-group">
               <label>Pendidikan Terakhir <span class="required">*</span></label>
@@ -242,7 +258,12 @@
 
             <div class="form-group">
               <label>Hubungan <span class="required">*</span></label>
-              <input v-model="form.kontak_darurat_hubungan" type="text" required placeholder="Orang Tua, Pasangan, Saudara, dll." />
+              <input
+                v-model="form.kontak_darurat_hubungan"
+                type="text"
+                required
+                placeholder="Orang Tua, Pasangan, Saudara, dll."
+              />
             </div>
 
             <div class="form-group">
@@ -254,12 +275,11 @@
 
         <div class="declaration-checkbox-group">
           <label class="declaration-label">
-            <input 
-              v-model="declarationChecked" 
-              type="checkbox" 
-              required 
-            />
-            <span>Saya menyatakan dengan sebenar-benarnya bahwa seluruh data dan dokumen yang saya isi dalam formulir ini adalah lengkap, akurat, dan sesuai dengan berkas aslinya.</span>
+            <input v-model="declarationChecked" type="checkbox" required />
+            <span
+              >Saya menyatakan dengan sebenar-benarnya bahwa seluruh data dan dokumen yang saya isi
+              dalam formulir ini adalah lengkap, akurat, dan sesuai dengan berkas aslinya.</span
+            >
           </label>
         </div>
 
@@ -279,6 +299,7 @@
 import { ref, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicOnboarding, submitPublicOnboarding } from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 
 const route = useRoute()
 const token = route.params.token
@@ -322,38 +343,36 @@ const form = reactive({
   nama_ibu: '',
   kontak_darurat_nama: '',
   kontak_darurat_hubungan: '',
-  kontak_darurat_no_hp: ''
+  kontak_darurat_no_hp: '',
 })
 
-watch(
-  [() => form.status_pernikahan, () => form.jumlah_anak],
-  ([maritalStatus, childCount]) => {
-    if (maritalStatus !== 'Menikah') {
-      form.nama_pasangan = ''
-      form.jumlah_anak = 0
-      form.children.splice(0)
-      return
-    }
+watch([() => form.status_pernikahan, () => form.jumlah_anak], ([maritalStatus, childCount]) => {
+  if (maritalStatus !== 'Menikah') {
+    form.nama_pasangan = ''
+    form.jumlah_anak = 0
+    form.children.splice(0)
+    return
+  }
 
-    const normalizedCount = Math.min(20, Math.max(0, Number(childCount) || 0))
-    if (form.jumlah_anak !== normalizedCount) form.jumlah_anak = normalizedCount
+  const normalizedCount = Math.min(20, Math.max(0, Number(childCount) || 0))
+  if (form.jumlah_anak !== normalizedCount) form.jumlah_anak = normalizedCount
 
-    while (form.children.length < normalizedCount) form.children.push('')
-    if (form.children.length > normalizedCount) form.children.splice(normalizedCount)
-  },
-)
+  while (form.children.length < normalizedCount) form.children.push('')
+  if (form.children.length > normalizedCount) form.children.splice(normalizedCount)
+})
 
 onMounted(async () => {
   try {
     const res = await getPublicOnboarding(token)
     candidate.value = res.data
-    
+
     // Pre-fill default details
     form.nama_karyawan = res.data.name
     form.email = res.data.email
     form.no_hp = res.data.phone || ''
   } catch (err) {
-    error.value = 'Formulir onboarding tidak dapat dibuka. Tautan mungkin tidak valid, sudah kedaluwarsa, atau sudah pernah diselesaikan. Silakan hubungi HRD.'
+    error.value =
+      'Formulir onboarding tidak dapat dibuka. Tautan mungkin tidak valid, sudah kedaluwarsa, atau sudah pernah diselesaikan. Silakan hubungi HRD.'
   } finally {
     loading.value = false
   }
@@ -365,25 +384,40 @@ const unlockForm = () => {
     lockError.value = 'Kesalahan: Harap masukkan kode sandi 6-digit dengan lengkap.'
     return
   }
-  
+
   unlocked.value = true
 }
 
 const handleSubmit = async () => {
   validationError.value = null
+
+  const confirmed = await askConfirmation({
+    title: 'Kirim Data Onboarding',
+    message: 'Apakah Anda yakin ingin mengirim data onboarding ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Pastikan semua informasi pribadi, detail rekening, kontak darurat, dan berkas dokumen sudah diisi dengan benar sebelum dikirim.',
+    confirmLabel: 'Ya, Kirim',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
+
   submitting.value = true
-  
+
   try {
     await submitPublicOnboarding(token, {
       password: password.value,
-      ...form
+      ...form,
     })
     submitted.value = true
   } catch (err) {
     const fieldErrors = Object.values(err.response?.data?.errors || {}).flat()
     validationError.value = fieldErrors.length
       ? fieldErrors.join(' ')
-      : err.response?.data?.message || 'Gagal mengirim biodata. Silakan periksa kembali kolom isian Anda.'
+      : err.response?.data?.message ||
+        'Gagal mengirim biodata. Silakan periksa kembali kolom isian Anda.'
   } finally {
     submitting.value = false
   }
@@ -577,7 +611,9 @@ h1 {
   }
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   padding: 10px 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -586,7 +622,9 @@ input, select, textarea {
   background: #ffffff;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #10b981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
@@ -625,7 +663,9 @@ input:focus, select:focus, textarea:focus {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state, .success-state {
+.loading-state,
+.error-state,
+.success-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -641,8 +681,12 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {
@@ -696,7 +740,7 @@ input:focus, select:focus, textarea:focus {
   line-height: 1.5;
 }
 
-.declaration-label input[type="checkbox"] {
+.declaration-label input[type='checkbox'] {
   margin-top: 3px;
   cursor: pointer;
   accent-color: #10b981;

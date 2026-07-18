@@ -132,8 +132,10 @@ function normalizedStatus(record) {
 }
 
 function isApprovedAbsence(record) {
-  return record?.attendance_source === 'approved_absence'
-    || ['leave', 'cuti', 'public_holiday', 'ph', 'extra_off', 'eo'].includes(normalizedStatus(record))
+  return (
+    record?.attendance_source === 'approved_absence' ||
+    ['leave', 'cuti', 'public_holiday', 'ph', 'extra_off', 'eo'].includes(normalizedStatus(record))
+  )
 }
 
 function attendanceStatusLabel(record) {
@@ -339,7 +341,8 @@ onMounted(load)
             {{ calendarTitle }}
           </h3>
           <p class="mt-1 text-sm text-muted">
-            {{ calendarAttendanceCount }} hari memiliki data scan, {{ calendarApprovedAbsenceCount }} hari approved CUTI/PH/EO.
+            {{ calendarAttendanceCount }} hari memiliki data scan,
+            {{ calendarApprovedAbsenceCount }} hari approved CUTI/PH/EO.
           </p>
         </div>
         <div class="flex items-center gap-2">
@@ -400,14 +403,29 @@ onMounted(load)
                   </span>
                 </div>
 
-                <div v-if="day.record && isApprovedAbsence(day.record)" class="mt-3 space-y-1.5 text-[11px] leading-tight">
-                  <div class="rounded-md px-2 py-1 font-medium" :class="calendarApprovedAbsenceClass(day.record)">
+                <div
+                  v-if="day.record && isApprovedAbsence(day.record)"
+                  class="mt-3 space-y-1.5 text-[11px] leading-tight"
+                >
+                  <div
+                    class="rounded-md px-2 py-1 font-medium"
+                    :class="calendarApprovedAbsenceClass(day.record)"
+                  >
                     {{ attendanceStatusLabel(day.record) }} disetujui
                   </div>
-                  <div v-if="day.record.has_scan" class="rounded-md px-2 py-1" :class="calendarScanClass('in')">
-                    Scan {{ formatShortTime(day.record.scan_in) }} - {{ formatShortTime(day.record.scan_out) }}
+                  <div
+                    v-if="day.record.has_scan"
+                    class="rounded-md px-2 py-1"
+                    :class="calendarScanClass('in')"
+                  >
+                    Scan {{ formatShortTime(day.record.scan_in) }} -
+                    {{ formatShortTime(day.record.scan_out) }}
                   </div>
-                  <div v-if="day.record.schedule_code" class="rounded-md px-2 py-1" :class="calendarScanClass('schedule')">
+                  <div
+                    v-if="day.record.schedule_code"
+                    class="rounded-md px-2 py-1"
+                    :class="calendarScanClass('schedule')"
+                  >
                     Jadwal {{ day.record.schedule_code }}
                   </div>
                 </div>

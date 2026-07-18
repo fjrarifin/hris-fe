@@ -16,7 +16,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>Permintaan Tidak Tersedia</h2>
         <p>{{ error }}</p>
       </div>
@@ -24,14 +26,17 @@
       <div v-else-if="submitted" class="success-state">
         <div class="status-icon status-icon--success"><span class="i-lucide-check"></span></div>
         <h2>PKB Berhasil Disetujui</h2>
-        <p>Terima kasih. Tanda tangan digital persetujuan PKB Anda telah berhasil dicatat pada sistem HRIS.</p>
+        <p>
+          Terima kasih. Tanda tangan digital persetujuan PKB Anda telah berhasil dicatat pada sistem
+          HRIS.
+        </p>
       </div>
 
       <div v-else class="pkb-layout">
         <!-- PKB Details Summary -->
         <div class="details-panel">
           <h2>Rincian Calon Karyawan</h2>
-          
+
           <table class="pkb-table">
             <tr>
               <th>Nama Calon</th>
@@ -67,10 +72,16 @@
         <!-- Signature Panel -->
         <div class="signature-form-panel">
           <h2>Tanda Tangan Digital Persetujuan</h2>
-          <p class="sign-inst"><span class="i-lucide-info info-box-icon"></span><span>Dengan ini saya menyatakan menyetujui rekrutmen calon karyawan di atas dengan pengajuan gaji yang tertera.</span></p>
-          
+          <p class="sign-inst">
+            <span class="i-lucide-info info-box-icon"></span
+            ><span
+              >Dengan ini saya menyatakan menyetujui rekrutmen calon karyawan di atas dengan
+              pengajuan gaji yang tertera.</span
+            >
+          </p>
+
           <div class="canvas-wrapper">
-            <canvas 
+            <canvas
               ref="canvasRef"
               @mousedown="startDrawing"
               @mousemove="draw"
@@ -90,12 +101,7 @@
             {{ validationError }}
           </div>
 
-          <button 
-            type="button" 
-            @click="submitSignature" 
-            class="submit-btn" 
-            :disabled="submitting"
-          >
+          <button type="button" @click="submitSignature" class="submit-btn" :disabled="submitting">
             {{ submitting ? 'Mengirim persetujuan...' : 'Setujui & Tanda Tangani' }}
           </button>
         </div>
@@ -108,6 +114,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicPkbSigner, submitPublicPkbSignature } from '../services/hrService'
+import { askConfirmation } from '../utils/confirmDialog'
 
 const route = useRoute()
 const id = route.params.id
@@ -131,7 +138,8 @@ onMounted(async () => {
       submitted.value = true
     }
   } catch (err) {
-    error.value = 'Tautan permintaan tanda tangan PKB tidak valid, sudah kedaluwarsa, atau sudah ditandatangani.'
+    error.value =
+      'Tautan permintaan tanda tangan PKB tidak valid, sudah kedaluwarsa, atau sudah ditandatangani.'
   } finally {
     loading.value = false
   }
@@ -159,12 +167,12 @@ const getCanvasCoords = (e) => {
   if (e.touches && e.touches.length > 0) {
     return {
       x: (e.touches[0].clientX - rect.left) * scaleX,
-      y: (e.touches[0].clientY - rect.top) * scaleY
+      y: (e.touches[0].clientY - rect.top) * scaleY,
     }
   } else {
     return {
       x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      y: (e.clientY - rect.top) * scaleY,
     }
   }
 }
@@ -218,20 +226,35 @@ const isCanvasBlank = () => {
 
 const submitSignature = async () => {
   validationError.value = null
-  
+
   if (isCanvasBlank()) {
-    validationError.value = 'Kesalahan: Harap coretkan tanda tangan Anda pada kolom yang disediakan.'
+    validationError.value =
+      'Kesalahan: Harap coretkan tanda tangan Anda pada kolom yang disediakan.'
     return
   }
 
+  const confirmed = await askConfirmation({
+    title: 'Persetujuan PKB Internal',
+    message: 'Apakah Anda yakin ingin menyetujui dan menandatangani dokumen PKB ini?',
+    warningTitle: 'PENTING:',
+    warningMessage:
+      'Tindakan ini bersifat final. Tanda tangan digital Anda akan dicatat pada sistem HRIS sebagai bukti persetujuan dokumen PKB ini.',
+    confirmLabel: 'Ya, Setujui',
+    cancelLabel: 'Batal',
+    variant: 'structured',
+    color: 'primary',
+  })
+  if (!confirmed) return
+
   submitting.value = true
   const signatureData = canvasRef.value.toDataURL('image/png')
-  
+
   try {
     await submitPublicPkbSignature(id, { signature_data: signatureData })
     submitted.value = true
   } catch (err) {
-    validationError.value = err.response?.data?.message || 'Gagal mengirim persetujuan. Silakan coba kembali.'
+    validationError.value =
+      err.response?.data?.message || 'Gagal mengirim persetujuan. Silakan coba kembali.'
   } finally {
     submitting.value = false
   }
@@ -305,7 +328,8 @@ h1 {
   }
 }
 
-.details-panel h2, .signature-form-panel h2 {
+.details-panel h2,
+.signature-form-panel h2 {
   font-size: 18px;
   font-weight: 600;
   color: #0f172a;
@@ -364,7 +388,7 @@ h1 {
   padding: 10px;
   margin-bottom: 20px;
   text-align: center;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .sig-canvas {
@@ -424,7 +448,9 @@ h1 {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state, .success-state {
+.loading-state,
+.error-state,
+.success-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -440,8 +466,12 @@ h1 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {

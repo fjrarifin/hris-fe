@@ -96,15 +96,19 @@ const staffStatistics = computed(() => {
   ]
 })
 
-const staffEmployeeName = computed(() => dashboard.value?.employee?.name || auth.user?.name || 'Karyawan')
+const staffEmployeeName = computed(
+  () => dashboard.value?.employee?.name || auth.user?.name || 'Karyawan',
+)
 const staffEmployeeInitials = computed(() => {
   const words = staffEmployeeName.value.trim().split(/\s+/).filter(Boolean)
 
-  return words
-    .slice(0, 2)
-    .map((word) => word.charAt(0))
-    .join('')
-    .toUpperCase() || 'K'
+  return (
+    words
+      .slice(0, 2)
+      .map((word) => word.charAt(0))
+      .join('')
+      .toUpperCase() || 'K'
+  )
 })
 const staffTodayAttendance = computed(() => {
   const today = dashboard.value?.as_of_date
@@ -435,7 +439,9 @@ function weeklyAttendanceColor(status) {
 }
 
 function approvalTypeLabel(type) {
-  return { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
+  return (
+    { leave: 'Cuti', ph: 'PH', extra_off: 'Extra Off', permission: 'Izin / Sakit' }[type] || type
+  )
 }
 
 function openAttendanceDepartment(department) {
@@ -573,9 +579,7 @@ onMounted(loadDashboard)
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
     <div v-else-if="isStaff && dashboard" class="mx-auto max-w-7xl space-y-5">
-      <section
-        class="overflow-hidden rounded-2xl border border-default bg-default shadow-sm"
-      >
+      <section class="overflow-hidden rounded-2xl border border-default bg-default shadow-sm">
         <div
           class="relative overflow-hidden bg-linear-to-br from-primary-950 via-slate-900 to-slate-950 px-5 py-5 text-white sm:px-6"
         >
@@ -1090,6 +1094,5 @@ onMounted(loadDashboard)
         </UCard>
       </div>
     </div>
-
   </section>
 </template>

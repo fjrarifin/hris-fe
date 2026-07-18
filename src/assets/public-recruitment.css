@@ -84,7 +84,6 @@ body .public-portal-container .brand-logo-public {
   object-fit: contain !important;
 }
 
-
 body .public-portal-container .portal-header h1 {
   margin: 0 !important;
   color: var(--public-ink) !important;
@@ -209,7 +208,10 @@ body .public-portal-container textarea {
   background: var(--public-base) !important;
   font-family: inherit;
   font-size: 13px !important;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
 
 body .public-portal-container input::placeholder,
@@ -336,7 +338,10 @@ body .public-portal-container .unlock-btn {
   font-size: 13.5px !important;
   font-weight: 700 !important;
   cursor: pointer;
-  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    opacity 0.18s ease;
 }
 
 body .public-portal-container .submit-btn:hover:not(:disabled),
@@ -455,7 +460,9 @@ body .public-portal-container .spinner {
 }
 
 @keyframes public-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 body .public-portal-container .offering-layout,
@@ -587,7 +594,10 @@ body .public-portal-container .score-option {
   background: #ffffff !important;
   text-align: center;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
 body .public-portal-container .score-option:hover {

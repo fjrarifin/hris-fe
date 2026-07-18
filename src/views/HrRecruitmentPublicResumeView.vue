@@ -5,9 +5,7 @@
         <img src="/hompimplay_icon.png" alt="Logo" class="brand-logo-public" />
         <div class="logo-placeholder">HRIS Portal</div>
         <h1>Pratinjau CV Kandidat</h1>
-        <p class="subtitle" v-if="pdfUrl">
-          Berkas CV / Resume pelamar untuk proses wawancara.
-        </p>
+        <p class="subtitle" v-if="pdfUrl">Berkas CV / Resume pelamar untuk proses wawancara.</p>
       </div>
 
       <div v-if="loading" class="loading-state">
@@ -16,7 +14,9 @@
       </div>
 
       <div v-else-if="error" class="error-state">
-        <div class="status-icon status-icon--error"><span class="i-lucide-circle-alert"></span></div>
+        <div class="status-icon status-icon--error">
+          <span class="i-lucide-circle-alert"></span>
+        </div>
         <h2>CV Tidak Dapat Dibuka</h2>
         <p>{{ error }}</p>
         <button type="button" @click="resetForm" class="submit-btn mt-4">Coba Lagi</button>
@@ -25,7 +25,8 @@
       <form v-else-if="!pdfUrl" class="access-form" @submit.prevent="handleUnlock">
         <div class="access-instructions">
           <span class="i-lucide-info info-box-icon"></span>
-          Masukkan password CV (default: 123456) yang tercantum pada pesan undangan untuk membuka dokumen CV kandidat.
+          Masukkan password CV (default: 123456) yang tercantum pada pesan undangan untuk membuka
+          dokumen CV kandidat.
         </div>
         <label for="cv-password">Password CV</label>
         <input
@@ -82,9 +83,9 @@ const handleUnlock = async () => {
   loading.value = true
   try {
     const res = await getPublicResumeByEvaluationToken(token, {
-      password: password.value
+      password: password.value,
     })
-    
+
     // Decode base64 to PDF blob
     const byteCharacters = atob(res.data.content_base64)
     const byteNumbers = new Array(byteCharacters.length)
@@ -98,7 +99,8 @@ const handleUnlock = async () => {
     if (err.response?.status === 403) {
       passwordError.value = 'Password tidak valid. Silakan coba kembali.'
     } else {
-      error.value = 'CV tidak dapat dibuka. Berkas mungkin tidak tersedia atau tautan sudah kedaluwarsa. Silakan hubungi HRD.'
+      error.value =
+        'CV tidak dapat dibuka. Berkas mungkin tidak tersedia atau tautan sudah kedaluwarsa. Silakan hubungi HRD.'
     }
   } finally {
     loading.value = false
@@ -271,7 +273,8 @@ h1 {
   background: #059669;
 }
 
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   text-align: center;
   padding: 30px 10px;
 }
@@ -287,8 +290,12 @@ h1 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {

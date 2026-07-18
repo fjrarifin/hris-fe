@@ -61,12 +61,15 @@ function permissionDateLabel(item) {
 }
 
 async function remove(id) {
-  if (!(await askConfirmation({
-    title: 'Batalkan Pengajuan',
-    message: 'Batalkan pengajuan izin/sakit ini?',
-    confirmLabel: 'Batalkan',
-    color: 'error',
-  }))) return
+  if (
+    !(await askConfirmation({
+      title: 'Batalkan Pengajuan',
+      message: 'Batalkan pengajuan izin/sakit ini?',
+      confirmLabel: 'Batalkan',
+      color: 'error',
+    }))
+  )
+    return
   try {
     message.value = (await deletePermission(id)).data.message
     await load()

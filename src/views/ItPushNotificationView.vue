@@ -44,7 +44,10 @@ const tokenLabel = computed(() => {
     return `${summary.value.active_employee_token_count || 0} token Android`
   }
 
-  const tokens = selectedRecipients.value.reduce((total, recipient) => total + Number(recipient.mobile_token_count || 0), 0)
+  const tokens = selectedRecipients.value.reduce(
+    (total, recipient) => total + Number(recipient.mobile_token_count || 0),
+    0,
+  )
   return `${tokens} token Android`
 })
 
@@ -161,17 +164,22 @@ onMounted(async () => {
         <p class="text-sm font-medium text-primary">IT Tools</p>
         <h1 class="text-2xl font-semibold text-highlighted">Push Notification</h1>
         <p class="mt-1 text-sm text-muted">
-          Kirim informasi ke aplikasi Android karyawan melalui in-app notification dan push notification.
+          Kirim informasi ke aplikasi Android karyawan melalui in-app notification dan push
+          notification.
         </p>
       </div>
       <div class="grid grid-cols-2 gap-3 text-sm sm:min-w-80">
         <div class="rounded-lg border border-default bg-default p-3">
           <p class="text-muted">Karyawan aktif</p>
-          <p class="mt-1 text-xl font-semibold text-highlighted">{{ summary.active_employee_count || 0 }}</p>
+          <p class="mt-1 text-xl font-semibold text-highlighted">
+            {{ summary.active_employee_count || 0 }}
+          </p>
         </div>
         <div class="rounded-lg border border-default bg-default p-3">
           <p class="text-muted">Token Android</p>
-          <p class="mt-1 text-xl font-semibold text-highlighted">{{ summary.active_employee_token_count || 0 }}</p>
+          <p class="mt-1 text-xl font-semibold text-highlighted">
+            {{ summary.active_employee_token_count || 0 }}
+          </p>
         </div>
       </div>
     </div>
@@ -252,14 +260,25 @@ onMounted(async () => {
               <UBadge color="info" variant="subtle" :label="tokenLabel" />
             </div>
             <p class="mt-3 text-muted">
-              In-app notification tetap disimpan untuk semua target. Push Android hanya terkirim ke device yang sudah
-              mengizinkan notifikasi dan memiliki token aktif.
+              In-app notification tetap disimpan untuk semua target. Push Android hanya terkirim ke
+              device yang sudah mengizinkan notifikasi dan memiliki token aktif.
             </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <UButton type="submit" label="Kirim Notifikasi" icon="i-lucide-send" :loading="sending" />
-            <UButton type="button" label="Reset" variant="soft" color="neutral" @click="resetForm" />
+            <UButton
+              type="submit"
+              label="Kirim Notifikasi"
+              icon="i-lucide-send"
+              :loading="sending"
+            />
+            <UButton
+              type="button"
+              label="Reset"
+              variant="soft"
+              color="neutral"
+              @click="resetForm"
+            />
           </div>
         </form>
       </UCard>
@@ -296,7 +315,8 @@ onMounted(async () => {
                     {{ recipient.username }} - {{ recipient.level_label }}
                   </p>
                   <p class="truncate text-xs text-muted">
-                    {{ recipient.department || '-' }}<span v-if="recipient.unit"> / {{ recipient.unit }}</span>
+                    {{ recipient.department || '-'
+                    }}<span v-if="recipient.unit"> / {{ recipient.unit }}</span>
                   </p>
                 </div>
                 <UBadge
@@ -306,7 +326,10 @@ onMounted(async () => {
                 />
               </div>
             </button>
-            <p v-if="!loadingRecipients && recipients.length < 1" class="py-6 text-center text-sm text-muted">
+            <p
+              v-if="!loadingRecipients && recipients.length < 1"
+              class="py-6 text-center text-sm text-muted"
+            >
               User tidak ditemukan.
             </p>
           </div>
@@ -361,7 +384,9 @@ onMounted(async () => {
                 <p class="mt-1 line-clamp-2 text-xs text-muted">{{ record.message }}</p>
               </td>
               <td class="p-3 whitespace-nowrap">{{ record.audience_label }}</td>
-              <td class="p-3 whitespace-nowrap">{{ record.database_sent_count }} / {{ record.recipient_count }}</td>
+              <td class="p-3 whitespace-nowrap">
+                {{ record.database_sent_count }} / {{ record.recipient_count }}
+              </td>
               <td class="p-3 whitespace-nowrap">
                 <UBadge
                   :color="statusColor(record)"

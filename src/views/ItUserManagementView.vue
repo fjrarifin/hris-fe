@@ -126,7 +126,10 @@ async function saveNewUser() {
     closeCreateDialog()
     await loadUsers(1)
   } catch (error) {
-    errorMessage.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {})?.flat()?.[0] || 'User tidak dapat dibuat.'
+    errorMessage.value =
+      error.response?.data?.message ||
+      Object.values(error.response?.data?.errors || {})?.flat()?.[0] ||
+      'User tidak dapat dibuat.'
   } finally {
     saving.value = false
   }
@@ -179,7 +182,10 @@ async function saveUser() {
     selectedUser.value = data.record
     await loadUsers(filters.page)
   } catch (error) {
-    errorMessage.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {})?.flat()?.[0] || 'User tidak dapat diperbarui.'
+    errorMessage.value =
+      error.response?.data?.message ||
+      Object.values(error.response?.data?.errors || {})?.flat()?.[0] ||
+      'User tidak dapat diperbarui.'
   } finally {
     saving.value = false
   }
@@ -243,33 +249,37 @@ function actionItems(user) {
     {
       label: 'Edit',
       icon: 'i-lucide-pencil',
-      onSelect: () => editUser(user)
+      onSelect: () => editUser(user),
     },
     {
       label: user.is_active ? 'Nonaktifkan' : 'Aktifkan',
       icon: user.is_active ? 'i-lucide-user-x' : 'i-lucide-user-check',
-      onSelect: () => toggleActive(user)
+      onSelect: () => toggleActive(user),
     },
     {
       label: 'Reset Password',
       icon: 'i-lucide-key-round',
-      onSelect: () => runAction(user, resetItUserPassword, 'Reset password user ini ke default 12345678?')
+      onSelect: () =>
+        runAction(user, resetItUserPassword, 'Reset password user ini ke default 12345678?'),
     },
     {
       label: 'Reset Batas Password',
       icon: 'i-lucide-clock-3',
-      onSelect: () => runAction(user, resetItUserPasswordLimit, 'Kosongkan password_changed_at user ini?')
+      onSelect: () =>
+        runAction(user, resetItUserPasswordLimit, 'Kosongkan password_changed_at user ini?'),
     },
     {
       label: 'Reset Email',
       icon: 'i-lucide-mail',
-      onSelect: () => runAction(user, resetItUserEmailLimit, 'Kosongkan email_updated_at user ini?')
+      onSelect: () =>
+        runAction(user, resetItUserEmailLimit, 'Kosongkan email_updated_at user ini?'),
     },
     {
       label: 'Reset Foto',
       icon: 'i-lucide-image',
-      onSelect: () => runAction(user, resetItUserPhotoLimit, 'Kosongkan photo_changed_at user ini?')
-    }
+      onSelect: () =>
+        runAction(user, resetItUserPhotoLimit, 'Kosongkan photo_changed_at user ini?'),
+    },
   ]
 }
 
@@ -281,7 +291,9 @@ onMounted(() => loadUsers())
     <div class="flex flex-col justify-between gap-3 lg:flex-row lg:items-end">
       <div>
         <h2 class="text-2xl font-semibold text-highlighted">Kelola User</h2>
-        <p class="mt-1 text-sm text-muted">Aktifkan, nonaktifkan, edit akun, dan reset batas perubahan user.</p>
+        <p class="mt-1 text-sm text-muted">
+          Aktifkan, nonaktifkan, edit akun, dan reset batas perubahan user.
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <UButton icon="i-lucide-user-plus" label="Tambah User" @click="openCreateDialog" />
@@ -309,9 +321,17 @@ onMounted(() => loadUsers())
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-sm font-semibold text-highlighted">Tambah User</p>
-              <p class="mt-1 text-xs text-muted">Buat akun aplikasi untuk HRD, admin, IT, atau user internal non-karyawan.</p>
+              <p class="mt-1 text-xs text-muted">
+                Buat akun aplikasi untuk HRD, admin, IT, atau user internal non-karyawan.
+              </p>
             </div>
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeCreateDialog" />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="closeCreateDialog"
+            />
           </div>
         </template>
 
@@ -319,29 +339,58 @@ onMounted(() => loadUsers())
           <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Nama</label>
-              <input v-model="createForm.name" :class="formControlClass" placeholder="Nama user" required />
+              <input
+                v-model="createForm.name"
+                :class="formControlClass"
+                placeholder="Nama user"
+                required
+              />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Username</label>
-              <input v-model="createForm.username" :class="formControlClass" placeholder="contoh: hrd0005" required />
+              <input
+                v-model="createForm.username"
+                :class="formControlClass"
+                placeholder="contoh: hrd0005"
+                required
+              />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Email</label>
-              <input v-model="createForm.email" type="email" :class="formControlClass" placeholder="opsional" />
+              <input
+                v-model="createForm.email"
+                type="email"
+                :class="formControlClass"
+                placeholder="opsional"
+              />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Role / Level</label>
-              <select v-model.number="createForm.level" :class="formControlClass" @change="applyDefaultMenusForLevel">
-                <option v-for="level in levelOptions" :key="level.value" :value="level.value">{{ level.label }}</option>
+              <select
+                v-model.number="createForm.level"
+                :class="formControlClass"
+                @change="applyDefaultMenusForLevel"
+              >
+                <option v-for="level in levelOptions" :key="level.value" :value="level.value">
+                  {{ level.label }}
+                </option>
               </select>
             </div>
             <div class="flex items-end gap-6 pb-2 xl:col-span-2">
               <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
-                <input v-model="createForm.is_active" type="checkbox" class="size-4 rounded border-default" />
+                <input
+                  v-model="createForm.is_active"
+                  type="checkbox"
+                  class="size-4 rounded border-default"
+                />
                 User aktif
               </label>
               <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
-                <input v-model="createForm.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
+                <input
+                  v-model="createForm.allow_mobile_attendance"
+                  type="checkbox"
+                  class="size-4 rounded border-default"
+                />
                 Akses Absensi Mobile
               </label>
             </div>
@@ -351,7 +400,9 @@ onMounted(() => loadUsers())
             <div class="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
               <div>
                 <p class="text-sm font-semibold text-highlighted">Menu yang Ditampilkan</p>
-                <p class="text-xs text-muted">Dashboard selalu aktif. Centang menu lain yang boleh muncul untuk user ini.</p>
+                <p class="text-xs text-muted">
+                  Dashboard selalu aktif. Centang menu lain yang boleh muncul untuk user ini.
+                </p>
               </div>
               <UButton
                 type="button"
@@ -364,13 +415,21 @@ onMounted(() => loadUsers())
               />
             </div>
             <div v-if="menuLoading" class="py-6 text-center text-sm text-muted">Memuat menu...</div>
-            <div v-else class="grid max-h-[34vh] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              v-else
+              class="grid max-h-[34vh] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3"
+            >
               <label
                 v-for="menu in selectableMenus"
                 :key="menu.id"
                 class="flex items-start gap-2 rounded-lg border border-default bg-default p-3 text-sm"
               >
-                <input v-model="selectedCreateMenuIds" type="checkbox" class="mt-0.5 size-4 rounded border-default" :value="menu.id" />
+                <input
+                  v-model="selectedCreateMenuIds"
+                  type="checkbox"
+                  class="mt-0.5 size-4 rounded border-default"
+                  :value="menu.id"
+                />
                 <span>
                   <span class="block font-medium text-highlighted">{{ menu.label }}</span>
                   <span class="block text-xs text-muted">{{ menu.path }}</span>
@@ -379,10 +438,21 @@ onMounted(() => loadUsers())
             </div>
           </div>
 
-          <div class="flex flex-col gap-2 border-t border-default pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p class="text-xs text-muted">Password awal user baru: <span class="font-semibold text-highlighted">12345678</span>, lalu wajib diganti saat login.</p>
+          <div
+            class="flex flex-col gap-2 border-t border-default pt-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p class="text-xs text-muted">
+              Password awal user baru: <span class="font-semibold text-highlighted">12345678</span>,
+              lalu wajib diganti saat login.
+            </p>
             <div class="flex gap-2">
-              <UButton type="button" color="neutral" variant="soft" label="Batal" @click="closeCreateDialog" />
+              <UButton
+                type="button"
+                color="neutral"
+                variant="soft"
+                label="Batal"
+                @click="closeCreateDialog"
+              />
               <UButton type="submit" icon="i-lucide-save" label="Simpan User" :loading="saving" />
             </div>
           </div>
@@ -394,13 +464,20 @@ onMounted(() => loadUsers())
       <form class="grid gap-3 md:grid-cols-2 xl:grid-cols-5" @submit.prevent="loadUsers(1)">
         <div class="xl:col-span-2">
           <label class="mb-1 block text-sm font-medium text-muted">Cari</label>
-          <input v-model="filters.q" type="search" :class="formControlClass" placeholder="Nama, username, email" />
+          <input
+            v-model="filters.q"
+            type="search"
+            :class="formControlClass"
+            placeholder="Nama, username, email"
+          />
         </div>
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Level</label>
           <select v-model="filters.level" :class="formControlClass">
             <option value="">Semua level</option>
-            <option v-for="level in levelOptions" :key="level.value" :value="level.value">{{ level.label }}</option>
+            <option v-for="level in levelOptions" :key="level.value" :value="level.value">
+              {{ level.label }}
+            </option>
           </select>
         </div>
         <div>
@@ -413,7 +490,13 @@ onMounted(() => loadUsers())
         </div>
         <div class="flex items-end gap-2">
           <UButton type="submit" icon="i-lucide-search" label="Filter" :loading="loading" />
-          <UButton type="button" color="neutral" variant="soft" icon="i-lucide-rotate-ccw" @click="resetFilters" />
+          <UButton
+            type="button"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-rotate-ccw"
+            @click="resetFilters"
+          />
         </div>
       </form>
     </UCard>
@@ -425,7 +508,13 @@ onMounted(() => loadUsers())
             <p class="text-sm font-semibold text-highlighted">Edit User</p>
             <p class="text-xs text-muted">{{ selectedUser.username }}</p>
           </div>
-          <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeEditor" />
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-x"
+            @click="closeEditor"
+          />
         </div>
       </template>
 
@@ -445,7 +534,9 @@ onMounted(() => loadUsers())
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Level</label>
           <select v-model.number="form.level" :class="formControlClass">
-            <option v-for="level in levelOptions" :key="level.value" :value="level.value">{{ level.label }}</option>
+            <option v-for="level in levelOptions" :key="level.value" :value="level.value">
+              {{ level.label }}
+            </option>
           </select>
         </div>
         <div class="md:col-span-2 xl:col-span-5 flex items-center gap-6 pb-2">
@@ -454,7 +545,11 @@ onMounted(() => loadUsers())
             User aktif
           </label>
           <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
-            <input v-model="form.allow_mobile_attendance" type="checkbox" class="size-4 rounded border-default" />
+            <input
+              v-model="form.allow_mobile_attendance"
+              type="checkbox"
+              class="size-4 rounded border-default"
+            />
             Akses Absensi Mobile
           </label>
         </div>
@@ -465,7 +560,10 @@ onMounted(() => loadUsers())
     </UCard>
 
     <div v-if="loading" class="py-10 text-center text-sm text-muted">Memuat user...</div>
-    <div v-else-if="!hasRecords" class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+    <div
+      v-else-if="!hasRecords"
+      class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+    >
       Tidak ada user sesuai filter.
     </div>
 
@@ -483,17 +581,29 @@ onMounted(() => loadUsers())
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in records" :key="user.id" class="border-b border-default last:border-0">
+            <tr
+              v-for="user in records"
+              :key="user.id"
+              class="border-b border-default last:border-0"
+            >
               <td class="px-4 py-3">
                 <p class="font-semibold text-highlighted">{{ user.name }}</p>
-                <p class="text-xs text-muted">{{ user.username }}<span v-if="user.email"> · {{ user.email }}</span></p>
-                <p v-if="user.position || user.department" class="mt-1 text-xs text-muted">{{ user.position || '-' }} · {{ user.department || '-' }}</p>
+                <p class="text-xs text-muted">
+                  {{ user.username }}<span v-if="user.email"> · {{ user.email }}</span>
+                </p>
+                <p v-if="user.position || user.department" class="mt-1 text-xs text-muted">
+                  {{ user.position || '-' }} · {{ user.department || '-' }}
+                </p>
               </td>
               <td class="px-4 py-3">
                 <UBadge color="neutral" variant="subtle" :label="user.level_label" />
               </td>
               <td class="px-4 py-3">
-                <UBadge :color="user.is_active ? 'success' : 'error'" variant="subtle" :label="user.is_active ? 'Aktif' : 'Nonaktif'" />
+                <UBadge
+                  :color="user.is_active ? 'success' : 'error'"
+                  variant="subtle"
+                  :label="user.is_active ? 'Aktif' : 'Nonaktif'"
+                />
               </td>
               <td class="px-4 py-3 text-muted">{{ formatDateTime(user.last_seen_at) }}</td>
               <td class="px-4 py-3 text-xs text-muted">
@@ -507,7 +617,12 @@ onMounted(() => loadUsers())
                     :items="actionItems(user)"
                     :content="{ align: 'end', sideOffset: 8 }"
                   >
-                    <UButton size="sm" color="neutral" variant="ghost" icon="i-lucide-more-vertical" />
+                    <UButton
+                      size="sm"
+                      color="neutral"
+                      variant="ghost"
+                      icon="i-lucide-more-vertical"
+                    />
                   </UDropdownMenu>
                 </div>
               </td>
@@ -518,10 +633,24 @@ onMounted(() => loadUsers())
     </div>
 
     <div v-if="pagination.last_page > 1" class="flex items-center justify-between">
-      <p class="text-sm text-muted">{{ pagination.from }}-{{ pagination.to }} dari {{ pagination.total }}</p>
+      <p class="text-sm text-muted">
+        {{ pagination.from }}-{{ pagination.to }} dari {{ pagination.total }}
+      </p>
       <div class="flex gap-2">
-        <UButton color="neutral" variant="soft" icon="i-lucide-chevron-left" :disabled="pagination.current_page <= 1 || loading" @click="loadUsers(pagination.current_page - 1)" />
-        <UButton color="neutral" variant="soft" icon="i-lucide-chevron-right" :disabled="pagination.current_page >= pagination.last_page || loading" @click="loadUsers(pagination.current_page + 1)" />
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-chevron-left"
+          :disabled="pagination.current_page <= 1 || loading"
+          @click="loadUsers(pagination.current_page - 1)"
+        />
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-chevron-right"
+          :disabled="pagination.current_page >= pagination.last_page || loading"
+          @click="loadUsers(pagination.current_page + 1)"
+        />
       </div>
     </div>
   </section>

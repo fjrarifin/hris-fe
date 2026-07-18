@@ -32,9 +32,11 @@ function resolveMessage(config, method) {
   if (config.loadingMessage) return config.loadingMessage
 
   const url = String(config.url || '')
-  return routeMessages.find(([routePart]) => url.includes(routePart))?.[1]
-    || methodMessages[method]
-    || 'Permintaan sedang diproses.'
+  return (
+    routeMessages.find(([routePart]) => url.includes(routePart))?.[1] ||
+    methodMessages[method] ||
+    'Permintaan sedang diproses.'
+  )
 }
 
 export const hasPendingMutation = computed(() => state.requests.length > 0)

@@ -57,8 +57,6 @@ import StaffPerformanceReviewView from '../views/StaffPerformanceReviewView.vue'
 import StaffTalentView from '../views/StaffTalentView.vue'
 import HrMasterOrgStructureView from '../views/HrMasterOrgStructureView.vue'
 
-
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -67,55 +65,55 @@ const router = createRouter({
       path: '/r/:code',
       name: 'public-reference-evaluation-short',
       component: () => import('../views/HrRecruitmentPublicReferenceEvaluationView.vue'),
-      meta: { title: 'Formulir Reference Check' }
+      meta: { title: 'Formulir Reference Check' },
     },
     {
       path: '/public/reference-check/:type(staff|managerial)/:token',
       name: 'public-reference-evaluation',
       component: () => import('../views/HrRecruitmentPublicReferenceEvaluationView.vue'),
-      meta: { title: 'Formulir Reference Check' }
+      meta: { title: 'Formulir Reference Check' },
     },
     {
       path: '/public/reference-check/:token',
       name: 'public-reference-check',
       component: () => import('../views/HrRecruitmentPublicReferenceView.vue'),
-      meta: { title: 'Referensi Kerja Kandidat' }
+      meta: { title: 'Referensi Kerja Kandidat' },
     },
     {
       path: '/public/offering/review/:token',
       name: 'public-offering-review',
       component: () => import('../views/HrRecruitmentPublicOfferingView.vue'),
-      meta: { title: 'Tanda Tangan Offering Letter' }
+      meta: { title: 'Tanda Tangan Offering Letter' },
     },
     {
       path: '/public/case-study/:token',
       name: 'public-case-study',
       component: () => import('../views/HrRecruitmentPublicCaseStudyView.vue'),
-      meta: { title: 'Unggah Dokumen Case Study' }
+      meta: { title: 'Unggah Dokumen Case Study' },
     },
     {
       path: '/public/onboarding/:token',
       name: 'public-onboarding',
       component: () => import('../views/HrRecruitmentPublicOnboardingView.vue'),
-      meta: { title: 'Formulir Onboarding Karyawan Baru' }
+      meta: { title: 'Formulir Onboarding Karyawan Baru' },
     },
     {
       path: '/public/pkb/sign-request/:id',
       name: 'public-pkb-sign',
       component: () => import('../views/HrRecruitmentPublicPkbView.vue'),
-      meta: { title: 'Persetujuan PKB Internal' }
+      meta: { title: 'Persetujuan PKB Internal' },
     },
     {
       path: '/public/evaluation/:token',
       name: 'public-evaluation',
       component: () => import('../views/HrRecruitmentPublicEvaluationView.vue'),
-      meta: { title: 'Evaluasi Wawancara User' }
+      meta: { title: 'Evaluasi Wawancara User' },
     },
     {
       path: '/public/evaluation/:token/resume',
       name: 'public-evaluation-resume',
       component: () => import('../views/HrRecruitmentPublicResumeView.vue'),
-      meta: { title: 'Pratinjau CV Kandidat' }
+      meta: { title: 'Pratinjau CV Kandidat' },
     },
     {
       path: '/login',
@@ -334,19 +332,34 @@ const router = createRouter({
           path: 'hr/master/positions',
           name: 'hr-master-positions',
           component: HrMasterOrgStructureView,
-          meta: { title: 'Master Posisi', levels: [2], menuKey: 'hr-master-positions', type: 'positions' },
+          meta: {
+            title: 'Master Posisi',
+            levels: [2],
+            menuKey: 'hr-master-positions',
+            type: 'positions',
+          },
         },
         {
           path: 'hr/master/divisions',
           name: 'hr-master-divisions',
           component: HrMasterOrgStructureView,
-          meta: { title: 'Master Divisi', levels: [2], menuKey: 'hr-master-divisions', type: 'divisions' },
+          meta: {
+            title: 'Master Divisi',
+            levels: [2],
+            menuKey: 'hr-master-divisions',
+            type: 'divisions',
+          },
         },
         {
           path: 'hr/master/departments',
           name: 'hr-master-departments',
           component: HrMasterOrgStructureView,
-          meta: { title: 'Master Departemen', levels: [2], menuKey: 'hr-master-departments', type: 'departments' },
+          meta: {
+            title: 'Master Departemen',
+            levels: [2],
+            menuKey: 'hr-master-departments',
+            type: 'departments',
+          },
         },
         {
           path: 'hr/master/units',
@@ -459,19 +472,31 @@ const router = createRouter({
           path: 'hr/recruitment/dashboard',
           name: 'hr-recruitment-dashboard',
           component: HrRecruitmentDashboardView,
-          meta: { title: 'Dashboard Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
+          meta: {
+            title: 'Dashboard Recruitment',
+            levels: [2],
+            menuKey: 'hr-recruitment-dashboard',
+          },
         },
         {
           path: 'hr/recruitment/follow-ups',
           name: 'hr-recruitment-follow-ups',
           component: HrRecruitmentFollowUpView,
-          meta: { title: 'Follow-up Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
+          meta: {
+            title: 'Follow-up Recruitment',
+            levels: [2],
+            menuKey: 'hr-recruitment-dashboard',
+          },
         },
         {
           path: 'hr/recruitment/interview-agenda',
           name: 'hr-recruitment-interview-agenda',
           component: HrRecruitmentInterviewAgendaView,
-          meta: { title: 'Agenda Interview Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
+          meta: {
+            title: 'Agenda Interview Recruitment',
+            levels: [2],
+            menuKey: 'hr-recruitment-dashboard',
+          },
         },
         {
           path: 'hr/recruitment/vacancies',
@@ -495,7 +520,11 @@ const router = createRouter({
           path: 'staff/recruitment/requests',
           name: 'staff-recruitment-requests',
           component: StaffRecruitmentRequestView,
-          meta: { title: 'Pengajuan Rekrutmen', levels: [3], menuKey: 'staff-recruitment-requests' },
+          meta: {
+            title: 'Pengajuan Rekrutmen',
+            levels: [3],
+            menuKey: 'staff-recruitment-requests',
+          },
         },
         {
           path: 'staff/performance-reviews',
@@ -592,11 +621,18 @@ router.beforeEach(async (to, from) => {
     return '/change-password'
   }
 
-  if (to.name === 'force-change-password' && !(auth.user?.level === 3 && auth.user?.must_change_password)) {
+  if (
+    to.name === 'force-change-password' &&
+    !(auth.user?.level === 3 && auth.user?.must_change_password)
+  ) {
     return '/account/change-password'
   }
 
-  if (to.name === 'account-change-password' && auth.user?.level === 3 && auth.user?.must_change_password) {
+  if (
+    to.name === 'account-change-password' &&
+    auth.user?.level === 3 &&
+    auth.user?.must_change_password
+  ) {
     return '/change-password'
   }
 
@@ -621,7 +657,12 @@ router.beforeEach(async (to, from) => {
     return auth.dashboardPath
   }
 
-  if (!to.meta.menuKey && to.meta.levels && auth.user?.level !== 0 && !to.meta.levels.includes(auth.user?.level)) {
+  if (
+    !to.meta.menuKey &&
+    to.meta.levels &&
+    auth.user?.level !== 0 &&
+    !to.meta.levels.includes(auth.user?.level)
+  ) {
     return auth.dashboardPath
   }
 

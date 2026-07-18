@@ -120,36 +120,22 @@ onMounted(() => {
       <form class="grid gap-3 md:grid-cols-2 xl:grid-cols-6" @submit.prevent="loadLogs(1)">
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Dari</label>
-          <input
-            v-model="filters.start_date"
-            type="date"
-            :class="formControlClass"
-          />
+          <input v-model="filters.start_date" type="date" :class="formControlClass" />
         </div>
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Sampai</label>
-          <input
-            v-model="filters.end_date"
-            type="date"
-            :class="formControlClass"
-          />
+          <input v-model="filters.end_date" type="date" :class="formControlClass" />
         </div>
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Modul</label>
-          <select
-            v-model="filters.module"
-            :class="formControlClass"
-          >
+          <select v-model="filters.module" :class="formControlClass">
             <option value="">Semua modul</option>
             <option v-for="module in modules" :key="module" :value="module">{{ module }}</option>
           </select>
         </div>
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Aksi</label>
-          <select
-            v-model="filters.action"
-            :class="formControlClass"
-          >
+          <select v-model="filters.action" :class="formControlClass">
             <option value="">Semua aksi</option>
             <option value="created">Dibuat</option>
             <option value="updated">Diubah</option>
@@ -167,18 +153,32 @@ onMounted(() => {
         </div>
         <div class="flex items-end gap-2">
           <UButton type="submit" icon="i-lucide-search" label="Filter" :loading="loading" />
-          <UButton type="button" color="neutral" variant="soft" icon="i-lucide-rotate-ccw" @click="resetFilters" />
+          <UButton
+            type="button"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-rotate-ccw"
+            @click="resetFilters"
+          />
         </div>
       </form>
     </UCard>
 
-    <div v-if="!hasSearched && !loading" class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+    <div
+      v-if="!hasSearched && !loading"
+      class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+    >
       Pilih filter lalu tekan Filter untuk menampilkan log perubahan.
     </div>
 
-    <div v-else-if="loading" class="py-10 text-center text-sm text-muted">Memuat log perubahan...</div>
+    <div v-else-if="loading" class="py-10 text-center text-sm text-muted">
+      Memuat log perubahan...
+    </div>
 
-    <div v-else-if="!hasRecords" class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+    <div
+      v-else-if="!hasRecords"
+      class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+    >
       Tidak ada perubahan pada rentang filter ini.
     </div>
 
@@ -187,13 +187,20 @@ onMounted(() => {
         <div class="flex flex-col justify-between gap-3 md:flex-row md:items-start">
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <UBadge :color="actionColors[record.action] || 'neutral'" variant="subtle" :label="record.action_label" />
+              <UBadge
+                :color="actionColors[record.action] || 'neutral'"
+                variant="subtle"
+                :label="record.action_label"
+              />
               <span class="text-sm font-semibold text-highlighted">{{ record.module }}</span>
             </div>
-            <h3 class="mt-2 text-base font-semibold text-highlighted">{{ record.subject_label }}</h3>
+            <h3 class="mt-2 text-base font-semibold text-highlighted">
+              {{ record.subject_label }}
+            </h3>
             <p class="mt-1 text-sm text-muted">
-              {{ record.actor_name }} <span v-if="record.actor_username">({{ record.actor_username }})</span>
-              pada {{ formatDateTime(record.occurred_at) }}
+              {{ record.actor_name }}
+              <span v-if="record.actor_username">({{ record.actor_username }})</span> pada
+              {{ formatDateTime(record.occurred_at) }}
             </p>
           </div>
         </div>
@@ -208,7 +215,11 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="change in visibleChanges(record)" :key="change.field" class="border-b border-gray-100 last:border-0 dark:border-gray-800">
+              <tr
+                v-for="change in visibleChanges(record)"
+                :key="change.field"
+                class="border-b border-gray-100 last:border-0 dark:border-gray-800"
+              >
                 <td class="py-2 pr-3 font-medium text-highlighted">{{ change.label }}</td>
                 <td class="px-3 py-2 text-muted">{{ displayValue(change.old) }}</td>
                 <td class="py-2 pl-3 text-highlighted">{{ displayValue(change.new) }}</td>

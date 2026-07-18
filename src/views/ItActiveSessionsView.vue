@@ -150,7 +150,10 @@ onMounted(() => loadSessions())
     />
 
     <UCard>
-      <form class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_auto]" @submit.prevent="loadSessions(1)">
+      <form
+        class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_auto]"
+        @submit.prevent="loadSessions(1)"
+      >
         <div>
           <label class="mb-1 block text-sm font-medium text-muted">Cari user</label>
           <input
@@ -190,7 +193,9 @@ onMounted(() => loadSessions())
     </UCard>
 
     <UCard>
-      <div v-if="loading" class="py-10 text-center text-sm text-muted">Memuat sesi login aktif...</div>
+      <div v-if="loading" class="py-10 text-center text-sm text-muted">
+        Memuat sesi login aktif...
+      </div>
 
       <div v-else-if="hasRecords" class="overflow-x-auto">
         <table class="min-w-full text-left text-sm">
@@ -213,7 +218,8 @@ onMounted(() => loadSessions())
                     {{ session.username || '-' }} - {{ session.level_label }}
                   </p>
                   <p class="mt-1 text-xs text-muted">
-                    {{ session.position || '-' }}<span v-if="session.department"> / {{ session.department }}</span>
+                    {{ session.position || '-'
+                    }}<span v-if="session.department"> / {{ session.department }}</span>
                   </p>
                 </div>
               </td>
@@ -233,10 +239,16 @@ onMounted(() => loadSessions())
               </td>
               <td class="p-3 align-top">
                 <p class="max-w-72 text-highlighted">{{ session.device_name }}</p>
-                <p class="mt-1 text-xs text-muted">{{ session.network_address || 'IP tidak tersedia' }}</p>
+                <p class="mt-1 text-xs text-muted">
+                  {{ session.network_address || 'IP tidak tersedia' }}
+                </p>
               </td>
-              <td class="whitespace-nowrap p-3 align-top">{{ formatDateTime(session.signed_in_at) }}</td>
-              <td class="whitespace-nowrap p-3 align-top">{{ formatDateTime(session.last_active_at) }}</td>
+              <td class="whitespace-nowrap p-3 align-top">
+                {{ formatDateTime(session.signed_in_at) }}
+              </td>
+              <td class="whitespace-nowrap p-3 align-top">
+                {{ formatDateTime(session.last_active_at) }}
+              </td>
               <td class="p-3 align-top">
                 <div class="flex justify-end gap-2">
                   <UButton
@@ -265,7 +277,10 @@ onMounted(() => loadSessions())
         </table>
       </div>
 
-      <div v-else class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700">
+      <div
+        v-else
+        class="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-muted dark:border-gray-700"
+      >
         Tidak ada sesi login aktif pada filter ini.
       </div>
     </UCard>

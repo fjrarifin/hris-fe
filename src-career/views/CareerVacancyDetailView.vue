@@ -184,6 +184,7 @@ async function load() {
 }
 async function apply() {
   if (submitting.value || !validateStep(1) || !validateStep(2)) return;
+  if (!window.confirm("Apakah Anda yakin ingin mengirim lamaran pekerjaan ini? Pastikan seluruh informasi pribadi dan berkas CV Anda sudah terisi dengan benar.")) return;
   submitting.value = true;
   formError.value = "";
   errors.value = {};

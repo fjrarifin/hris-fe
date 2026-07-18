@@ -366,7 +366,10 @@ export function scheduleUserInterviewRound(id, payload) {
 }
 
 export function completeUserInterviewRound(id, round, payload) {
-  return api.post(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/complete`, payload)
+  return api.post(
+    `/hr/recruitment/candidates/${id}/user-interview-round/${round}/complete`,
+    payload,
+  )
 }
 
 export function saveUserInterviewRoundEvaluation(id, payload) {
@@ -378,7 +381,9 @@ export function uploadUserInterviewRoundSummary(id, payload) {
 }
 
 export function sendUserInterviewEvaluationWa(candidateId, round, evalId) {
-  return api.post(`/hr/recruitment/candidates/${candidateId}/rounds/${round}/send-eval-wa/${evalId}`)
+  return api.post(
+    `/hr/recruitment/candidates/${candidateId}/rounds/${round}/send-eval-wa/${evalId}`,
+  )
 }
 
 export function sendUserInterviewCandidateWa(candidateId, round) {
@@ -414,7 +419,9 @@ export function getUserInterviewSummaryPreview(id, round) {
 }
 
 export function getUserInterviewEvaluationRecapPreview(id, round) {
-  return api.get(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/evaluation-recap-preview`)
+  return api.get(
+    `/hr/recruitment/candidates/${id}/user-interview-round/${round}/evaluation-recap-preview`,
+  )
 }
 
 export function getPkbApprovalRecapPreview(id) {
