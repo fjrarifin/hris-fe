@@ -133,3 +133,33 @@ body {
   --ui-text-muted: #94a3b8;
   --ui-text-highlighted: #ffffff;
 }
+
+/* Onboarding status alert styles */
+.onboarding-status-alert {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.portal-light .onboarding-status-alert .alert-title {
+  color: #78350f !important;
+}
+.portal-light .onboarding-status-alert .alert-description {
+  color: #b45309 !important;
+}
+.portal-dark .onboarding-status-alert .alert-title {
+  color: #ffffff !important;
+}
+.portal-dark .onboarding-status-alert .alert-description {
+  color: #f3f4f6 !important;
+}
+
+/* Warning alert box generic styles */
+.warning-alert-box {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.portal-light .warning-alert-box {
+  color: #78350f !important;
+}
+.portal-dark .warning-alert-box {
+  color: #fde68a !important;
+}

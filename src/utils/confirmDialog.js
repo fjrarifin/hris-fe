@@ -7,6 +7,9 @@ export const confirmDialog = reactive({
   confirmLabel: 'Lanjutkan',
   cancelLabel: 'Batal',
   color: 'primary',
+  variant: 'default',
+  warningTitle: '',
+  warningMessage: '',
   loading: false,
   resolve: null,
 })
@@ -18,6 +21,9 @@ export function askConfirmation(options = {}) {
   confirmDialog.confirmLabel = options.confirmLabel || 'Lanjutkan'
   confirmDialog.cancelLabel = options.cancelLabel || 'Batal'
   confirmDialog.color = options.color || 'primary'
+  confirmDialog.variant = options.variant || 'default'
+  confirmDialog.warningTitle = options.warningTitle || ''
+  confirmDialog.warningMessage = options.warningMessage || ''
   confirmDialog.loading = false
 
   return new Promise((resolve) => {

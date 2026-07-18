@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { beginMutation, finishMutation, isMutationRequest } from '../utils/requestActivity'
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://10.20.10.70:8000'
 export const backendLogoUrl = `${backendUrl}/hompimplay_icon.png`
@@ -14,12 +15,21 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`
   }
 
+  if (isMutationRequest(config)) {
+    config.requestActivityId = beginMutation(config)
+  }
+
   return config
 })
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  async (response) => {
+    await finishMutation(response.config?.requestActivityId)
+    return response
+  },
+  async (error) => {
+    await finishMutation(error.config?.requestActivityId)
+
     const hasSession = localStorage.getItem('hris_token')
     const isLoginPage = window.location.pathname.startsWith('/login')
 

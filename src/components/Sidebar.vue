@@ -96,14 +96,16 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
       />
     </div>
 
-    <UNavigationMenu
-      class="mt-6 w-full"
-      :items="links"
-      orientation="vertical"
-      color="primary"
-      variant="pill"
-      highlight
-    />
+    <div class="flex-1 overflow-y-auto min-h-0 my-4 pr-1">
+      <UNavigationMenu
+        class="w-full"
+        :items="links"
+        orientation="vertical"
+        color="primary"
+        variant="pill"
+        highlight
+      />
+    </div>
 
     <div ref="accountMenuRef" class="relative mt-auto">
       <div

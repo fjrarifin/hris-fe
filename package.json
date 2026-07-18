@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:career": "vite --config vite.career.config.js --port 5174",
     "build": "vite build",
+    "build:career": "vite build --config vite.career.config.js",
     "preview": "vite preview",
+    "preview:career": "vite preview --config vite.career.config.js --port 4174",
     "format": "oxfmt src/"
   },
   "dependencies": {

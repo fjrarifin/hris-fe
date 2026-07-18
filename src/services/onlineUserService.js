@@ -1,7 +1,7 @@
 import api from './api'
 
 export function heartbeatOnlineUser(payload = {}) {
-  return api.post('/online-users/heartbeat', payload)
+  return api.post('/online-users/heartbeat', payload, { showLoading: false })
 }
 
 export function getOnlineUsers() {

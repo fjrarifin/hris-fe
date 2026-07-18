@@ -4,6 +4,14 @@ export function getHrDashboard() {
   return api.get('/hr/dashboard')
 }
 
+export function getHrRecruitmentDashboard(params) {
+  return api.get('/hr/recruitment/dashboard', { params })
+}
+
+export function getHrRecruitmentInterviewAgenda(params) {
+  return api.get('/hr/recruitment/interview-agenda', { params })
+}
+
 export function getHrContracts(params) {
   return api.get('/hr/contracts', { params })
 }
@@ -245,6 +253,10 @@ export function updateHrPerformanceReviewStatus(id, payload) {
   return api.patch(`/hr/talent/reviews/${id}/status`, payload)
 }
 
+export function getHrVacancyFavorites(params) {
+  return api.get('/hr/recruitment/vacancies/favorite', { params })
+}
+
 export function getHrVacancies(params) {
   return api.get('/hr/recruitment/vacancies', { params })
 }
@@ -273,6 +285,10 @@ export function updateHrCandidate(id, payload) {
   return api.put(`/hr/recruitment/candidates/${id}`, payload)
 }
 
+export function checkHrScheduleConflict(payload) {
+  return api.post('/hr/recruitment/candidates/check-conflict', payload)
+}
+
 export function deleteHrCandidate(id) {
   return api.delete(`/hr/recruitment/candidates/${id}`)
 }
@@ -283,6 +299,225 @@ export function uploadHrCandidateResume(id, payload) {
 
 export function getHrCandidateResumePreview(id) {
   return api.get(`/hr/recruitment/candidates/${id}/resume-preview`)
+}
+
+export function getHrCandidateDetail(id) {
+  return api.get(`/hr/recruitment/candidates/${id}`)
+}
+
+export function uploadHrCandidatePhoto(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-photo`, payload)
+}
+
+export function uploadHrCandidateOffering(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-offering`, payload)
+}
+
+export function getHrCandidateOfferingPreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/offering-preview`)
+}
+
+export function lockHrCandidateInterview(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/lock-interview`)
+}
+
+export function sendHrCandidateInterviewerWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-wa-interviewer`)
+}
+
+export function sendHrCandidateInterviewWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-wa-candidate-interview`)
+}
+
+export function sendHrCandidateCaseStudyWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-wa-candidate-case-study`)
+}
+
+export function scheduleHrCandidateInterview(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/schedule-hr-interview`, payload)
+}
+
+export function completeHrCandidateInterview(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/complete-hr-interview`, payload)
+}
+
+export function uploadHrCandidateInterviewSummary(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-hr-interview-summary`, payload)
+}
+
+export function getHrInterviewSummaryPreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/hr-interview-summary-preview`)
+}
+
+export function sendHrCandidateCaseStudy(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-case-study`, payload)
+}
+
+export function uploadHrCandidateCaseStudySubmission(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-case-study-submission`, payload)
+}
+
+export function getCaseStudySubmissionPreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/case-study-submission-preview`)
+}
+
+export function scheduleUserInterviewRound(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/schedule-user-interview-round`, payload)
+}
+
+export function completeUserInterviewRound(id, round, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/complete`, payload)
+}
+
+export function saveUserInterviewRoundEvaluation(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/save-user-interview-round-evaluation`, payload)
+}
+
+export function uploadUserInterviewRoundSummary(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-user-interview-round-summary`, payload)
+}
+
+export function sendUserInterviewEvaluationWa(candidateId, round, evalId) {
+  return api.post(`/hr/recruitment/candidates/${candidateId}/rounds/${round}/send-eval-wa/${evalId}`)
+}
+
+export function sendUserInterviewCandidateWa(candidateId, round) {
+  return api.post(`/hr/recruitment/candidates/${candidateId}/rounds/${round}/send-candidate-wa`)
+}
+
+export function getEvaluationReportPreview(evalId) {
+  return api.get(`/hr/recruitment/evaluations/${evalId}/preview`)
+}
+
+export function getPublicEvaluation(token) {
+  return api.get(`/public/candidates/evaluation/${token}`)
+}
+
+export function submitPublicEvaluation(token, payload) {
+  return api.post(`/public/candidates/evaluation/${token}`, payload)
+}
+
+export function sendReferenceCheckRequest(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-reference-check-request`)
+}
+
+export function sendReferenceCheckWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-reference-check-wa`)
+}
+
+export function previewReferenceCheckSummary(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/reference-check-summary-preview`)
+}
+
+export function getUserInterviewSummaryPreview(id, round) {
+  return api.get(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/summary-preview`)
+}
+
+export function getUserInterviewEvaluationRecapPreview(id, round) {
+  return api.get(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/evaluation-recap-preview`)
+}
+
+export function getPkbApprovalRecapPreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/pkb-approval-recap-preview`)
+}
+
+export function uploadReferenceCheckSummary(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/upload-reference-check-summary`, payload)
+}
+
+export function sendOfferingLetterWithSignature(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-offering-with-signature`, payload)
+}
+
+export function sendOfferingLetterWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-offering-wa`)
+}
+
+export function sendPkbApprovalRequest(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-pkb-approval-request`, payload)
+}
+
+export function resendPkbSignerWa(candidateId, signerId) {
+  return api.post(`/hr/recruitment/candidates/${candidateId}/pkb-signers/${signerId}/resend-wa`)
+}
+
+export function sendOnboardingFormLink(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-onboarding-link`)
+}
+
+export function sendOnboardingWa(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-onboarding-wa`)
+}
+
+export function importOnboarding(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/import-onboarding`, payload)
+}
+
+export function saveOnboardingDraft(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/save-onboarding-draft`, payload)
+}
+
+// PUBLIC ROUTES (Unauthenticated)
+export function getPublicReferenceCheck(token, password) {
+  return api.get(`/public/candidates/reference-check/${token}`, {
+    headers: { 'X-Reference-Password': password },
+  })
+}
+
+export function submitPublicReferenceCheck(token, payload) {
+  return api.post(`/public/candidates/reference-check/${token}`, payload)
+}
+
+export function getPublicReferenceEvaluation(type, token) {
+  return api.get(`/public/reference-check/${type}/${token}`)
+}
+
+export function submitPublicReferenceEvaluation(type, token, payload) {
+  return api.post(`/public/reference-check/${type}/${token}`, payload)
+}
+
+export function getPublicReferenceEvaluationShort(code) {
+  return api.get(`/public/reference-check-short/${code}`)
+}
+
+export function submitPublicReferenceEvaluationShort(code, payload) {
+  return api.post(`/public/reference-check-short/${code}`, payload)
+}
+
+export function getPublicOffering(token, password) {
+  return api.get(`/public/candidates/offering/${token}`, {
+    headers: { 'X-Offering-Password': password },
+  })
+}
+
+export function submitPublicOfferingSignature(token, payload) {
+  return api.post(`/public/candidates/offering/${token}/sign`, payload)
+}
+
+export function getPublicCaseStudy(token, password) {
+  return api.get(`/public/candidates/case-study/${token}`, {
+    headers: { 'X-Case-Study-Password': password },
+  })
+}
+
+export function submitPublicCaseStudy(token, payload) {
+  return api.post(`/public/candidates/case-study/${token}/submit`, payload)
+}
+
+export function getPublicPkbSigner(id) {
+  return api.get(`/public/pkb/signer/${id}`)
+}
+
+export function submitPublicPkbSignature(id, payload) {
+  return api.post(`/public/pkb/signer/${id}/sign`, payload)
+}
+
+export function getPublicOnboarding(token) {
+  return api.get(`/public/candidates/onboarding/${token}`)
+}
+
+export function submitPublicOnboarding(token, payload) {
+  return api.post(`/public/candidates/onboarding/${token}/submit`, payload)
 }
 
 export function getHrRecruitmentRequests() {
@@ -309,9 +544,26 @@ export function deleteHrMasterOrg(type, id) {
   return api.delete(`/hr/master-orgs/${type}/${id}`)
 }
 
+export function getPublicResumeByEvaluationToken(token, payload) {
+  return api.post(`/public/candidates/evaluation/${token}/resume`, payload)
+}
+
 export function getEmployeeOptions() {
   return api.get('/employee-options')
 }
 
+export function getMasterPositionTitles() {
+  return api.get('/hr/master-orgs/positions')
+}
 
+export function getMasterDivisions() {
+  return api.get('/hr/master-orgs/divisions')
+}
 
+export function getMasterDepartments() {
+  return api.get('/hr/master-orgs/departments')
+}
+
+export function getMasterUnits() {
+  return api.get('/hr/master-orgs/units')
+}

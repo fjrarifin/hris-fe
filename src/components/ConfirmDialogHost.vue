@@ -18,7 +18,8 @@ const colorClass = {
     >
       <div
         v-if="confirmDialog.open"
-        class="fixed inset-0 z-[110] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4"
+        :class="confirmDialog.variant === 'structured' ? 'bg-slate-950/45' : 'bg-black/45 backdrop-blur-sm'"
         role="presentation"
         @click.self="cancelAction"
       >
@@ -30,12 +31,39 @@ const colorClass = {
           leave-to-class="translate-y-2 scale-95 opacity-0"
         >
           <section
-            class="w-full max-w-md rounded-xl border border-default bg-default p-5 text-default shadow-2xl"
+            class="w-full overflow-hidden shadow-2xl"
+            :class="confirmDialog.variant === 'structured' ? 'max-w-[35rem] rounded-xl border border-slate-300 bg-white font-sans text-slate-800' : 'max-w-md rounded-xl border border-default bg-default text-default'"
             role="dialog"
             aria-modal="true"
             :aria-label="confirmDialog.title"
           >
-            <div class="flex items-start gap-3">
+            <template v-if="confirmDialog.variant === 'structured'">
+              <header class="flex min-h-[74px] items-center justify-between gap-4 border-b border-slate-200 bg-white px-[30px] py-5">
+                <h2 class="text-[18px] font-bold uppercase leading-6 tracking-normal text-slate-900">{{ confirmDialog.title }}</h2>
+                <button type="button" class="flex size-8 items-center justify-center rounded-md text-slate-600 transition hover:bg-slate-100 hover:text-slate-900" aria-label="Tutup" @click="cancelAction">
+                  <UIcon name="i-lucide-x" class="size-5" />
+                </button>
+              </header>
+              <div class="space-y-5 bg-white px-[30px] py-[30px]">
+                <p class="text-[14px] leading-[20px] text-slate-600">{{ confirmDialog.message }}</p>
+                <div
+                  class="rounded-[10px] border border-[#f5c76e] bg-[#fff8ea] px-[15px] py-[15px] text-[#844019]"
+                >
+                  <div>
+                    <p class="text-[14px] font-bold uppercase leading-5">{{ confirmDialog.warningTitle || 'Penting' }}:</p>
+                    <p class="mt-1 text-[14px] font-normal leading-[20px]">{{ confirmDialog.warningMessage }}</p>
+                  </div>
+                </div>
+              </div>
+              <footer class="flex min-h-[76px] items-center justify-end gap-3 border-t border-slate-200 bg-white px-[30px] py-4">
+                <button type="button" class="rounded-md px-4 py-2 text-[14px] font-medium text-slate-700 transition hover:bg-slate-100" @click="cancelAction">{{ confirmDialog.cancelLabel }}</button>
+                <button type="button" class="inline-flex min-h-9 items-center gap-2 rounded-md bg-[#3ee59a] px-4 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#31d58c]" @click="confirmAction">
+                  <UIcon :name="confirmDialog.color === 'error' ? 'i-lucide-trash-2' : 'i-lucide-lock-keyhole'" class="size-4 text-white" />
+                  {{ confirmDialog.confirmLabel }}
+                </button>
+              </footer>
+            </template>
+            <div v-else class="flex items-start gap-3 p-5">
               <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-elevated">
                 <UIcon
                   :name="confirmDialog.color === 'error' ? 'i-lucide-triangle-alert' : 'i-lucide-circle-help'"
@@ -49,7 +77,7 @@ const colorClass = {
               </div>
             </div>
 
-            <div class="mt-5 flex justify-end gap-2">
+            <div v-if="confirmDialog.variant !== 'structured'" class="flex justify-end gap-2 px-5 pb-5">
               <button
                 type="button"
                 class="rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted hover:bg-elevated"

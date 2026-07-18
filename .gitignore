@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 .DS_Store
 dist
+dist-career
 dist-ssr
 coverage
 *.local
@@ -41,3 +42,5 @@ __screenshots__/
 # Nuxt UI auto-generated declarations
 auto-imports.d.ts
 components.d.ts
+
+.git_disabled/

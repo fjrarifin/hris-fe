@@ -47,6 +47,9 @@ import HrTalentJobdeskView from '../views/HrTalentJobdeskView.vue'
 import HrTalentJobdeskDetailView from '../views/HrTalentJobdeskDetailView.vue'
 import HrTalentKpiTemplateView from '../views/HrTalentKpiTemplateView.vue'
 import HrRecruitmentCandidateView from '../views/HrRecruitmentCandidateView.vue'
+import HrRecruitmentDashboardView from '../views/HrRecruitmentDashboardView.vue'
+import HrRecruitmentFollowUpView from '../views/HrRecruitmentFollowUpView.vue'
+import HrRecruitmentInterviewAgendaView from '../views/HrRecruitmentInterviewAgendaView.vue'
 import HrRecruitmentVacancyView from '../views/HrRecruitmentVacancyView.vue'
 import HrRecruitmentRequestView from '../views/HrRecruitmentRequestView.vue'
 import StaffRecruitmentRequestView from '../views/StaffRecruitmentRequestView.vue'
@@ -59,6 +62,61 @@ import HrMasterOrgStructureView from '../views/HrMasterOrgStructureView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    // Public Candidate Routes
+    {
+      path: '/r/:code',
+      name: 'public-reference-evaluation-short',
+      component: () => import('../views/HrRecruitmentPublicReferenceEvaluationView.vue'),
+      meta: { title: 'Formulir Reference Check' }
+    },
+    {
+      path: '/public/reference-check/:type(staff|managerial)/:token',
+      name: 'public-reference-evaluation',
+      component: () => import('../views/HrRecruitmentPublicReferenceEvaluationView.vue'),
+      meta: { title: 'Formulir Reference Check' }
+    },
+    {
+      path: '/public/reference-check/:token',
+      name: 'public-reference-check',
+      component: () => import('../views/HrRecruitmentPublicReferenceView.vue'),
+      meta: { title: 'Referensi Kerja Kandidat' }
+    },
+    {
+      path: '/public/offering/review/:token',
+      name: 'public-offering-review',
+      component: () => import('../views/HrRecruitmentPublicOfferingView.vue'),
+      meta: { title: 'Tanda Tangan Offering Letter' }
+    },
+    {
+      path: '/public/case-study/:token',
+      name: 'public-case-study',
+      component: () => import('../views/HrRecruitmentPublicCaseStudyView.vue'),
+      meta: { title: 'Unggah Dokumen Case Study' }
+    },
+    {
+      path: '/public/onboarding/:token',
+      name: 'public-onboarding',
+      component: () => import('../views/HrRecruitmentPublicOnboardingView.vue'),
+      meta: { title: 'Formulir Onboarding Karyawan Baru' }
+    },
+    {
+      path: '/public/pkb/sign-request/:id',
+      name: 'public-pkb-sign',
+      component: () => import('../views/HrRecruitmentPublicPkbView.vue'),
+      meta: { title: 'Persetujuan PKB Internal' }
+    },
+    {
+      path: '/public/evaluation/:token',
+      name: 'public-evaluation',
+      component: () => import('../views/HrRecruitmentPublicEvaluationView.vue'),
+      meta: { title: 'Evaluasi Wawancara User' }
+    },
+    {
+      path: '/public/evaluation/:token/resume',
+      name: 'public-evaluation-resume',
+      component: () => import('../views/HrRecruitmentPublicResumeView.vue'),
+      meta: { title: 'Pratinjau CV Kandidat' }
+    },
     {
       path: '/login',
       name: 'login',
@@ -396,6 +454,24 @@ const router = createRouter({
           name: 'hr-talent-reviews',
           component: HrPerformanceReviewView,
           meta: { title: 'Performance Review', levels: [2], menuKey: 'hr-talent-reviews' },
+        },
+        {
+          path: 'hr/recruitment/dashboard',
+          name: 'hr-recruitment-dashboard',
+          component: HrRecruitmentDashboardView,
+          meta: { title: 'Dashboard Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
+        },
+        {
+          path: 'hr/recruitment/follow-ups',
+          name: 'hr-recruitment-follow-ups',
+          component: HrRecruitmentFollowUpView,
+          meta: { title: 'Follow-up Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
+        },
+        {
+          path: 'hr/recruitment/interview-agenda',
+          name: 'hr-recruitment-interview-agenda',
+          component: HrRecruitmentInterviewAgendaView,
+          meta: { title: 'Agenda Interview Recruitment', levels: [2], menuKey: 'hr-recruitment-dashboard' },
         },
         {
           path: 'hr/recruitment/vacancies',
