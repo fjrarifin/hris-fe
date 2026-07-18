@@ -65,12 +65,9 @@
         <div class="document-preview-panel">
           <h2>Pratinjau Dokumen</h2>
           <div class="pdf-container" v-if="candidate.pdf_base64">
-            <iframe
-              :src="'data:application/pdf;base64,' + candidate.pdf_base64 + '#toolbar=0&navpanes=0'"
-              width="100%"
-              height="500px"
-              style="border: none; border-radius: 8px"
-            ></iframe>
+            <div class="pdf-viewer-scroll">
+              <VuePdfEmbed :source="'data:application/pdf;base64,' + candidate.pdf_base64" />
+            </div>
           </div>
           <div v-else class="no-pdf">
             <p>Pratinjau PDF tidak tersedia. Harap periksa lampiran email Anda.</p>
@@ -121,6 +118,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import VuePdfEmbed from 'vue-pdf-embed'
 import { getPublicOffering, submitPublicOfferingSignature } from '../services/hrService'
 import { askConfirmation } from '../utils/confirmDialog'
 
@@ -388,6 +386,13 @@ h1 {
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   padding: 8px;
+}
+
+.pdf-viewer-scroll {
+  height: 500px;
+  overflow-y: auto;
+  background: #f1f5f9;
+  border-radius: 8px;
 }
 
 .no-pdf {

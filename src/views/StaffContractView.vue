@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import VuePdfEmbed from 'vue-pdf-embed'
 import { getStaffContractPdfPreview, getStaffContracts } from '../services/staffService'
 import { apiError } from '../utils/formatters'
 import StaffContractCard from '../components/StaffContractCard.vue'
@@ -281,11 +282,11 @@ onBeforeUnmount(closePreview)
             @click="closePreview"
           />
         </div>
-        <iframe
-          :src="preview.url"
-          title="Pratinjau dokumen kontrak"
-          class="h-[calc(88vh-6rem)] w-full rounded-lg border border-default bg-white"
-        ></iframe>
+        <div
+          class="h-[calc(88vh-6rem)] w-full rounded-lg border border-default bg-slate-100 overflow-y-auto p-4"
+        >
+          <VuePdfEmbed :source="preview.url" />
+        </div>
       </UCard>
     </div>
   </section>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import VuePdfEmbed from 'vue-pdf-embed'
 import {
   createHrJobdesk,
   deleteHrJobdesk,
@@ -250,12 +251,12 @@ onBeforeUnmount(closeDocumentPreview)
         <div v-if="loadingDocument" class="py-16 text-center text-sm text-muted">
           Memuat dokumen jobdesk...
         </div>
-        <iframe
+        <div
           v-else-if="documentPreview.url"
-          :src="documentPreview.url"
-          :title="documentPreview.title"
-          class="h-[calc(85vh-6rem)] w-full rounded-lg border border-default bg-white"
-        ></iframe>
+          class="h-[calc(85vh-6rem)] w-full rounded-lg border border-default bg-slate-100 overflow-y-auto p-4"
+        >
+          <VuePdfEmbed :source="documentPreview.url" />
+        </div>
       </UCard>
     </div>
   </section>

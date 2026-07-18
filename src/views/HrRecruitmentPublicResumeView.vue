@@ -43,7 +43,9 @@
       </form>
 
       <div v-else class="pdf-preview-container">
-        <iframe :src="pdfUrl" class="pdf-iframe"></iframe>
+        <div class="pdf-viewer-scroll">
+          <VuePdfEmbed :source="pdfUrl" />
+        </div>
         <div class="actions-panel mt-4">
           <a :href="pdfUrl" download="Resume-Kandidat.pdf" class="download-link-btn">
             Unduh Berkas CV (PDF)
@@ -57,6 +59,7 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import VuePdfEmbed from 'vue-pdf-embed'
 import { getPublicResumeByEvaluationToken } from '../services/hrService'
 
 const route = useRoute()
@@ -245,11 +248,14 @@ h1 {
   min-height: 0;
 }
 
-.pdf-iframe {
+.pdf-viewer-scroll {
   flex: 1;
   width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
+  overflow-y: auto;
+  background: #f1f5f9;
+  padding: 16px;
 }
 
 .actions-panel {

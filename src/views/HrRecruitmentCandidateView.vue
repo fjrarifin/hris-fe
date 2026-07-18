@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import VuePdfEmbed from 'vue-pdf-embed'
 import {
   getHrCandidates,
   createHrCandidate,
@@ -8022,11 +8023,12 @@ onBeforeUnmount(() => {
         <div v-if="loadingDocument" class="py-16 text-center text-sm text-muted">
           Memuat dokumen berkas...
         </div>
-        <iframe
+        <div
           v-else-if="documentPreview.url"
-          :src="documentPreview.url"
-          class="h-[calc(85vh-100px)] w-full rounded-md border border-default"
-        ></iframe>
+          class="h-[calc(85vh-100px)] w-full rounded-md border border-default bg-slate-100 overflow-y-auto p-4"
+        >
+          <VuePdfEmbed :source="documentPreview.url" />
+        </div>
       </UCard>
     </div>
   </section>

@@ -1094,10 +1094,9 @@ onMounted(loadAgenda)
 }
 .agenda-list-row {
   display: grid;
-  grid-template-columns: 44px 34px minmax(130px, 1.2fr) minmax(120px, 1fr) minmax(
-      110px,
-      0.9fr
-    ) auto 16px;
+  grid-template-columns:
+    44px 34px minmax(130px, 1.2fr) minmax(120px, 1fr) minmax(110px, 0.9fr)
+    auto 16px;
   align-items: center;
   gap: 9px;
   width: 100%;
