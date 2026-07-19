@@ -119,7 +119,7 @@ watch(
                 <button
                   type="button"
                   class="inline-flex min-h-9 items-center gap-2 rounded-md bg-[#3ee59a] px-4 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#31d58c] disabled:opacity-50 disabled:cursor-not-allowed"
-                  :disabled="confirmDialog.checkboxLabel && !checkboxChecked"
+                  :disabled="!!confirmDialog.checkboxLabel && !checkboxChecked"
                   @click="confirmAction"
                 >
                   <UIcon
