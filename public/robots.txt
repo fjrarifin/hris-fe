@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://karir.hompimplay.id/sitemap.xml
