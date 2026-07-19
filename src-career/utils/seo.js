@@ -13,7 +13,7 @@ function setMeta(selector, attributes) {
 export function setSeo({ title, description, path = '/', robots = 'index,follow', jsonLd, image }) {
   const fullTitle = `${title} | Career ${companyName}`
   const url = `${siteUrl}${path}`
-  const imageUrl = image ? `${siteUrl}${image}` : `${siteUrl}/og_career_banner.png`
+  const imageUrl = image ? `${siteUrl}${image}` : `${siteUrl}/hompimplay_icon.png`
 
   document.title = fullTitle
   setMeta('meta[name="description"]', { name: 'description', content: description })
@@ -26,8 +26,8 @@ export function setSeo({ title, description, path = '/', robots = 'index,follow'
   })
   setMeta('meta[property="og:url"]', { property: 'og:url', content: url })
   setMeta('meta[property="og:image"]', { property: 'og:image', content: imageUrl })
-  setMeta('meta[property="og:image:width"]', { property: 'og:image:width', content: '1200' })
-  setMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '630' })
+  setMeta('meta[property="og:image:width"]', { property: 'og:image:width', content: '512' })
+  setMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '512' })
   setMeta('meta[property="og:image:alt"]', {
     property: 'og:image:alt',
     content: `${title} | Career ${companyName}`,
