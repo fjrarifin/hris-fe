@@ -10,9 +10,11 @@ function setMeta(selector, attributes) {
   Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value))
 }
 
-export function setSeo({ title, description, path = '/', robots = 'index,follow', jsonLd }) {
+export function setSeo({ title, description, path = '/', robots = 'index,follow', jsonLd, image }) {
   const fullTitle = `${title} | Career ${companyName}`
   const url = `${siteUrl}${path}`
+  const imageUrl = image ? `${siteUrl}${image}` : `${siteUrl}/og_career_banner.png`
+
   document.title = fullTitle
   setMeta('meta[name="description"]', { name: 'description', content: description })
   setMeta('meta[name="robots"]', { name: 'robots', content: robots })
@@ -23,7 +25,25 @@ export function setSeo({ title, description, path = '/', robots = 'index,follow'
     content: jsonLd ? 'article' : 'website',
   })
   setMeta('meta[property="og:url"]', { property: 'og:url', content: url })
+  setMeta('meta[property="og:image"]', { property: 'og:image', content: imageUrl })
+  setMeta('meta[property="og:image:width"]', { property: 'og:image:width', content: '1200' })
+  setMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '630' })
+  setMeta('meta[property="og:image:alt"]', {
+    property: 'og:image:alt',
+    content: `${title} | Career ${companyName}`,
+  })
+  setMeta('meta[property="og:site_name"]', {
+    property: 'og:site_name',
+    content: `Career ${companyName}`,
+  })
+  setMeta('meta[property="og:locale"]', { property: 'og:locale', content: 'id_ID' })
+
   setMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' })
+  setMeta('meta[name="twitter:site"]', { name: 'twitter:site', content: '@hompimplay' })
+  setMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: fullTitle })
+  setMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
+  setMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: imageUrl })
+
   let canonical = document.head.querySelector('link[rel="canonical"]')
   if (!canonical) {
     canonical = document.createElement('link')
