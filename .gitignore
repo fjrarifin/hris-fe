@@ -44,3 +44,7 @@ auto-imports.d.ts
 components.d.ts
 
 .git_disabled/
+
+# Local API config override
+src-career/services/careerApi.js
+
