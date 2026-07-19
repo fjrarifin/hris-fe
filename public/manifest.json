@@ -1,0 +1,15 @@
+{
+  "name": "Hompimplay Karir",
+  "short_name": "HP Karir",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eef2f7",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/hompimplay_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
