@@ -265,6 +265,12 @@ const router = createRouter({
           meta: { title: 'Panduan Aplikasi', levels: [3], menuKey: 'staff-guide' },
         },
         {
+          path: 'staff/subordinate-candidates',
+          name: 'staff-subordinate-candidates',
+          component: () => import('../views/StaffSubordinateCandidatesView.vue'),
+          meta: { title: 'Kandidat Bawahan', levels: [3], menuKey: 'staff-subordinate-candidates' },
+        },
+        {
           path: 'employees',
           name: 'employees',
           component: EmployeeView,

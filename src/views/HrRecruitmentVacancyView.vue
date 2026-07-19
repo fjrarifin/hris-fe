@@ -115,7 +115,9 @@ const positionOptions = computed(() => {
       employeesList.value
         .filter(
           (e) =>
-            e.divisi === form.division && e.departement === form.department && e.unit === form.unit,
+            e.divisi === form.division &&
+            e.departement === form.department &&
+            (!form.unit || e.unit === form.unit),
         )
         .map((e) => e.posisi_title)
         .filter(Boolean),
@@ -848,12 +850,9 @@ onMounted(() => {
 
             <!-- Unit -->
             <div>
-              <label class="mb-1 block text-xs font-semibold text-muted"
-                >Unit <span class="text-danger">*</span></label
-              >
+              <label class="mb-1 block text-xs font-semibold text-muted">Unit</label>
               <select
                 v-model="form.unit"
-                required
                 :disabled="!form.department"
                 :class="formControlClass"
                 @change="onUnitChange"
@@ -865,13 +864,10 @@ onMounted(() => {
 
             <!-- Jabatan -->
             <div>
-              <label class="mb-1 block text-xs font-semibold text-muted"
-                >Jabatan / Posisi <span class="text-danger">*</span></label
-              >
+              <label class="mb-1 block text-xs font-semibold text-muted">Jabatan / Posisi</label>
               <select
                 v-model="form.position"
-                required
-                :disabled="!form.unit"
+                :disabled="!form.department"
                 :class="formControlClass"
                 @change="onPositionChange"
               >
@@ -898,9 +894,7 @@ onMounted(() => {
 
           <!-- Atasan Langsung Search-Select -->
           <div class="relative">
-            <label class="mb-1 block text-xs font-semibold text-muted"
-              >Atasan Langsung <span class="text-danger">*</span></label
-            >
+            <label class="mb-1 block text-xs font-semibold text-muted">Atasan Langsung</label>
             <div
               class="flex items-center gap-1 bg-default border border-default rounded-md px-2.5 py-1"
             >

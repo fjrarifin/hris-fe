@@ -3430,6 +3430,34 @@ onBeforeUnmount(() => {
                   {{ activeCandidate.known_person || 'Tidak ada' }}
                 </span>
               </div>
+
+              <!-- NOMOR TELEPON -->
+              <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
+                  >Nomor Telepon</span
+                >
+                <span class="text-sm font-semibold text-highlighted truncate">
+                  {{ activeCandidate.phone || '-' }}
+                </span>
+              </div>
+
+              <!-- EMAIL -->
+              <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Email</span>
+                <span class="text-sm font-semibold text-highlighted truncate">
+                  {{ activeCandidate.email || '-' }}
+                </span>
+              </div>
+
+              <!-- ATASAN LANGSUNG -->
+              <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
+                  >Atasan Langsung</span
+                >
+                <span class="text-sm font-semibold text-highlighted truncate">
+                  {{ activeCandidate.vacancy?.supervisor_name || '-' }}
+                </span>
+              </div>
             </div>
           </div>
 
