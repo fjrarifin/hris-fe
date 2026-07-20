@@ -55,17 +55,13 @@ const deptColorClass = (dept) => {
 <template>
   <article class="career-job-card glass-panel-premium">
     <div class="card-header-row">
-      <div class="icon-box" :class="deptColorClass(vacancy.department)">
-        <span class="icon-emoji">{{ deptIcon(vacancy.department) }}</span>
-      </div>
+      <h3 class="job-title-text">
+        <RouterLink :to="`/jobs/${vacancy.slug}`">{{ vacancy.title }}</RouterLink>
+      </h3>
       <div class="category-badge" :class="deptColorClass(vacancy.department)">
         {{ vacancy.department || 'GENERAL' }}
       </div>
     </div>
-
-    <h3 class="job-title-text">
-      <RouterLink :to="`/jobs/${vacancy.slug}`">{{ vacancy.title }}</RouterLink>
-    </h3>
 
     <p class="job-desc-text">
       {{
@@ -76,13 +72,13 @@ const deptColorClass = (dept) => {
 
     <!-- Tag Area: Fixed Min-height to avoid layout shifting -->
     <div class="job-tags-row">
-      <span class="pills-tag">📍 {{ vacancy.location || 'Lokasi belum ditentukan' }}</span>
-      <span class="pills-tag"
-        >⏰ {{ labels[vacancy.employment_type] || vacancy.employment_type || 'Penuh Waktu' }}</span
-      >
-      <span v-if="vacancy.workplace_type" class="pills-tag"
-        >🏢 {{ labels[vacancy.workplace_type] || vacancy.workplace_type }}</span
-      >
+      <span class="pills-tag">{{ vacancy.location || 'Lokasi belum ditentukan' }}</span>
+      <span class="pills-tag">{{
+        labels[vacancy.employment_type] || vacancy.employment_type || 'Penuh Waktu'
+      }}</span>
+      <span v-if="vacancy.workplace_type" class="pills-tag">{{
+        labels[vacancy.workplace_type] || vacancy.workplace_type
+      }}</span>
       <span v-if="isNew(vacancy.published_at)" class="new-badge-tag">BARU</span>
     </div>
 
@@ -148,6 +144,7 @@ const deptColorClass = (dept) => {
 .sales-theme.icon-box {
   background: #eff6ff;
 }
+
 .sales-theme.category-badge {
   background: rgba(37, 99, 235, 0.08);
   color: #2563eb;
@@ -156,6 +153,7 @@ const deptColorClass = (dept) => {
 .it-theme.icon-box {
   background: #eef2ff;
 }
+
 .it-theme.category-badge {
   background: rgba(79, 70, 229, 0.08);
   color: #4f46e5;
@@ -164,6 +162,7 @@ const deptColorClass = (dept) => {
 .general-theme.icon-box {
   background: #fffbeb;
 }
+
 .general-theme.category-badge {
   background: rgba(217, 119, 6, 0.08);
   color: #d97706;
@@ -172,6 +171,7 @@ const deptColorClass = (dept) => {
 .activity-theme.icon-box {
   background: #fdf2f8;
 }
+
 .activity-theme.category-badge {
   background: rgba(219, 39, 119, 0.08);
   color: #db2777;
@@ -180,6 +180,7 @@ const deptColorClass = (dept) => {
 .default-theme.icon-box {
   background: #f8fafc;
 }
+
 .default-theme.category-badge {
   background: rgba(71, 85, 105, 0.08);
   color: #475569;
@@ -188,6 +189,7 @@ const deptColorClass = (dept) => {
 .cta-theme.icon-box {
   background: #ecfdf5;
 }
+
 .cta-theme.category-badge {
   background: rgba(16, 185, 129, 0.08);
   color: #059669;
@@ -291,6 +293,7 @@ const deptColorClass = (dept) => {
   border: 1px dashed rgba(16, 185, 129, 0.3);
   background: rgba(240, 253, 250, 0.4);
 }
+
 .cta-card:hover {
   background: rgba(240, 253, 250, 0.7);
   border-color: rgba(16, 185, 129, 0.5);

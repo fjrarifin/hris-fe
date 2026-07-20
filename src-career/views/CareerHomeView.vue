@@ -88,7 +88,7 @@ onMounted(() => {
       <section class="career-hero-section">
         <div class="hero-inner">
           <div class="eyebrow-pill-container">
-            <span class="eyebrow-pill">✨ Berkarya Bersama Kami</span>
+            <span class="eyebrow-pill">Berkarya Bersama Kami</span>
           </div>
 
           <h1 class="hero-heading-text">

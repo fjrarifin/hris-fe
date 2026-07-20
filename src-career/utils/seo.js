@@ -1,5 +1,5 @@
 const siteUrl = (import.meta.env.VITE_CAREER_SITE_URL || window.location.origin).replace(/\/$/, '')
-const companyName = import.meta.env.VITE_COMPANY_NAME || 'Hompimplay'
+const companyName = import.meta.env.VITE_COMPANY_NAME || 'Hompim Play'
 
 function setMeta(selector, attributes) {
   let element = document.head.querySelector(selector)
@@ -11,7 +11,7 @@ function setMeta(selector, attributes) {
 }
 
 export function setSeo({ title, description, path = '/', robots = 'index,follow', jsonLd, image }) {
-  const fullTitle = `${title} | Career ${companyName}`
+  const fullTitle = `${title} | Karir ${companyName}`
   const url = `${siteUrl}${path}`
   const imageUrl = image ? `${siteUrl}${image}` : `${siteUrl}/hompimplay_icon.png`
 
