@@ -278,13 +278,13 @@ function jobPosting(job) {
     },
     jobLocation: job.location
       ? {
-          '@type': 'Place',
-          address: {
-            '@type': 'PostalAddress',
-            addressLocality: job.location,
-            addressCountry: 'ID',
-          },
-        }
+        '@type': 'Place',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: job.location,
+          addressCountry: 'ID',
+        },
+      }
       : undefined,
     jobLocationType: job.workplace_type === 'remote' ? 'TELECOMMUTE' : undefined,
   }
@@ -402,15 +402,9 @@ onBeforeUnmount(() => {
           <span class="category-eyebrow">{{ vacancy.division || 'KESEMPATAN BERKARIER' }}</span>
           <h1 class="vacancy-title-header">{{ vacancy.title }}</h1>
           <div class="chips-row">
-            <span class="glass-pill-badge"
-              >📍 {{ vacancy.location || 'Lokasi belum ditentukan' }}</span
-            >
-            <span v-if="vacancy.employment_type" class="glass-pill-badge"
-              >⏰ {{ labels[vacancy.employment_type] }}</span
-            >
-            <span v-if="vacancy.workplace_type" class="glass-pill-badge"
-              >🏢 {{ labels[vacancy.workplace_type] }}</span
-            >
+            <span class="glass-pill-badge">{{ vacancy.location || 'Lokasi belum ditentukan' }}</span>
+            <span v-if="vacancy.employment_type" class="glass-pill-badge">{{ labels[vacancy.employment_type] }}</span>
+            <span v-if="vacancy.workplace_type" class="glass-pill-badge">{{ labels[vacancy.workplace_type] }}</span>
           </div>
         </div>
       </section>
@@ -421,39 +415,21 @@ onBeforeUnmount(() => {
         <article class="job-content-details">
           <!-- Horizontal Tab Navigation -->
           <div class="tabs-container">
-            <button
-              class="tab-btn"
-              :class="{ active: activeTab === 'description' }"
-              type="button"
-              @click="activeTab = 'description'"
-            >
+            <button class="tab-btn" :class="{ active: activeTab === 'description' }" type="button"
+              @click="activeTab = 'description'">
               Deskripsi
             </button>
-            <button
-              v-if="lines(vacancy.responsibilities).length"
-              class="tab-btn"
-              :class="{ active: activeTab === 'responsibilities' }"
-              type="button"
-              @click="activeTab = 'responsibilities'"
-            >
+            <button v-if="lines(vacancy.responsibilities).length" class="tab-btn"
+              :class="{ active: activeTab === 'responsibilities' }" type="button"
+              @click="activeTab = 'responsibilities'">
               Tanggung Jawab ({{ lines(vacancy.responsibilities).length }})
             </button>
-            <button
-              v-if="lines(vacancy.requirements).length"
-              class="tab-btn"
-              :class="{ active: activeTab === 'requirements' }"
-              type="button"
-              @click="activeTab = 'requirements'"
-            >
+            <button v-if="lines(vacancy.requirements).length" class="tab-btn"
+              :class="{ active: activeTab === 'requirements' }" type="button" @click="activeTab = 'requirements'">
               Kualifikasi ({{ lines(vacancy.requirements).length }})
             </button>
-            <button
-              v-if="lines(vacancy.benefits).length"
-              class="tab-btn"
-              :class="{ active: activeTab === 'benefits' }"
-              type="button"
-              @click="activeTab = 'benefits'"
-            >
+            <button v-if="lines(vacancy.benefits).length" class="tab-btn" :class="{ active: activeTab === 'benefits' }"
+              type="button" @click="activeTab = 'benefits'">
               Benefit ({{ lines(vacancy.benefits).length }})
             </button>
           </div>
@@ -606,40 +582,21 @@ onBeforeUnmount(() => {
 
       <!-- APPLICATION POPUP FORM MODAL -->
       <Teleport to="body">
-        <div
-          v-if="showModal"
-          class="application-modal"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="application-modal-title"
-        >
-          <button
-            class="modal-backdrop"
-            type="button"
-            aria-label="Tutup formulir"
-            @click="closeApplication"
-          ></button>
+        <div v-if="showModal" class="application-modal" role="dialog" aria-modal="true"
+          aria-labelledby="application-modal-title">
+          <button class="modal-backdrop" type="button" aria-label="Tutup formulir" @click="closeApplication"></button>
           <div class="application-modal-card glass-panel">
             <header class="modal-header">
               <div>
                 <span class="eyebrow">LAMAR POSISI</span>
                 <h2 id="application-modal-title">{{ vacancy.title }}</h2>
               </div>
-              <button
-                class="modal-close"
-                type="button"
-                aria-label="Tutup"
-                @click="closeApplication"
-              >
+              <button class="modal-close" type="button" aria-label="Tutup" @click="closeApplication">
                 ×
               </button>
             </header>
             <div v-if="!success" class="stepper">
-              <div
-                v-for="item in 3"
-                :key="item"
-                :class="{ active: step === item, done: step > item }"
-              >
+              <div v-for="item in 3" :key="item" :class="{ active: step === item, done: step > item }">
                 <span>{{ step > item ? '✓' : item }}</span>
                 <small>{{
                   ['Profil & Kontak', 'Pendidikan & Finansial', 'Review'][item - 1]
@@ -663,38 +620,20 @@ onBeforeUnmount(() => {
                   <p>Ceritakan informasi dasar dan kontak aktifmu.</p>
                 </div>
                 <div class="modal-form-grid">
-                  <label class="full-field"
-                    >Nama lengkap
-                    <input
-                      v-model.trim="form.name"
-                      autocomplete="name"
-                      placeholder="Nama sesuai identitas"
-                    />
+                  <label class="full-field">Nama lengkap
+                    <input v-model.trim="form.name" autocomplete="name" placeholder="Nama sesuai identitas" />
                     <small v-if="errors.name">{{ errors.name[0] }}</small>
                   </label>
-                  <label
-                    >Email
-                    <input
-                      v-model.trim="form.email"
-                      type="email"
-                      autocomplete="email"
-                      placeholder="nama@email.com"
-                    />
+                  <label>Email
+                    <input v-model.trim="form.email" type="email" autocomplete="email" placeholder="nama@email.com" />
                     <small v-if="errors.email">{{ errors.email[0] }}</small>
                   </label>
-                  <label
-                    >Nomor WhatsApp
-                    <input
-                      v-model.trim="form.phone"
-                      type="tel"
-                      autocomplete="tel"
-                      inputmode="tel"
-                      placeholder="0812 3456 7890"
-                    />
+                  <label>Nomor WhatsApp
+                    <input v-model.trim="form.phone" type="tel" autocomplete="tel" inputmode="tel"
+                      placeholder="0812 3456 7890" />
                     <small v-if="errors.phone">{{ errors.phone[0] }}</small>
                   </label>
-                  <label
-                    >Status pernikahan
+                  <label>Status pernikahan
                     <select v-model="form.marital_status">
                       <option value="" disabled>Pilih status</option>
                       <option>Belum Menikah</option>
@@ -703,16 +642,11 @@ onBeforeUnmount(() => {
                     </select>
                     <small v-if="errors.marital_status">{{ errors.marital_status[0] }}</small>
                   </label>
-                  <label
-                    >Orang yang dikenal <span class="optional">Opsional</span>
+                  <label>Orang yang dikenal <span class="optional">Opsional</span>
                     <input v-model.trim="form.known_person" placeholder="Nama kerabat jika ada" />
                   </label>
-                  <label class="full-field"
-                    >Perusahaan sebelumnya <span class="optional">Opsional</span>
-                    <input
-                      v-model.trim="form.last_company"
-                      placeholder="Nama perusahaan terakhir"
-                    />
+                  <label class="full-field">Perusahaan sebelumnya <span class="optional">Opsional</span>
+                    <input v-model.trim="form.last_company" placeholder="Nama perusahaan terakhir" />
                   </label>
                 </div>
               </section>
@@ -723,8 +657,7 @@ onBeforeUnmount(() => {
                   <p>Lengkapi latar belakang dan ekspektasi kariermu.</p>
                 </div>
                 <div class="modal-form-grid">
-                  <label
-                    >Pendidikan terakhir
+                  <label>Pendidikan terakhir
                     <select v-model="form.education_level">
                       <option value="" disabled>Pilih pendidikan</option>
                       <option>SMK</option>
@@ -735,42 +668,27 @@ onBeforeUnmount(() => {
                     </select>
                     <small v-if="errors.education_level">{{ errors.education_level[0] }}</small>
                   </label>
-                  <label
-                    >Jurusan pendidikan
-                    <input
-                      v-model.trim="form.education_major"
-                      placeholder="Contoh: Teknik Informatika"
-                    />
+                  <label>Jurusan pendidikan
+                    <input v-model.trim="form.education_major" placeholder="Contoh: Teknik Informatika" />
                     <small v-if="errors.education_major">{{ errors.education_major[0] }}</small>
                   </label>
-                  <label
-                    >Gaji saat ini
+                  <label>Gaji saat ini
                     <div class="money-input">
                       <span>Rp</span>
-                      <input
-                        :value="formatSalary(form.previous_salary)"
-                        inputmode="numeric"
-                        placeholder="5.000.000"
-                        @input="updateSalary('previous_salary', $event.target.value)"
-                      />
+                      <input :value="formatSalary(form.previous_salary)" inputmode="numeric" placeholder="5.000.000"
+                        @input="updateSalary('previous_salary', $event.target.value)" />
                     </div>
                     <small v-if="errors.previous_salary">{{ errors.previous_salary[0] }}</small>
                   </label>
-                  <label
-                    >Gaji yang diharapkan
+                  <label>Gaji yang diharapkan
                     <div class="money-input">
                       <span>Rp</span>
-                      <input
-                        :value="formatSalary(form.expected_salary)"
-                        inputmode="numeric"
-                        placeholder="7.000.000"
-                        @input="updateSalary('expected_salary', $event.target.value)"
-                      />
+                      <input :value="formatSalary(form.expected_salary)" inputmode="numeric" placeholder="7.000.000"
+                        @input="updateSalary('expected_salary', $event.target.value)" />
                     </div>
                     <small v-if="errors.expected_salary">{{ errors.expected_salary[0] }}</small>
                   </label>
-                  <label
-                    >Info lowongan dari
+                  <label>Info lowongan dari
                     <select v-model="form.referred_from">
                       <option value="" disabled>Pilih sumber info</option>
                       <option>LinkedIn</option>
@@ -782,8 +700,7 @@ onBeforeUnmount(() => {
                     </select>
                     <small v-if="errors.referred_from">{{ errors.referred_from[0] }}</small>
                   </label>
-                  <label class="file-field"
-                    >CV / Resume (PDF, maks. 5 MB)
+                  <label class="file-field">CV / Resume (PDF, maks. 5 MB)
                     <input type="file" accept="application/pdf,.pdf" @change="onFile" />
                     <span>{{ form.resume?.name || 'Pilih file PDF' }}</span>
                     <small v-if="errors.resume">{{ errors.resume[0] }}</small>
@@ -866,16 +783,10 @@ onBeforeUnmount(() => {
                   recruitment.
                 </div>
               </section>
-              <label class="honeypot" aria-hidden="true"
-                >Website<input v-model="form.website" tabindex="-1" autocomplete="off"
-              /></label>
+              <label class="honeypot" aria-hidden="true">Website<input v-model="form.website" tabindex="-1"
+                  autocomplete="off" /></label>
               <footer class="modal-actions">
-                <button
-                  v-if="step > 1"
-                  type="button"
-                  class="button-secondary"
-                  @click="previousStep"
-                >
+                <button v-if="step > 1" type="button" class="button-secondary" @click="previousStep">
                   ← Kembali
                 </button>
                 <span v-else></span>
@@ -927,19 +838,10 @@ onBeforeUnmount(() => {
             </div>
 
             <footer class="career-modal-footer">
-              <button
-                type="button"
-                class="button button-secondary"
-                @click="showConfirmModal = false"
-              >
+              <button type="button" class="button button-secondary" @click="showConfirmModal = false">
                 Batal
               </button>
-              <button
-                type="button"
-                class="button button-primary"
-                :disabled="!confirmChecked"
-                @click="executeApply"
-              >
+              <button type="button" class="button button-primary" :disabled="!confirmChecked" @click="executeApply">
                 Ya, Kirim Sekarang
               </button>
             </footer>
@@ -965,10 +867,8 @@ onBeforeUnmount(() => {
 
 /* Hero section / Header banner */
 .vacancy-detail-hero {
-  padding-top: 25px;
-  padding-bottom: 0px;
-  background: linear-gradient(to bottom, rgba(238, 242, 247, 0.5), transparent);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+  padding-top: 50px;
+  padding-bottom: 10px;
 }
 
 .back-link-btn {
@@ -993,6 +893,7 @@ onBeforeUnmount(() => {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 12px;
+  padding-left: 10px;
 }
 
 .vacancy-title-header {
@@ -1002,6 +903,7 @@ onBeforeUnmount(() => {
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin: 0 0 20px;
+  padding-left: 10px;
 }
 
 .chips-row {

@@ -28,10 +28,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #eef2f7;
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.15) 0%, transparent 60%),
-    radial-gradient(circle at 100% 50%, rgba(244, 114, 182, 0.08) 0%, transparent 50%);
+  background: var(--gray-1);
   color: var(--ink);
 }
 
@@ -230,7 +227,7 @@ select:focus-visible {
   color: var(--primary);
 }
 
-.hero-copy > p {
+.hero-copy>p {
   font-size: 18px;
   line-height: 1.75;
   color: var(--muted);
@@ -278,7 +275,7 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.92);
 }
 
-.quote-card > span {
+.quote-card>span {
   font: 800 46px Manrope;
   color: var(--accent);
   height: 28px;
@@ -333,7 +330,7 @@ select:focus-visible {
   letter-spacing: -0.035em;
 }
 
-.section-heading > p {
+.section-heading>p {
   max-width: 410px;
   color: var(--muted);
   line-height: 1.65;
@@ -363,7 +360,7 @@ select:focus-visible {
   position: relative;
 }
 
-.search-field > span {
+.search-field>span {
   position: absolute;
   left: 16px;
   top: 10px;
@@ -620,7 +617,7 @@ select:focus-visible {
   padding: 30px;
 }
 
-.application-card > form > p {
+.application-card>form>p {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
@@ -676,7 +673,7 @@ select:focus-visible {
   position: relative;
 }
 
-.money-input > span {
+.money-input>span {
   position: absolute;
   z-index: 1;
   left: 13px;
@@ -697,7 +694,7 @@ select:focus-visible {
 }
 
 .application-card small.error-text,
-.application-card label > small:not(:only-of-type) {
+.application-card label>small:not(:only-of-type) {
   color: #b42318;
 }
 
@@ -707,7 +704,7 @@ select:focus-visible {
   pointer-events: none;
 }
 
-.file-field > span {
+.file-field>span {
   display: block;
   margin-top: 7px;
   border: 1px dashed #9eb2bf;
@@ -740,7 +737,7 @@ select:focus-visible {
   padding: 35px 5px;
 }
 
-.success-state > span {
+.success-state>span {
   display: grid;
   place-items: center;
   width: 64px;
@@ -793,7 +790,7 @@ select:focus-visible {
   }
 }
 
-.application-cta > p {
+.application-cta>p {
   color: var(--muted);
   line-height: 1.65;
 }
@@ -808,7 +805,7 @@ select:focus-visible {
   background: rgba(237, 246, 248, 0.8);
 }
 
-.application-promise > span {
+.application-promise>span {
   display: grid;
   place-items: center;
   width: 32px;
@@ -916,7 +913,7 @@ select:focus-visible {
   padding: 22px 30px 0;
 }
 
-.stepper > div {
+.stepper>div {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -926,7 +923,7 @@ select:focus-visible {
   text-align: center;
 }
 
-.stepper > div:not(:last-child)::after {
+.stepper>div:not(:last-child)::after {
   content: '';
   position: absolute;
   z-index: 0;
@@ -937,7 +934,7 @@ select:focus-visible {
   background: #dce6eb;
 }
 
-.stepper > div.done:not(:last-child)::after {
+.stepper>div.done:not(:last-child)::after {
   background: var(--accent);
 }
 
@@ -988,7 +985,7 @@ select:focus-visible {
   margin-bottom: 22px;
 }
 
-.step-heading > span {
+.step-heading>span {
   color: var(--primary);
   font-size: 10px;
   font-weight: 800;
@@ -1059,7 +1056,7 @@ select:focus-visible {
   box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
 }
 
-.modal-form-grid .money-input > span {
+.modal-form-grid .money-input>span {
   position: static;
   flex: 0 0 auto;
   padding-left: 13px;
@@ -1093,7 +1090,7 @@ select:focus-visible {
   grid-column: 1 / -1;
 }
 
-.modal-form-grid .file-field > span {
+.modal-form-grid .file-field>span {
   display: block;
   margin-top: 7px;
   border: 1px dashed #8eafc2;
@@ -1202,7 +1199,7 @@ select:focus-visible {
   cursor: pointer;
 }
 
-.application-modal-card > .success-state {
+.application-modal-card>.success-state {
   padding: 70px 30px;
 }
 
@@ -1259,7 +1256,7 @@ select:focus-visible {
     height: 64px;
   }
 
-  .site-header > .button {
+  .site-header>.button {
     display: none;
   }
 
@@ -1273,7 +1270,7 @@ select:focus-visible {
     font-size: 42px;
   }
 
-  .hero-copy > p {
+  .hero-copy>p {
     font-size: 16px;
   }
 
@@ -1413,7 +1410,7 @@ select:focus-visible {
     display: block;
   }
 
-  .site-footer > p {
+  .site-footer>p {
     margin-top: 28px;
   }
 
@@ -1428,6 +1425,7 @@ select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *:before,
   *:after {

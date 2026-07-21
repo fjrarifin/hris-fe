@@ -87,12 +87,8 @@ onMounted(() => {
       <!-- HERO SECTION -->
       <section class="career-hero-section">
         <div class="hero-inner">
-          <div class="eyebrow-pill-container">
-            <span class="eyebrow-pill">Berkarya Bersama Kami</span>
-          </div>
-
           <h1 class="hero-heading-text">
-            Temukan tempat untuk <span class="gradient-text">tumbuh & berdampak</span>
+            Temukan tempat untuk tumbuh & berdampak
           </h1>
 
           <p class="hero-description-text">
@@ -108,21 +104,11 @@ onMounted(() => {
         <div class="filter-bar-container glass-panel-premium">
           <div class="search-input-wrapper">
             <span class="search-icon-symbol">⌕</span>
-            <input
-              v-model="filters.search"
-              type="search"
-              placeholder="Cari posisi, keahlian, atau lokasi..."
-              aria-label="Cari lowongan"
-              class="search-text-input"
-              @input="updateFilters"
-            />
+            <input v-model="filters.search" type="search" placeholder="Cari posisi, keahlian, atau lokasi..."
+              aria-label="Cari lowongan" class="search-text-input" @input="updateFilters" />
           </div>
           <div class="select-dropdown-wrapper">
-            <select
-              v-model="filters.department"
-              class="department-select-input"
-              @change="updateFilters"
-            >
+            <select v-model="filters.department" class="department-select-input" @change="updateFilters">
               <option value="">Semua Departemen</option>
               <option v-for="item in filterOptions.departments" :key="item" :value="item">
                 {{ item }}
@@ -161,10 +147,7 @@ onMounted(() => {
           <VacancyCard v-for="vacancy in vacancies" :key="vacancy.slug" :vacancy="vacancy" />
 
           <!-- Optional CTA Card to fill the grid if not divisible by 3 -->
-          <article
-            v-if="vacancies.length % 3 !== 0"
-            class="career-job-card glass-panel-premium cta-card"
-          >
+          <article v-if="vacancies.length % 3 !== 0" class="career-job-card glass-panel-premium cta-card">
             <div class="card-header-row">
               <div class="icon-box cta-theme">
                 <span class="icon-emoji">📧</span>
@@ -180,8 +163,8 @@ onMounted(() => {
             </p>
 
             <div class="job-tags-row">
-              <span class="pills-tag">📍 Semua Lokasi</span>
-              <span class="pills-tag">⏰ Fleksibel</span>
+              <span class="pills-tag">Semua Lokasi</span>
+              <span class="pills-tag">Fleksibel</span>
             </div>
 
             <div class="card-footer-row">
@@ -194,26 +177,16 @@ onMounted(() => {
         </div>
 
         <!-- Pagination -->
-        <nav
-          v-if="meta.last_page > 1"
-          class="pagination-container"
-          aria-label="Pagination lowongan"
-        >
-          <button
-            class="pagination-button"
-            :disabled="meta.current_page <= 1"
-            @click="changePage(meta.current_page - 1)"
-          >
+        <nav v-if="meta.last_page > 1" class="pagination-container" aria-label="Pagination lowongan">
+          <button class="pagination-button" :disabled="meta.current_page <= 1"
+            @click="changePage(meta.current_page - 1)">
             ← Sebelumnya
           </button>
           <span class="pagination-indicator-text">
             Halaman {{ meta.current_page }} dari {{ meta.last_page }}
           </span>
-          <button
-            class="pagination-button"
-            :disabled="meta.current_page >= meta.last_page"
-            @click="changePage(meta.current_page + 1)"
-          >
+          <button class="pagination-button" :disabled="meta.current_page >= meta.last_page"
+            @click="changePage(meta.current_page + 1)">
             Berikutnya →
           </button>
         </nav>

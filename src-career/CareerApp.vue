@@ -10,13 +10,6 @@ function alertCekStatus() {
 
 <template>
   <div class="career-shell">
-    <!-- Global Aurora gradient background effects -->
-    <div class="aurora-gradient-bg">
-      <div class="aurora-orb blue-orb"></div>
-      <div class="aurora-orb pink-orb"></div>
-      <div class="aurora-orb green-orb"></div>
-    </div>
-
     <header class="site-header glass-panel">
       <RouterLink to="/" class="brand" aria-label="Halaman utama career">
         <!-- Pink/purple gradient circle with HP logo -->
@@ -31,9 +24,7 @@ function alertCekStatus() {
         </a>
         <RouterLink to="/jobs">Lowongan</RouterLink>
       </nav>
-      <RouterLink to="/jobs" class="button button-small glass-button-header"
-        >Lihat Lowongan</RouterLink
-      >
+      <RouterLink to="/jobs" class="button button-small glass-button-header">Lihat Lowongan</RouterLink>
     </header>
     <main>
       <RouterView />
@@ -115,7 +106,7 @@ function alertCekStatus() {
   min-height: 100vh;
   width: 100%;
   background-color: #eef2f7;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 main {

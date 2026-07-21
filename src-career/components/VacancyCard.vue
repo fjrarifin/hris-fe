@@ -58,9 +58,6 @@ const deptColorClass = (dept) => {
       <h3 class="job-title-text">
         <RouterLink :to="`/jobs/${vacancy.slug}`">{{ vacancy.title }}</RouterLink>
       </h3>
-      <div class="category-badge" :class="deptColorClass(vacancy.department)">
-        {{ vacancy.department || 'GENERAL' }}
-      </div>
     </div>
 
     <p class="job-desc-text">
@@ -75,10 +72,10 @@ const deptColorClass = (dept) => {
       <span class="pills-tag">{{ vacancy.location || 'Lokasi belum ditentukan' }}</span>
       <span class="pills-tag">{{
         labels[vacancy.employment_type] || vacancy.employment_type || 'Penuh Waktu'
-      }}</span>
+        }}</span>
       <span v-if="vacancy.workplace_type" class="pills-tag">{{
         labels[vacancy.workplace_type] || vacancy.workplace_type
-      }}</span>
+        }}</span>
       <span v-if="isNew(vacancy.published_at)" class="new-badge-tag">BARU</span>
     </div>
 
