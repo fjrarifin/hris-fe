@@ -30,11 +30,11 @@ export function setSeo({ title, description, path = '/', robots = 'index,follow'
   setMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '512' })
   setMeta('meta[property="og:image:alt"]', {
     property: 'og:image:alt',
-    content: `${title} | Career ${companyName}`,
+    content: `${title} | Karir ${companyName}`,
   })
   setMeta('meta[property="og:site_name"]', {
     property: 'og:site_name',
-    content: `Career ${companyName}`,
+    content: `Karir ${companyName}`,
   })
   setMeta('meta[property="og:locale"]', { property: 'og:locale', content: 'id_ID' })
 
