@@ -148,12 +148,6 @@ onMounted(() => {
 
           <!-- Optional CTA Card to fill the grid if not divisible by 3 -->
           <article v-if="vacancies.length % 3 !== 0" class="career-job-card glass-panel-premium cta-card">
-            <div class="card-header-row">
-              <div class="icon-box cta-theme">
-                <span class="icon-emoji">📧</span>
-              </div>
-              <div class="category-badge cta-theme">OPEN APPLICATION</div>
-            </div>
 
             <h3 class="job-title-text">Kirim CV Umum</h3>
 
