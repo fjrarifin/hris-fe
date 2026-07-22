@@ -60,11 +60,25 @@ const masterPositions = ref([])
 const formControlClass =
   'w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50'
 
+const statusFilter = ref('all')
+
+const statusCounts = computed(() => {
+  const counts = { all: records.value.length, open: 0, closed: 0, draft: 0 }
+  records.value.forEach((r) => {
+    if (r.status in counts) {
+      counts[r.status]++
+    }
+  })
+  return counts
+})
+
 const filteredRecords = computed(() => {
   const keyword = search.value.trim().toLowerCase()
+  const filter = statusFilter.value
   return records.value
     .filter((record) => {
-      return (
+      const matchesStatus = filter === 'all' || record.status === filter
+      const matchesSearch =
         record.title.toLowerCase().includes(keyword) ||
         (record.division || '').toLowerCase().includes(keyword) ||
         (record.department || '').toLowerCase().includes(keyword) ||
@@ -72,7 +86,7 @@ const filteredRecords = computed(() => {
         (record.position || '').toLowerCase().includes(keyword) ||
         (record.supervisor_name || '').toLowerCase().includes(keyword) ||
         (record.description || '').toLowerCase().includes(keyword)
-      )
+      return matchesStatus && matchesSearch
     })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 })
@@ -440,21 +454,29 @@ onMounted(() => {
           </div>
           <div class="h-10 bg-muted/30 w-48 rounded"></div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-          <div
-            v-for="i in 4"
-            :key="i"
-            class="rounded-xl border border-default p-5 bg-default space-y-3"
-          >
-            <div class="flex justify-between">
-              <div class="h-5 bg-muted/40 w-1/2 rounded"></div>
-              <div class="h-5 bg-muted/30 w-12 rounded"></div>
-            </div>
-            <div class="h-4 bg-muted/20 w-5/6 rounded"></div>
-            <div class="h-4 bg-muted/20 w-1/2 rounded"></div>
-            <div class="border-t border-dashed border-default my-3"></div>
-            <div class="h-5 bg-muted/30 w-1/3 rounded"></div>
-          </div>
+        <div class="overflow-x-auto border border-default rounded-xl pt-1">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-default bg-muted/10 text-muted font-semibold text-xs">
+                <th class="py-3 px-4">Lowongan</th>
+                <th class="py-3 px-4">Unit</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Kandidat</th>
+                <th class="py-3 px-4">Dibuat</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-default">
+              <tr v-for="i in 5" :key="i">
+                <td class="py-3.5 px-4"><div class="h-4 bg-muted/30 rounded w-36"></div></td>
+                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-48"></div></td>
+                <td class="py-3.5 px-4"><div class="h-5 bg-muted/30 rounded-full w-14"></div></td>
+                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-20"></div></td>
+                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-24"></div></td>
+                <td class="py-3.5 px-4 text-right"><div class="h-8 w-16 bg-muted/20 rounded ml-auto"></div></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </template>
@@ -563,173 +585,195 @@ onMounted(() => {
       <!-- Daftar Lowongan -->
       <UCard>
         <template #header>
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 class="font-semibold text-highlighted">Daftar Lowongan</h3>
-              <p class="mt-1 text-sm text-muted">
-                Daftar seluruh lowongan pekerjaan yang terdaftar di sistem.
-              </p>
-            </div>
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:max-w-xl">
-              <div
-                class="flex items-center gap-2 bg-default border border-default rounded-lg px-3 py-2 w-full"
-              >
-                <UIcon name="i-lucide-search" class="size-4 text-muted" />
-                <input
-                  v-model="search"
-                  type="search"
-                  placeholder="Cari lowongan, unit, atau atasan..."
-                  class="w-full bg-transparent border-0 text-sm outline-none text-highlighted"
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 class="font-semibold text-highlighted">Daftar Lowongan</h3>
+                <p class="mt-1 text-sm text-muted">
+                  Daftar seluruh lowongan pekerjaan yang terdaftar di sistem.
+                </p>
+              </div>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- Input Search -->
+                <div
+                  class="flex h-10 items-center gap-2 bg-default border border-default rounded-lg px-3 py-2 w-full sm:w-72"
+                >
+                  <UIcon name="i-lucide-search" class="size-4 text-muted shrink-0" />
+                  <input
+                    v-model="search"
+                    type="search"
+                    placeholder="Cari lowongan, unit, atau atasan..."
+                    class="w-full bg-transparent border-0 text-xs outline-none text-highlighted"
+                  />
+                </div>
+
+                <!-- Tombol Tambah Lowongan -->
+                <UButton
+                  type="button"
+                  label="+ Tambah Lowongan"
+                  icon="i-lucide-plus"
+                  class="shrink-0 justify-center h-10 px-4 font-semibold text-sm"
+                  @click="openCreate"
                 />
               </div>
-              <UButton
+            </div>
+
+            <!-- Tab Filter Simple (Underline / Line Tab Style) -->
+            <div class="flex items-center gap-6 border-b border-default text-xs pt-1 overflow-x-auto">
+              <button
                 type="button"
-                label="+ Tambah Lowongan"
-                icon="i-lucide-plus"
-                class="shrink-0 justify-center h-10 px-4 font-semibold text-sm"
-                @click="openCreate"
-              />
+                :class="[
+                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                  statusFilter === 'all'
+                    ? 'border-primary text-highlighted font-semibold'
+                    : 'border-transparent text-muted hover:text-highlighted'
+                ]"
+                @click="statusFilter = 'all'"
+              >
+                <span>Semua</span>
+                <span class="text-[10px] text-muted font-normal">({{ statusCounts.all }})</span>
+              </button>
+
+              <button
+                type="button"
+                :class="[
+                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                  statusFilter === 'open'
+                    ? 'border-primary text-highlighted font-semibold'
+                    : 'border-transparent text-muted hover:text-highlighted'
+                ]"
+                @click="statusFilter = 'open'"
+              >
+                <span>Open</span>
+                <span class="text-[10px] text-muted font-normal">({{ statusCounts.open }})</span>
+              </button>
+
+              <button
+                type="button"
+                :class="[
+                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                  statusFilter === 'closed'
+                    ? 'border-primary text-highlighted font-semibold'
+                    : 'border-transparent text-muted hover:text-highlighted'
+                ]"
+                @click="statusFilter = 'closed'"
+              >
+                <span>Closed</span>
+                <span class="text-[10px] text-muted font-normal">({{ statusCounts.closed }})</span>
+              </button>
+
+              <button
+                v-if="statusCounts.draft > 0 || statusFilter === 'draft'"
+                type="button"
+                :class="[
+                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                  statusFilter === 'draft'
+                    ? 'border-primary text-highlighted font-semibold'
+                    : 'border-transparent text-muted hover:text-highlighted'
+                ]"
+                @click="statusFilter = 'draft'"
+              >
+                <span>Draft</span>
+                <span class="text-[10px] text-muted font-normal">({{ statusCounts.draft }})</span>
+              </button>
             </div>
           </div>
         </template>
 
-        <!-- Layout list-card premium (bukan table) — 2 Kolom -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div
-            v-for="record in filteredRecords"
-            :key="record.id"
-            class="rounded-xl border border-default p-5 hover:shadow-sm transition bg-default space-y-3 flex flex-col justify-between"
-          >
-            <div class="space-y-3">
-              <!-- Row 1: Judul dan Status Badge -->
-              <div class="flex items-start justify-between gap-4">
-                <h4 class="font-bold text-highlighted text-base">{{ record.title }}</h4>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  <span
-                    v-if="record.hired_candidates_count > 0"
-                    class="inline-flex items-center rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider"
+        <!-- Layout Table List sesuai desain -->
+        <div class="overflow-x-auto border border-default rounded-xl">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-default bg-muted/10 text-muted font-bold text-xs">
+                <th class="py-3.5 px-4 font-semibold">Lowongan</th>
+                <th class="py-3.5 px-4 font-semibold">Unit</th>
+                <th class="py-3.5 px-4 font-semibold">Status</th>
+                <th class="py-3.5 px-4 font-semibold">Kandidat</th>
+                <th class="py-3.5 px-4 font-semibold">Dibuat</th>
+                <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-default">
+              <tr
+                v-for="record in filteredRecords"
+                :key="record.id"
+                class="hover:bg-muted/5 transition-colors"
+              >
+                <!-- Lowongan -->
+                <td class="py-3.5 px-4 font-bold text-highlighted text-sm whitespace-nowrap">
+                  {{ record.title }}
+                </td>
+
+                <!-- Unit -->
+                <td class="py-3.5 px-4 text-muted font-medium text-xs">
+                  <div
+                    class="max-w-[200px] lg:max-w-[280px] truncate"
+                    :title="[record.division, record.department, record.unit].filter(Boolean).join(' / ')"
                   >
-                    Hired
-                  </span>
+                    {{ [record.division, record.department, record.unit].filter(Boolean).join(' / ') || '-' }}
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td class="py-3.5 px-4 whitespace-nowrap">
                   <UBadge
                     :color="getStatusColor(record.status)"
                     variant="soft"
-                    class="uppercase text-[10px] font-bold px-2 py-0.5"
+                    class="capitalize text-xs font-semibold px-2.5 py-0.5 rounded-full"
                   >
-                    {{ record.status }}
+                    {{ record.status === 'open' ? 'Open' : record.status === 'closed' ? 'Closed' : record.status }}
                   </UBadge>
-                </div>
-              </div>
+                </td>
 
-              <!-- Row 2: Deskripsi Singkat -->
-              <p class="text-xs text-muted leading-relaxed line-clamp-2">
-                {{ record.description || 'Tidak ada deskripsi lowongan' }}
-              </p>
+                <!-- Kandidat -->
+                <td class="py-3.5 px-4 text-highlighted font-medium text-xs whitespace-nowrap">
+                  {{ record.candidates_count ?? 0 }} kandidat
+                </td>
 
-              <!-- Row 3: Breadcrumbs chip organisasi -->
-              <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
-                <span
-                  class="px-2 py-0.5 rounded bg-muted/40 text-muted font-medium"
-                  v-if="record.division"
-                  >{{ record.division }}</span
-                >
-                <span class="text-muted/30" v-if="record.division && record.department">/</span>
-                <span
-                  class="px-2 py-0.5 rounded bg-muted/40 text-muted font-medium"
-                  v-if="record.department"
-                  >{{ record.department }}</span
-                >
-                <span class="text-muted/30" v-if="record.department && record.unit">/</span>
-                <span
-                  class="px-2 py-0.5 rounded bg-muted/40 text-muted font-medium"
-                  v-if="record.unit"
-                  >{{ record.unit }}</span
-                >
-              </div>
-            </div>
+                <!-- Dibuat -->
+                <td class="py-3.5 px-4 text-highlighted font-medium text-xs whitespace-nowrap">
+                  {{ formatDate(record.created_at) }}
+                </td>
 
-            <div>
-              <!-- Divider putus-putus -->
-              <div class="border-t border-dashed border-default my-3"></div>
-
-              <!-- Row 4: Footer info & aksi -->
-              <div
-                class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-muted"
-              >
-                <!-- Sisi Kiri: Atasan & Jumlah Kandidat -->
-                <div class="flex flex-wrap items-center gap-3">
-                  <!-- Atasan -->
-                  <div v-if="record.supervisor_nik" class="flex items-center gap-1.5">
-                    <div
-                      class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-[9px] font-bold"
+                <!-- Aksi -->
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 transition cursor-pointer"
+                      title="Edit Lowongan"
+                      @click="openEdit(record)"
                     >
-                      {{
-                        record.supervisor_name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .slice(0, 2)
-                          .join('')
-                          .toUpperCase()
-                      }}
-                    </div>
-                    <span class="text-highlighted font-medium text-xs truncate max-w-[100px]">{{
-                      record.supervisor_name
-                    }}</span>
+                      <UIcon name="i-lucide-pencil" class="size-4" />
+                    </button>
+                    <button
+                      v-if="!record.candidates_count"
+                      type="button"
+                      class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 hover:text-danger transition cursor-pointer"
+                      title="Hapus Lowongan"
+                      @click="deleteVacancy(record)"
+                    >
+                      <UIcon name="i-lucide-trash-2" class="size-4" />
+                    </button>
+                    <button
+                      v-else-if="record.status !== 'closed'"
+                      type="button"
+                      class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 hover:text-amber-500 transition cursor-pointer"
+                      title="Tutup Lowongan"
+                      @click="closeVacancy(record)"
+                    >
+                      <UIcon name="i-lucide-ban" class="size-4" />
+                    </button>
                   </div>
-                  <!-- Jumlah Pelamar/Kandidat & Tanggal Dibuat -->
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <div class="flex items-center gap-1">
-                      <UIcon name="i-lucide-users" class="size-3.5 text-muted/60" />
-                      <span>{{ record.candidates_count ?? 0 }} kandidat</span>
-                    </div>
-                    <span class="text-muted/30">•</span>
-                    <div class="flex items-center gap-1 text-[10px]">
-                      <UIcon name="i-lucide-calendar" class="size-3.5 text-muted/60" />
-                      <span>Dibuat: {{ formatDate(record.created_at) }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Sisi Aksi: Edit & Hapus/Tutup minimalis -->
-                <div class="flex items-center gap-3 shrink-0">
-                  <button
-                    type="button"
-                    class="inline-flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-700 hover:underline transition"
-                    @click="openEdit(record)"
-                  >
-                    <UIcon name="i-lucide-pencil" class="size-3.5" />
-                    Edit
-                  </button>
-                  <!-- Tombol Hapus jika belum ada kandidat -->
-                  <button
-                    v-if="!record.candidates_count"
-                    type="button"
-                    class="inline-flex items-center gap-1 font-semibold text-danger hover:text-red-700 hover:underline transition"
-                    @click="deleteVacancy(record)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="size-3.5" />
-                    Hapus
-                  </button>
-                  <!-- Tombol Tutup jika sudah ada kandidat dan status belum closed -->
-                  <button
-                    v-else-if="record.status !== 'closed'"
-                    type="button"
-                    class="inline-flex items-center gap-1 font-semibold text-danger hover:text-red-700 hover:underline transition"
-                    @click="closeVacancy(record)"
-                  >
-                    <UIcon name="i-lucide-ban" class="size-3.5" />
-                    Tutup
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="!filteredRecords.length"
-            class="md:col-span-2 p-8 text-center text-muted border border-dashed border-default rounded-xl text-xs"
-          >
-            Tidak ada lowongan ditemukan.
-          </div>
+                </td>
+              </tr>
+              <tr v-if="!filteredRecords.length">
+                <td colspan="6" class="p-8 text-center text-muted text-xs">
+                  Tidak ada lowongan ditemukan.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </UCard>
     </template>
@@ -747,7 +791,7 @@ onMounted(() => {
         aria-label="Tutup modal"
         @click="closeModal"
       ></button>
-      <UCard class="relative max-h-[92vh] w-full max-w-lg overflow-y-auto">
+      <UCard class="relative max-h-[92vh] w-full max-w-[75vw] overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -769,321 +813,336 @@ onMounted(() => {
         </template>
 
         <form class="space-y-4" @submit.prevent="handleSubmit">
-          <!-- Kelompok Struktur Organisasi Cascading -->
-          <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
-            <div class="flex items-center justify-between">
-              <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
-                Struktur Organisasi
-              </p>
-              <span class="text-[10px] text-muted">* Wajib diisi</span>
-            </div>
-
-            <!-- Breadcrumb Chip visual -->
-            <div
-              v-if="form.division || form.department || form.unit || form.position"
-              class="flex flex-wrap gap-1 text-[10px]"
-            >
-              <span
-                v-if="form.division"
-                class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[100px]"
-                >{{ form.division }}</span
-              >
-              <span v-if="form.department" class="text-muted/50 flex items-center gap-0.5"
-                >❯
-                <span
-                  class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[100px]"
-                  >{{ form.department }}</span
-                ></span
-              >
-              <span v-if="form.unit" class="text-muted/50 flex items-center gap-0.5"
-                >❯
-                <span
-                  class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[100px]"
-                  >{{ form.unit }}</span
-                ></span
-              >
-              <span v-if="form.position" class="text-muted/50 flex items-center gap-0.5"
-                >❯
-                <span
-                  class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[100px]"
-                  >{{ form.position }}</span
-                ></span
-              >
-            </div>
-
-            <!-- Divisi -->
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted"
-                >Divisi <span class="text-danger">*</span></label
-              >
-              <select
-                v-model="form.division"
-                required
-                :class="formControlClass"
-                @change="onDivisionChange"
-              >
-                <option value="">Pilih Divisi</option>
-                <option v-for="name in divisionOptions" :key="name" :value="name">
-                  {{ name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Departemen -->
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted"
-                >Departemen <span class="text-danger">*</span></label
-              >
-              <select
-                v-model="form.department"
-                required
-                :disabled="!form.division"
-                :class="formControlClass"
-                @change="onDepartmentChange"
-              >
-                <option value="">Pilih Departemen</option>
-                <option v-for="name in departmentOptions" :key="name" :value="name">
-                  {{ name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Unit -->
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted">Unit</label>
-              <select
-                v-model="form.unit"
-                :disabled="!form.department"
-                :class="formControlClass"
-                @change="onUnitChange"
-              >
-                <option value="">Pilih Unit</option>
-                <option v-for="name in unitOptions" :key="name" :value="name">{{ name }}</option>
-              </select>
-            </div>
-
-            <!-- Jabatan -->
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted">Jabatan / Posisi</label>
-              <select
-                v-model="form.position"
-                :disabled="!form.department"
-                :class="formControlClass"
-                @change="onPositionChange"
-              >
-                <option value="">Pilih Jabatan</option>
-                <option v-for="name in positionOptions" :key="name" :value="name">
-                  {{ name }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Nama Lowongan / Posisi -->
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted"
-              >Nama Lowongan / Posisi <span class="text-danger">*</span></label
-            >
-            <input
-              v-model="form.title"
-              required
-              placeholder="Masukkan nama lowongan secara spesifik"
-              :class="formControlClass"
-            />
-          </div>
-
-          <!-- Atasan Langsung Search-Select -->
-          <div class="relative">
-            <label class="mb-1 block text-xs font-semibold text-muted">Atasan Langsung</label>
-            <div
-              class="flex items-center gap-1 bg-default border border-default rounded-md px-2.5 py-1"
-            >
-              <UIcon name="i-lucide-search" class="size-4 text-muted" />
-              <input
-                v-model="supervisorSearch"
-                placeholder="Cari nama karyawan atau NIK..."
-                class="w-full bg-transparent border-0 text-sm outline-none text-highlighted"
-                @focus="showSupervisorDropdown = true"
-                @blur="onSupervisorBlur"
-              />
-            </div>
-
-            <!-- Suggestions list -->
-            <div
-              v-if="showSupervisorDropdown && supervisorSearch.trim()"
-              class="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-default bg-default shadow-lg"
-            >
-              <button
-                v-for="employee in supervisorSuggestions"
-                :key="employee.nik"
-                type="button"
-                class="flex w-full items-center gap-3 px-3 py-2 text-left text-xs text-highlighted hover:bg-muted/10"
-                @click="selectSupervisor(employee)"
-              >
-                <div
-                  class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 font-bold text-primary text-[9px]"
-                >
-                  {{
-                    employee.name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .slice(0, 2)
-                      .join('')
-                      .toUpperCase()
-                  }}
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <!-- KOLOM KIRI: Organisasi, Posisi & Atasan -->
+            <div class="space-y-4">
+              <!-- Kelompok Struktur Organisasi Cascading -->
+              <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                    Struktur Organisasi
+                  </p>
+                  <span class="text-[10px] text-muted">* Wajib diisi</span>
                 </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="font-semibold truncate">{{ employee.name }}</span>
-                  <span class="text-[9px] text-muted"
-                    >{{ employee.position || 'Staf' }} • NIK: {{ employee.nik }}</span
+
+                <!-- Breadcrumb Chip visual -->
+                <div
+                  v-if="form.division || form.department || form.unit || form.position"
+                  class="flex flex-wrap gap-1 text-[10px]"
+                >
+                  <span
+                    v-if="form.division"
+                    class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
+                    >{{ form.division }}</span
+                  >
+                  <span v-if="form.department" class="text-muted/50 flex items-center gap-0.5"
+                    >❯
+                    <span
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
+                      >{{ form.department }}</span
+                    ></span
+                  >
+                  <span v-if="form.unit" class="text-muted/50 flex items-center gap-0.5"
+                    >❯
+                    <span
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
+                      >{{ form.unit }}</span
+                    ></span
+                  >
+                  <span v-if="form.position" class="text-muted/50 flex items-center gap-0.5"
+                    >❯
+                    <span
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
+                      >{{ form.position }}</span
+                    ></span
                   >
                 </div>
-              </button>
-              <div v-if="!supervisorSuggestions.length" class="p-3 text-center text-muted text-xs">
-                Karyawan aktif tidak ditemukan
-              </div>
-            </div>
 
-            <!-- Preview Card Atasan Langsung -->
-            <div
-              v-if="form.supervisor_nik"
-              class="mt-2.5 flex items-center justify-between p-3 rounded-lg border border-default bg-muted/10"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-                >
-                  {{
-                    form.supervisor_name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .slice(0, 2)
-                      .join('')
-                      .toUpperCase()
-                  }}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- Divisi -->
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted"
+                      >Divisi <span class="text-danger">*</span></label
+                    >
+                    <select
+                      v-model="form.division"
+                      required
+                      :class="formControlClass"
+                      @change="onDivisionChange"
+                    >
+                      <option value="">Pilih Divisi</option>
+                      <option v-for="name in divisionOptions" :key="name" :value="name">
+                        {{ name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Departemen -->
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted"
+                      >Departemen <span class="text-danger">*</span></label
+                    >
+                    <select
+                      v-model="form.department"
+                      required
+                      :disabled="!form.division"
+                      :class="formControlClass"
+                      @change="onDepartmentChange"
+                    >
+                      <option value="">Pilih Departemen</option>
+                      <option v-for="name in departmentOptions" :key="name" :value="name">
+                        {{ name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Unit -->
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Unit</label>
+                    <select
+                      v-model="form.unit"
+                      :disabled="!form.department"
+                      :class="formControlClass"
+                      @change="onUnitChange"
+                    >
+                      <option value="">Pilih Unit</option>
+                      <option v-for="name in unitOptions" :key="name" :value="name">{{ name }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Jabatan -->
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Jabatan / Posisi</label>
+                    <select
+                      v-model="form.position"
+                      :disabled="!form.department"
+                      :class="formControlClass"
+                      @change="onPositionChange"
+                    >
+                      <option value="">Pilih Jabatan</option>
+                      <option v-for="name in positionOptions" :key="name" :value="name">
+                        {{ name }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-                <div class="flex flex-col">
-                  <span class="text-xs font-semibold text-highlighted">{{
-                    form.supervisor_name
-                  }}</span>
-                  <span class="text-[9px] text-muted"
-                    >Atasan Langsung • NIK: {{ form.supervisor_nik }}</span
+              </div>
+
+              <!-- Nama Lowongan & Status Lowongan -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted"
+                    >Nama Lowongan / Posisi <span class="text-danger">*</span></label
                   >
+                  <input
+                    v-model="form.title"
+                    required
+                    placeholder="Masukkan nama lowongan secara spesifik"
+                    :class="formControlClass"
+                  />
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Status Lowongan</label>
+                  <select v-model="form.status" :class="formControlClass">
+                    <option value="draft">Draft</option>
+                    <option value="open">Open (Aktif)</option>
+                    <option value="closed">Closed (Ditutup)</option>
+                  </select>
                 </div>
               </div>
-              <UButton
-                color="danger"
-                variant="ghost"
-                size="xs"
-                icon="i-lucide-trash-2"
-                @click="removeSupervisor"
-              />
-            </div>
-          </div>
 
-          <!-- Status -->
-          <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
-            <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
-              Informasi Career Public
-            </p>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1 block text-xs font-semibold text-muted">Tipe Pekerjaan</label>
-                <select v-model="form.employment_type" :class="formControlClass">
-                  <option value="">Pilih tipe</option>
-                  <option value="full_time">Penuh Waktu</option>
-                  <option value="part_time">Paruh Waktu</option>
-                  <option value="contract">Kontrak</option>
-                  <option value="internship">Magang</option>
-                  <option value="temporary">Sementara</option>
-                </select>
-              </div>
-              <div>
-                <label class="mb-1 block text-xs font-semibold text-muted">Sistem Kerja</label>
-                <select v-model="form.workplace_type" :class="formControlClass">
-                  <option value="">Pilih sistem</option>
-                  <option value="onsite">On-site</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="remote">Remote</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted">Lokasi Kerja</label
-              ><input
-                v-model="form.location"
-                maxlength="150"
-                placeholder="Contoh: Jakarta Selatan"
-                :class="formControlClass"
-              />
-            </div>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1 block text-xs font-semibold text-muted">Mulai Tayang</label
-                ><input
-                  v-model="form.published_at"
-                  type="datetime-local"
-                  :class="formControlClass"
-                />
-              </div>
-              <div>
-                <label class="mb-1 block text-xs font-semibold text-muted">Berhenti Tayang</label
-                ><input v-model="form.expires_at" type="datetime-local" :class="formControlClass" />
-              </div>
-            </div>
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-muted">Batas Lamaran</label
-              ><input v-model="form.application_deadline" type="date" :class="formControlClass" />
-            </div>
-          </div>
+              <!-- Atasan Langsung Search-Select -->
+              <div class="relative">
+                <label class="mb-1 block text-xs font-semibold text-muted">Atasan Langsung</label>
+                <div
+                  class="flex items-center gap-1 bg-default border border-default rounded-md px-2.5 py-1"
+                >
+                  <UIcon name="i-lucide-search" class="size-4 text-muted" />
+                  <input
+                    v-model="supervisorSearch"
+                    placeholder="Cari nama karyawan atau NIK..."
+                    class="w-full bg-transparent border-0 text-sm outline-none text-highlighted"
+                    @focus="showSupervisorDropdown = true"
+                    @blur="onSupervisorBlur"
+                  />
+                </div>
 
-          <!-- Status -->
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted">Status</label>
-            <select v-model="form.status" :class="formControlClass">
-              <option value="draft">Draft</option>
-              <option value="open">Open (Aktif)</option>
-              <option value="closed">Closed (Ditutup)</option>
-            </select>
-          </div>
+                <!-- Suggestions list -->
+                <div
+                  v-if="showSupervisorDropdown && supervisorSearch.trim()"
+                  class="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-default bg-default shadow-lg"
+                >
+                  <button
+                    v-for="employee in supervisorSuggestions"
+                    :key="employee.nik"
+                    type="button"
+                    class="flex w-full items-center gap-3 px-3 py-2 text-left text-xs text-highlighted hover:bg-muted/10"
+                    @click="selectSupervisor(employee)"
+                  >
+                    <div
+                      class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 font-bold text-primary text-[9px]"
+                    >
+                      {{
+                        employee.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                      }}
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="font-semibold truncate">{{ employee.name }}</span>
+                      <span class="text-[9px] text-muted"
+                        >{{ employee.position || 'Staf' }} • NIK: {{ employee.nik }}</span
+                      >
+                    </div>
+                  </button>
+                  <div v-if="!supervisorSuggestions.length" class="p-3 text-center text-muted text-xs">
+                    Karyawan aktif tidak ditemukan
+                  </div>
+                </div>
 
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted">Tanggung Jawab</label
-            ><textarea
-              v-model="form.responsibilities"
-              rows="4"
-              placeholder="Satu poin per baris"
-              :class="formControlClass"
-            ></textarea>
-          </div>
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted">Kualifikasi</label
-            ><textarea
-              v-model="form.requirements"
-              rows="4"
-              placeholder="Satu poin per baris"
-              :class="formControlClass"
-            ></textarea>
-          </div>
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted">Benefit</label
-            ><textarea
-              v-model="form.benefits"
-              rows="4"
-              placeholder="Satu poin per baris"
-              :class="formControlClass"
-            ></textarea>
-          </div>
+                <!-- Preview Card Atasan Langsung -->
+                <div
+                  v-if="form.supervisor_nik"
+                  class="mt-2 flex items-center justify-between p-2 rounded-lg border border-default bg-muted/10"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
+                    >
+                      {{
+                        form.supervisor_name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                      }}
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-xs font-semibold text-highlighted">{{
+                        form.supervisor_name
+                      }}</span>
+                      <span class="text-[9px] text-muted"
+                        >Atasan Langsung • NIK: {{ form.supervisor_nik }}</span
+                      >
+                    </div>
+                  </div>
+                  <UButton
+                    color="danger"
+                    variant="ghost"
+                    size="xs"
+                    icon="i-lucide-trash-2"
+                    @click="removeSupervisor"
+                  />
+                </div>
+              </div>
 
-          <!-- Deskripsi Lowongan -->
-          <div>
-            <label class="mb-1 block text-xs font-semibold text-muted">Deskripsi Lowongan</label>
-            <textarea
-              v-model="form.description"
-              rows="3"
-              placeholder="Tuliskan detail pekerjaan, kualifikasi, dll."
-              :class="formControlClass"
-            ></textarea>
+              <!-- Tanggung Jawab & Deskripsi Lowongan -->
+              <div class="space-y-3">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Tanggung Jawab</label
+                  ><textarea
+                    v-model="form.responsibilities"
+                    rows="3"
+                    placeholder="Satu poin per baris"
+                    :class="formControlClass"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Deskripsi Lowongan</label>
+                  <textarea
+                    v-model="form.description"
+                    rows="3"
+                    placeholder="Tuliskan detail pekerjaan, kualifikasi, dll."
+                    :class="formControlClass"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- KOLOM KANAN: Informasi Career Public, Kualifikasi & Benefit -->
+            <div class="space-y-4">
+              <!-- Informasi Career Public -->
+              <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
+                <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                  Informasi Career Public
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Tipe Pekerjaan</label>
+                    <select v-model="form.employment_type" :class="formControlClass">
+                      <option value="">Pilih tipe</option>
+                      <option value="full_time">Penuh Waktu</option>
+                      <option value="part_time">Paruh Waktu</option>
+                      <option value="contract">Kontrak</option>
+                      <option value="internship">Magang</option>
+                      <option value="temporary">Sementara</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Sistem Kerja</label>
+                    <select v-model="form.workplace_type" :class="formControlClass">
+                      <option value="">Pilih sistem</option>
+                      <option value="onsite">On-site</option>
+                      <option value="hybrid">Hybrid</option>
+                      <option value="remote">Remote</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Lokasi Kerja</label
+                    ><input
+                      v-model="form.location"
+                      maxlength="150"
+                      placeholder="Contoh: Jakarta Selatan"
+                      :class="formControlClass"
+                    />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Mulai Tayang</label
+                    ><input
+                      v-model="form.published_at"
+                      type="datetime-local"
+                      :class="formControlClass"
+                    />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Berhenti Tayang</label
+                    ><input v-model="form.expires_at" type="datetime-local" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Batas Lamaran</label
+                    ><input v-model="form.application_deadline" type="date" :class="formControlClass" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kualifikasi & Benefit -->
+              <div class="space-y-3">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Kualifikasi</label
+                  ><textarea
+                    v-model="form.requirements"
+                    rows="3"
+                    placeholder="Satu poin per baris"
+                    :class="formControlClass"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Benefit</label
+                  ><textarea
+                    v-model="form.benefits"
+                    rows="3"
+                    placeholder="Satu poin per baris"
+                    :class="formControlClass"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Footer -->

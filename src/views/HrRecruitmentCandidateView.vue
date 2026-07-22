@@ -1052,7 +1052,7 @@ function formatChangeValue(field, value) {
       if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
         return formatDateTime(value)
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Format Resume/CV path
@@ -2951,16 +2951,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section
-    v-if="!isLargeScreen"
-    class="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4 py-10"
-  >
-    <div
-      class="w-full max-w-xl rounded-2xl border border-default bg-default p-6 text-center shadow-sm sm:p-10"
-    >
-      <span
-        class="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary"
-      >
+  <section v-if="!isLargeScreen" class="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4 py-10">
+    <div class="w-full max-w-xl rounded-2xl border border-default bg-default p-6 text-center shadow-sm sm:p-10">
+      <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
         <UIcon name="i-lucide-monitor-up" class="size-8" />
       </span>
       <h2 class="mt-5 text-xl font-bold text-highlighted">Layar Perangkat Terlalu Kecil</h2>
@@ -2973,8 +2966,7 @@ onBeforeUnmount(() => {
         mengakses halaman ini.
       </p>
       <div
-        class="mt-6 inline-flex items-center gap-2 rounded-lg border border-default bg-muted/10 px-4 py-2 text-xs text-muted"
-      >
+        class="mt-6 inline-flex items-center gap-2 rounded-lg border border-default bg-muted/10 px-4 py-2 text-xs text-muted">
         <UIcon name="i-lucide-info" class="size-4 shrink-0 text-primary" />
         Perbesar jendela browser jika perangkat Anda sudah mendukung resolusi tersebut.
       </div>
@@ -2990,14 +2982,8 @@ onBeforeUnmount(() => {
         </p>
       </div>
       <div class="flex gap-2">
-        <UButton
-          size="sm"
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-plus"
-          label="Tambah Pelamar"
-          @click="openCreateDialog"
-        />
+        <UButton size="sm" color="neutral" variant="soft" icon="i-lucide-plus" label="Tambah Pelamar"
+          @click="openCreateDialog" />
       </div>
     </div>
 
@@ -3006,10 +2992,8 @@ onBeforeUnmount(() => {
     <!-- Main Split View Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left Panel: Candidates List (Col span 4) -->
-      <UCard
-        class="lg:col-span-4 lg:sticky lg:top-20 max-h-[calc(100vh-120px)] flex flex-col"
-        :ui="{ body: 'p-0 flex-1 overflow-hidden flex flex-col' }"
-      >
+      <UCard class="lg:col-span-4 lg:sticky lg:top-20 max-h-[calc(100vh-120px)] flex flex-col"
+        :ui="{ body: 'p-0 flex-1 overflow-hidden flex flex-col' }">
         <template #header>
           <div class="space-y-4">
             <div class="flex items-center justify-between">
@@ -3018,46 +3002,25 @@ onBeforeUnmount(() => {
               </span>
             </div>
             <div class="flex flex-col gap-2">
-              <input
-                v-model="search"
-                type="search"
-                placeholder="Cari nama, email, hp..."
-                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
+              <input v-model="search" type="search" placeholder="Cari nama, email, hp..."
+                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
               <div class="grid grid-cols-2 gap-2">
-                <select
-                  v-model="selectedVacancyFilter"
-                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full"
-                >
+                <select v-model="selectedVacancyFilter"
+                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
                   <option value="">Semua Lowongan</option>
                   <option v-for="v in vacancies" :key="v.id" :value="v.id">{{ v.title }}</option>
                 </select>
-                <USelectMenu
-                  v-model="selectedStatusFilters"
-                  :items="stages"
-                  value-key="key"
-                  label-key="label"
-                  placeholder="Filter Tahap"
-                  multiple
-                  class="w-full"
-                >
+                <USelectMenu v-model="selectedStatusFilters" :items="stages" value-key="key" label-key="label"
+                  placeholder="Filter Tahap" multiple class="w-full">
                   <!-- Custom trigger display -->
                   <template #default>
                     <div class="flex items-center gap-1 overflow-hidden max-w-full">
-                      <span v-if="!selectedStatusFilters.length" class="text-muted/60 text-xs"
-                        >Filter Tahap</span
-                      >
+                      <span v-if="!selectedStatusFilters.length" class="text-muted/60 text-xs">Filter Tahap</span>
                       <div v-else class="flex items-center gap-1 flex-wrap max-w-full">
-                        <span
-                          v-for="statusKey in selectedStatusFilters"
-                          :key="statusKey"
+                        <span v-for="statusKey in selectedStatusFilters" :key="statusKey"
                           class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-xs"
-                          :class="`stage-${getStageClass(statusKey)}`"
-                        >
-                          <span
-                            class="w-1 h-1 rounded-full"
-                            :class="`stage-bullet-${getStageClass(statusKey)}`"
-                          ></span>
+                          :class="`stage-${getStageClass(statusKey)}`">
+                          <span class="w-1 h-1 rounded-full" :class="`stage-bullet-${getStageClass(statusKey)}`"></span>
                           {{ getStageLabel(statusKey) }}
                         </span>
                       </div>
@@ -3066,26 +3029,19 @@ onBeforeUnmount(() => {
 
                   <!-- Custom leading bullet in dropdown list -->
                   <template #item-leading="{ item }">
-                    <span
-                      class="size-2 rounded-full shrink-0"
-                      :class="`stage-bullet-${getStageClass(item.key)}`"
-                    ></span>
+                    <span class="size-2 rounded-full shrink-0"
+                      :class="`stage-bullet-${getStageClass(item.key)}`"></span>
                   </template>
 
                   <!-- Custom label styling in dropdown list -->
                   <template #item-label="{ item }">
-                    <span
-                      class="font-bold text-xs"
-                      :class="`dropdown-text-stage-${getStageClass(item.key)}`"
-                      >{{ item.label }}</span
-                    >
+                    <span class="font-bold text-xs" :class="`dropdown-text-stage-${getStageClass(item.key)}`">{{
+                      item.label }}</span>
                   </template>
                 </USelectMenu>
               </div>
-              <select
-                v-model="selectedPicFilter"
-                class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full"
-              >
+              <select v-model="selectedPicFilter"
+                class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
                 <option value="">Semua PIC Screening</option>
                 <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
                   {{ emp.name }}
@@ -3096,20 +3052,12 @@ onBeforeUnmount(() => {
         </template>
 
         <div class="overflow-y-auto divide-y divide-default flex-1">
-          <div
-            v-for="candidate in filteredCandidates"
-            :key="candidate.id"
-            @click="selectCandidate(candidate)"
-            class="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/10 transition-colors"
-            :class="
-              selectedCandidate?.id === candidate.id ? 'bg-accented border-l-4 border-primary' : ''
-            "
-          >
+          <div v-for="candidate in filteredCandidates" :key="candidate.id" @click="selectCandidate(candidate)"
+            class="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/10 transition-colors" :class="selectedCandidate?.id === candidate.id ? 'bg-accented border-l-4 border-primary' : ''
+              ">
             <!-- Avatar Circle -->
-            <div
-              class="size-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-              :class="getAvatarStyle(candidate.name).bg"
-            >
+            <div class="size-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+              :class="getAvatarStyle(candidate.name).bg">
               {{ getInitials(candidate.name) }}
             </div>
             <div class="min-w-0 flex-1">
@@ -3123,12 +3071,9 @@ onBeforeUnmount(() => {
               <div class="mt-1.5 flex">
                 <span
                   class="candidate-stage-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-xs transition-colors"
-                  :class="`stage-${getStageClass(candidate.status)}`"
-                >
-                  <span
-                    class="w-1.5 h-1.5 rounded-full"
-                    :class="`stage-bullet-${getStageClass(candidate.status)}`"
-                  ></span>
+                  :class="`stage-${getStageClass(candidate.status)}`">
+                  <span class="w-1.5 h-1.5 rounded-full"
+                    :class="`stage-bullet-${getStageClass(candidate.status)}`"></span>
                   {{ getStageLabel(candidate.status) }}
                 </span>
               </div>
@@ -3149,34 +3094,22 @@ onBeforeUnmount(() => {
         <div v-else>
           <!-- Header: Avatar, Name, Info, Edit/Delete Actions -->
           <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-default pb-6 mb-6"
-          >
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-default pb-6 mb-6">
             <div class="flex items-center gap-4">
               <!-- Candidate Photo with Camera Upload Overlay -->
               <div class="relative group">
-                <img
-                  v-if="activeCandidate.photo_path"
+                <img v-if="activeCandidate.photo_path"
                   :src="`/api/hr/recruitment/candidates/${activeCandidate.id}/photo`"
-                  class="size-16 rounded-full object-cover shrink-0"
-                />
-                <div
-                  v-else
-                  class="size-16 rounded-full flex items-center justify-center font-bold text-2xl shrink-0"
-                  :class="getAvatarStyle(activeCandidate.name).bg"
-                >
+                  class="size-16 rounded-full object-cover shrink-0" />
+                <div v-else class="size-16 rounded-full flex items-center justify-center font-bold text-2xl shrink-0"
+                  :class="getAvatarStyle(activeCandidate.name).bg">
                   {{ getInitials(activeCandidate.name) }}
                 </div>
                 <label
-                  class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
-                >
+                  class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                   <UIcon name="i-lucide-camera" class="size-5 text-white" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    class="hidden"
-                    :disabled="updatingStage"
-                    @change="uploadPhoto($event)"
-                  />
+                  <input type="file" accept="image/*" class="hidden" :disabled="updatingStage"
+                    @change="uploadPhoto($event)" />
                 </label>
               </div>
               <div>
@@ -3193,57 +3126,28 @@ onBeforeUnmount(() => {
             <!-- Candidate Quick Actions -->
             <div class="flex gap-2">
               <!-- CV Actions -->
-              <UButton
-                v-if="activeCandidate.resume_path"
-                size="sm"
-                type="button"
-                variant="outline"
-                color="neutral"
-                icon="i-lucide-file-text"
-                label="Lihat CV"
-                :disabled="updatingStage"
-                @click="previewResume(activeCandidate)"
-              />
-              <label
-                v-else
-                class="cursor-pointer"
-                :class="{ 'opacity-60 cursor-not-allowed': updatingStage }"
-              >
+              <UButton v-if="activeCandidate.resume_path" size="sm" type="button" variant="outline" color="neutral"
+                icon="i-lucide-file-text" label="Lihat CV" :disabled="updatingStage"
+                @click="previewResume(activeCandidate)" />
+              <label v-else class="cursor-pointer" :class="{ 'opacity-60 cursor-not-allowed': updatingStage }">
                 <span
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-default rounded-lg hover:bg-muted/10 transition text-highlighted bg-default shadow-sm"
-                >
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-default rounded-lg hover:bg-muted/10 transition text-highlighted bg-default shadow-sm">
                   <UIcon name="i-lucide-upload" class="size-3.5" />
                   Upload CV
                 </span>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  class="hidden"
-                  :disabled="updatingStage"
-                  @change="triggerResumeUpload($event, activeCandidate)"
-                />
+                <input type="file" accept=".pdf" class="hidden" :disabled="updatingStage"
+                  @change="triggerResumeUpload($event, activeCandidate)" />
               </label>
 
               <!-- Badge: Kandidat Sudah Diterima -->
-              <UBadge
-                v-if="activeCandidate.status === 'hired'"
-                color="green"
-                variant="subtle"
-                class="whitespace-nowrap text-xs font-semibold bg-green-50 dark:bg-green-500 text-green-800 dark:text-green-100"
-              >
+              <UBadge v-if="activeCandidate.status === 'hired'" color="green" variant="subtle"
+                class="whitespace-nowrap text-xs font-semibold bg-green-50 dark:bg-green-500 text-green-800 dark:text-green-100">
                 ✓ Sudah Diterima
               </UBadge>
 
-              <UButton
-                v-if="activeCandidate.status !== 'hired'"
-                size="sm"
-                variant="outline"
-                color="neutral"
-                icon="i-lucide-pencil"
-                label="Edit"
-                :disabled="updatingStage"
-                @click="openEditDialog(activeCandidate)"
-              />
+              <UButton v-if="activeCandidate.status !== 'hired'" size="sm" variant="outline" color="neutral"
+                icon="i-lucide-pencil" label="Edit" :disabled="updatingStage"
+                @click="openEditDialog(activeCandidate)" />
             </div>
           </div>
 
@@ -3254,81 +3158,62 @@ onBeforeUnmount(() => {
               <div class="absolute top-[58px] left-[48px] right-[48px] h-0.5 bg-default z-0"></div>
               <!-- Completed Highlight Line -->
               <div
-                class="absolute top-[58px] left-[54px] right-[54px] h-0.5 origin-left bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-500 z-0 transition-transform duration-300"
+                class="absolute top-[58px] left-[54px] right-[54px] h-0.5 origin-left bg-primary z-0 transition-transform duration-300"
                 :style="{
                   transform: `scaleX(${currentStageIndex >= 0 ? currentStageIndex / (stepperStages.length - 1) : 0})`,
-                }"
-              ></div>
+                }"></div>
 
               <!-- Steps -->
-              <div
-                v-for="(stage, idx) in stepperStages"
-                :key="stage.key"
-                class="flex flex-col items-center relative z-10 w-24"
-              >
+              <div v-for="(stage, idx) in stepperStages" :key="stage.key"
+                class="flex flex-col items-center relative z-10 w-24">
                 <!-- Label above bullet (for even steps: Screening, Case Study, Reference Check, PKB) -->
-                <span
-                  v-if="idx % 2 !== 0"
+                <span v-if="idx % 2 !== 0"
                   class="mb-2 text-xs font-semibold text-center leading-tight select-none h-8 flex items-end justify-center"
-                  :class="
-                    stage.key === displayedStageKey
-                      ? [`text-stage-${getStageClass(stage.key)}`, 'font-bold']
+                  :class="stage.key === displayedStageKey
+                    ? 'text-primary font-bold'
+                    : idx <= currentStageIndex
+                      ? 'text-highlighted font-medium'
                       : 'text-muted'
-                  "
-                >
+                    ">
                   {{ stage.label }}
                 </span>
                 <div v-else class="h-8 mb-2"></div>
 
                 <!-- Step Circle -->
-                <button
-                  type="button"
+                <button type="button"
                   class="candidate-step-bullet size-9 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300"
-                  :disabled="activeCandidate.status === 'rejected' || idx > currentStageIndex"
-                  :title="
-                    idx <= currentStageIndex
+                  :disabled="activeCandidate.status === 'rejected' || idx > currentStageIndex" :title="idx <= currentStageIndex
+                    ? `Lihat tahap ${stage.label}`
+                    : `Tahap ${stage.label} belum dilewati`
+                    " :aria-label="idx <= currentStageIndex
                       ? `Lihat tahap ${stage.label}`
                       : `Tahap ${stage.label} belum dilewati`
-                  "
-                  :aria-label="
-                    idx <= currentStageIndex
-                      ? `Lihat tahap ${stage.label}`
-                      : `Tahap ${stage.label} belum dilewati`
-                  "
-                  :aria-current="stage.key === displayedStageKey ? 'step' : undefined"
-                  @click="viewPipelineStage(stage, idx)"
-                  :class="[
+                      " :aria-current="stage.key === displayedStageKey ? 'step' : undefined"
+                  @click="viewPipelineStage(stage, idx)" :class="[
                     activeCandidate.status === 'rejected'
                       ? 'bg-muted text-muted-dimmed border-2 border-default'
                       : idx < currentStageIndex
-                        ? [
-                            `stage-${getStageClass(stage.key)}`,
-                            'cursor-pointer hover:scale-105 border-2',
-                          ]
+                        ? 'bg-primary/10 text-primary border-2 border-primary/30 cursor-pointer hover:scale-105'
                         : idx === currentStageIndex
-                          ? [
-                              `stage-solid-${getStageClass(stage.key)}`,
-                              'font-bold cursor-pointer hover:scale-105',
-                            ]
+                          ? 'bg-primary text-white font-bold cursor-pointer hover:scale-105 shadow-md shadow-primary/20'
                           : 'bg-default text-muted border-2 border-default cursor-not-allowed',
                     stage.key === displayedStageKey
-                      ? ['ring-4', `stage-ring-${getStageClass(stage.key)}`, 'scale-105']
+                      ? 'ring-4 ring-primary/25 scale-105'
                       : '',
-                  ]"
-                >
-                  <UIcon :name="stage.icon" class="size-4.5" aria-hidden="true" />
+                  ]">
+                  <UIcon v-if="idx < currentStageIndex" name="i-lucide-check" class="size-4.5" aria-hidden="true" />
+                  <span v-else class="text-xs font-bold">{{ idx + 1 }}</span>
                 </button>
 
                 <!-- Label below bullet (for odd steps: Applied, Wawancara HR, Wawancara User, Offering, Hired & Onboard) -->
-                <span
-                  v-if="idx % 2 === 0"
+                <span v-if="idx % 2 === 0"
                   class="mt-2 text-xs font-semibold text-center leading-tight select-none h-8 flex items-start justify-center"
-                  :class="
-                    stage.key === displayedStageKey
-                      ? [`text-stage-${getStageClass(stage.key)}`, 'font-bold']
+                  :class="stage.key === displayedStageKey
+                    ? 'text-primary font-bold'
+                    : idx <= currentStageIndex
+                      ? 'text-highlighted font-medium'
                       : 'text-muted'
-                  "
-                >
+                    ">
                   {{ stage.label }}
                 </span>
                 <div v-else class="h-8 mt-2"></div>
@@ -3336,10 +3221,8 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div
-            v-if="isViewingHistoricalStage"
-            class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3"
-          >
+          <div v-if="isViewingHistoricalStage"
+            class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
             <div>
               <p class="text-sm font-semibold text-primary">
                 Melihat riwayat tahap {{ displayedStageLabel }}
@@ -3349,29 +3232,19 @@ onBeforeUnmount(() => {
                 tidak mengubah pipeline.
               </p>
             </div>
-            <UButton
-              type="button"
-              size="xs"
-              variant="soft"
-              color="primary"
-              icon="i-lucide-rotate-ccw"
-              label="Kembali ke Tahap Aktif"
-              @click="viewedStageKey = null"
-            />
+            <UButton type="button" size="xs" variant="soft" color="primary" icon="i-lucide-rotate-ccw"
+              label="Kembali ke Tahap Aktif" @click="viewedStageKey = null" />
           </div>
           <!-- INFORMASI LAMARAN -->
           <div class="mb-6">
             <h4
-              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none"
-            >
+              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none">
               <span>📋</span> Informasi Lamaran
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- LOWONGAN -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Lowongan</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Lowongan</span>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ activeCandidate.vacancy?.title || 'Umum' }}
                 </span>
@@ -3379,9 +3252,7 @@ onBeforeUnmount(() => {
 
               <!-- TANGGAL MELAMAR -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Tanggal Melamar</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Tanggal Melamar</span>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ formatDate(activeCandidate.created_at) }}
                 </span>
@@ -3389,9 +3260,7 @@ onBeforeUnmount(() => {
 
               <!-- SUMBER LAMARAN -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Sumber Lamaran</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Sumber Lamaran</span>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ getCandidateSource(activeCandidate) }}
                 </span>
@@ -3399,9 +3268,7 @@ onBeforeUnmount(() => {
 
               <!-- PIC PELAMAR -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >PIC Pelamar</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">PIC Pelamar</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{
                     activeCandidate.pic
@@ -3413,9 +3280,7 @@ onBeforeUnmount(() => {
 
               <!-- STATUS CV -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Status CV</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Status CV</span>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ activeCandidate.resume_path ? 'Sudah diunggah' : 'Belum diunggah' }}
                 </span>
@@ -3423,9 +3288,8 @@ onBeforeUnmount(() => {
 
               <!-- ORANG DIKENAL DI HOMPIMPLAY -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Orang Dikenal di Hompimplay</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Orang Dikenal di
+                  Hompimplay</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{ activeCandidate.known_person || 'Tidak ada' }}
                 </span>
@@ -3433,9 +3297,7 @@ onBeforeUnmount(() => {
 
               <!-- NOMOR TELEPON -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Nomor Telepon</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Nomor Telepon</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{ activeCandidate.phone || '-' }}
                 </span>
@@ -3451,9 +3313,7 @@ onBeforeUnmount(() => {
 
               <!-- ATASAN LANGSUNG -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Atasan Langsung</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Atasan Langsung</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{ activeCandidate.vacancy?.supervisor_name || '-' }}
                 </span>
@@ -3464,16 +3324,13 @@ onBeforeUnmount(() => {
           <!-- DATA DIRI & RIWAYAT -->
           <div class="mb-6">
             <h4
-              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none"
-            >
+              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none">
               <span>👨</span> Data Diri & Riwayat
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- PENDIDIKAN TERAKHIR -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Pendidikan Terakhir</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Pendidikan Terakhir</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{ activeCandidate.education_level || '-' }} -
                   {{ activeCandidate.education_major || '-' }}
@@ -3482,9 +3339,7 @@ onBeforeUnmount(() => {
 
               <!-- STATUS PERNIKAHAN -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Status Pernikahan</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Status Pernikahan</span>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ activeCandidate.marital_status || '-' }}
                 </span>
@@ -3492,9 +3347,7 @@ onBeforeUnmount(() => {
 
               <!-- PERUSAHAAN SEBELUMNYA -->
               <div class="bg-muted/10 border border-default rounded-xl p-4 flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-muted uppercase tracking-wider"
-                  >Perusahaan Sebelumnya</span
-                >
+                <span class="text-[10px] font-bold text-muted uppercase tracking-wider">Perusahaan Sebelumnya</span>
                 <span class="text-sm font-semibold text-highlighted truncate">
                   {{ activeCandidate.last_company || '-' }}
                 </span>
@@ -3505,8 +3358,7 @@ onBeforeUnmount(() => {
           <!-- KOMPENSASI -->
           <div class="mb-6">
             <h4
-              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none"
-            >
+              class="text-xs font-bold uppercase tracking-wider text-muted mb-3 flex items-center gap-1.5 select-none">
               <span>💰</span> Kompensasi
             </h4>
             <div class="bg-default/40 border border-default rounded-xl p-6 flex flex-col gap-4">
@@ -3514,12 +3366,9 @@ onBeforeUnmount(() => {
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <span class="text-xs font-semibold text-muted md:w-32">Gaji Saat Ini</span>
                 <div class="flex-1 bg-default h-4 rounded-full overflow-hidden relative">
-                  <div
-                    class="bg-slate-400 dark:bg-slate-500 h-full rounded-full transition-all duration-500"
-                    :style="{
-                      width: `${(Number(activeCandidate.previous_salary || 0) / maxSalary) * 100}%`,
-                    }"
-                  ></div>
+                  <div class="bg-slate-400 dark:bg-slate-500 h-full rounded-full transition-all duration-500" :style="{
+                    width: `${(Number(activeCandidate.previous_salary || 0) / maxSalary) * 100}%`,
+                  }"></div>
                 </div>
                 <span class="text-sm font-bold text-highlighted md:w-36 text-right">
                   {{
@@ -3534,12 +3383,9 @@ onBeforeUnmount(() => {
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <span class="text-xs font-semibold text-muted md:w-32">Gaji Diharapkan</span>
                 <div class="flex-1 bg-default h-4 rounded-full overflow-hidden relative">
-                  <div
-                    class="bg-amber-500 h-full rounded-full transition-all duration-500"
-                    :style="{
-                      width: `${(Number(activeCandidate.expected_salary || 0) / maxSalary) * 100}%`,
-                    }"
-                  ></div>
+                  <div class="bg-amber-500 h-full rounded-full transition-all duration-500" :style="{
+                    width: `${(Number(activeCandidate.expected_salary || 0) / maxSalary) * 100}%`,
+                  }"></div>
                 </div>
                 <span class="text-sm font-bold text-highlighted md:w-36 text-right">
                   {{
@@ -3554,12 +3400,9 @@ onBeforeUnmount(() => {
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <span class="text-xs font-semibold text-muted md:w-32">Gaji Ditawarkan</span>
                 <div class="flex-1 bg-default h-4 rounded-full overflow-hidden relative">
-                  <div
-                    class="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                    :style="{
-                      width: `${(Number(activeCandidate.offered_salary || 0) / maxSalary) * 100}%`,
-                    }"
-                  ></div>
+                  <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" :style="{
+                    width: `${(Number(activeCandidate.offered_salary || 0) / maxSalary) * 100}%`,
+                  }"></div>
                 </div>
                 <span class="text-sm font-bold text-highlighted md:w-36 text-right">
                   {{
@@ -3571,19 +3414,15 @@ onBeforeUnmount(() => {
               </div>
 
               <!-- INFO TEXT -->
-              <div
-                v-if="salaryComparisonMessage"
-                class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-right mt-1"
-              >
+              <div v-if="salaryComparisonMessage"
+                class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-right mt-1">
                 {{ salaryComparisonMessage }}
               </div>
             </div>
           </div>
 
-          <div
-            v-if="['applied', 'screening'].includes(displayedStageKey)"
-            class="mt-6 rounded-xl border border-default bg-muted/5 p-4"
-          >
+          <div v-if="['applied', 'screening'].includes(displayedStageKey)"
+            class="mt-6 rounded-xl border border-default bg-muted/5 p-4">
             <h4 class="text-xs font-bold uppercase tracking-wider text-muted">
               {{ displayedStageKey === 'applied' ? 'Tahap Lamaran Masuk' : 'Tahap Screening' }}
             </h4>
@@ -3596,72 +3435,49 @@ onBeforeUnmount(() => {
             </p>
           </div>
           <!-- Stage 3: Wawancara HR -->
-          <div
-            v-if="displayedStageKey === 'interview_hr'"
-            class="interview-workflow-section mt-6 border-t border-default pt-6"
-          >
+          <div v-if="displayedStageKey === 'interview_hr'"
+            class="interview-workflow-section mt-6 border-t border-default pt-6">
             <div class="interview-section-heading">
               <div class="interview-section-title">
-                <span><UIcon name="i-lucide-messages-square" class="size-5" /></span>
+                <span>
+                  <UIcon name="i-lucide-messages-square" class="size-5" />
+                </span>
                 <div>
                   <h4>Wawancara HR</h4>
                   <p>Kelola jadwal, komunikasi kandidat, penyelesaian, dan summary wawancara.</p>
                 </div>
               </div>
               <div class="interview-heading-actions">
-                <UButton
-                  v-if="!isViewingHistoricalStage && !activeCandidate.interview_hr_completed_at"
-                  size="xs"
-                  variant="soft"
-                  color="neutral"
-                  icon="i-lucide-pencil"
-                  :label="
-                    activeCandidate.interview_hr_date ? 'Ubah Jadwal' : 'Atur Jadwal Wawancara HR'
-                  "
-                  :disabled="updatingStage"
-                  @click="openHrInterviewModal"
-                />
-                <UButton
-                  v-if="
-                    !isViewingHistoricalStage &&
-                    activeCandidate.interview_hr_date &&
-                    !activeCandidate.interview_hr_completed_at
-                  "
-                  size="xs"
-                  color="success"
-                  icon="i-lucide-circle-check-big"
-                  label="Tandai Interview Selesai"
-                  :loading="updatingStage"
-                  :disabled="
-                    updatingStage ||
+                <UButton v-if="!isViewingHistoricalStage && !activeCandidate.interview_hr_completed_at" size="xs"
+                  variant="soft" color="neutral" icon="i-lucide-pencil" :label="activeCandidate.interview_hr_date ? 'Ubah Jadwal' : 'Atur Jadwal Wawancara HR'
+                    " :disabled="updatingStage" @click="openHrInterviewModal" />
+                <UButton v-if="
+                  !isViewingHistoricalStage &&
+                  activeCandidate.interview_hr_date &&
+                  !activeCandidate.interview_hr_completed_at
+                " size="xs" color="success" icon="i-lucide-circle-check-big" label="Tandai Interview Selesai"
+                  :loading="updatingStage" :disabled="updatingStage ||
                     !canMarkInterviewCompleted(
                       activeCandidate.interview_hr_date,
                       activeCandidate.interview_hr_time,
                     )
-                  "
-                  :title="
-                    interviewCompletionButtonTitle(
+                    " :title="interviewCompletionButtonTitle(
                       activeCandidate.interview_hr_date,
                       activeCandidate.interview_hr_time,
                       'wawancara HR',
                     )
-                  "
-                  @click="markHrInterviewCompleted"
-                />
+                      " @click="markHrInterviewCompleted" />
               </div>
             </div>
 
-            <div
-              v-if="activeCandidate.interview_hr_date"
-              class="interview-round-card interview-round-body space-y-4"
-            >
+            <div v-if="activeCandidate.interview_hr_date" class="interview-round-card interview-round-body space-y-4">
               <div class="interview-schedule-grid">
                 <!-- 1. Jadwal Interview -->
                 <!-- 1. Jadwal Interview -->
                 <div class="interview-info-tile interview-info-tile--primary">
-                  <span class="interview-info-icon"
-                    ><UIcon name="i-lucide-calendar-clock" class="size-5"
-                  /></span>
+                  <span class="interview-info-icon">
+                    <UIcon name="i-lucide-calendar-clock" class="size-5" />
+                  </span>
                   <div class="min-w-0 flex-1">
                     <span class="interview-info-label">Jadwal Interview</span>
                     <span class="interview-info-value truncate block">
@@ -3673,67 +3489,46 @@ onBeforeUnmount(() => {
 
                 <!-- 2. Tipe & Lokasi -->
                 <div class="interview-info-tile">
-                  <span class="interview-info-icon"
-                    ><UIcon
-                      :name="
-                        activeCandidate.interview_hr_type === 'online'
-                          ? 'i-lucide-video'
-                          : 'i-lucide-map-pin'
-                      "
-                      class="size-5"
-                  /></span>
+                  <span class="interview-info-icon">
+                    <UIcon :name="activeCandidate.interview_hr_type === 'online'
+                      ? 'i-lucide-video'
+                      : 'i-lucide-map-pin'
+                      " class="size-5" />
+                  </span>
                   <div class="min-w-0 flex-1">
                     <span class="interview-info-label">Tipe & Lokasi</span>
                     <span class="interview-info-value interview-type-value capitalize">{{
                       activeCandidate.interview_hr_type
                     }}</span>
-                    <a
-                      v-if="
-                        activeCandidate.interview_hr_type === 'online' &&
-                        activeCandidate.interview_hr_meet_link
-                      "
-                      :href="activeCandidate.interview_hr_meet_link"
-                      target="_blank"
+                    <a v-if="
+                      activeCandidate.interview_hr_type === 'online' &&
+                      activeCandidate.interview_hr_meet_link
+                    " :href="activeCandidate.interview_hr_meet_link" target="_blank"
                       class="interview-location-value is-link truncate block"
-                      :title="activeCandidate.interview_hr_meet_link"
-                    >
+                      :title="activeCandidate.interview_hr_meet_link">
                       {{ activeCandidate.interview_hr_meet_link }}
                     </a>
-                    <span
-                      v-else
-                      class="interview-location-value truncate block"
-                      :title="activeCandidate.interview_hr_location"
-                      >{{ activeCandidate.interview_hr_location || '-' }}</span
-                    >
+                    <span v-else class="interview-location-value truncate block"
+                      :title="activeCandidate.interview_hr_location">{{ activeCandidate.interview_hr_location || '-'
+                      }}</span>
                   </div>
                 </div>
 
                 <!-- 3. Status Wawancara -->
-                <div
-                  class="interview-info-tile interview-info-tile--status"
-                  :class="activeCandidate.interview_hr_completed_at ? 'is-complete' : 'is-pending'"
-                >
+                <div class="interview-info-tile interview-info-tile--status"
+                  :class="activeCandidate.interview_hr_completed_at ? 'is-complete' : 'is-pending'">
                   <span class="interview-info-icon">
-                    <UIcon
-                      :name="
-                        activeCandidate.interview_hr_completed_at
-                          ? 'i-lucide-circle-check-big'
-                          : 'i-lucide-clock-3'
-                      "
-                      class="size-5"
-                    />
+                    <UIcon :name="activeCandidate.interview_hr_completed_at
+                      ? 'i-lucide-circle-check-big'
+                      : 'i-lucide-clock-3'
+                      " class="size-5" />
                   </span>
                   <div class="min-w-0 flex-1">
                     <span class="interview-info-label">Status Wawancara</span>
-                    <span
-                      v-if="activeCandidate.interview_hr_completed_at"
-                      class="interview-info-value truncate block"
-                    >
+                    <span v-if="activeCandidate.interview_hr_completed_at" class="interview-info-value truncate block">
                       Selesai {{ formatDateTime(activeCandidate.interview_hr_completed_at) }}
                     </span>
-                    <span v-else class="interview-info-value truncate block"
-                      >Belum ditandai selesai</span
-                    >
+                    <span v-else class="interview-info-value truncate block">Belum ditandai selesai</span>
                   </div>
                 </div>
               </div>
@@ -3741,19 +3536,15 @@ onBeforeUnmount(() => {
               <!-- Notification status tracking -->
               <div class="interview-communication-panel">
                 <div class="interview-notification-item">
-                  <span class="interview-info-icon"
-                    ><UIcon name="i-lucide-mail" class="size-4"
-                  /></span>
+                  <span class="interview-info-icon">
+                    <UIcon name="i-lucide-mail" class="size-4" />
+                  </span>
                   <div>
                     <span class="interview-info-label">Email Kandidat</span>
-                    <p
-                      class="interview-notification-value"
-                      :class="activeCandidate.interview_hr_email_sent_at ? 'is-sent' : 'is-pending'"
-                    >
-                      <span
-                        v-if="activeCandidate.interview_hr_email_sent_at"
-                        class="text-emerald-500 flex items-center gap-1"
-                      >
+                    <p class="interview-notification-value"
+                      :class="activeCandidate.interview_hr_email_sent_at ? 'is-sent' : 'is-pending'">
+                      <span v-if="activeCandidate.interview_hr_email_sent_at"
+                        class="text-emerald-500 flex items-center gap-1">
                         <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                           formatDateTime(activeCandidate.interview_hr_email_sent_at)
                         }})
@@ -3765,37 +3556,30 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
                 <div class="interview-notification-item">
-                  <span class="interview-info-icon"
-                    ><UIcon name="i-lucide-message-circle" class="size-4"
-                  /></span>
+                  <span class="interview-info-icon">
+                    <UIcon name="i-lucide-message-circle" class="size-4" />
+                  </span>
                   <div>
                     <span class="interview-info-label">WhatsApp Kandidat</span>
-                    <p
-                      class="interview-notification-value"
-                      :class="
+                    <p class="interview-notification-value" :class="activeCandidate.interview_hr_wa_sent_at &&
+                      activeCandidate.interview_hr_wa_sent_date ===
+                      activeCandidate.interview_hr_date &&
+                      activeCandidate.interview_hr_wa_sent_time ===
+                      activeCandidate.interview_hr_time &&
+                      activeCandidate.interview_hr_wa_sent_type ===
+                      activeCandidate.interview_hr_type
+                      ? 'is-sent'
+                      : 'is-pending'
+                      ">
+                      <span v-if="
                         activeCandidate.interview_hr_wa_sent_at &&
                         activeCandidate.interview_hr_wa_sent_date ===
-                          activeCandidate.interview_hr_date &&
+                        activeCandidate.interview_hr_date &&
                         activeCandidate.interview_hr_wa_sent_time ===
-                          activeCandidate.interview_hr_time &&
+                        activeCandidate.interview_hr_time &&
                         activeCandidate.interview_hr_wa_sent_type ===
-                          activeCandidate.interview_hr_type
-                          ? 'is-sent'
-                          : 'is-pending'
-                      "
-                    >
-                      <span
-                        v-if="
-                          activeCandidate.interview_hr_wa_sent_at &&
-                          activeCandidate.interview_hr_wa_sent_date ===
-                            activeCandidate.interview_hr_date &&
-                          activeCandidate.interview_hr_wa_sent_time ===
-                            activeCandidate.interview_hr_time &&
-                          activeCandidate.interview_hr_wa_sent_type ===
-                            activeCandidate.interview_hr_type
-                        "
-                        class="text-emerald-500 flex items-center gap-1"
-                      >
+                        activeCandidate.interview_hr_type
+                      " class="text-emerald-500 flex items-center gap-1">
                         <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                           formatDateTime(activeCandidate.interview_hr_wa_sent_at)
                         }})
@@ -3807,54 +3591,40 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
                 <div class="interview-communication-action">
-                  <UButton
-                    v-slot:default
-                    v-if="
-                      !isViewingHistoricalStage &&
-                      activeCandidate.interview_hr_date &&
-                      !activeCandidate.interview_hr_completed_at
-                    "
-                    size="xs"
-                    variant="soft"
-                    color="success"
-                    icon="i-lucide-send"
-                    label="Kirim Info WA ke Kandidat"
-                    :loading="updatingStage"
-                    :disabled="
-                      updatingStage ||
+                  <UButton v-slot:default v-if="
+                    !isViewingHistoricalStage &&
+                    activeCandidate.interview_hr_date &&
+                    !activeCandidate.interview_hr_completed_at
+                  " size="xs" variant="soft" color="success" icon="i-lucide-send" label="Kirim Info WA ke Kandidat"
+                    :loading="updatingStage" :disabled="updatingStage ||
                       (activeCandidate.interview_hr_wa_sent_at &&
                         activeCandidate.interview_hr_wa_sent_date ===
-                          activeCandidate.interview_hr_date &&
+                        activeCandidate.interview_hr_date &&
                         activeCandidate.interview_hr_wa_sent_time ===
-                          activeCandidate.interview_hr_time &&
+                        activeCandidate.interview_hr_time &&
                         activeCandidate.interview_hr_wa_sent_type ===
-                          activeCandidate.interview_hr_type)
-                    "
-                    @click="shareInterviewHrWa(activeCandidate)"
-                  />
+                        activeCandidate.interview_hr_type)
+                      " @click="shareInterviewHrWa(activeCandidate)" />
                 </div>
               </div>
             </div>
-            <div
-              v-else
-              class="bg-muted/5 border border-default rounded-xl p-6 text-center mb-4 text-muted text-sm"
-            >
+            <div v-else class="bg-muted/5 border border-default rounded-xl p-6 text-center mb-4 text-muted text-sm">
               Jadwal wawancara HR belum diatur.
             </div>
 
             <!-- Summary Wawancara HR (Upload & Text Editor) -->
             <div class="interview-summary-panel space-y-4">
               <div class="interview-subsection-heading">
-                <span><UIcon name="i-lucide-file-text" class="size-4" /></span>
+                <span>
+                  <UIcon name="i-lucide-file-text" class="size-4" />
+                </span>
                 <div>
                   <h5>Summary Wawancara HR</h5>
                   <p>Dokumen dan catatan hasil interview HR.</p>
                 </div>
               </div>
-              <div
-                v-if="!activeCandidate.interview_hr_completed_at"
-                class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600"
-              >
+              <div v-if="!activeCandidate.interview_hr_completed_at"
+                class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600">
                 <p class="flex items-start gap-2 font-semibold">
                   <UIcon name="i-lucide-lock-keyhole" class="mt-0.5 size-4 shrink-0" />
                   Tandai wawancara HR sebagai selesai terlebih dahulu. Setelah itu dokumen atau
@@ -3867,117 +3637,60 @@ onBeforeUnmount(() => {
                 <p class="text-[10px] text-muted mb-1.5 font-bold uppercase tracking-wider">
                   Dokumen Lampiran Summary
                 </p>
-                <div
-                  v-if="activeCandidate.interview_hr_summary_path"
-                  class="flex items-center justify-between bg-muted/10 p-3 rounded-lg border border-default"
-                >
+                <div v-if="activeCandidate.interview_hr_summary_path"
+                  class="flex items-center justify-between bg-muted/10 p-3 rounded-lg border border-default">
                   <span class="text-xs font-medium text-highlighted flex items-center gap-2">
                     <UIcon name="i-lucide-file-text" class="text-primary" /> Dokumen Summary
                     Wawancara HR
                   </span>
                   <div class="flex items-center gap-1.5">
-                    <UButton
-                      size="xs"
-                      variant="soft"
-                      color="primary"
-                      icon="i-lucide-eye"
-                      label="Lihat Summary"
-                      @click="previewHrInterviewSummaryDoc(activeCandidate)"
-                    />
-                    <UButton
-                      size="xs"
-                      variant="soft"
-                      color="neutral"
-                      icon="i-lucide-download"
-                      label="Unduh"
-                      @click="openDocumentInNewTab(activeCandidate.interview_hr_summary_path)"
-                    />
-                    <UButton
-                      v-if="!isViewingHistoricalStage"
-                      size="xs"
-                      variant="ghost"
-                      color="danger"
-                      icon="i-lucide-trash-2"
-                      :loading="updatingStage"
-                      @click="deleteHrSummaryFile(activeCandidate)"
-                    />
+                    <UButton size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat Summary"
+                      @click="previewHrInterviewSummaryDoc(activeCandidate)" />
+                    <UButton size="xs" variant="soft" color="neutral" icon="i-lucide-download" label="Unduh"
+                      @click="openDocumentInNewTab(activeCandidate.interview_hr_summary_path)" />
+                    <UButton v-if="!isViewingHistoricalStage" size="xs" variant="ghost" color="danger"
+                      icon="i-lucide-trash-2" :loading="updatingStage" @click="deleteHrSummaryFile(activeCandidate)" />
                   </div>
                 </div>
-                <div
-                  v-else-if="!isViewingHistoricalStage"
-                  class="flex flex-col items-center justify-center p-3 bg-muted/5 border border-dashed border-default rounded-lg"
-                >
+                <div v-else-if="!isViewingHistoricalStage"
+                  class="flex flex-col items-center justify-center p-3 bg-muted/5 border border-dashed border-default rounded-lg">
                   <label class="cursor-pointer">
                     <span
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded bg-default hover:bg-muted/10 text-highlighted"
-                    >
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded bg-default hover:bg-muted/10 text-highlighted">
                       <UIcon name="i-lucide-upload" class="size-3.5" /> Upload File Summary (PDF)
                     </span>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      class="hidden"
-                      @change="submitHrSummary($event)"
-                    />
+                    <input type="file" accept=".pdf,.doc,.docx" class="hidden" @change="submitHrSummary($event)" />
                   </label>
                 </div>
               </div>
 
               <!-- 2. Text Summary Section -->
-              <div
-                v-if="activeCandidate.interview_hr_completed_at"
-                class="border-t border-default/50 pt-3"
-              >
+              <div v-if="activeCandidate.interview_hr_completed_at" class="border-t border-default/50 pt-3">
                 <p class="text-[10px] text-muted mb-1.5 font-bold uppercase tracking-wider">
                   Catatan Summary Tertulis
                 </p>
-                <div
-                  v-if="!isEditingHrTextSummary || isViewingHistoricalStage"
-                  class="bg-muted/5 border border-default rounded-xl p-3 text-xs"
-                >
-                  <p
-                    v-if="activeCandidate.interview_hr_text_summary"
-                    class="text-highlighted whitespace-pre-wrap leading-relaxed"
-                  >
+                <div v-if="!isEditingHrTextSummary || isViewingHistoricalStage"
+                  class="bg-muted/5 border border-default rounded-xl p-3 text-xs">
+                  <p v-if="activeCandidate.interview_hr_text_summary"
+                    class="text-highlighted whitespace-pre-wrap leading-relaxed">
                     {{ activeCandidate.interview_hr_text_summary }}
                   </p>
                   <p v-else class="text-muted italic">Belum ada catatan tertulis.</p>
                   <div class="mt-2 flex justify-end">
-                    <UButton
-                      v-if="!isViewingHistoricalStage"
-                      size="xs"
-                      variant="ghost"
-                      color="primary"
-                      icon="i-lucide-pencil"
-                      label="Tulis / Edit Catatan"
-                      @click="startEditHrTextSummary(activeCandidate.interview_hr_text_summary)"
-                    />
+                    <UButton v-if="!isViewingHistoricalStage" size="xs" variant="ghost" color="primary"
+                      icon="i-lucide-pencil" label="Tulis / Edit Catatan"
+                      @click="startEditHrTextSummary(activeCandidate.interview_hr_text_summary)" />
                   </div>
                 </div>
                 <div v-else class="space-y-2">
-                  <textarea
-                    v-model="hrTextSummaryInput"
-                    rows="4"
+                  <textarea v-model="hrTextSummaryInput" rows="4"
                     class="w-full text-xs rounded-lg border border-default bg-default p-2 text-highlighted outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-                    placeholder="Ketik ringkasan evaluasi wawancara HR langsung di sini..."
-                  ></textarea>
+                    placeholder="Ketik ringkasan evaluasi wawancara HR langsung di sini..."></textarea>
                   <div class="flex justify-end gap-2">
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      color="neutral"
-                      label="Batal"
-                      @click="isEditingHrTextSummary = false"
-                    />
-                    <UButton
-                      size="xs"
-                      color="primary"
-                      icon="i-lucide-check"
-                      label="Simpan Catatan"
-                      :loading="updatingStage"
-                      :disabled="!hrTextSummaryInput.trim()"
-                      @click="saveHrTextSummary"
-                    />
+                    <UButton size="xs" variant="ghost" color="neutral" label="Batal"
+                      @click="isEditingHrTextSummary = false" />
+                    <UButton size="xs" color="primary" icon="i-lucide-check" label="Simpan Catatan"
+                      :loading="updatingStage" :disabled="!hrTextSummaryInput.trim()" @click="saveHrTextSummary" />
                   </div>
                 </div>
               </div>
@@ -3991,39 +3704,22 @@ onBeforeUnmount(() => {
                 Case Study (Studi Kasus)
               </h4>
               <div class="flex items-center gap-2">
-                <UButton
-                  v-if="!isViewingHistoricalStage && activeCandidate.case_study_sent_at"
-                  size="xs"
-                  variant="soft"
-                  color="success"
-                  icon="i-lucide-message-square"
-                  label="Kirim WA"
-                  :disabled="
-                    updatingStage ||
+                <UButton v-if="!isViewingHistoricalStage && activeCandidate.case_study_sent_at" size="xs" variant="soft"
+                  color="success" icon="i-lucide-message-square" label="Kirim WA" :disabled="updatingStage ||
                     (activeCandidate.case_study_wa_sent_at &&
                       activeCandidate.case_study_wa_sent_at >= activeCandidate.case_study_sent_at)
-                  "
-                  @click="shareCaseStudyWa(activeCandidate)"
-                />
-                <UButton
-                  v-if="
-                    !isViewingHistoricalStage &&
-                    !activeCandidate.case_study_submitted_at &&
-                    !activeCandidate.case_study_submitted_file_path
-                  "
-                  size="xs"
-                  variant="soft"
-                  color="primary"
-                  icon="i-lucide-send"
-                  label="Kirim/Edit Soal Case Study"
-                  @click="caseStudyModalOpen = true"
-                />
+                    " @click="shareCaseStudyWa(activeCandidate)" />
+                <UButton v-if="
+                  !isViewingHistoricalStage &&
+                  !activeCandidate.case_study_submitted_at &&
+                  !activeCandidate.case_study_submitted_file_path
+                " size="xs" variant="soft" color="primary" icon="i-lucide-send" label="Kirim/Edit Soal Case Study"
+                  @click="caseStudyModalOpen = true" />
               </div>
             </div>
 
             <div
-              class="bg-muted/5 border border-default rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm"
-            >
+              class="bg-muted/5 border border-default rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
               <div>
                 <p class="text-xs text-muted">Tanggal Dikirim</p>
                 <p class="font-medium text-highlighted mt-0.5">
@@ -4046,21 +3742,13 @@ onBeforeUnmount(() => {
               </div>
               <div v-if="activeCandidate.case_study_link" class="md:col-span-2">
                 <p class="text-xs text-muted">Tautan Soal</p>
-                <a
-                  :href="activeCandidate.case_study_link"
-                  target="_blank"
-                  class="text-primary hover:underline font-medium break-all"
-                  >{{ activeCandidate.case_study_link }}</a
-                >
+                <a :href="activeCandidate.case_study_link" target="_blank"
+                  class="text-primary hover:underline font-medium break-all">{{ activeCandidate.case_study_link }}</a>
               </div>
               <div v-if="activeCandidate.case_study_document_path" class="md:col-span-2">
                 <p class="text-xs text-muted">Dokumen Soal Terlampir</p>
-                <a
-                  :href="'/storage/' + activeCandidate.case_study_document_path"
-                  target="_blank"
-                  class="text-primary hover:underline font-medium"
-                  >Download Dokumen Soal</a
-                >
+                <a :href="'/storage/' + activeCandidate.case_study_document_path" target="_blank"
+                  class="text-primary hover:underline font-medium">Download Dokumen Soal</a>
               </div>
 
               <!-- Divider line -->
@@ -4069,10 +3757,7 @@ onBeforeUnmount(() => {
               <div>
                 <p class="text-xs text-muted">Status Notifikasi Email</p>
                 <p class="mt-0.5 flex items-center gap-1.5 font-medium">
-                  <span
-                    v-if="activeCandidate.case_study_sent_at"
-                    class="text-emerald-500 flex items-center gap-1"
-                  >
+                  <span v-if="activeCandidate.case_study_sent_at" class="text-emerald-500 flex items-center gap-1">
                     <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                       formatDateTime(activeCandidate.case_study_sent_at)
                     }})
@@ -4085,13 +3770,10 @@ onBeforeUnmount(() => {
               <div>
                 <p class="text-xs text-muted">Status Notifikasi WhatsApp</p>
                 <p class="mt-0.5 flex items-center gap-1.5 font-medium">
-                  <span
-                    v-if="
-                      activeCandidate.case_study_wa_sent_at &&
-                      activeCandidate.case_study_wa_sent_at >= activeCandidate.case_study_sent_at
-                    "
-                    class="text-emerald-500 flex items-center gap-1"
-                  >
+                  <span v-if="
+                    activeCandidate.case_study_wa_sent_at &&
+                    activeCandidate.case_study_wa_sent_at >= activeCandidate.case_study_sent_at
+                  " class="text-emerald-500 flex items-center gap-1">
                     <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                       formatDateTime(activeCandidate.case_study_wa_sent_at)
                     }})
@@ -4108,121 +3790,72 @@ onBeforeUnmount(() => {
               <h5 class="text-xs font-bold text-muted uppercase mb-2">
                 Jawaban / Penyelesaian Soal
               </h5>
-              <div
-                v-if="activeCandidate.case_study_submitted_file_path"
-                class="flex items-center justify-between bg-muted/10 p-3 rounded-lg border border-default"
-              >
+              <div v-if="activeCandidate.case_study_submitted_file_path"
+                class="flex items-center justify-between bg-muted/10 p-3 rounded-lg border border-default">
                 <span class="text-sm font-medium text-highlighted flex items-center gap-2">
                   <UIcon name="i-lucide-file-archive" class="text-emerald-500" /> Jawaban Studi
                   Kasus Kandidat
                 </span>
                 <div class="flex items-center gap-1.5">
-                  <UButton
-                    size="xs"
-                    variant="soft"
-                    color="primary"
-                    icon="i-lucide-eye"
-                    label="Lihat Jawaban"
-                    @click="previewCaseStudySubmissionDoc(activeCandidate)"
-                  />
-                  <UButton
-                    size="xs"
-                    variant="soft"
-                    color="neutral"
-                    icon="i-lucide-download"
-                    label="Unduh"
-                    @click="openDocumentInNewTab(activeCandidate.case_study_submitted_file_path)"
-                  />
+                  <UButton size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat Jawaban"
+                    @click="previewCaseStudySubmissionDoc(activeCandidate)" />
+                  <UButton size="xs" variant="soft" color="neutral" icon="i-lucide-download" label="Unduh"
+                    @click="openDocumentInNewTab(activeCandidate.case_study_submitted_file_path)" />
                 </div>
               </div>
-              <div
-                v-else-if="!isViewingHistoricalStage"
-                class="flex flex-col items-center justify-center p-4 bg-muted/5 border border-dashed border-default rounded-lg"
-              >
-                <p
-                  v-if="!activeCandidate.case_study_sent_at"
-                  class="mb-2 text-xs font-semibold text-amber-500 text-center"
-                >
+              <div v-else-if="!isViewingHistoricalStage"
+                class="flex flex-col items-center justify-center p-4 bg-muted/5 border border-dashed border-default rounded-lg">
+                <p v-if="!activeCandidate.case_study_sent_at"
+                  class="mb-2 text-xs font-semibold text-amber-500 text-center">
                   Soal case study belum dikirim. Upload jawaban pelamar akan aktif setelah soal
                   dikirim ke kandidat.
                 </p>
-                <label
-                  :class="
-                    activeCandidate.case_study_sent_at ? 'cursor-pointer' : 'cursor-not-allowed'
-                  "
-                >
-                  <span
-                    :class="[
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded',
-                      activeCandidate.case_study_sent_at
-                        ? 'bg-default hover:bg-muted/10 text-highlighted'
-                        : 'bg-muted/10 text-muted opacity-60',
-                    ]"
-                  >
+                <label :class="activeCandidate.case_study_sent_at ? 'cursor-pointer' : 'cursor-not-allowed'
+                  ">
+                  <span :class="[
+                    'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded',
+                    activeCandidate.case_study_sent_at
+                      ? 'bg-default hover:bg-muted/10 text-highlighted'
+                      : 'bg-muted/10 text-muted opacity-60',
+                  ]">
                     <UIcon name="i-lucide-upload" class="size-3.5" /> Upload Jawaban Pelamar
                   </span>
-                  <input
-                    type="file"
-                    :disabled="!activeCandidate.case_study_sent_at"
-                    @change="submitCaseStudySubmission($event)"
-                    class="hidden"
-                  />
+                  <input type="file" :disabled="!activeCandidate.case_study_sent_at"
+                    @change="submitCaseStudySubmission($event)" class="hidden" />
                 </label>
               </div>
             </div>
           </div>
 
           <!-- Stage 5: Wawancara User (Dynamic Rounds) -->
-          <div
-            v-if="displayedStageKey === 'interview_user'"
-            class="mt-6 border-t border-default pt-6 interview-workflow-section"
-          >
+          <div v-if="displayedStageKey === 'interview_user'"
+            class="mt-6 border-t border-default pt-6 interview-workflow-section">
             <div class="interview-section-heading">
               <div class="interview-section-title">
-                <span><UIcon name="i-lucide-users-round" class="size-5" /></span>
+                <span>
+                  <UIcon name="i-lucide-users-round" class="size-5" />
+                </span>
                 <div>
                   <h4>Wawancara User</h4>
                   <p>Kelola jadwal, komunikasi, dan evaluasi setiap tahap wawancara.</p>
                 </div>
               </div>
               <div class="interview-heading-actions">
-                <UBadge
-                  v-if="overallUserInterviewAverageScore !== null"
-                  color="success"
-                  variant="soft"
-                  size="md"
-                  class="font-extrabold text-xs"
-                >
+                <UBadge v-if="overallUserInterviewAverageScore !== null" color="success" variant="soft" size="md"
+                  class="font-extrabold text-xs">
                   Nilai Akhir: {{ overallUserInterviewAverageScore }} / 36
                 </UBadge>
-                <UButton
-                  v-if="overallUserInterviewAverageScore !== null"
-                  size="xs"
-                  variant="soft"
-                  color="info"
-                  icon="i-lucide-eye"
-                  label="Lihat Ringkasan Nilai"
-                  @click="consensusModalOpen = true"
-                />
-                <UButton
-                  v-if="!isViewingHistoricalStage && canAddUserInterviewRound"
-                  size="xs"
-                  variant="soft"
-                  color="primary"
-                  icon="i-lucide-plus"
-                  :label="`Tambah Interview Tahap #${nextUserInterviewRound}`"
-                  @click="openUserInterviewModal(nextUserInterviewRound)"
-                />
+                <UButton v-if="overallUserInterviewAverageScore !== null" size="xs" variant="soft" color="info"
+                  icon="i-lucide-eye" label="Lihat Ringkasan Nilai" @click="consensusModalOpen = true" />
+                <UButton v-if="!isViewingHistoricalStage && canAddUserInterviewRound" size="xs" variant="soft"
+                  color="primary" icon="i-lucide-plus" :label="`Tambah Interview Tahap #${nextUserInterviewRound}`"
+                  @click="openUserInterviewModal(nextUserInterviewRound)" />
               </div>
             </div>
 
             <!-- Loop Tahapan -->
             <div class="interview-round-list">
-              <article
-                v-for="round in displayedUserInterviewRounds"
-                :key="round"
-                class="interview-round-card"
-              >
+              <article v-for="round in displayedUserInterviewRounds" :key="round" class="interview-round-card">
                 <div class="interview-round-header">
                   <div class="interview-round-identity">
                     <span>{{ round }}</span>
@@ -4238,46 +3871,28 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
                   <div class="interview-heading-actions">
-                    <UButton
-                      v-if="
-                        !isViewingHistoricalStage &&
-                        !getUserInterview(round)?.completed_at &&
-                        !isRoundEvaluationCompleted(round)
-                      "
-                      size="xs"
-                      variant="ghost"
-                      color="neutral"
-                      icon="i-lucide-pencil"
-                      label="Atur Jadwal"
-                      @click="openUserInterviewModal(round)"
-                    />
-                    <UButton
-                      v-if="
-                        !isViewingHistoricalStage &&
-                        hasUserInterviewScheduled(round) &&
-                        !getUserInterview(round)?.completed_at
-                      "
-                      size="xs"
-                      color="success"
-                      icon="i-lucide-circle-check-big"
-                      label="Tandai Interview Selesai"
-                      :loading="updatingStage"
-                      :disabled="
-                        updatingStage ||
+                    <UButton v-if="
+                      !isViewingHistoricalStage &&
+                      !getUserInterview(round)?.completed_at &&
+                      !isRoundEvaluationCompleted(round)
+                    " size="xs" variant="ghost" color="neutral" icon="i-lucide-pencil" label="Atur Jadwal"
+                      @click="openUserInterviewModal(round)" />
+                    <UButton v-if="
+                      !isViewingHistoricalStage &&
+                      hasUserInterviewScheduled(round) &&
+                      !getUserInterview(round)?.completed_at
+                    " size="xs" color="success" icon="i-lucide-circle-check-big" label="Tandai Interview Selesai"
+                      :loading="updatingStage" :disabled="updatingStage ||
                         !canMarkInterviewCompleted(
                           getUserInterview(round).interview_date,
                           getUserInterview(round).interview_time,
                         )
-                      "
-                      :title="
-                        interviewCompletionButtonTitle(
+                        " :title="interviewCompletionButtonTitle(
                           getUserInterview(round).interview_date,
                           getUserInterview(round).interview_time,
                           `Wawancara User Tahap ${round}`,
                         )
-                      "
-                      @click="markUserInterviewRoundCompleted(round)"
-                    />
+                          " @click="markUserInterviewRoundCompleted(round)" />
                   </div>
                 </div>
 
@@ -4285,72 +3900,53 @@ onBeforeUnmount(() => {
                 <div v-if="hasUserInterviewScheduled(round)" class="interview-round-body">
                   <div class="interview-schedule-grid">
                     <div class="interview-info-tile interview-info-tile--primary">
-                      <span class="interview-info-icon"
-                        ><UIcon name="i-lucide-calendar-clock" class="size-5"
-                      /></span>
+                      <span class="interview-info-icon">
+                        <UIcon name="i-lucide-calendar-clock" class="size-5" />
+                      </span>
                       <div class="min-w-0 flex-1">
                         <span class="interview-info-label">Jadwal Interview</span>
-                        <span class="interview-info-value truncate block"
-                          >{{ formatDate(getUserInterview(round).interview_date) }},
-                          {{ getUserInterview(round).interview_time.substring(0, 5) }} WIB</span
-                        >
+                        <span class="interview-info-value truncate block">{{
+                          formatDate(getUserInterview(round).interview_date) }},
+                          {{ getUserInterview(round).interview_time.substring(0, 5) }} WIB</span>
                       </div>
                     </div>
                     <div class="interview-info-tile">
-                      <span class="interview-info-icon"
-                        ><UIcon
-                          :name="
-                            getUserInterview(round).interview_type === 'online'
-                              ? 'i-lucide-video'
-                              : 'i-lucide-map-pin'
-                          "
-                          class="size-5"
-                      /></span>
+                      <span class="interview-info-icon">
+                        <UIcon :name="getUserInterview(round).interview_type === 'online'
+                          ? 'i-lucide-video'
+                          : 'i-lucide-map-pin'
+                          " class="size-5" />
+                      </span>
                       <div class="min-w-0 flex-1">
                         <span class="interview-info-label">Tipe & Lokasi</span>
                         <span class="interview-info-value interview-type-value capitalize">{{
                           getUserInterview(round).interview_type
                         }}</span>
-                        <a
-                          v-if="
-                            getUserInterview(round).interview_type === 'online' &&
-                            getUserInterview(round).interview_meet_link
-                          "
-                          :href="getUserInterview(round).interview_meet_link"
-                          target="_blank"
+                        <a v-if="
+                          getUserInterview(round).interview_type === 'online' &&
+                          getUserInterview(round).interview_meet_link
+                        " :href="getUserInterview(round).interview_meet_link" target="_blank"
                           class="interview-location-value is-link truncate block"
-                          :title="getUserInterview(round).interview_meet_link"
-                        >
+                          :title="getUserInterview(round).interview_meet_link">
                           {{ getUserInterview(round).interview_meet_link }}
                         </a>
-                        <span
-                          v-else
-                          class="interview-location-value truncate block"
-                          :title="getUserInterview(round).interview_location"
-                          >{{ getUserInterview(round).interview_location || '-' }}</span
-                        >
+                        <span v-else class="interview-location-value truncate block"
+                          :title="getUserInterview(round).interview_location">{{
+                            getUserInterview(round).interview_location ||
+                            '-' }}</span>
                       </div>
                     </div>
-                    <div
-                      class="interview-info-tile interview-info-tile--status"
-                      :class="getUserInterview(round).completed_at ? 'is-complete' : 'is-pending'"
-                    >
+                    <div class="interview-info-tile interview-info-tile--status"
+                      :class="getUserInterview(round).completed_at ? 'is-complete' : 'is-pending'">
                       <span class="interview-info-icon">
-                        <UIcon
-                          :name="
-                            getUserInterview(round).completed_at
-                              ? 'i-lucide-circle-check-big'
-                              : 'i-lucide-clock-3'
-                          "
-                          class="size-5"
-                        />
+                        <UIcon :name="getUserInterview(round).completed_at
+                          ? 'i-lucide-circle-check-big'
+                          : 'i-lucide-clock-3'
+                          " class="size-5" />
                       </span>
                       <div>
                         <span class="interview-info-label">Status Wawancara</span>
-                        <span
-                          v-if="getUserInterview(round).completed_at"
-                          class="interview-info-value"
-                        >
+                        <span v-if="getUserInterview(round).completed_at" class="interview-info-value">
                           Selesai {{ formatDateTime(getUserInterview(round).completed_at) }}
                         </span>
                         <span v-else class="interview-info-value">Belum ditandai selesai</span>
@@ -4361,19 +3957,15 @@ onBeforeUnmount(() => {
                   <!-- Notification status tracking -->
                   <div class="interview-communication-panel">
                     <div class="interview-notification-item">
-                      <span class="interview-info-icon"
-                        ><UIcon name="i-lucide-mail" class="size-4"
-                      /></span>
+                      <span class="interview-info-icon">
+                        <UIcon name="i-lucide-mail" class="size-4" />
+                      </span>
                       <div>
                         <span class="interview-info-label">Email Kandidat</span>
-                        <p
-                          class="interview-notification-value"
-                          :class="getUserInterview(round).email_sent_at ? 'is-sent' : 'is-pending'"
-                        >
-                          <span
-                            v-if="getUserInterview(round).email_sent_at"
-                            class="text-emerald-500 flex items-center gap-1"
-                          >
+                        <p class="interview-notification-value"
+                          :class="getUserInterview(round).email_sent_at ? 'is-sent' : 'is-pending'">
+                          <span v-if="getUserInterview(round).email_sent_at"
+                            class="text-emerald-500 flex items-center gap-1">
                             <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                               formatDateTime(getUserInterview(round).email_sent_at)
                             }})
@@ -4385,19 +3977,15 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
                     <div class="interview-notification-item">
-                      <span class="interview-info-icon"
-                        ><UIcon name="i-lucide-message-circle" class="size-4"
-                      /></span>
+                      <span class="interview-info-icon">
+                        <UIcon name="i-lucide-message-circle" class="size-4" />
+                      </span>
                       <div>
                         <span class="interview-info-label">WhatsApp Kandidat</span>
-                        <p
-                          class="interview-notification-value"
-                          :class="getUserInterview(round).wa_sent_at ? 'is-sent' : 'is-pending'"
-                        >
-                          <span
-                            v-if="getUserInterview(round).wa_sent_at"
-                            class="text-emerald-500 flex items-center gap-1"
-                          >
+                        <p class="interview-notification-value"
+                          :class="getUserInterview(round).wa_sent_at ? 'is-sent' : 'is-pending'">
+                          <span v-if="getUserInterview(round).wa_sent_at"
+                            class="text-emerald-500 flex items-center gap-1">
                             <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                               formatDateTime(getUserInterview(round).wa_sent_at)
                             }})
@@ -4409,28 +3997,21 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
                     <div class="interview-communication-action">
-                      <UButton
-                        v-if="!isViewingHistoricalStage && !getUserInterview(round)?.completed_at"
-                        size="xs"
-                        variant="soft"
-                        color="success"
-                        icon="i-lucide-send"
-                        label="Kirim Info WA ke Kandidat"
-                        :loading="updatingStage"
-                        :disabled="
-                          updatingStage ||
+                      <UButton v-if="!isViewingHistoricalStage && !getUserInterview(round)?.completed_at" size="xs"
+                        variant="soft" color="success" icon="i-lucide-send" label="Kirim Info WA ke Kandidat"
+                        :loading="updatingStage" :disabled="updatingStage ||
                           (getUserInterview(round).wa_sent_at &&
                             new Date(getUserInterview(round).wa_sent_at) >=
-                              new Date(getUserInterview(round).updated_at))
-                        "
-                        @click="triggerUserInterviewCandidateWa(round)"
-                      />
+                            new Date(getUserInterview(round).updated_at))
+                          " @click="triggerUserInterviewCandidateWa(round)" />
                     </div>
                   </div>
                   <!-- Interviewer Evaluations List -->
                   <div class="interview-evaluation-panel">
                     <div class="interview-subsection-heading">
-                      <span><UIcon name="i-lucide-clipboard-check" class="size-4" /></span>
+                      <span>
+                        <UIcon name="i-lucide-clipboard-check" class="size-4" />
+                      </span>
                       <div>
                         <h5>Evaluasi Pewawancara</h5>
                         <p>
@@ -4438,31 +4019,23 @@ onBeforeUnmount(() => {
                           {{ getRoundEvaluationProgress(round).total }} evaluator sudah mengisi
                         </p>
                       </div>
-                      <UBadge color="primary" variant="soft" size="md"
-                        >{{ getRoundEvaluationProgress(round).completed }}/{{
+                      <UBadge color="primary" variant="soft" size="md">{{ getRoundEvaluationProgress(round).completed
+                      }}/{{
                           getRoundEvaluationProgress(round).total
-                        }}</UBadge
-                      >
+                        }}</UBadge>
                     </div>
                     <div class="interview-evaluator-list">
-                      <div
-                        v-for="ev in getRoundEvaluations(round)"
-                        :key="ev.id"
-                        class="interview-evaluator-row"
-                      >
-                        <span class="interview-evaluator-avatar"
-                          ><UIcon name="i-lucide-user-round" class="size-4"
-                        /></span>
+                      <div v-for="ev in getRoundEvaluations(round)" :key="ev.id" class="interview-evaluator-row">
+                        <span class="interview-evaluator-avatar">
+                          <UIcon name="i-lucide-user-round" class="size-4" />
+                        </span>
                         <div class="interview-evaluator-identity">
                           <strong>{{ ev.interviewer?.nama_karyawan || ev.interviewer_nik }}</strong>
                           <span>NIK {{ ev.interviewer_nik }}</span>
                         </div>
                         <div class="interview-evaluator-actions">
-                          <UBadge
-                            :color="ev.submitted_at ? 'success' : 'warning'"
-                            size="md"
-                            class="px-3 py-1 leading-none"
-                          >
+                          <UBadge :color="ev.submitted_at ? 'success' : 'warning'" size="md"
+                            class="px-3 py-1 leading-none">
                             {{
                               ev.submitted_at
                                 ? `Selesai Mengisi (Skor: ${ev.interview_total_score}/36)`
@@ -4470,36 +4043,20 @@ onBeforeUnmount(() => {
                             }}
                           </UBadge>
 
-                          <UButton
-                            v-if="!isViewingHistoricalStage && !ev.submitted_at"
-                            size="xs"
-                            variant="soft"
-                            color="info"
-                            icon="i-lucide-send"
-                            label="Kirim Link Evaluasi Interview"
-                            :loading="updatingStage"
-                            :disabled="updatingStage || !getUserInterview(round).completed_at"
-                            :title="
-                              getUserInterview(round).completed_at
-                                ? 'Kirim formulir evaluasi ke pewawancara'
-                                : 'Tandai interview selesai terlebih dahulu'
-                            "
-                            @click="triggerUserInterviewEvaluationWa(round, ev.id)"
-                          />
-                          <UButton
-                            v-if="ev.submitted_at"
-                            size="xs"
-                            variant="soft"
-                            color="primary"
-                            icon="i-lucide-eye"
-                            label="Lihat Evaluasi"
-                            @click="
+                          <UButton v-if="!isViewingHistoricalStage && !ev.submitted_at" size="xs" variant="soft"
+                            color="info" icon="i-lucide-send" label="Kirim Link Evaluasi Interview"
+                            :loading="updatingStage" :disabled="updatingStage || !getUserInterview(round).completed_at"
+                            :title="getUserInterview(round).completed_at
+                              ? 'Kirim formulir evaluasi ke pewawancara'
+                              : 'Tandai interview selesai terlebih dahulu'
+                              " @click="triggerUserInterviewEvaluationWa(round, ev.id)" />
+                          <UButton v-if="ev.submitted_at" size="xs" variant="soft" color="primary" icon="i-lucide-eye"
+                            label="Lihat Evaluasi" @click="
                               previewInterviewerEvaluation(
                                 ev.id,
                                 ev.interviewer?.nama_karyawan || ev.interviewer_nik,
                               )
-                            "
-                          />
+                              " />
                         </div>
                       </div>
                     </div>
@@ -4508,36 +4065,29 @@ onBeforeUnmount(() => {
                   <!-- Tahap Consensus / Average Recap Box -->
                   <div v-if="getRoundAverageScore(round) !== '-'" class="interview-score-summary">
                     <div>
-                      <span class="block text-[10px] font-bold uppercase text-muted mb-0.5"
-                        >Rata-rata Nilai Tahap {{ round }}</span
-                      >
-                      <span class="text-lg font-extrabold text-primary"
-                        >{{ getRoundAverageScore(round) }}
-                        <span class="text-xs text-slate-500 font-normal">/ 36</span></span
-                      >
+                      <span class="block text-[10px] font-bold uppercase text-muted mb-0.5">Rata-rata Nilai Tahap {{
+                        round
+                      }}</span>
+                      <span class="text-lg font-extrabold text-primary">{{ getRoundAverageScore(round) }}
+                        <span class="text-xs text-slate-500 font-normal">/ 36</span></span>
                     </div>
                     <div class="sm:text-right">
-                      <span class="block text-[10px] font-bold uppercase text-muted mb-0.5"
-                        >Konsensus Rekomendasi</span
-                      >
-                      <UBadge
-                        :color="
-                          getRoundConsensusRecommendation(round) === 'Disarankan'
-                            ? 'success'
-                            : getRoundConsensusRecommendation(round) === 'Dipertimbangkan'
-                              ? 'warning'
-                              : 'danger'
-                        "
-                        size="md"
-                        class="px-3 py-1 leading-none"
-                      >
+                      <span class="block text-[10px] font-bold uppercase text-muted mb-0.5">Konsensus Rekomendasi</span>
+                      <UBadge :color="getRoundConsensusRecommendation(round) === 'Disarankan'
+                        ? 'success'
+                        : getRoundConsensusRecommendation(round) === 'Dipertimbangkan'
+                          ? 'warning'
+                          : 'danger'
+                        " size="md" class="px-3 py-1 leading-none">
                         {{ getRoundConsensusRecommendation(round) }}
                       </UBadge>
                     </div>
                   </div>
                 </div>
                 <div v-else class="interview-empty-state">
-                  <span><UIcon name="i-lucide-calendar-plus" class="size-6" /></span>
+                  <span>
+                    <UIcon name="i-lucide-calendar-plus" class="size-6" />
+                  </span>
                   <strong>Interview tahap {{ round }} belum dijadwalkan</strong>
                   <p>Atur jadwal saat tahap lanjutan dibutuhkan.</p>
                 </div>
@@ -4546,30 +4096,19 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Stage 6: Reference Check -->
-          <div
-            v-if="displayedStageKey === 'reference_check'"
-            class="mt-6 border-t border-default pt-6"
-          >
+          <div v-if="displayedStageKey === 'reference_check'" class="mt-6 border-t border-default pt-6">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-xs font-bold text-muted uppercase tracking-wider">
                 Reference Check (Verifikasi Referensi)
               </h4>
-              <UButton
-                v-if="!isViewingHistoricalStage && !activeCandidate.reference_check_submitted_at"
-                size="xs"
-                variant="soft"
-                color="primary"
-                icon="i-lucide-send"
-                label="Kirim Permintaan Referensi"
-                :disabled="updatingStage"
-                @click="triggerReferenceCheckRequest"
-              />
+              <UButton v-if="!isViewingHistoricalStage && !activeCandidate.reference_check_submitted_at" size="xs"
+                variant="soft" color="primary" icon="i-lucide-send" label="Kirim Permintaan Referensi"
+                :disabled="updatingStage" @click="triggerReferenceCheckRequest" />
             </div>
 
             <!-- Reference Check Tracking Card (Identik dengan Case Study) -->
             <div
-              class="bg-muted/5 border border-default rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm"
-            >
+              class="bg-muted/5 border border-default rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
               <div>
                 <p class="text-xs text-muted">Tanggal Dikirim</p>
                 <p class="font-medium text-highlighted mt-0.5">
@@ -4597,10 +4136,8 @@ onBeforeUnmount(() => {
               <div>
                 <p class="text-xs text-muted">Status Notifikasi Email</p>
                 <p class="mt-0.5 flex items-center gap-1.5 font-medium">
-                  <span
-                    v-if="activeCandidate.reference_check_email_sent_at"
-                    class="text-emerald-500 flex items-center gap-1"
-                  >
+                  <span v-if="activeCandidate.reference_check_email_sent_at"
+                    class="text-emerald-500 flex items-center gap-1">
                     <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                       formatDateTime(activeCandidate.reference_check_email_sent_at)
                     }})
@@ -4614,10 +4151,8 @@ onBeforeUnmount(() => {
                 <p class="text-xs text-muted">Status Notifikasi WhatsApp</p>
                 <div class="mt-0.5 flex items-center justify-between gap-2 flex-wrap">
                   <p class="flex items-center gap-1.5 font-medium">
-                    <span
-                      v-if="activeCandidate.reference_check_wa_sent_at"
-                      class="text-emerald-500 flex items-center gap-1"
-                    >
+                    <span v-if="activeCandidate.reference_check_wa_sent_at"
+                      class="text-emerald-500 flex items-center gap-1">
                       <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                         formatDateTime(activeCandidate.reference_check_wa_sent_at)
                       }})
@@ -4626,26 +4161,16 @@ onBeforeUnmount(() => {
                       <UIcon name="i-lucide-alert-circle" class="size-4" /> Belum Terkirim
                     </span>
                   </p>
-                  <UButton
-                    v-if="
-                      !isViewingHistoricalStage &&
-                      activeCandidate.reference_check_token &&
-                      !allReferencesSubmitted
-                    "
-                    size="xs"
-                    variant="soft"
-                    color="success"
-                    icon="i-lucide-send"
-                    label="Kirim Info WA ke Kandidat"
-                    :loading="updatingStage"
-                    :disabled="
-                      updatingStage ||
+                  <UButton v-if="
+                    !isViewingHistoricalStage &&
+                    activeCandidate.reference_check_token &&
+                    !allReferencesSubmitted
+                  " size="xs" variant="soft" color="success" icon="i-lucide-send" label="Kirim Info WA ke Kandidat"
+                    :loading="updatingStage" :disabled="updatingStage ||
                       (activeCandidate.reference_check_wa_sent_at &&
                         new Date(activeCandidate.reference_check_wa_sent_at) >=
-                          new Date(activeCandidate.updated_at))
-                    "
-                    @click="triggerReferenceCheckWa"
-                  />
+                        new Date(activeCandidate.updated_at))
+                      " @click="triggerReferenceCheckWa" />
                 </div>
               </div>
             </div>
@@ -4656,19 +4181,13 @@ onBeforeUnmount(() => {
                 Daftar Referensi yang Disubmit Kandidat
               </h5>
               <div class="grid gap-2 sm:grid-cols-2">
-                <div
-                  v-for="ref in activeCandidate.references"
-                  :key="ref.id"
-                  class="bg-muted/5 border border-default rounded-xl p-3 text-xs space-y-1"
-                >
+                <div v-for="ref in activeCandidate.references" :key="ref.id"
+                  class="bg-muted/5 border border-default rounded-xl p-3 text-xs space-y-1">
                   <div class="flex items-start justify-between gap-2">
                     <p class="font-bold text-highlighted text-sm">{{ ref.name }}</p>
-                    <UBadge
-                      :color="ref.submitted_at ? 'success' : 'warning'"
-                      variant="soft"
-                      size="sm"
-                      >{{ ref.submitted_at ? 'Selesai Diisi' : 'Menunggu' }}</UBadge
-                    >
+                    <UBadge :color="ref.submitted_at ? 'success' : 'warning'" variant="soft" size="sm">{{
+                      ref.submitted_at ?
+                        'Selesai Diisi' : 'Menunggu' }}</UBadge>
                   </div>
                   <p v-if="ref.relationship">
                     <span class="text-muted">Hubungan:</span> {{ ref.relationship }}
@@ -4680,36 +4199,16 @@ onBeforeUnmount(() => {
                     <span class="text-muted">Tipe Form:</span>
                     {{ ref.form_type === 'managerial' ? 'Managerial' : 'Staff' }}
                   </p>
-                  <div
-                    v-if="ref.public_code && !ref.submitted_at"
-                    class="flex flex-wrap gap-2 pt-2"
-                  >
-                    <UButton
-                      size="xs"
-                      variant="soft"
-                      icon="i-lucide-copy"
-                      label="Salin Link"
-                      @click="copyReferencePublicUrl(ref)"
-                    />
-                    <UButton
-                      size="xs"
-                      color="neutral"
-                      variant="soft"
-                      icon="i-lucide-external-link"
-                      label="Buka"
-                      :to="getReferencePublicUrl(ref)"
-                      target="_blank"
-                    />
+                  <div v-if="ref.public_code && !ref.submitted_at" class="flex flex-wrap gap-2 pt-2">
+                    <UButton size="xs" variant="soft" icon="i-lucide-copy" label="Salin Link"
+                      @click="copyReferencePublicUrl(ref)" />
+                    <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-external-link" label="Buka"
+                      :to="getReferencePublicUrl(ref)" target="_blank" />
                   </div>
-                  <div
-                    v-if="ref.submitted_at && ref.answers"
-                    class="mt-2 rounded-lg border p-2.5"
-                    :class="
-                      ref.answers.recommendation === 'yes'
-                        ? 'border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-600 dark:bg-emerald-900 dark:text-emerald-50'
-                        : 'border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-600 dark:bg-rose-900 dark:text-rose-50'
-                    "
-                  >
+                  <div v-if="ref.submitted_at && ref.answers" class="mt-2 rounded-lg border p-2.5" :class="ref.answers.recommendation === 'yes'
+                    ? 'border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-600 dark:bg-emerald-900 dark:text-emerald-50'
+                    : 'border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-600 dark:bg-rose-900 dark:text-rose-50'
+                    ">
                     <p class="font-bold">Rating: {{ ref.answers.rating }} / 5</p>
                     <p class="font-semibold">
                       Rekomendasi:
@@ -4726,14 +4225,9 @@ onBeforeUnmount(() => {
                 </div>
               </div>
 
-              <UButton
-                v-if="activeCandidate.references.some((ref) => ref.submitted_at && ref.answers)"
-                color="primary"
-                variant="soft"
-                icon="i-lucide-clipboard-check"
-                label="Lihat Rekap Jawaban Reference Check"
-                @click="referenceRecapModalOpen = true"
-              />
+              <UButton v-if="activeCandidate.references.some((ref) => ref.submitted_at && ref.answers)" color="primary"
+                variant="soft" icon="i-lucide-clipboard-check" label="Lihat Rekap Jawaban Reference Check"
+                @click="referenceRecapModalOpen = true" />
             </div>
 
             <!-- Upload Reference Check Summary Document -->
@@ -4741,77 +4235,46 @@ onBeforeUnmount(() => {
               <h5 class="text-xs font-bold text-muted uppercase mb-2">
                 Summary Hasil Reference Check
               </h5>
-              <div
-                v-if="activeCandidate.reference_check_summary_path"
-                class="flex items-center justify-between gap-2 bg-muted/10 p-3 rounded-lg border border-default"
-              >
+              <div v-if="activeCandidate.reference_check_summary_path"
+                class="flex items-center justify-between gap-2 bg-muted/10 p-3 rounded-lg border border-default">
                 <span class="text-sm font-medium text-highlighted flex items-center gap-2">
                   <UIcon name="i-lucide-file-text" class="text-primary" /> Dokumen Hasil Reference
                   Check
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
-                  <UButton
-                    icon="i-lucide-eye"
-                    size="xs"
-                    color="primary"
-                    variant="soft"
-                    label="Lihat Summary"
-                    @click="previewReferenceCheckSummaryDoc(activeCandidate)"
-                  />
-                  <UButton
-                    icon="i-lucide-download"
-                    size="xs"
-                    color="neutral"
-                    variant="soft"
-                    label="Unduh Summary"
-                    :loading="loadingDocument"
-                    @click="downloadReferenceCheckSummaryDoc(activeCandidate)"
-                  />
+                  <UButton icon="i-lucide-eye" size="xs" color="primary" variant="soft" label="Lihat Summary"
+                    @click="previewReferenceCheckSummaryDoc(activeCandidate)" />
+                  <UButton icon="i-lucide-download" size="xs" color="neutral" variant="soft" label="Unduh Summary"
+                    :loading="loadingDocument" @click="downloadReferenceCheckSummaryDoc(activeCandidate)" />
                 </div>
               </div>
-              <div
-                v-else-if="!isViewingHistoricalStage && !allReferencesSubmitted"
-                class="flex flex-col items-center justify-center p-4 bg-muted/5 border border-dashed border-default rounded-lg"
-              >
-                <p
-                  v-if="
-                    !(activeCandidate.references || []).length ||
-                    (activeCandidate.references || []).some((ref) => !ref.submitted_at)
-                  "
-                  class="mb-2 text-xs font-semibold text-amber-500 text-center"
-                >
+              <div v-else-if="!isViewingHistoricalStage && !allReferencesSubmitted"
+                class="flex flex-col items-center justify-center p-4 bg-muted/5 border border-dashed border-default rounded-lg">
+                <p v-if="
+                  !(activeCandidate.references || []).length ||
+                  (activeCandidate.references || []).some((ref) => !ref.submitted_at)
+                " class="mb-2 text-xs font-semibold text-amber-500 text-center">
                   Upload summary aktif setelah seluruh pemberi referensi menyelesaikan formulir
                   Reference Check.
                 </p>
-                <label
-                  :class="
+                <label :class="(activeCandidate.references || []).length &&
+                  (activeCandidate.references || []).every((ref) => ref.submitted_at)
+                  ? 'cursor-pointer'
+                  : 'cursor-not-allowed'
+                  ">
+                  <span :class="[
+                    'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded',
                     (activeCandidate.references || []).length &&
-                    (activeCandidate.references || []).every((ref) => ref.submitted_at)
-                      ? 'cursor-pointer'
-                      : 'cursor-not-allowed'
-                  "
-                >
-                  <span
-                    :class="[
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded',
-                      (activeCandidate.references || []).length &&
                       (activeCandidate.references || []).every((ref) => ref.submitted_at)
-                        ? 'bg-default hover:bg-muted/10 text-highlighted'
-                        : 'bg-muted/10 text-muted opacity-60',
-                    ]"
-                  >
+                      ? 'bg-default hover:bg-muted/10 text-highlighted'
+                      : 'bg-muted/10 text-muted opacity-60',
+                  ]">
                     <UIcon name="i-lucide-upload" class="size-3.5" /> Upload Summary Hasil Referensi
                   </span>
-                  <input
-                    v-if="
-                      (activeCandidate.references || []).length &&
-                      (activeCandidate.references || []).every((ref) => ref.submitted_at)
-                    "
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    class="hidden"
-                    @change="submitReferenceSummary($event)"
-                  />
+                  <input v-if="
+                    (activeCandidate.references || []).length &&
+                    (activeCandidate.references || []).every((ref) => ref.submitted_at)
+                  " type="file" accept=".pdf,.doc,.docx" class="hidden" @change="submitReferenceSummary($event)" />
                 </label>
               </div>
             </div>
@@ -4824,74 +4287,44 @@ onBeforeUnmount(() => {
                 Offering Letter (Surat Penawaran)
               </h4>
               <div class="flex items-center gap-2">
-                <UButton
-                  v-if="
-                    !isViewingHistoricalStage &&
-                    activeCandidate.offering_letter_sent_at &&
-                    !activeCandidate.offering_letter_signed_at
-                  "
-                  size="xs"
-                  variant="soft"
-                  color="success"
-                  icon="i-lucide-send"
-                  label="Kirim Info WA ke Kandidat"
-                  :loading="updatingStage"
-                  :disabled="
-                    updatingStage ||
+                <UButton v-if="
+                  !isViewingHistoricalStage &&
+                  activeCandidate.offering_letter_sent_at &&
+                  !activeCandidate.offering_letter_signed_at
+                " size="xs" variant="soft" color="success" icon="i-lucide-send" label="Kirim Info WA ke Kandidat"
+                  :loading="updatingStage" :disabled="updatingStage ||
                     (activeCandidate.offering_letter_wa_sent_at &&
                       new Date(activeCandidate.offering_letter_wa_sent_at) >=
-                        new Date(activeCandidate.updated_at))
-                  "
-                  @click="triggerOfferingLetterWa"
-                />
-                <UButton
-                  v-if="!isViewingHistoricalStage && !activeCandidate.offering_letter_signed_at"
-                  size="xs"
-                  variant="soft"
-                  color="primary"
-                  icon="i-lucide-upload"
-                  :label="
-                    activeCandidate.offering_letter_path
-                      ? 'Ganti & Kirim Ulang Offering'
-                      : 'Upload & Kirim Offering Letter'
-                  "
-                  :disabled="updatingStage"
-                  @click="openOfferingModal(activeCandidate)"
-                />
+                      new Date(activeCandidate.updated_at))
+                    " @click="triggerOfferingLetterWa" />
+                <UButton v-if="!isViewingHistoricalStage && !activeCandidate.offering_letter_signed_at" size="xs"
+                  variant="soft" color="primary" icon="i-lucide-upload" :label="activeCandidate.offering_letter_path
+                    ? 'Ganti & Kirim Ulang Offering'
+                    : 'Upload & Kirim Offering Letter'
+                    " :disabled="updatingStage" @click="openOfferingModal(activeCandidate)" />
               </div>
             </div>
 
             <!-- Notification Tracking & Submission Tracking -->
-            <div
-              v-if="activeCandidate.offering_letter_path"
-              class="grid gap-4 md:grid-cols-2 bg-muted/5 border border-default rounded-xl p-4 mb-4 text-xs"
-            >
+            <div v-if="activeCandidate.offering_letter_path"
+              class="grid gap-4 md:grid-cols-2 bg-muted/5 border border-default rounded-xl p-4 mb-4 text-xs">
               <div class="space-y-3">
                 <div>
-                  <label class="block text-[10px] font-bold uppercase text-muted"
-                    >Tanggal Tanda Tangan Kandidat</label
-                  >
+                  <label class="block text-[10px] font-bold uppercase text-muted">Tanggal Tanda Tangan Kandidat</label>
                   <p class="mt-1 font-semibold text-highlighted">
-                    <span
-                      v-if="activeCandidate.offering_letter_signed_at"
-                      class="text-emerald-500 flex items-center gap-1"
-                    >
+                    <span v-if="activeCandidate.offering_letter_signed_at"
+                      class="text-emerald-500 flex items-center gap-1">
                       <UIcon name="i-lucide-circle-check" class="size-4" />
                       {{ formatDateTime(activeCandidate.offering_letter_signed_at) }}
                     </span>
-                    <span
-                      v-else-if="activeCandidate.offering_letter_sent_at"
-                      class="text-amber-500"
-                    >
+                    <span v-else-if="activeCandidate.offering_letter_sent_at" class="text-amber-500">
                       Menunggu Tanda Tangan Kandidat
                     </span>
                     <span v-else class="text-muted"> Belum dikirim </span>
                   </p>
                 </div>
                 <div>
-                  <label class="block text-[10px] font-bold uppercase text-muted"
-                    >Ekspektasi Gaji</label
-                  >
+                  <label class="block text-[10px] font-bold uppercase text-muted">Ekspektasi Gaji</label>
                   <p class="mt-1 font-semibold text-highlighted">
                     Rp
                     {{
@@ -4904,14 +4337,11 @@ onBeforeUnmount(() => {
               </div>
               <div class="space-y-3">
                 <div>
-                  <label class="block text-[10px] font-bold uppercase text-muted"
-                    >Status Notifikasi Email Kandidat</label
-                  >
+                  <label class="block text-[10px] font-bold uppercase text-muted">Status Notifikasi Email
+                    Kandidat</label>
                   <p class="mt-1 flex items-center gap-1.5 font-medium text-highlighted">
-                    <span
-                      v-if="activeCandidate.offering_letter_sent_at"
-                      class="text-emerald-500 flex items-center gap-1"
-                    >
+                    <span v-if="activeCandidate.offering_letter_sent_at"
+                      class="text-emerald-500 flex items-center gap-1">
                       <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                         formatDateTime(activeCandidate.offering_letter_sent_at)
                       }})
@@ -4922,14 +4352,10 @@ onBeforeUnmount(() => {
                   </p>
                 </div>
                 <div>
-                  <label class="block text-[10px] font-bold uppercase text-muted"
-                    >Status Notifikasi WA Kandidat</label
-                  >
+                  <label class="block text-[10px] font-bold uppercase text-muted">Status Notifikasi WA Kandidat</label>
                   <p class="mt-1 flex items-center gap-1.5 font-medium text-highlighted">
-                    <span
-                      v-if="activeCandidate.offering_letter_wa_sent_at"
-                      class="text-emerald-500 flex items-center gap-1"
-                    >
+                    <span v-if="activeCandidate.offering_letter_wa_sent_at"
+                      class="text-emerald-500 flex items-center gap-1">
                       <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                         formatDateTime(activeCandidate.offering_letter_wa_sent_at)
                       }})
@@ -4941,10 +4367,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </div>
-            <div
-              v-else
-              class="bg-muted/5 border border-default rounded-xl p-6 text-center mb-4 text-muted text-sm"
-            >
+            <div v-else class="bg-muted/5 border border-default rounded-xl p-6 text-center mb-4 text-muted text-sm">
               <p class="mb-2">
                 Offering letter belum diunggah. Ekspektasi Gaji: Rp
                 {{
@@ -4959,30 +4382,17 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="activeCandidate.offering_letter_path" class="mt-3 flex justify-end">
-              <UButton
-                size="xs"
-                variant="soft"
-                color="primary"
-                icon="i-lucide-eye"
-                label="Lihat Offering Letter"
-                :loading="loadingDocument"
-                @click="previewOfferingLetterDoc(activeCandidate)"
-              />
+              <UButton size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat Offering Letter"
+                :loading="loadingDocument" @click="previewOfferingLetterDoc(activeCandidate)" />
             </div>
 
             <!-- Signature preview if signed -->
-            <div
-              v-if="activeCandidate.offering_letter_signature_data"
-              class="mt-4 border border-default rounded-xl p-4 bg-white text-center"
-            >
-              <span class="text-[10px] font-bold text-muted uppercase tracking-wider block mb-2"
-                >Tanda Tangan Digital Kandidat</span
-              >
-              <img
-                :src="activeCandidate.offering_letter_signature_data"
-                alt="Tanda Tangan"
-                class="max-h-[100px] mx-auto"
-              />
+            <div v-if="activeCandidate.offering_letter_signature_data"
+              class="mt-4 border border-default rounded-xl p-4 bg-white text-center">
+              <span class="text-[10px] font-bold text-muted uppercase tracking-wider block mb-2">Tanda Tangan Digital
+                Kandidat</span>
+              <img :src="activeCandidate.offering_letter_signature_data" alt="Tanda Tangan"
+                class="max-h-[100px] mx-auto" />
             </div>
           </div>
 
@@ -4993,65 +4403,39 @@ onBeforeUnmount(() => {
             </h4>
 
             <!-- Send PKB Request Form -->
-            <div
-              v-if="!isViewingHistoricalStage"
-              class="bg-muted/5 border border-default rounded-xl p-4 mb-6"
-            >
+            <div v-if="!isViewingHistoricalStage" class="bg-muted/5 border border-default rounded-xl p-4 mb-6">
               <h5 class="text-xs font-bold text-muted uppercase mb-2">Pilih Karyawan Penyetuju</h5>
 
-              <USelectMenu
-                v-model="selectedPkbSigners"
-                :items="formattedAllEmployees"
-                value-key="nik"
-                label-key="label"
-                multiple
-                placeholder="Cari dan pilih karyawan berdasarkan nama atau NIK"
-                :search-input="{ placeholder: 'Ketik nama atau NIK karyawan...' }"
-                icon="i-lucide-search"
-                class="w-full mb-3"
-              />
+              <USelectMenu v-model="selectedPkbSigners" :items="formattedAllEmployees" value-key="nik" label-key="label"
+                multiple placeholder="Cari dan pilih karyawan berdasarkan nama atau NIK"
+                :search-input="{ placeholder: 'Ketik nama atau NIK karyawan...' }" icon="i-lucide-search"
+                class="w-full mb-3" />
 
-              <div
-                v-if="selectedPkbSignerEmployees.length"
-                class="mb-4 rounded-lg border border-default bg-default/60 p-3"
-              >
+              <div v-if="selectedPkbSignerEmployees.length"
+                class="mb-4 rounded-lg border border-default bg-default/60 p-3">
                 <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted">
                   {{ selectedPkbSignerEmployees.length }} karyawan dipilih
                 </p>
                 <div class="flex flex-wrap gap-2">
-                  <span
-                    v-for="signer in selectedPkbSignerEmployees"
-                    :key="signer.nik"
-                    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary"
-                  >
+                  <span v-for="signer in selectedPkbSignerEmployees" :key="signer.nik"
+                    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary">
                     <span class="truncate">{{ signer.label }}</span>
-                    <button
-                      type="button"
+                    <button type="button"
                       class="i-lucide-x size-3.5 shrink-0 cursor-pointer opacity-70 hover:opacity-100"
-                      :aria-label="`Hapus ${signer.label}`"
-                      @click="removePkbSigner(signer.nik)"
-                    ></button>
+                      :aria-label="`Hapus ${signer.label}`" @click="removePkbSigner(signer.nik)"></button>
                   </span>
                 </div>
               </div>
 
-              <UButton
-                size="xs"
-                color="primary"
-                icon="i-lucide-send"
-                label="Kirim Permintaan Persetujuan PKB"
-                :disabled="!selectedPkbSigners.length || updatingStage"
-                @click="submitPkbRequest"
-              />
+              <UButton size="xs" color="primary" icon="i-lucide-send" label="Kirim Permintaan Persetujuan PKB"
+                :disabled="!selectedPkbSigners.length || updatingStage" @click="submitPkbRequest" />
             </div>
 
             <!-- PKB Signers list table -->
             <div class="border border-default rounded-xl overflow-hidden text-xs">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr
-                    class="bg-muted/10 border-b border-default text-muted uppercase font-bold text-[10px]"
-                  >
+                  <tr class="bg-muted/10 border-b border-default text-muted uppercase font-bold text-[10px]">
                     <th class="p-3">Nama Penyetuju</th>
                     <th class="p-3">Tgl Kirim (WA)</th>
                     <th class="p-3">Status</th>
@@ -5060,11 +4444,7 @@ onBeforeUnmount(() => {
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-default">
-                  <tr
-                    v-for="signer in activeCandidate.pkb_signers"
-                    :key="signer.id"
-                    class="text-highlighted"
-                  >
+                  <tr v-for="signer in activeCandidate.pkb_signers" :key="signer.id" class="text-highlighted">
                     <td class="p-3">
                       <p class="font-semibold">
                         {{ signer.employee ? signer.employee.nama_karyawan : '-' }}
@@ -5079,41 +4459,22 @@ onBeforeUnmount(() => {
                       <span v-else class="text-amber-500"> Belum terkirim </span>
                     </td>
                     <td class="p-3">
-                      <span v-if="signer.signed_at" class="text-emerald-500 font-bold"
-                        >Disetujui ({{ formatDate(signer.signed_at) }})</span
-                      >
+                      <span v-if="signer.signed_at" class="text-emerald-500 font-bold">Disetujui ({{
+                        formatDate(signer.signed_at) }})</span>
                       <span v-else class="text-amber-500">Menunggu</span>
                     </td>
                     <td class="p-3">
-                      <img
-                        v-if="signer.signature_data"
-                        :src="signer.signature_data"
-                        alt="TTD PKB"
-                        class="max-h-[40px] bg-white border rounded"
-                      />
+                      <img v-if="signer.signature_data" :src="signer.signature_data" alt="TTD PKB"
+                        class="max-h-[40px] bg-white border rounded" />
                       <span v-else class="text-muted-dimmed">-</span>
                     </td>
                     <td class="p-3">
                       <div class="flex items-center gap-1.5">
-                        <UButton
-                          v-if="!isViewingHistoricalStage && !signer.signed_at"
-                          size="xs"
-                          variant="soft"
-                          color="success"
-                          icon="i-lucide-send"
-                          label="Kirim Ulang WA"
-                          :loading="updatingStage"
-                          @click="triggerResendPkbSignerWa(signer.id)"
-                        />
-                        <UButton
-                          v-if="!signer.signed_at"
-                          size="xs"
-                          variant="soft"
-                          color="neutral"
-                          icon="i-lucide-copy"
-                          label="Salin Link"
-                          @click="copySignLink(signer.id)"
-                        />
+                        <UButton v-if="!isViewingHistoricalStage && !signer.signed_at" size="xs" variant="soft"
+                          color="success" icon="i-lucide-send" label="Kirim Ulang WA" :loading="updatingStage"
+                          @click="triggerResendPkbSignerWa(signer.id)" />
+                        <UButton v-if="!signer.signed_at" size="xs" variant="soft" color="neutral" icon="i-lucide-copy"
+                          label="Salin Link" @click="copySignLink(signer.id)" />
                       </div>
                     </td>
                   </tr>
@@ -5135,15 +4496,10 @@ onBeforeUnmount(() => {
             <!-- Grid Atas: Parameter Utama (1 Baris, Pembagian 1:3) -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <!-- Kolom Kiri (1/4): Tanggal Mulai Kerja -->
-              <div
-                v-if="activeCandidate.join_date"
-                :class="
-                  activeCandidate.offering_letter_signed_at
-                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-400'
-                    : 'bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-400'
-                "
-                class="md:col-span-1 rounded-xl p-4 flex flex-col justify-center items-center gap-1"
-              >
+              <div v-if="activeCandidate.join_date" :class="activeCandidate.offering_letter_signed_at
+                ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-400'
+                : 'bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-400'
+                " class="md:col-span-1 rounded-xl p-4 flex flex-col justify-center items-center gap-1">
                 <span class="text-[12px] font-bold uppercase tracking-wider opacity-80">
                   {{
                     activeCandidate.offering_letter_signed_at
@@ -5155,23 +4511,17 @@ onBeforeUnmount(() => {
                   {{ formatDate(activeCandidate.join_date) }}
                 </span>
               </div>
-              <div
-                v-else
-                class="md:col-span-1 bg-muted/5 border border-default border-dashed rounded-xl p-4 flex flex-col justify-center gap-1 text-center text-muted"
-              >
-                <span class="text-[10px] font-bold uppercase tracking-wider"
-                  >Tanggal Mulai Kerja</span
-                >
+              <div v-else
+                class="md:col-span-1 bg-muted/5 border border-default border-dashed rounded-xl p-4 flex flex-col justify-center gap-1 text-center text-muted">
+                <span class="text-[10px] font-bold uppercase tracking-wider">Tanggal Mulai Kerja</span>
                 <span class="text-xs">Belum ditentukan</span>
               </div>
 
               <!-- Kolom Kanan (3/4): Status Onboarding Kandidat -->
               <div
-                class="md:col-span-3 bg-muted/5 border border-default rounded-xl p-4 flex flex-col justify-between gap-3 min-w-0"
-              >
-                <span class="text-[10px] font-bold uppercase tracking-wider text-muted"
-                  >Status Onboarding Kandidat</span
-                >
+                class="md:col-span-3 bg-muted/5 border border-default rounded-xl p-4 flex flex-col justify-between gap-3 min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-muted">Status Onboarding
+                  Kandidat</span>
 
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div class="min-w-0 flex-1">
@@ -5179,16 +4529,9 @@ onBeforeUnmount(() => {
                       <span class="text-sm font-bold text-highlighted">
                         {{ activeCandidate.onboarding_completed_at ? 'Selesai' : 'Belum Selesai' }}
                       </span>
-                      <UIcon
-                        v-if="activeCandidate.onboarding_completed_at"
-                        name="i-lucide-circle-check"
-                        class="text-emerald-500 size-4.5 shrink-0"
-                      />
-                      <UIcon
-                        v-else
-                        name="i-lucide-alert-circle"
-                        class="text-amber-500 size-4.5 shrink-0"
-                      />
+                      <UIcon v-if="activeCandidate.onboarding_completed_at" name="i-lucide-circle-check"
+                        class="text-emerald-500 size-4.5 shrink-0" />
+                      <UIcon v-else name="i-lucide-alert-circle" class="text-amber-500 size-4.5 shrink-0" />
                     </div>
 
                     <!-- Deskripsi Status Onboarding -->
@@ -5199,8 +4542,7 @@ onBeforeUnmount(() => {
                           Resmi:
                           <span class="font-semibold text-highlighted dark:text-emerald-400">{{
                             activeCandidate.employee_nik
-                          }}</span
-                          >.
+                          }}</span>.
                         </template>
                         <template v-else>
                           Kandidat telah menyelesaikan pengisian data onboarding mandiri. Silakan
@@ -5217,34 +4559,14 @@ onBeforeUnmount(() => {
                   <!-- Aksi di Kanan -->
                   <div class="shrink-0 flex items-center">
                     <template v-if="activeCandidate.onboarding_completed_at">
-                      <UButton
-                        v-if="activeCandidate.employee_nik"
-                        size="xs"
-                        color="primary"
-                        variant="soft"
-                        icon="i-lucide-eye"
-                        label="Lihat Detail Onboarding"
-                        @click="openOnboardingVerificationModal"
-                      />
+                      <UButton v-if="activeCandidate.employee_nik" size="xs" color="primary" variant="soft"
+                        icon="i-lucide-eye" label="Lihat Detail Onboarding" @click="openOnboardingVerificationModal" />
                       <div v-else class="flex flex-col gap-2 w-full sm:w-48">
-                        <UButton
-                          size="xs"
-                          color="warning"
-                          variant="soft"
-                          icon="i-lucide-edit"
-                          label="Lengkapi / Edit Data"
-                          @click="openOnboardingVerificationModal"
-                        />
-                        <UButton
-                          size="xs"
-                          color="primary"
-                          icon="i-lucide-send"
-                          label="Kirim ke Data Karyawan"
-                          :disabled="
-                            !onboardingEditForm.nik || !onboardingEditForm.pin || updatingStage
-                          "
-                          @click="openImportConfirmationModal"
-                        />
+                        <UButton size="xs" color="warning" variant="soft" icon="i-lucide-edit"
+                          label="Lengkapi / Edit Data" @click="openOnboardingVerificationModal" />
+                        <UButton size="xs" color="primary" icon="i-lucide-send" label="Kirim ke Data Karyawan"
+                          :disabled="!onboardingEditForm.nik || !onboardingEditForm.pin || updatingStage
+                            " @click="openImportConfirmationModal" />
                       </div>
                     </template>
                     <template v-else>
@@ -5258,25 +4580,17 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Detail Panel Tindakan / Pengiriman (Hanya jika belum selesai) -->
-            <div
-              v-if="!activeCandidate.onboarding_completed_at"
-              class="bg-muted/5 border border-default rounded-xl p-4 space-y-4"
-            >
+            <div v-if="!activeCandidate.onboarding_completed_at"
+              class="bg-muted/5 border border-default rounded-xl p-4 space-y-4">
               <!-- Notification Tracking & Link details -->
-              <div
-                v-if="activeCandidate.onboarding_password"
-                class="grid gap-4 md:grid-cols-2 bg-default border border-default rounded-xl p-4 text-xs"
-              >
+              <div v-if="activeCandidate.onboarding_password"
+                class="grid gap-4 md:grid-cols-2 bg-default border border-default rounded-xl p-4 text-xs">
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-[10px] font-bold uppercase text-muted"
-                      >Status Notifikasi Email Kandidat</label
-                    >
+                    <label class="block text-[10px] font-bold uppercase text-muted">Status Notifikasi Email
+                      Kandidat</label>
                     <p class="mt-1 flex items-center gap-1.5 font-semibold text-highlighted">
-                      <span
-                        v-if="activeCandidate.onboarding_sent_at"
-                        class="text-emerald-500 flex items-center gap-1"
-                      >
+                      <span v-if="activeCandidate.onboarding_sent_at" class="text-emerald-500 flex items-center gap-1">
                         <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                           formatDateTime(activeCandidate.onboarding_sent_at)
                         }})
@@ -5287,9 +4601,7 @@ onBeforeUnmount(() => {
                     </p>
                   </div>
                   <div>
-                    <label class="block text-[10px] font-bold uppercase text-muted"
-                      >Password 6-Digit</label
-                    >
+                    <label class="block text-[10px] font-bold uppercase text-muted">Password 6-Digit</label>
                     <p class="mt-1 font-semibold text-primary text-sm font-mono tracking-wider">
                       {{ activeCandidate.onboarding_password }}
                     </p>
@@ -5297,14 +4609,11 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-[10px] font-bold uppercase text-muted"
-                      >Status Notifikasi WA Kandidat</label
-                    >
+                    <label class="block text-[10px] font-bold uppercase text-muted">Status Notifikasi WA
+                      Kandidat</label>
                     <p class="mt-1 flex items-center gap-1.5 font-semibold text-highlighted">
-                      <span
-                        v-if="activeCandidate.onboarding_wa_sent_at"
-                        class="text-emerald-500 flex items-center gap-1"
-                      >
+                      <span v-if="activeCandidate.onboarding_wa_sent_at"
+                        class="text-emerald-500 flex items-center gap-1">
                         <UIcon name="i-lucide-circle-check" class="size-4" /> Terkirim ({{
                           formatDateTime(activeCandidate.onboarding_wa_sent_at)
                         }})
@@ -5315,41 +4624,22 @@ onBeforeUnmount(() => {
                     </p>
                   </div>
                   <div>
-                    <label class="block text-[10px] font-bold uppercase text-muted"
-                      >Tautan Portal Onboarding</label
-                    >
+                    <label class="block text-[10px] font-bold uppercase text-muted">Tautan Portal Onboarding</label>
                     <p class="mt-1 font-semibold text-highlighted">
-                      <a
-                        :href="onboardingPublicLink"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-primary hover:underline break-all"
-                        >{{ onboardingPublicLink }}</a
-                      >
+                      <a :href="onboardingPublicLink" target="_blank" rel="noopener noreferrer"
+                        class="text-primary hover:underline break-all">{{ onboardingPublicLink }}</a>
                     </p>
                   </div>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 pt-2 border-t border-default/50">
-                <UButton
-                  size="sm"
-                  color="primary"
-                  icon="i-lucide-send"
-                  label="Kirim Tautan Onboarding via Email"
-                  :disabled="updatingStage"
-                  :loading="updatingStage && lastClickedBtn === 'email'"
-                  @click="triggerOnboardingFormLink"
-                />
-                <UButton
-                  size="sm"
-                  color="success"
-                  icon="i-lucide-message-circle"
-                  label="Kirim Info ke WA Kandidat"
+                <UButton size="sm" color="primary" icon="i-lucide-send" label="Kirim Tautan Onboarding via Email"
+                  :disabled="updatingStage" :loading="updatingStage && lastClickedBtn === 'email'"
+                  @click="triggerOnboardingFormLink" />
+                <UButton size="sm" color="success" icon="i-lucide-message-circle" label="Kirim Info ke WA Kandidat"
                   :disabled="!activeCandidate.onboarding_sent_at || updatingStage"
-                  :loading="updatingStage && lastClickedBtn === 'wa'"
-                  @click="triggerOnboardingWa"
-                />
+                  :loading="updatingStage && lastClickedBtn === 'wa'" @click="triggerOnboardingWa" />
               </div>
             </div>
           </div>
@@ -5364,23 +4654,13 @@ onBeforeUnmount(() => {
                   Seluruh summary dan dokumen dari proses yang telah dilewati.
                 </p>
               </div>
-              <span class="shrink-0 text-[11px] font-semibold text-muted"
-                >{{ previousStageDocuments.length }} dokumen</span
-              >
+              <span class="shrink-0 text-[11px] font-semibold text-muted">{{ previousStageDocuments.length }}
+                dokumen</span>
             </div>
             <div class="previous-documents-grid">
-              <button
-                v-for="documentItem in previousStageDocuments"
-                :key="documentItem.key"
-                type="button"
+              <button v-for="documentItem in previousStageDocuments" :key="documentItem.key" type="button"
                 class="previous-document-card"
-                :class="`previous-document-card--${documentItem.tone}`"
-                :aria-label="`Lihat ${documentItem.label}`"
-                @click="openPreviousStageDocument(documentItem)"
-              >
-                <span class="previous-document-icon" aria-hidden="true">
-                  <UIcon :name="documentItem.icon" class="size-[18px]" />
-                </span>
+                :aria-label="`Lihat ${documentItem.label}`" @click="openPreviousStageDocument(documentItem)">
                 <span class="min-w-0 flex-1">
                   <span class="previous-document-stage">{{ documentItem.stageLabel }}</span>
                   <span class="previous-document-title">{{ documentItem.label }}</span>
@@ -5392,11 +4672,7 @@ onBeforeUnmount(() => {
                     </template>
                   </span>
                 </span>
-                <UIcon
-                  name="i-lucide-arrow-up-right"
-                  class="previous-document-action"
-                  aria-hidden="true"
-                />
+                <UIcon name="i-lucide-arrow-up-right" class="previous-document-action" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -5407,46 +4683,32 @@ onBeforeUnmount(() => {
               Catatan / Evaluasi HRD
             </h4>
             <div
-              class="bg-muted/10 border border-default rounded-xl p-4 min-h-[80px] text-sm text-highlighted whitespace-pre-wrap"
-            >
+              class="bg-muted/10 border border-default rounded-xl p-4 min-h-[80px] text-sm text-highlighted whitespace-pre-wrap">
               {{ activeCandidate.notes || 'Tidak ada catatan tambahan.' }}
             </div>
           </div>
 
           <!-- Riwayat Aktivitas / Log Perubahan -->
           <div v-if="changeLogs.length" class="mt-6 border-t border-default pt-6">
-            <div
-              class="flex items-center justify-between cursor-pointer select-none mb-4 group"
-              @click="isAuditLogsExpanded = !isAuditLogsExpanded"
-            >
+            <div class="flex items-center justify-between cursor-pointer select-none mb-4 group"
+              @click="isAuditLogsExpanded = !isAuditLogsExpanded">
               <h4
-                class="text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-1.5 group-hover:text-highlighted transition-colors"
-              >
+                class="text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-1.5 group-hover:text-highlighted transition-colors">
                 <span>Riwayat Perubahan (Audit Log)</span>
                 <span
-                  class="text-[10px] bg-muted/20 px-1.5 py-0.5 rounded-full text-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors"
-                >
+                  class="text-[10px] bg-muted/20 px-1.5 py-0.5 rounded-full text-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                   {{ changeLogs.length }}
                 </span>
               </h4>
-              <UButton
-                size="xs"
-                variant="ghost"
-                color="neutral"
+              <UButton size="xs" variant="ghost" color="neutral"
                 :icon="isAuditLogsExpanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
-                :label="isAuditLogsExpanded ? 'Sembunyikan' : 'Tampilkan'"
-              />
+                :label="isAuditLogsExpanded ? 'Sembunyikan' : 'Tampilkan'" />
             </div>
 
-            <div
-              v-show="isAuditLogsExpanded"
-              class="relative pl-6 border-l border-default space-y-6 pt-2"
-            >
+            <div v-show="isAuditLogsExpanded" class="relative pl-6 border-l border-default space-y-6 pt-2">
               <div v-for="log in changeLogs" :key="log.id" class="relative">
                 <!-- Log Dot -->
-                <span
-                  class="absolute -left-[31px] top-1 size-3 rounded-full bg-default border-2 border-primary"
-                ></span>
+                <span class="absolute -left-[31px] top-1 size-3 rounded-full bg-default border-2 border-primary"></span>
                 <div>
                   <p class="text-xs font-semibold text-highlighted">
                     {{ log.actor_name || log.actor_username }}
@@ -5454,38 +4716,27 @@ onBeforeUnmount(() => {
                     <span class="font-bold text-primary">{{ formatAction(log.action) }}</span>
                   </p>
                   <!-- Log Changes details -->
-                  <div
-                    v-if="
-                      log.changes &&
-                      getParsedChanges(log.changes).length > 0 &&
-                      filteredLogChanges(getParsedChanges(log.changes)).length > 0
-                    "
-                    class="text-xs text-muted mt-2 leading-relaxed bg-muted/10 p-3 rounded-lg border border-default"
-                  >
+                  <div v-if="
+                    log.changes &&
+                    getParsedChanges(log.changes).length > 0 &&
+                    filteredLogChanges(getParsedChanges(log.changes)).length > 0
+                  " class="text-xs text-muted mt-2 leading-relaxed bg-muted/10 p-3 rounded-lg border border-default">
                     <ul class="space-y-1.5 list-disc list-inside">
-                      <li
-                        v-for="(change, cIdx) in filteredLogChanges(getParsedChanges(log.changes))"
-                        :key="cIdx"
-                      >
-                        <span class="font-semibold text-highlighted"
-                          >{{ getReadableFieldLabel(change) }}:</span
-                        >
+                      <li v-for="(change, cIdx) in filteredLogChanges(getParsedChanges(log.changes))" :key="cIdx">
+                        <span class="font-semibold text-highlighted">{{ getReadableFieldLabel(change) }}:</span>
                         <span class="text-muted-dimmed line-through mx-1">{{
                           formatChangeValue(change.field, change.old)
                         }}</span>
                         <span class="text-muted mx-1">→</span>
                         <span
-                          class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[11px] shadow-2xs"
-                        >
+                          class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[11px] shadow-2xs">
                           {{ formatChangeValue(change.field, change.new) }}
                         </span>
                       </li>
                     </ul>
                   </div>
-                  <p
-                    v-else-if="log.changes && getParsedChanges(log.changes).length === 0"
-                    class="text-xs text-muted mt-1 leading-relaxed bg-muted/10 p-2 rounded-lg border border-default"
-                  >
+                  <p v-else-if="log.changes && getParsedChanges(log.changes).length === 0"
+                    class="text-xs text-muted mt-1 leading-relaxed bg-muted/10 p-2 rounded-lg border border-default">
                     {{ log.changes }}
                   </p>
                   <p class="text-[10px] text-muted-dimmed mt-1">
@@ -5497,149 +4748,85 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Actions Panel -->
-          <div
-            v-if="!isViewingHistoricalStage"
-            class="mt-8 border-t border-default pt-6 flex flex-wrap items-center gap-3"
-          >
-            <div
-              v-if="nextStage && activeCandidate.status !== 'rejected'"
-              class="flex flex-col gap-1"
-            >
+          <div v-if="!isViewingHistoricalStage"
+            class="mt-8 border-t border-default pt-6 flex flex-wrap items-center gap-3">
+            <div v-if="nextStage && activeCandidate.status !== 'rejected'" class="flex flex-col gap-1">
               <div class="flex items-center gap-2">
-                <UButton
-                  type="button"
-                  icon="i-lucide-arrow-right"
-                  trailing
-                  :label="`Lanjutkan ke ${nextStage.label}`"
-                  :loading="updatingStage"
-                  :disabled="!canPromoteCandidate"
-                  @click="promoteCandidate"
-                  class="shadow-sm"
-                />
+                <UButton type="button" icon="i-lucide-arrow-right" trailing :label="`Lanjutkan ke ${nextStage.label}`"
+                  :loading="updatingStage" :disabled="!canPromoteCandidate" @click="promoteCandidate"
+                  class="shadow-sm" />
 
-                <UButton
-                  v-if="activeCandidate.status === 'interview_hr'"
-                  type="button"
-                  color="info"
-                  variant="soft"
-                  icon="i-lucide-file-code"
-                  label="Gunakan Case Study (Opsional)"
-                  :loading="updatingStage"
+                <UButton v-if="activeCandidate.status === 'interview_hr'" type="button" color="info" variant="soft"
+                  icon="i-lucide-file-code" label="Gunakan Case Study (Opsional)" :loading="updatingStage"
                   :disabled="!activeCandidate.interview_hr_completed_at || !isHrSummaryValid"
-                  @click="updateStage(activeCandidate, 'case_study')"
-                  class="shadow-sm"
-                />
+                  @click="updateStage(activeCandidate, 'case_study')" class="shadow-sm" />
               </div>
-              <p
-                v-if="
-                  activeCandidate.status === 'interview_hr' &&
-                  !activeCandidate.interview_hr_completed_at
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-if="
+                activeCandidate.status === 'interview_hr' &&
+                !activeCandidate.interview_hr_completed_at
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Tandai wawancara HR sebagai selesai terlebih dahulu.
               </p>
-              <p
-                v-else-if="activeCandidate.status === 'interview_hr' && !isHrSummaryValid"
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="activeCandidate.status === 'interview_hr' && !isHrSummaryValid"
+                class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Harap lengkapi catatan summary tertulis (minimal 5 kata atau 20 karakter) atau
                 unggah berkas summary wawancara HR terlebih dahulu.
               </p>
-              <p
-                v-if="
-                  activeCandidate.status === 'case_study' && !activeCandidate.case_study_sent_at
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-if="
+                activeCandidate.status === 'case_study' && !activeCandidate.case_study_sent_at
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Harap kirimkan instruksi case study kepada kandidat terlebih dahulu.
               </p>
-              <p
-                v-else-if="
-                  activeCandidate.status === 'case_study' &&
-                  !activeCandidate.case_study_submitted_file_path
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="
+                activeCandidate.status === 'case_study' &&
+                !activeCandidate.case_study_submitted_file_path
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Menunggu kandidat mengunggah berkas jawaban case study.
               </p>
-              <p
-                v-if="
-                  activeCandidate.status === 'interview_user' &&
-                  !(activeCandidate.user_interviews || []).length
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-if="
+                activeCandidate.status === 'interview_user' &&
+                !(activeCandidate.user_interviews || []).length
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Harap jadwalkan minimal 1 sesi wawancara user terlebih dahulu.
               </p>
-              <p
-                v-else-if="
-                  activeCandidate.status === 'interview_user' &&
-                  (activeCandidate.user_interviews || []).some((round) => !round.completed_at)
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="
+                activeCandidate.status === 'interview_user' &&
+                (activeCandidate.user_interviews || []).some((round) => !round.completed_at)
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Tandai seluruh sesi wawancara user yang aktif sebagai selesai terlebih dahulu.
               </p>
-              <p
-                v-else-if="activeCandidate.status === 'interview_user' && !canPromoteCandidate"
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="activeCandidate.status === 'interview_user' && !canPromoteCandidate"
+                class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Harap lengkapi seluruh hasil evaluasi wawancara user round yang aktif.
               </p>
-              <p
-                v-if="activeCandidate.status === 'reference_check' && !allReferencesSubmitted"
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-if="activeCandidate.status === 'reference_check' && !allReferencesSubmitted"
+                class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Menunggu seluruh pemberi referensi menyelesaikan penilaian.
               </p>
-              <p
-                v-else-if="
-                  activeCandidate.status === 'offering' && !activeCandidate.offering_letter_path
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="
+                activeCandidate.status === 'offering' && !activeCandidate.offering_letter_path
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Unggah dan kirim offering letter kepada kandidat terlebih dahulu.
               </p>
-              <p
-                v-else-if="
-                  activeCandidate.status === 'offering' &&
-                  !activeCandidate.offering_letter_signed_at
-                "
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-else-if="
+                activeCandidate.status === 'offering' &&
+                !activeCandidate.offering_letter_signed_at
+              " class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Menunggu kandidat menandatangani offering letter.
               </p>
-              <p
-                v-if="activeCandidate.status === 'pkb' && !canPromoteCandidate"
-                class="text-[10px] text-amber-500 font-semibold mt-1"
-              >
+              <p v-if="activeCandidate.status === 'pkb' && !canPromoteCandidate"
+                class="text-[10px] text-amber-500 font-semibold mt-1">
                 *Menunggu persetujuan PKB selesai ditandatangani oleh seluruh penyetuju.
               </p>
             </div>
-            <UButton
-              v-if="activeCandidate.status === 'rejected'"
-              type="button"
-              color="primary"
-              variant="outline"
-              icon="i-lucide-rotate-ccw"
-              label="Pulihkan Pipeline Kandidat"
-              :loading="updatingStage"
-              @click="restoreCandidate"
-            />
+            <UButton v-if="activeCandidate.status === 'rejected'" type="button" color="primary" variant="outline"
+              icon="i-lucide-rotate-ccw" label="Pulihkan Pipeline Kandidat" :loading="updatingStage"
+              @click="restoreCandidate" />
 
             <!-- Reject button -->
-            <UButton
-              v-if="activeCandidate.status !== 'rejected' && activeCandidate.status !== 'hired'"
-              type="button"
-              variant="ghost"
-              color="danger"
-              icon="i-lucide-x-circle"
-              label="Tandai Ditolak"
-              :loading="updatingStage"
-              @click="rejectCandidate"
-              class="ml-auto"
-            />
+            <UButton v-if="activeCandidate.status !== 'rejected' && activeCandidate.status !== 'hired'" type="button"
+              variant="ghost" color="danger" icon="i-lucide-x-circle" label="Tandai Ditolak" :loading="updatingStage"
+              @click="rejectCandidate" class="ml-auto" />
           </div>
         </div>
       </UCard>
@@ -5655,17 +4842,10 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Onboarding Verification & Import Dialog -->
-    <div
-      v-if="onboardingVerificationModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="onboardingVerificationModalOpen = false"
-      ></button>
+    <div v-if="onboardingVerificationModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true">
+      <button type="button" class="absolute inset-0 bg-slate-950/60"
+        @click="onboardingVerificationModalOpen = false"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-4xl overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -5685,105 +4865,64 @@ onBeforeUnmount(() => {
                 }}
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="onboardingVerificationModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+              @click="onboardingVerificationModalOpen = false" />
           </div>
         </template>
 
         <div class="space-y-6 text-xs text-default">
           <div class="space-y-4">
-            <h5
-              class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default"
-            >
+            <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default">
               Identitas Utama
             </h5>
             <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Karyawan</label>
-                <input
-                  v-model="onboardingEditForm.nama_karyawan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_karyawan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Email</label>
-                <input
-                  v-model="onboardingEditForm.email"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="email"
-                />
+                <input v-model="onboardingEditForm.email" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="email" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. HP</label>
-                <input
-                  v-model="onboardingEditForm.no_hp"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.no_hp" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Tempat Lahir</label>
-                <input
-                  v-model="onboardingEditForm.tempat_lahir"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.tempat_lahir" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Tanggal Lahir</label>
-                <input
-                  v-model="onboardingEditForm.tanggal_lahir"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="date"
-                />
+                <input v-model="onboardingEditForm.tanggal_lahir" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="date" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Jenis Kelamin</label>
-                <select
-                  v-model="onboardingEditForm.jenis_kelamin"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                >
+                <select v-model="onboardingEditForm.jenis_kelamin" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass">
                   <option value="L">Laki-laki</option>
                   <option value="P">Perempuan</option>
                 </select>
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. KTP</label>
-                <input
-                  v-model="onboardingEditForm.no_ktp"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.no_ktp" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Agama</label>
-                <input
-                  v-model="onboardingEditForm.agama"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.agama" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Golongan Darah</label>
-                <select
-                  v-model="onboardingEditForm.golongan_darah"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                >
+                <select v-model="onboardingEditForm.golongan_darah" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass">
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="AB">AB</option>
@@ -5792,11 +4931,8 @@ onBeforeUnmount(() => {
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Status Pernikahan</label>
-                <select
-                  v-model="onboardingEditForm.status_pernikahan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                >
+                <select v-model="onboardingEditForm.status_pernikahan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass">
                   <option value="Belum Menikah">Belum Menikah</option>
                   <option value="Menikah">Menikah</option>
                   <option value="Janda/Duda">Janda/Duda</option>
@@ -5804,91 +4940,53 @@ onBeforeUnmount(() => {
               </div>
               <div class="form-group-sm" v-if="onboardingEditForm.status_pernikahan === 'Menikah'">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Pasangan</label>
-                <input
-                  v-model="onboardingEditForm.nama_pasangan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_pasangan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm" v-if="onboardingEditForm.status_pernikahan === 'Menikah'">
                 <label class="text-[10px] font-bold uppercase text-muted">Jumlah Anak</label>
-                <input
-                  v-model.number="onboardingEditForm.jumlah_anak"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="number"
-                  min="0"
-                  max="3"
-                />
+                <input v-model.number="onboardingEditForm.jumlah_anak" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="number" min="0" max="3" />
               </div>
             </div>
 
-            <div
-              class="grid gap-3 sm:grid-cols-3"
-              v-if="
-                onboardingEditForm.status_pernikahan === 'Menikah' &&
-                onboardingEditForm.jumlah_anak > 0
-              "
-            >
+            <div class="grid gap-3 sm:grid-cols-3" v-if="
+              onboardingEditForm.status_pernikahan === 'Menikah' &&
+              onboardingEditForm.jumlah_anak > 0
+            ">
               <div class="form-group-sm" v-if="onboardingEditForm.jumlah_anak >= 1">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Anak ke-1</label>
-                <input
-                  v-model="onboardingEditForm.nama_anak_1"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_anak_1" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm" v-if="onboardingEditForm.jumlah_anak >= 2">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Anak ke-2</label>
-                <input
-                  v-model="onboardingEditForm.nama_anak_2"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_anak_2" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm" v-if="onboardingEditForm.jumlah_anak >= 3">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Anak ke-3</label>
-                <input
-                  v-model="onboardingEditForm.nama_anak_3"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_anak_3" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
             </div>
 
             <div class="form-group-sm">
-              <label class="text-[10px] font-bold uppercase text-muted"
-                >Alamat Tempat Tinggal</label
-              >
-              <textarea
-                v-model="onboardingEditForm.alamat"
-                :disabled="!!activeCandidate?.employee_nik"
-                :class="onboardingFormControlClass + ' h-16 resize-none'"
-                rows="2"
-              ></textarea>
+              <label class="text-[10px] font-bold uppercase text-muted">Alamat Tempat Tinggal</label>
+              <textarea v-model="onboardingEditForm.alamat" :disabled="!!activeCandidate?.employee_nik"
+                :class="onboardingFormControlClass + ' h-16 resize-none'" rows="2"></textarea>
             </div>
           </div>
 
           <div class="space-y-4">
-            <h5
-              class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default"
-            >
+            <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default">
               Pendidikan & Rekening Bank
             </h5>
             <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Pendidikan Terakhir</label
-                >
-                <select
-                  v-model="onboardingEditForm.pendidikan_terakhir"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Pendidikan Terakhir</label>
+                <select v-model="onboardingEditForm.pendidikan_terakhir" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass">
                   <option value="">Pilih Pendidikan</option>
                   <option value="SMA/SMK">SMA/SMK</option>
                   <option value="D3">D3</option>
@@ -5899,147 +4997,86 @@ onBeforeUnmount(() => {
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Institusi</label>
-                <input
-                  v-model="onboardingEditForm.nama_institusi"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_institusi" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Jurusan</label>
-                <input
-                  v-model="onboardingEditForm.jurusan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.jurusan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Kewarganegaraan</label>
-                <input
-                  v-model="onboardingEditForm.kewarganegaraan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.kewarganegaraan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Bank</label>
-                <input
-                  v-model="onboardingEditForm.bank"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.bank" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. Rekening</label>
-                <input
-                  v-model="onboardingEditForm.no_rekening"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.no_rekening" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. NPWP</label>
-                <input
-                  v-model="onboardingEditForm.no_npwp"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  placeholder="Opsional"
-                />
+                <input v-model="onboardingEditForm.no_npwp" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" placeholder="Opsional" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. BPJS</label>
-                <input
-                  v-model="onboardingEditForm.no_bpjs"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  placeholder="Opsional"
-                />
+                <input v-model="onboardingEditForm.no_bpjs" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" placeholder="Opsional" />
               </div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <h5
-              class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default"
-            >
+            <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default">
               Kontak Darurat & Keluarga
             </h5>
             <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Ayah</label>
-                <input
-                  v-model="onboardingEditForm.nama_ayah"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_ayah" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Nama Ibu</label>
-                <input
-                  v-model="onboardingEditForm.nama_ibu"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.nama_ibu" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Nama Kontak Darurat</label
-                >
-                <input
-                  v-model="onboardingEditForm.kontak_darurat_nama"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Nama Kontak Darurat</label>
+                <input v-model="onboardingEditForm.kontak_darurat_nama" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">Hubungan Kontak</label>
-                <input
-                  v-model="onboardingEditForm.kontak_darurat_hubungan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.kontak_darurat_hubungan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. HP Darurat</label>
-                <input
-                  v-model="onboardingEditForm.kontak_darurat_no_hp"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                />
+                <input v-model="onboardingEditForm.kontak_darurat_no_hp" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" />
               </div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <h5
-              class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default"
-            >
+            <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default">
               Informasi Kepegawaian & Penugasan
             </h5>
             <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
               <!-- Status Karyawan -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Status Karyawan <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.status_karyawan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Status Karyawan <span
+                    class="required">*</span></label>
+                <select v-model="onboardingEditForm.status_karyawan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="kontrak">Kontrak</option>
                   <option value="tetap">Tetap</option>
                   <option value="magang">Magang</option>
@@ -6049,58 +5086,34 @@ onBeforeUnmount(() => {
               </div>
               <!-- Tanggal Mulai Kerja — auto-populated from offering stage join_date -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Tanggal Mulai Kerja <span class="required">*</span></label
-                >
-                <input
-                  v-model="onboardingEditForm.join_date"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="date"
-                  required
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Tanggal Mulai Kerja <span
+                    class="required">*</span></label>
+                <input v-model="onboardingEditForm.join_date" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="date" required />
               </div>
               <!-- Tanggal Akhir Kerja — hanya tampil jika status bukan 'tetap' -->
               <div class="form-group-sm" v-if="onboardingEditForm.status_karyawan !== 'tetap'">
                 <label class="text-[10px] font-bold uppercase text-muted">
                   Tanggal Akhir Kontrak
-                  <span class="required" v-if="onboardingEditForm.status_karyawan !== 'tetap'"
-                    >*</span
-                  >
+                  <span class="required" v-if="onboardingEditForm.status_karyawan !== 'tetap'">*</span>
                 </label>
-                <input
-                  v-model="onboardingEditForm.end_date"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="date"
-                  :min="onboardingEditForm.join_date || undefined"
-                  :required="onboardingEditForm.status_karyawan !== 'tetap'"
-                />
+                <input v-model="onboardingEditForm.end_date" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="date" :min="onboardingEditForm.join_date || undefined"
+                  :required="onboardingEditForm.status_karyawan !== 'tetap'" />
               </div>
               <!-- Jabatan (free text) -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Jabatan <span class="required">*</span></label
-                >
-                <input
-                  v-model="onboardingEditForm.jabatan"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  required
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Jabatan <span
+                    class="required">*</span></label>
+                <input v-model="onboardingEditForm.jabatan" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" required />
               </div>
               <!-- Level Posisi dropdown: Jr. / Md. / Sr. -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Level Posisi <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.posisi_level"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Level Posisi <span
+                    class="required">*</span></label>
+                <select v-model="onboardingEditForm.posisi_level" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="">— Pilih Level —</option>
                   <option value="Jr.">Jr. (Junior)</option>
                   <option value="Md.">Md. (Middle)</option>
@@ -6109,15 +5122,10 @@ onBeforeUnmount(() => {
               </div>
               <!-- Title Posisi dropdown from master_position_titles -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Title Posisi <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.posisi_title"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Title Posisi <span
+                    class="required">*</span></label>
+                <select v-model="onboardingEditForm.posisi_title" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="">— Pilih Title —</option>
                   <option v-for="pt in masterPositionTitles" :key="pt.id" :value="pt.name">
                     {{ pt.name }}
@@ -6130,25 +5138,14 @@ onBeforeUnmount(() => {
                   Posisi <span class="required">*</span>
                   <span class="ml-1 normal-case font-normal text-muted opacity-70">(otomatis)</span>
                 </label>
-                <input
-                  :value="onboardingEditForm.posisi"
-                  disabled
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  placeholder="Terisi otomatis dari Level + Title"
-                />
+                <input :value="onboardingEditForm.posisi" disabled :class="onboardingFormControlClass" type="text"
+                  placeholder="Terisi otomatis dari Level + Title" />
               </div>
               <!-- Divisi dropdown from master_divisions -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Divisi <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.divisi"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Divisi <span class="required">*</span></label>
+                <select v-model="onboardingEditForm.divisi" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="">— Pilih Divisi —</option>
                   <option v-for="div in masterDivisions" :key="div.id" :value="div.name">
                     {{ div.name }}
@@ -6157,15 +5154,10 @@ onBeforeUnmount(() => {
               </div>
               <!-- Departemen dropdown from master_departments -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Departemen <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.departement"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Departemen <span
+                    class="required">*</span></label>
+                <select v-model="onboardingEditForm.departement" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="">— Pilih Departemen —</option>
                   <option v-for="dept in masterDepartments" :key="dept.id" :value="dept.name">
                     {{ dept.name }}
@@ -6174,15 +5166,9 @@ onBeforeUnmount(() => {
               </div>
               <!-- Unit dropdown from master_units -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Unit <span class="required">*</span></label
-                >
-                <select
-                  v-model="onboardingEditForm.unit"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  required
-                >
+                <label class="text-[10px] font-bold uppercase text-muted">Unit <span class="required">*</span></label>
+                <select v-model="onboardingEditForm.unit" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" required>
                   <option value="">— Pilih Unit —</option>
                   <option v-for="unit in masterUnits" :key="unit.id" :value="unit.name">
                     {{ unit.name }}
@@ -6191,68 +5177,39 @@ onBeforeUnmount(() => {
               </div>
               <!-- Atasan Langsung -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Atasan Langsung <span class="required">*</span></label
-                >
-                <USelectMenu
-                  v-model="onboardingEditForm.atasan_langsung"
-                  :items="formattedEmployees"
-                  value-key="nik"
-                  label-key="label"
-                  placeholder="Pilih Atasan Langsung"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  class="mt-2 w-full"
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Atasan Langsung <span
+                    class="required">*</span></label>
+                <USelectMenu v-model="onboardingEditForm.atasan_langsung" :items="formattedEmployees" value-key="nik"
+                  label-key="label" placeholder="Pilih Atasan Langsung" :disabled="!!activeCandidate?.employee_nik"
+                  class="mt-2 w-full" />
               </div>
               <!-- Atasan Tidak Langsung -->
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Atasan Tidak Langsung <span class="required">*</span></label
-                >
-                <USelectMenu
-                  v-model="onboardingEditForm.atasan_tidak_langsung"
-                  :items="formattedEmployees"
-                  value-key="nik"
-                  label-key="label"
-                  placeholder="Pilih Atasan Tidak Langsung"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  class="mt-2 w-full"
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Atasan Tidak Langsung <span
+                    class="required">*</span></label>
+                <USelectMenu v-model="onboardingEditForm.atasan_tidak_langsung" :items="formattedEmployees"
+                  value-key="nik" label-key="label" placeholder="Pilih Atasan Tidak Langsung"
+                  :disabled="!!activeCandidate?.employee_nik" class="mt-2 w-full" />
               </div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <h5
-              class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default"
-            >
+            <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 pb-1 border-b border-default">
               Pengaturan NIK & PIN Karyawan Resmi
             </h5>
             <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
               <div class="form-group-sm">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >Nomor Induk Karyawan (NIK) <span class="required">*</span></label
-                >
-                <input
-                  v-model="onboardingEditForm.nik"
-                  :disabled="!!activeCandidate?.employee_nik"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  placeholder="Contoh: HPP000000001"
-                  required
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">Nomor Induk Karyawan (NIK) <span
+                    class="required">*</span></label>
+                <input v-model="onboardingEditForm.nik" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" placeholder="Contoh: HPP000000001" required />
               </div>
               <div class="form-group-sm" v-if="!activeCandidate?.employee_nik">
-                <label class="text-[10px] font-bold uppercase text-muted"
-                  >PIN Absensi / Akses Karyawan <span class="required">*</span></label
-                >
-                <input
-                  v-model="onboardingEditForm.pin"
-                  :class="onboardingFormControlClass"
-                  type="text"
-                  placeholder="Contoh: 1234"
-                  required
-                />
+                <label class="text-[10px] font-bold uppercase text-muted">PIN Absensi / Akses Karyawan <span
+                    class="required">*</span></label>
+                <input v-model="onboardingEditForm.pin" :class="onboardingFormControlClass" type="text"
+                  placeholder="Contoh: 1234" required />
               </div>
               <div class="form-group-sm" v-else>
                 <label class="text-[10px] font-bold uppercase text-muted">PIN Absensi</label>
@@ -6264,48 +5221,26 @@ onBeforeUnmount(() => {
 
         <template #footer v-if="!activeCandidate?.employee_nik">
           <div class="flex justify-end gap-3">
-            <UButton
-              size="sm"
-              color="neutral"
-              variant="ghost"
-              label="Batal"
-              @click="onboardingVerificationModalOpen = false"
-            />
-            <UButton
-              size="sm"
-              color="primary"
-              icon="i-lucide-save"
-              label="Simpan Perubahan"
-              :disabled="updatingStage"
-              :loading="updatingStage"
-              @click="submitSaveOnboardingDraft"
-            />
+            <UButton size="sm" color="neutral" variant="ghost" label="Batal"
+              @click="onboardingVerificationModalOpen = false" />
+            <UButton size="sm" color="primary" icon="i-lucide-save" label="Simpan Perubahan" :disabled="updatingStage"
+              :loading="updatingStage" @click="submitSaveOnboardingDraft" />
           </div>
         </template>
       </UCard>
     </div>
 
     <!-- Interview Completion Confirmation Modal -->
-    <div
-      v-if="interviewCompletionConfirmation.open"
-      class="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="interviewCompletionConfirmation.title"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        aria-label="Tutup modal"
-        @click="closeInterviewCompletionConfirmation"
-      ></button>
+    <div v-if="interviewCompletionConfirmation.open"
+      class="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true"
+      :aria-label="interviewCompletionConfirmation.title">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" aria-label="Tutup modal"
+        @click="closeInterviewCompletionConfirmation"></button>
       <UCard class="relative w-full max-w-md overflow-hidden">
         <template #header>
           <div class="flex items-center justify-between gap-4">
             <div class="flex min-w-0 items-center gap-3">
-              <span
-                class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-500/12 text-emerald-500"
-              >
+              <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-500/12 text-emerald-500">
                 <UIcon name="i-lucide-circle-check-big" class="size-5" />
               </span>
               <div class="min-w-0">
@@ -6315,14 +5250,8 @@ onBeforeUnmount(() => {
                 <p class="mt-0.5 text-xs text-muted">Konfirmasi penyelesaian jadwal wawancara</p>
               </div>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              :disabled="updatingStage"
-              @click="closeInterviewCompletionConfirmation"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" :disabled="updatingStage"
+              @click="closeInterviewCompletionConfirmation" />
           </div>
         </template>
 
@@ -6335,53 +5264,38 @@ onBeforeUnmount(() => {
 
           <div class="grid grid-cols-2 gap-3 rounded-xl border border-default bg-muted/10 p-3">
             <div>
-              <span class="block text-[10px] font-bold uppercase tracking-wide text-muted"
-                >Tanggal Interview</span
-              >
+              <span class="block text-[10px] font-bold uppercase tracking-wide text-muted">Tanggal Interview</span>
               <strong class="mt-1 block text-xs text-highlighted">{{
                 formatDate(interviewCompletionConfirmation.date)
               }}</strong>
             </div>
             <div>
-              <span class="block text-[10px] font-bold uppercase tracking-wide text-muted"
-                >Waktu Interview</span
-              >
-              <strong class="mt-1 block text-xs text-highlighted"
-                >{{
-                  String(interviewCompletionConfirmation.time || '').substring(0, 5)
+              <span class="block text-[10px] font-bold uppercase tracking-wide text-muted">Waktu Interview</span>
+              <strong class="mt-1 block text-xs text-highlighted">{{
+                String(interviewCompletionConfirmation.time || '').substring(0, 5)
                 }}
-                WIB</strong
-              >
+                WIB</strong>
             </div>
             <div class="col-span-2 border-t border-default/60 pt-3">
               <label class="mb-1.5 flex items-center gap-1 text-xs font-bold text-highlighted">
                 <UIcon name="i-lucide-clock-check" class="size-4 text-emerald-500" />
                 Jam Wawancara Selesai <span class="text-red-500">*</span>
               </label>
-              <input
-                v-model="interviewCompletionConfirmation.endTime"
-                type="time"
-                required
-                :min="addMinutesToTime(interviewCompletionConfirmation.time, 1)"
-                :class="formControlClass"
-              />
+              <input v-model="interviewCompletionConfirmation.endTime" type="time" required
+                :min="addMinutesToTime(interviewCompletionConfirmation.time, 1)" :class="formControlClass" />
               <p class="mt-1.5 text-[11px] leading-4 text-muted">
                 Pilih waktu wawancara benar-benar berakhir. Waktu ini digunakan sebagai waktu
                 selesai, bukan waktu tombol diklik.
               </p>
-              <p
-                v-if="interviewEndTimeError"
-                class="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-red-500"
-              >
+              <p v-if="interviewEndTimeError"
+                class="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-red-500">
                 <UIcon name="i-lucide-circle-alert" class="size-3.5 shrink-0" />
                 {{ interviewEndTimeError }}
               </p>
             </div>
           </div>
 
-          <div
-            class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-600"
-          >
+          <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-600">
             <p class="flex items-start gap-2 font-semibold">
               <UIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0" />
               <span>{{ interviewCompletionConfirmation.description }}</span>
@@ -6391,53 +5305,29 @@ onBeforeUnmount(() => {
 
         <template #footer>
           <div class="flex justify-end gap-3">
-            <UButton
-              size="sm"
-              color="neutral"
-              variant="ghost"
-              label="Batal"
-              :disabled="updatingStage"
-              @click="closeInterviewCompletionConfirmation"
-            />
-            <UButton
-              size="sm"
-              color="success"
-              icon="i-lucide-circle-check-big"
-              label="Ya, Tandai Selesai"
-              :loading="updatingStage"
-              :disabled="updatingStage || !!interviewEndTimeError"
-              @click="confirmInterviewCompletion"
-            />
+            <UButton size="sm" color="neutral" variant="ghost" label="Batal" :disabled="updatingStage"
+              @click="closeInterviewCompletionConfirmation" />
+            <UButton size="sm" color="success" icon="i-lucide-circle-check-big" label="Ya, Tandai Selesai"
+              :loading="updatingStage" :disabled="updatingStage || !!interviewEndTimeError"
+              @click="confirmInterviewCompletion" />
           </div>
         </template>
       </UCard>
     </div>
 
     <!-- Import Confirmation Modal -->
-    <div
-      v-if="importConfirmationModalOpen"
-      class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="importConfirmationModalOpen = false"
-      ></button>
+    <div v-if="importConfirmationModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true">
+      <button type="button" class="absolute inset-0 bg-slate-950/60"
+        @click="importConfirmationModalOpen = false"></button>
       <UCard class="relative w-full max-w-md overflow-hidden">
         <template #header>
           <div class="flex items-center justify-between gap-4">
             <p class="text-sm font-bold text-highlighted uppercase tracking-wide">
               Konfirmasi Kirim Data Karyawan
             </p>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="importConfirmationModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+              @click="importConfirmationModalOpen = false" />
           </div>
         </template>
 
@@ -6470,13 +5360,9 @@ onBeforeUnmount(() => {
           </div>
 
           <label
-            class="flex items-start gap-2.5 cursor-pointer text-xs select-none mt-4 p-2 bg-[var(--ui-bg-muted)] rounded-lg border border-[var(--ui-border)]"
-          >
-            <input
-              v-model="importDataChecked"
-              type="checkbox"
-              class="mt-0.5 rounded border-[var(--ui-border)] text-primary focus:ring-primary"
-            />
+            class="flex items-start gap-2.5 cursor-pointer text-xs select-none mt-4 p-2 bg-[var(--ui-bg-muted)] rounded-lg border border-[var(--ui-border)]">
+            <input v-model="importDataChecked" type="checkbox"
+              class="mt-0.5 rounded border-[var(--ui-border)] text-primary focus:ring-primary" />
             <span class="text-muted leading-relaxed">
               Saya menyatakan bahwa data onboarding kandidat ini sudah benar dan siap dikirim ke
               database karyawan master.
@@ -6486,45 +5372,22 @@ onBeforeUnmount(() => {
 
         <template #footer>
           <div class="flex justify-end gap-3">
-            <UButton
-              size="sm"
-              color="neutral"
-              variant="ghost"
-              label="Batal"
-              @click="importConfirmationModalOpen = false"
-            />
-            <UButton
-              size="sm"
-              color="success"
-              icon="i-lucide-send"
-              label="Ya, Kirim Sekarang"
-              :disabled="
-                updatingStage ||
-                !importDataChecked ||
-                !onboardingEditForm.nik ||
-                !onboardingEditForm.pin
-              "
-              :loading="updatingStage"
-              @click="confirmAndImportOnboarding"
-            />
+            <UButton size="sm" color="neutral" variant="ghost" label="Batal"
+              @click="importConfirmationModalOpen = false" />
+            <UButton size="sm" color="success" icon="i-lucide-send" label="Ya, Kirim Sekarang" :disabled="updatingStage ||
+              !importDataChecked ||
+              !onboardingEditForm.nik ||
+              !onboardingEditForm.pin
+              " :loading="updatingStage" @click="confirmAndImportOnboarding" />
           </div>
         </template>
       </UCard>
     </div>
 
     <!-- Create Candidate Dialog -->
-    <div
-      v-if="createDialogOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Tambah pelamar baru"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="closeCreateDialog"
-      ></button>
+    <div v-if="createDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Tambah pelamar baru">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="closeCreateDialog"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -6532,13 +5395,7 @@ onBeforeUnmount(() => {
               <p class="text-sm font-semibold text-highlighted">Tambah Pelamar Kerja</p>
               <p class="mt-1 text-xs text-muted">Input profil pelamar baru secara internal.</p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="closeCreateDialog"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeCreateDialog" />
           </div>
         </template>
 
@@ -6557,9 +5414,8 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >PIC Screening <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">PIC Screening <span
+                    class="text-danger">*</span></label>
                 <select v-model="form.pic_nik" required :class="formControlClass">
                   <option value="" disabled selected>Pilih PIC (Staff HRBP)</option>
                   <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
@@ -6577,46 +5433,27 @@ onBeforeUnmount(() => {
             </h4>
             <div class="space-y-4">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Nama Lengkap <span class="text-danger">*</span></label
-                >
-                <input
-                  v-model="form.name"
-                  required
-                  placeholder="Nama lengkap pelamar"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Nama Lengkap <span
+                    class="text-danger">*</span></label>
+                <input v-model="form.name" required placeholder="Nama lengkap pelamar" :class="formControlClass" />
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Email <span class="text-danger">*</span></label
-                  >
-                  <input
-                    v-model="form.email"
-                    type="email"
-                    required
-                    placeholder="email@domain.com"
-                    :class="formControlClass"
-                  />
+                  <label class="mb-2 block text-sm font-medium text-muted">Email <span
+                      class="text-danger">*</span></label>
+                  <input v-model="form.email" type="email" required placeholder="email@domain.com"
+                    :class="formControlClass" />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Nomor Telepon / HP <span class="text-danger">*</span></label
-                  >
-                  <input
-                    v-model="form.phone"
-                    required
-                    placeholder="Contoh: 08123456789"
-                    :class="formControlClass"
-                  />
+                  <label class="mb-2 block text-sm font-medium text-muted">Nomor Telepon / HP <span
+                      class="text-danger">*</span></label>
+                  <input v-model="form.phone" required placeholder="Contoh: 08123456789" :class="formControlClass" />
                 </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Status Pernikahan <span class="text-danger">*</span></label
-                  >
+                  <label class="mb-2 block text-sm font-medium text-muted">Status Pernikahan <span
+                      class="text-danger">*</span></label>
                   <select v-model="form.marital_status" required :class="formControlClass">
                     <option value="" disabled selected>Pilih Status</option>
                     <option value="Belum Menikah">Belum Menikah</option>
@@ -6625,26 +5462,15 @@ onBeforeUnmount(() => {
                   </select>
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Orang yang Dikenal di Hompimplay (Opsional)</label
-                  >
-                  <input
-                    v-model="form.known_person"
-                    placeholder="Nama kerabat jika ada"
-                    :class="formControlClass"
-                  />
+                  <label class="mb-2 block text-sm font-medium text-muted">Orang yang Dikenal di Hompimplay
+                    (Opsional)</label>
+                  <input v-model="form.known_person" placeholder="Nama kerabat jika ada" :class="formControlClass" />
                 </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Perusahaan Sebelumnya</label
-                  >
-                  <input
-                    v-model="form.last_company"
-                    placeholder="Nama perusahaan terakhir"
-                    :class="formControlClass"
-                  />
+                  <label class="mb-2 block text-sm font-medium text-muted">Perusahaan Sebelumnya</label>
+                  <input v-model="form.last_company" placeholder="Nama perusahaan terakhir" :class="formControlClass" />
                 </div>
               </div>
             </div>
@@ -6657,9 +5483,8 @@ onBeforeUnmount(() => {
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Pendidikan Terakhir <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Pendidikan Terakhir <span
+                    class="text-danger">*</span></label>
                 <select v-model="form.education_level" required :class="formControlClass">
                   <option value="" disabled selected>Pilih Pendidikan</option>
                   <option value="SMK">SMK</option>
@@ -6670,50 +5495,31 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Jurusan Pendidikan Terakhir <span class="text-danger">*</span></label
-                >
-                <input
-                  v-model="form.education_major"
-                  required
-                  placeholder="Contoh: Teknik Informatika"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Jurusan Pendidikan Terakhir <span
+                    class="text-danger">*</span></label>
+                <input v-model="form.education_major" required placeholder="Contoh: Teknik Informatika"
+                  :class="formControlClass" />
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Gaji Saat Ini (Take Home Pay) <span class="text-danger">*</span></label
-                >
-                <input
-                  :value="formatSalaryInput(form.previous_salary)"
-                  @input="form.previous_salary = parseSalaryInput($event.target.value)"
-                  type="text"
-                  required
-                  placeholder="Contoh: 5.000.000"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Gaji Saat Ini (Take Home Pay) <span
+                    class="text-danger">*</span></label>
+                <input :value="formatSalaryInput(form.previous_salary)"
+                  @input="form.previous_salary = parseSalaryInput($event.target.value)" type="text" required
+                  placeholder="Contoh: 5.000.000" :class="formControlClass" />
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Gaji yang Diharapkan (Take Home Pay) <span class="text-danger">*</span></label
-                >
-                <input
-                  :value="formatSalaryInput(form.expected_salary)"
-                  @input="form.expected_salary = parseSalaryInput($event.target.value)"
-                  type="text"
-                  required
-                  placeholder="Contoh: 7.000.000"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Gaji yang Diharapkan (Take Home Pay) <span
+                    class="text-danger">*</span></label>
+                <input :value="formatSalaryInput(form.expected_salary)"
+                  @input="form.expected_salary = parseSalaryInput($event.target.value)" type="text" required
+                  placeholder="Contoh: 7.000.000" :class="formControlClass" />
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Mengetahui Info Lowongan Dari</label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Mengetahui Info Lowongan Dari</label>
                 <select v-model="form.referred_from" :class="formControlClass">
                   <option value="">Pilih Sumber Info</option>
                   <option value="LinkedIn">LinkedIn</option>
@@ -6725,28 +5531,16 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Unggah CV / Resume (PDF) <span class="text-danger">*</span></label
-                >
-                <input
-                  type="file"
-                  accept=".pdf"
-                  required
-                  @change="handleCreateCandidateCvChange"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Unggah CV / Resume (PDF) <span
+                    class="text-danger">*</span></label>
+                <input type="file" accept=".pdf" required @change="handleCreateCandidateCvChange"
+                  :class="formControlClass" />
               </div>
             </div>
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="closeCreateDialog"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="closeCreateDialog" />
             <UButton type="submit" label="Simpan Pelamar" :loading="isSubmitting" />
           </div>
         </form>
@@ -6754,18 +5548,9 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Edit Candidate Dialog -->
-    <div
-      v-if="editDialogOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Edit detail pelamar"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="closeEditDialog"
-      ></button>
+    <div v-if="editDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Edit detail pelamar">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="closeEditDialog"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -6773,13 +5558,7 @@ onBeforeUnmount(() => {
               <p class="text-sm font-semibold text-highlighted">Edit Data Pelamar</p>
               <p class="mt-1 text-xs text-muted">Perbarui profil dan catatan pelamar.</p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="closeEditDialog"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeEditDialog" />
           </div>
         </template>
 
@@ -6791,30 +5570,26 @@ onBeforeUnmount(() => {
             </h4>
             <div class="space-y-4">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Nama Lengkap <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Nama Lengkap <span
+                    class="text-danger">*</span></label>
                 <input v-model="editForm.name" required :class="formControlClass" />
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Email <span class="text-danger">*</span></label
-                  >
+                  <label class="mb-2 block text-sm font-medium text-muted">Email <span
+                      class="text-danger">*</span></label>
                   <input v-model="editForm.email" type="email" required :class="formControlClass" />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Nomor Telepon / HP <span class="text-danger">*</span></label
-                  >
+                  <label class="mb-2 block text-sm font-medium text-muted">Nomor Telepon / HP <span
+                      class="text-danger">*</span></label>
                   <input v-model="editForm.phone" required :class="formControlClass" />
                 </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Status Pernikahan <span class="text-danger">*</span></label
-                  >
+                  <label class="mb-2 block text-sm font-medium text-muted">Status Pernikahan <span
+                      class="text-danger">*</span></label>
                   <select v-model="editForm.marital_status" required :class="formControlClass">
                     <option value="" disabled>Pilih Status</option>
                     <option value="Belum Menikah">Belum Menikah</option>
@@ -6823,9 +5598,8 @@ onBeforeUnmount(() => {
                   </select>
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-muted"
-                    >Orang yang Dikenal di Hompimplay (Opsional)</label
-                  >
+                  <label class="mb-2 block text-sm font-medium text-muted">Orang yang Dikenal di Hompimplay
+                    (Opsional)</label>
                   <input v-model="editForm.known_person" :class="formControlClass" />
                 </div>
               </div>
@@ -6839,9 +5613,8 @@ onBeforeUnmount(() => {
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Pendidikan Terakhir <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Pendidikan Terakhir <span
+                    class="text-danger">*</span></label>
                 <select v-model="editForm.education_level" required :class="formControlClass">
                   <option value="" disabled>Pilih Pendidikan</option>
                   <option value="SMK">SMK</option>
@@ -6852,38 +5625,25 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Jurusan Pendidikan Terakhir <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Jurusan Pendidikan Terakhir <span
+                    class="text-danger">*</span></label>
                 <input v-model="editForm.education_major" required :class="formControlClass" />
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Gaji Saat Ini (Take Home Pay) <span class="text-danger">*</span></label
-                >
-                <input
-                  :value="formatSalaryInput(editForm.previous_salary)"
-                  @input="editForm.previous_salary = parseSalaryInput($event.target.value)"
-                  type="text"
-                  required
-                  placeholder="Contoh: 5.000.000"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Gaji Saat Ini (Take Home Pay) <span
+                    class="text-danger">*</span></label>
+                <input :value="formatSalaryInput(editForm.previous_salary)"
+                  @input="editForm.previous_salary = parseSalaryInput($event.target.value)" type="text" required
+                  placeholder="Contoh: 5.000.000" :class="formControlClass" />
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Gaji yang Diharapkan (Take Home Pay) <span class="text-danger">*</span></label
-                >
-                <input
-                  :value="formatSalaryInput(editForm.expected_salary)"
-                  @input="editForm.expected_salary = parseSalaryInput($event.target.value)"
-                  type="text"
-                  required
-                  placeholder="Contoh: 7.000.000"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Gaji yang Diharapkan (Take Home Pay) <span
+                    class="text-danger">*</span></label>
+                <input :value="formatSalaryInput(editForm.expected_salary)"
+                  @input="editForm.expected_salary = parseSalaryInput($event.target.value)" type="text" required
+                  placeholder="Contoh: 7.000.000" :class="formControlClass" />
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -6895,9 +5655,8 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >PIC Screening <span class="text-danger">*</span></label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">PIC Screening <span
+                    class="text-danger">*</span></label>
                 <select v-model="editForm.pic_nik" required :class="formControlClass">
                   <option value="" disabled>Pilih PIC (Staff HRBP)</option>
                   <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
@@ -6908,9 +5667,7 @@ onBeforeUnmount(() => {
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Mengetahui Info Lowongan Dari</label
-                >
+                <label class="mb-2 block text-sm font-medium text-muted">Mengetahui Info Lowongan Dari</label>
                 <select v-model="editForm.referred_from" :class="formControlClass">
                   <option value="">Pilih Sumber Info</option>
                   <option value="LinkedIn">LinkedIn</option>
@@ -6922,14 +5679,9 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-medium text-muted"
-                  >Perusahaan Sebelumnya</label
-                >
-                <input
-                  v-model="editForm.last_company"
-                  placeholder="Nama perusahaan terakhir"
-                  :class="formControlClass"
-                />
+                <label class="mb-2 block text-sm font-medium text-muted">Perusahaan Sebelumnya</label>
+                <input v-model="editForm.last_company" placeholder="Nama perusahaan terakhir"
+                  :class="formControlClass" />
               </div>
             </div>
           </div>
@@ -6941,31 +5693,16 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="closeEditDialog"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="closeEditDialog" />
             <UButton type="submit" label="Simpan Perubahan" :loading="isSubmitting" />
           </div>
         </form>
       </UCard>
     </div>
     <!-- HR Interview Schedule Modal -->
-    <div
-      v-if="hrInterviewModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Atur Jadwal Wawancara HR"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="hrInterviewModalOpen = false"
-      ></button>
+    <div v-if="hrInterviewModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true" aria-label="Atur Jadwal Wawancara HR">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="hrInterviewModalOpen = false"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-lg overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -6973,13 +5710,8 @@ onBeforeUnmount(() => {
               <p class="text-sm font-semibold text-highlighted">Atur Jadwal Wawancara HR</p>
               <p class="mt-1 text-xs text-muted">Tentukan waktu dan tipe wawancara HR.</p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="hrInterviewModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+              @click="hrInterviewModalOpen = false" />
           </div>
         </template>
 
@@ -6987,27 +5719,15 @@ onBeforeUnmount(() => {
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Tanggal</label>
-              <input
-                v-model="hrInterviewForm.interview_hr_date"
-                type="date"
-                required
-                :min="minimumInterviewDate"
-                :class="formControlClass"
-              />
+              <input v-model="hrInterviewForm.interview_hr_date" type="date" required :min="minimumInterviewDate"
+                :class="formControlClass" />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Jam (WIB)</label>
-              <input
-                v-model="hrInterviewForm.interview_hr_time"
-                type="time"
-                required
-                :min="
-                  hrInterviewForm.interview_hr_date === minimumInterviewDate
-                    ? minimumInterviewTime
-                    : undefined
-                "
-                :class="formControlClass"
-              />
+              <input v-model="hrInterviewForm.interview_hr_time" type="time" required :min="hrInterviewForm.interview_hr_date === minimumInterviewDate
+                ? minimumInterviewTime
+                : undefined
+                " :class="formControlClass" />
             </div>
           </div>
           <p class="flex items-center gap-1.5 text-xs text-muted">
@@ -7023,62 +5743,33 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="hrInterviewForm.interview_hr_type === 'online'">
             <label class="mb-1 block text-sm font-medium text-muted">Link Meeting</label>
-            <input
-              v-model="hrInterviewForm.interview_hr_meet_link"
-              required
-              placeholder="https://meet.google.com/xxx"
-              :class="formControlClass"
-            />
+            <input v-model="hrInterviewForm.interview_hr_meet_link" required placeholder="https://meet.google.com/xxx"
+              :class="formControlClass" />
           </div>
           <div v-else>
             <label class="mb-1 block text-sm font-medium text-muted">Lokasi Fisik</label>
-            <textarea
-              v-model="hrInterviewForm.interview_hr_location"
-              required
-              placeholder="Tuliskan nama ruangan / alamat kantor..."
-              rows="2"
-              :class="formControlClass"
-            ></textarea>
+            <textarea v-model="hrInterviewForm.interview_hr_location" required
+              placeholder="Tuliskan nama ruangan / alamat kantor..." rows="2" :class="formControlClass"></textarea>
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="hrInterviewModalOpen = false"
-            />
-            <UButton
-              type="submit"
-              label="Simpan & Kirim Undangan"
-              :loading="updatingStage"
-              :disabled="
-                updatingStage ||
-                !isInterviewScheduleInFuture(
-                  hrInterviewForm.interview_hr_date,
-                  hrInterviewForm.interview_hr_time,
-                )
-              "
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost"
+              @click="hrInterviewModalOpen = false" />
+            <UButton type="submit" label="Simpan & Kirim Undangan" :loading="updatingStage" :disabled="updatingStage ||
+              !isInterviewScheduleInFuture(
+                hrInterviewForm.interview_hr_date,
+                hrInterviewForm.interview_hr_time,
+              )
+              " />
           </div>
         </form>
       </UCard>
     </div>
 
     <!-- Case Study Sending Modal -->
-    <div
-      v-if="caseStudyModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Kirim Soal Studi Kasus"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="caseStudyModalOpen = false"
-      ></button>
+    <div v-if="caseStudyModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Kirim Soal Studi Kasus">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="caseStudyModalOpen = false"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-lg overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -7088,41 +5779,24 @@ onBeforeUnmount(() => {
                 Lampirkan file PDF soal atau sertakan tautan eksternal studi kasus.
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="caseStudyModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="caseStudyModalOpen = false" />
           </div>
         </template>
 
         <form class="space-y-4" @submit.prevent="submitCaseStudy">
           <div>
             <label class="mb-1 block text-sm font-medium text-muted">Tautan Soal (Opsional)</label>
-            <input
-              v-model="caseStudyForm.link"
-              placeholder="https://github.com/example/case-study"
-              :class="formControlClass"
-            />
+            <input v-model="caseStudyForm.link" placeholder="https://github.com/example/case-study"
+              :class="formControlClass" />
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >File Soal (.pdf, .zip, .docx) (Opsional)</label
-            >
+            <label class="mb-1 block text-sm font-medium text-muted">File Soal (.pdf, .zip, .docx) (Opsional)</label>
             <input type="file" @change="handleCaseStudyFileChange" :class="formControlClass" />
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="caseStudyModalOpen = false"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="caseStudyModalOpen = false" />
             <UButton type="submit" label="Kirim Email Soal" :loading="updatingStage" />
           </div>
         </form>
@@ -7130,22 +5804,11 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Modal Rekap Jawaban Reference Check -->
-    <div
-      v-if="referenceRecapModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Rekap Jawaban Reference Check"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="referenceRecapModalOpen = false"
-      ></button>
-      <UCard
-        class="relative flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden"
-        :ui="{ body: 'p-0 min-h-0 flex-1 overflow-y-auto' }"
-      >
+    <div v-if="referenceRecapModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true" aria-label="Rekap Jawaban Reference Check">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="referenceRecapModalOpen = false"></button>
+      <UCard class="relative flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden"
+        :ui="{ body: 'p-0 min-h-0 flex-1 overflow-y-auto' }">
         <template #header>
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -7156,60 +5819,39 @@ onBeforeUnmount(() => {
                 Rangkuman jawaban dari seluruh pemberi referensi kandidat.
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="referenceRecapModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+              @click="referenceRecapModalOpen = false" />
           </div>
         </template>
 
         <div class="min-w-[760px] p-4 sm:p-6">
           <table class="w-full border-collapse text-left text-xs">
             <thead>
-              <tr
-                class="border-b border-default bg-muted/10 text-[10px] font-bold uppercase tracking-wider text-muted"
-              >
+              <tr class="border-b border-default bg-muted/10 text-[10px] font-bold uppercase tracking-wider text-muted">
                 <th class="px-4 py-3">Aspek Penilaian</th>
-                <th
-                  v-for="(ref, index) in submittedReferences"
-                  :key="`reference-head-${ref.id}`"
-                  class="min-w-52 px-4 py-3 text-center"
-                >
+                <th v-for="(ref, index) in submittedReferences" :key="`reference-head-${ref.id}`"
+                  class="min-w-52 px-4 py-3 text-center">
                   <span class="block font-bold text-highlighted">{{ ref.name }}</span>
-                  <span class="mt-0.5 block text-[9px] font-normal text-muted"
-                    >Referensi {{ index + 1 }} ·
-                    {{ ref.form_type === 'managerial' ? 'Managerial' : 'Staff' }}</span
-                  >
+                  <span class="mt-0.5 block text-[9px] font-normal text-muted">Referensi {{ index + 1 }} ·
+                    {{ ref.form_type === 'managerial' ? 'Managerial' : 'Staff' }}</span>
                 </th>
                 <th class="px-4 py-3 text-center font-bold text-primary">Rata-rata</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-default">
-              <tr
-                v-for="aspect in visibleReferenceAnswerAspects"
-                :key="aspect.key"
-                class="align-top transition-colors hover:bg-muted/5"
-              >
+              <tr v-for="aspect in visibleReferenceAnswerAspects" :key="aspect.key"
+                class="align-top transition-colors hover:bg-muted/5">
                 <td class="px-4 py-3 font-semibold text-highlighted">{{ aspect.label }}</td>
-                <td
-                  v-for="ref in submittedReferences"
-                  :key="`${aspect.key}-${ref.id}`"
-                  class="px-4 py-3 text-center text-muted"
-                >
+                <td v-for="ref in submittedReferences" :key="`${aspect.key}-${ref.id}`"
+                  class="px-4 py-3 text-center text-muted">
                   <p class="whitespace-pre-wrap">{{ ref.answers[aspect.key] || '-' }}</p>
                 </td>
                 <td class="px-4 py-3 text-center font-semibold text-muted">–</td>
               </tr>
               <tr class="border-t-2 border-default bg-muted/10">
                 <td class="px-4 py-4 text-sm font-bold text-highlighted">Rating</td>
-                <td
-                  v-for="ref in submittedReferences"
-                  :key="`rating-${ref.id}`"
-                  class="px-4 py-4 text-center font-bold text-highlighted"
-                >
+                <td v-for="ref in submittedReferences" :key="`rating-${ref.id}`"
+                  class="px-4 py-4 text-center font-bold text-highlighted">
                   {{ ref.answers.rating }} / 5
                 </td>
                 <td class="px-4 py-4 text-center text-sm font-extrabold text-primary">
@@ -7218,16 +5860,8 @@ onBeforeUnmount(() => {
               </tr>
               <tr class="bg-muted/5">
                 <td class="px-4 py-4 text-sm font-bold text-highlighted">Rekomendasi</td>
-                <td
-                  v-for="ref in submittedReferences"
-                  :key="`recommendation-${ref.id}`"
-                  class="px-4 py-4 text-center"
-                >
-                  <UBadge
-                    :color="ref.answers.recommendation === 'yes' ? 'success' : 'error'"
-                    variant="solid"
-                    size="sm"
-                  >
+                <td v-for="ref in submittedReferences" :key="`recommendation-${ref.id}`" class="px-4 py-4 text-center">
+                  <UBadge :color="ref.answers.recommendation === 'yes' ? 'success' : 'error'" variant="solid" size="sm">
                     {{
                       ref.answers.recommendation === 'yes'
                         ? 'Direkomendasikan'
@@ -7236,17 +5870,12 @@ onBeforeUnmount(() => {
                   </UBadge>
                 </td>
                 <td class="px-4 py-4 text-center">
-                  <UBadge
-                    :color="
-                      referenceRecommendationConsensus === 'Direkomendasikan'
-                        ? 'success'
-                        : referenceRecommendationConsensus === 'Berimbang'
-                          ? 'warning'
-                          : 'error'
-                    "
-                    variant="solid"
-                    size="sm"
-                  >
+                  <UBadge :color="referenceRecommendationConsensus === 'Direkomendasikan'
+                    ? 'success'
+                    : referenceRecommendationConsensus === 'Berimbang'
+                      ? 'warning'
+                      : 'error'
+                    " variant="solid" size="sm">
                     {{ referenceRecommendationConsensus }}
                   </UBadge>
                 </td>
@@ -7257,35 +5886,18 @@ onBeforeUnmount(() => {
 
         <template #footer>
           <div class="flex justify-end">
-            <UButton
-              type="button"
-              label="Tutup"
-              color="neutral"
-              variant="soft"
-              @click="referenceRecapModalOpen = false"
-            />
+            <UButton type="button" label="Tutup" color="neutral" variant="soft"
+              @click="referenceRecapModalOpen = false" />
           </div>
         </template>
       </UCard>
     </div>
 
     <!-- Modal Konsensus & Ringkasan Nilai Wawancara User -->
-    <div
-      v-if="consensusModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Konsensus & Ringkasan Nilai Wawancara User"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="consensusModalOpen = false"
-      ></button>
-      <UCard
-        class="relative max-h-[88vh] w-full max-w-4xl overflow-y-auto"
-        :ui="{ body: 'p-0 overflow-x-auto' }"
-      >
+    <div v-if="consensusModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Konsensus & Ringkasan Nilai Wawancara User">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="consensusModalOpen = false"></button>
+      <UCard class="relative max-h-[88vh] w-full max-w-4xl overflow-y-auto" :ui="{ body: 'p-0 overflow-x-auto' }">
         <template #header>
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -7296,13 +5908,7 @@ onBeforeUnmount(() => {
                 Perbandingan nilai dan ulasan dari seluruh pewawancara lintas tahap.
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="consensusModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="consensusModalOpen = false" />
           </div>
         </template>
 
@@ -7310,33 +5916,21 @@ onBeforeUnmount(() => {
           <!-- Matrix Table -->
           <table class="w-full text-left text-xs border-collapse">
             <thead>
-              <tr
-                class="border-b border-default bg-muted/10 text-muted uppercase tracking-wider text-[10px] font-bold"
-              >
+              <tr class="border-b border-default bg-muted/10 text-muted uppercase tracking-wider text-[10px] font-bold">
                 <th class="py-3 px-4">Aspek Penilaian</th>
                 <th v-for="ev in submittedEvaluations" :key="ev.id" class="py-3 px-4 text-center">
                   <span class="block text-highlighted font-bold">{{
                     ev.interviewer?.nama_karyawan || ev.interviewer_nik
                   }}</span>
-                  <span class="block text-[9px] text-muted font-normal mt-0.5"
-                    >Tahap {{ ev.round }}</span
-                  >
+                  <span class="block text-[9px] text-muted font-normal mt-0.5">Tahap {{ ev.round }}</span>
                 </th>
                 <th class="py-3 px-4 text-center text-primary font-bold">Rata-Rata</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-default">
-              <tr
-                v-for="aspect in evaluationAspects"
-                :key="aspect.key"
-                class="hover:bg-muted/5 transition-colors"
-              >
+              <tr v-for="aspect in evaluationAspects" :key="aspect.key" class="hover:bg-muted/5 transition-colors">
                 <td class="py-3 px-4 font-medium text-highlighted">{{ aspect.label }}</td>
-                <td
-                  v-for="ev in submittedEvaluations"
-                  :key="ev.id"
-                  class="py-3 px-4 text-center font-bold"
-                >
+                <td v-for="ev in submittedEvaluations" :key="ev.id" class="py-3 px-4 text-center font-bold">
                   {{
                     ev[aspect.key] !== null && ev[aspect.key] !== undefined ? ev[aspect.key] : '-'
                   }}
@@ -7348,11 +5942,8 @@ onBeforeUnmount(() => {
               <!-- Totals row -->
               <tr class="border-t-2 border-default bg-muted/10 font-bold">
                 <td class="py-4 px-4 text-sm font-bold text-highlighted">Total Skor (Komulatif)</td>
-                <td
-                  v-for="ev in submittedEvaluations"
-                  :key="ev.id"
-                  class="py-4 px-4 text-center text-sm font-bold text-highlighted"
-                >
+                <td v-for="ev in submittedEvaluations" :key="ev.id"
+                  class="py-4 px-4 text-center text-sm font-bold text-highlighted">
                   {{ ev.interview_total_score }} / 36
                 </td>
                 <td class="py-4 px-4 text-center text-sm font-extrabold text-primary">
@@ -7363,17 +5954,12 @@ onBeforeUnmount(() => {
               <tr class="bg-muted/5 font-bold">
                 <td class="py-4 px-4 text-sm font-bold text-highlighted">Rekomendasi Kelulusan</td>
                 <td v-for="ev in submittedEvaluations" :key="ev.id" class="py-4 px-4 text-center">
-                  <UBadge
-                    :color="
-                      ev.interview_recommendation === 'disarankan'
-                        ? 'success'
-                        : ev.interview_recommendation === 'dipertimbangkan'
-                          ? 'warning'
-                          : 'danger'
-                    "
-                    size="md"
-                    class="px-2 py-0.5 capitalize"
-                  >
+                  <UBadge :color="ev.interview_recommendation === 'disarankan'
+                    ? 'success'
+                    : ev.interview_recommendation === 'dipertimbangkan'
+                      ? 'warning'
+                      : 'danger'
+                    " size="md" class="px-2 py-0.5 capitalize">
                     {{ evalRecommendationLabel(ev.interview_recommendation) }}
                   </UBadge>
                 </td>
@@ -7386,38 +5972,27 @@ onBeforeUnmount(() => {
           <div class="border-t border-default pt-6 space-y-4">
             <h5 class="font-bold text-sm text-highlighted">Catatan & Ulasan Setiap Pewawancara</h5>
             <div class="grid grid-cols-1 gap-4">
-              <div
-                v-for="ev in submittedEvaluations"
-                :key="ev.id"
-                class="bg-muted/10 border border-default p-4 rounded-xl space-y-2"
-              >
+              <div v-for="ev in submittedEvaluations" :key="ev.id"
+                class="bg-muted/10 border border-default p-4 rounded-xl space-y-2">
                 <div class="flex items-center justify-between">
                   <div>
                     <span class="font-bold text-highlighted block">{{
                       ev.interviewer?.nama_karyawan || ev.interviewer_nik
                     }}</span>
-                    <span class="text-[10px] text-muted block"
-                      >NIK: {{ ev.interviewer_nik }} &bull; Wawancara User Tahap
-                      {{ ev.round }}</span
-                    >
+                    <span class="text-[10px] text-muted block">NIK: {{ ev.interviewer_nik }} &bull; Wawancara User Tahap
+                      {{ ev.round }}</span>
                   </div>
-                  <UBadge
-                    :color="
-                      ev.interview_recommendation === 'disarankan'
-                        ? 'success'
-                        : ev.interview_recommendation === 'dipertimbangkan'
-                          ? 'warning'
-                          : 'danger'
-                    "
-                    size="md"
-                    class="px-2 py-0.5 capitalize"
-                  >
+                  <UBadge :color="ev.interview_recommendation === 'disarankan'
+                    ? 'success'
+                    : ev.interview_recommendation === 'dipertimbangkan'
+                      ? 'warning'
+                      : 'danger'
+                    " size="md" class="px-2 py-0.5 capitalize">
                     {{ evalRecommendationLabel(ev.interview_recommendation) }}
                   </UBadge>
                 </div>
                 <p
-                  class="text-xs text-highlighted/80 whitespace-pre-line leading-relaxed italic bg-default/40 p-3 rounded-lg border border-default/50 mt-1"
-                >
+                  class="text-xs text-highlighted/80 whitespace-pre-line leading-relaxed italic bg-default/40 p-3 rounded-lg border border-default/50 mt-1">
                   &ldquo;{{
                     ev.interview_evaluation_notes || 'Tidak ada catatan ulasan tambahan.'
                   }}&rdquo;
@@ -7429,31 +6004,16 @@ onBeforeUnmount(() => {
 
         <template #footer>
           <div class="flex justify-end">
-            <UButton
-              type="button"
-              label="Tutup"
-              color="neutral"
-              variant="soft"
-              @click="consensusModalOpen = false"
-            />
+            <UButton type="button" label="Tutup" color="neutral" variant="soft" @click="consensusModalOpen = false" />
           </div>
         </template>
       </UCard>
     </div>
 
     <!-- User Interview Scheduling Modal -->
-    <div
-      v-if="userInterviewModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Atur Jadwal Wawancara User"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="userInterviewModalOpen = false"
-      ></button>
+    <div v-if="userInterviewModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true" aria-label="Atur Jadwal Wawancara User">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="userInterviewModalOpen = false"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-lg overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -7463,13 +6023,8 @@ onBeforeUnmount(() => {
               </p>
               <p class="mt-1 text-xs text-muted">Tentukan waktu, tipe, dan pewawancara internal.</p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="userInterviewModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+              @click="userInterviewModalOpen = false" />
           </div>
         </template>
 
@@ -7477,27 +6032,15 @@ onBeforeUnmount(() => {
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Tanggal</label>
-              <input
-                v-model="userInterviewForm.interview_date"
-                type="date"
-                required
-                :min="minimumInterviewDate"
-                :class="formControlClass"
-              />
+              <input v-model="userInterviewForm.interview_date" type="date" required :min="minimumInterviewDate"
+                :class="formControlClass" />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-muted">Jam (WIB)</label>
-              <input
-                v-model="userInterviewForm.interview_time"
-                type="time"
-                required
-                :min="
-                  userInterviewForm.interview_date === minimumInterviewDate
-                    ? minimumInterviewTime
-                    : undefined
-                "
-                :class="formControlClass"
-              />
+              <input v-model="userInterviewForm.interview_time" type="time" required :min="userInterviewForm.interview_date === minimumInterviewDate
+                ? minimumInterviewTime
+                : undefined
+                " :class="formControlClass" />
             </div>
           </div>
           <p class="flex items-center gap-1.5 text-xs text-muted">
@@ -7505,25 +6048,15 @@ onBeforeUnmount(() => {
             Jadwal harus menggunakan tanggal dan waktu yang belum lewat.
           </p>
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >Pewawancara (Hanya level Leader/SPV/Asst Mgr/Manager/GM)</label
-            >
-            <USelectMenu
-              v-model="userInterviewForm.interviewer_niks"
-              :items="formattedEmployees"
-              value-key="nik"
-              label-key="label"
-              placeholder="Pilih pewawancara (bisa lebih dari satu)"
-              multiple
-              class="w-full"
-            />
+            <label class="mb-1 block text-sm font-medium text-muted">Pewawancara (Hanya level Leader/SPV/Asst
+              Mgr/Manager/GM)</label>
+            <USelectMenu v-model="userInterviewForm.interviewer_niks" :items="formattedEmployees" value-key="nik"
+              label-key="label" placeholder="Pilih pewawancara (bisa lebih dari satu)" multiple class="w-full" />
           </div>
 
           <!-- Conflict Warning Banner -->
-          <div
-            v-if="scheduleConflicts.length"
-            class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-600 space-y-1"
-          >
+          <div v-if="scheduleConflicts.length"
+            class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-600 space-y-1">
             <p class="font-bold flex items-center gap-1.5">
               <span class="i-lucide-alert-triangle"></span> Peringatan Jadwal Bentrok!
             </p>
@@ -7536,8 +6069,7 @@ onBeforeUnmount(() => {
                 <template v-else>
                   <strong>{{ conflict.interviewer_name }}</strong> sudah memiliki jadwal
                   <strong>{{ conflict.conflict_type }}</strong> pada pukul {{ conflict.time }} WIB
-                  dengan kandidat <strong>{{ conflict.candidate_name }}</strong
-                  >.
+                  dengan kandidat <strong>{{ conflict.candidate_name }}</strong>.
                 </template>
               </li>
             </ul>
@@ -7551,62 +6083,33 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="userInterviewForm.interview_type === 'online'">
             <label class="mb-1 block text-sm font-medium text-muted">Link Meeting</label>
-            <input
-              v-model="userInterviewForm.interview_meet_link"
-              required
-              placeholder="https://meet.google.com/xxx"
-              :class="formControlClass"
-            />
+            <input v-model="userInterviewForm.interview_meet_link" required placeholder="https://meet.google.com/xxx"
+              :class="formControlClass" />
           </div>
           <div v-else>
             <label class="mb-1 block text-sm font-medium text-muted">Lokasi Fisik</label>
-            <textarea
-              v-model="userInterviewForm.interview_location"
-              required
-              placeholder="Tuliskan nama ruangan / alamat kantor..."
-              rows="2"
-              :class="formControlClass"
-            ></textarea>
+            <textarea v-model="userInterviewForm.interview_location" required
+              placeholder="Tuliskan nama ruangan / alamat kantor..." rows="2" :class="formControlClass"></textarea>
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="userInterviewModalOpen = false"
-            />
-            <UButton
-              type="submit"
-              label="Simpan & Kirim Jadwal"
-              :loading="updatingStage"
-              :disabled="
-                updatingStage ||
-                !isInterviewScheduleInFuture(
-                  userInterviewForm.interview_date,
-                  userInterviewForm.interview_time,
-                )
-              "
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost"
+              @click="userInterviewModalOpen = false" />
+            <UButton type="submit" label="Simpan & Kirim Jadwal" :loading="updatingStage" :disabled="updatingStage ||
+              !isInterviewScheduleInFuture(
+                userInterviewForm.interview_date,
+                userInterviewForm.interview_time,
+              )
+              " />
           </div>
         </form>
       </UCard>
     </div>
 
     <!-- User Interview Evaluation scorecard Modal -->
-    <div
-      v-if="evalModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Formulir Evaluasi Wawancara User"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="evalModalOpen = false"
-      ></button>
+    <div v-if="evalModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Formulir Evaluasi Wawancara User">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="evalModalOpen = false"></button>
       <UCard class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -7616,25 +6119,16 @@ onBeforeUnmount(() => {
               </p>
               <p class="mt-1 text-xs text-muted">Nilai aspek wawancara kandidat (Skor 1-4).</p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="evalModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="evalModalOpen = false" />
           </div>
         </template>
 
         <form class="space-y-6" @submit.prevent="submitEval">
           <!-- Scoring Table -->
-          <div
-            class="border border-default rounded-xl overflow-hidden divide-y divide-default bg-muted/5"
-          >
+          <div class="border border-default rounded-xl overflow-hidden divide-y divide-default bg-muted/5">
             <!-- Table Header -->
             <div
-              class="grid grid-cols-12 gap-2 p-3 bg-muted/20 text-[10px] font-bold text-muted uppercase tracking-wider items-center"
-            >
+              class="grid grid-cols-12 gap-2 p-3 bg-muted/20 text-[10px] font-bold text-muted uppercase tracking-wider items-center">
               <div class="col-span-8">Aspek Penilaian</div>
               <div class="col-span-1 text-center text-red-500">
                 <span class="block text-xs font-bold">1</span>
@@ -7659,9 +6153,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">1. Penampilan</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Menggambarkan kesopanan, kebersihan dan kerapihan penampilan</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Menggambarkan kesopanan, kebersihan dan kerapihan
+                  penampilan</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_appearance" type="radio" value="1" />
@@ -7681,9 +6174,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">2. Sikap</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Sikap ketika wawancara, cara berhadapan, sopan santun, nonverbal</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Sikap ketika wawancara, cara berhadapan, sopan santun,
+                  nonverbal</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_attitude" type="radio" value="1" />
@@ -7703,9 +6195,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">3. Komunikasi</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Kemampuan menyampaikan ide/pikiran, kepercayaan diri, bahasa asing</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Kemampuan menyampaikan ide/pikiran, kepercayaan diri,
+                  bahasa asing</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_communication" type="radio" value="1" />
@@ -7725,9 +6216,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">4. Motivasi</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Gambaran dorongan dan keinginan untuk bekerja & hasil terbaik</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Gambaran dorongan dan keinginan untuk bekerja & hasil
+                  terbaik</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_motivation" type="radio" value="1" />
@@ -7747,9 +6237,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">5. Inisiatif</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Kemampuan memutuskan/melakukan sesuatu tanpa diperintah</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Kemampuan memutuskan/melakukan sesuatu tanpa
+                  diperintah</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_initiative" type="radio" value="1" />
@@ -7769,9 +6258,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">6. Kerjasama</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Kemampuan bekerjasama dalam tim secara aktif mencapai tujuan</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Kemampuan bekerjasama dalam tim secara aktif mencapai
+                  tujuan</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_teamwork" type="radio" value="1" />
@@ -7791,9 +6279,8 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">7. Pengalaman di Bidangnya</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Pengetahuan dan keterampilan/skill di bidang yang dilamar</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Pengetahuan dan keterampilan/skill di bidang yang
+                  dilamar</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_domain_experience" type="radio" value="1" />
@@ -7813,9 +6300,9 @@ onBeforeUnmount(() => {
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
                 <span class="font-semibold text-highlighted block">8. Pengetahuan Umum</span>
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Pengetahuan mengenai perusahaan, brand, dan bidang usaha umum</span
-                >
+                <span class="text-[10px] text-muted block mt-0.5">Pengetahuan mengenai perusahaan, brand, dan bidang
+                  usaha
+                  umum</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_general_knowledge" type="radio" value="1" />
@@ -7834,12 +6321,9 @@ onBeforeUnmount(() => {
             <!-- 9. Potensi untuk berkembang -->
             <div class="grid grid-cols-12 gap-2 p-3 text-xs items-center">
               <div class="col-span-8">
-                <span class="font-semibold text-highlighted block"
-                  >9. Potensi untuk Berkembang</span
-                >
-                <span class="text-[10px] text-muted block mt-0.5"
-                  >Gambaran keinginan & kemampuan belajar serta berkembang</span
-                >
+                <span class="font-semibold text-highlighted block">9. Potensi untuk Berkembang</span>
+                <span class="text-[10px] text-muted block mt-0.5">Gambaran keinginan & kemampuan belajar serta
+                  berkembang</span>
               </div>
               <div class="col-span-1 flex justify-center">
                 <input v-model="evalForm.interview_growth_potential" type="radio" value="1" />
@@ -7857,27 +6341,19 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Total Score Summary Card -->
-          <div
-            class="bg-muted/10 border border-default p-4 rounded-xl flex items-center justify-between"
-          >
+          <div class="bg-muted/10 border border-default p-4 rounded-xl flex items-center justify-between">
             <div>
               <span class="text-xs text-muted block">Skor Kumulatif</span>
               <span class="text-2xl font-bold text-highlighted">{{ evalTotalScore }} / 36</span>
             </div>
             <div class="text-right">
               <span class="text-xs text-muted block">Klasifikasi Rekomendasi</span>
-              <UBadge
-                :color="
-                  evalRecommendation === 'disarankan'
-                    ? 'success'
-                    : evalRecommendation === 'dipertimbangkan'
-                      ? 'warning'
-                      : 'danger'
-                "
-                variant="subtle"
-                size="md"
-                class="font-bold px-3 py-1 mt-1"
-              >
+              <UBadge :color="evalRecommendation === 'disarankan'
+                ? 'success'
+                : evalRecommendation === 'dipertimbangkan'
+                  ? 'warning'
+                  : 'danger'
+                " variant="subtle" size="md" class="font-bold px-3 py-1 mt-1">
                 {{ evalRecommendationLabel(evalRecommendation) }}
               </UBadge>
             </div>
@@ -7885,26 +6361,15 @@ onBeforeUnmount(() => {
 
           <!-- Notes / Catatan -->
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >Catatan Pewawancara (Interviewer Notes)</label
-            >
-            <textarea
-              v-model="evalForm.interview_evaluation_notes"
-              rows="3"
+            <label class="mb-1 block text-sm font-medium text-muted">Catatan Pewawancara (Interviewer Notes)</label>
+            <textarea v-model="evalForm.interview_evaluation_notes" rows="3"
               placeholder="Tuliskan catatan, evaluasi detail, atau alasan rekomendasi..."
-              :class="formControlClass"
-            ></textarea>
+              :class="formControlClass"></textarea>
           </div>
 
           <!-- Footer Actions -->
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="evalModalOpen = false"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="evalModalOpen = false" />
             <UButton type="submit" label="Simpan Penilaian Evaluasi" :loading="updatingStage" />
           </div>
         </form>
@@ -7912,18 +6377,9 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Offering Letter Upload Modal -->
-    <div
-      v-if="offeringModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Unggah Offering Letter"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        @click="offeringModalOpen = false"
-      ></button>
+    <div v-if="offeringModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true" aria-label="Unggah Offering Letter">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" @click="offeringModalOpen = false"></button>
       <UCard class="relative max-h-[88vh] w-full max-w-lg overflow-hidden">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -7933,30 +6389,17 @@ onBeforeUnmount(() => {
                 Lampirkan surat penawaran kerja untuk dikirim dan ditandatangani oleh kandidat.
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="offeringModalOpen = false"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="offeringModalOpen = false" />
           </div>
         </template>
 
         <form class="space-y-4" @submit.prevent="submitOfferingLetterWithSignature">
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >Berkas Surat Penawaran (PDF)</label
-            >
+            <label class="mb-1 block text-sm font-medium text-muted">Berkas Surat Penawaran (PDF)</label>
             <div
-              class="mt-2 border-2 border-dashed border-default rounded-xl p-6 text-center cursor-pointer hover:border-primary transition relative"
-            >
-              <input
-                type="file"
-                accept=".pdf"
-                class="absolute inset-0 opacity-0 cursor-pointer"
-                @change="handleOfferingFileChange"
-              />
+              class="mt-2 border-2 border-dashed border-default rounded-xl p-6 text-center cursor-pointer hover:border-primary transition relative">
+              <input type="file" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer"
+                @change="handleOfferingFileChange" />
               <div class="flex flex-col items-center">
                 <span class="i-lucide-file-text size-10 text-muted/60 mb-2"></span>
                 <p class="text-sm font-medium text-highlighted">
@@ -7972,29 +6415,15 @@ onBeforeUnmount(() => {
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >Perusahaan Terakhir Kandidat</label
-            >
-            <input
-              v-model="offeringLastCompany"
-              type="text"
-              placeholder="Contoh: PT. ABC Indonesia"
-              :class="formControlClass"
-              required
-            />
+            <label class="mb-1 block text-sm font-medium text-muted">Perusahaan Terakhir Kandidat</label>
+            <input v-model="offeringLastCompany" type="text" placeholder="Contoh: PT. ABC Indonesia"
+              :class="formControlClass" required />
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-muted"
-              >Gaji yang Ditawarkan (Rp)</label
-            >
-            <input
-              v-model="offeringOfferedSalary"
-              type="text"
-              placeholder="Contoh: 10.000.000"
-              :class="formControlClass"
-              required
-            />
+            <label class="mb-1 block text-sm font-medium text-muted">Gaji yang Ditawarkan (Rp)</label>
+            <input v-model="offeringOfferedSalary" type="text" placeholder="Contoh: 10.000.000"
+              :class="formControlClass" required />
           </div>
 
           <div>
@@ -8003,58 +6432,31 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="offeringModalOpen = false"
-            />
-            <UButton
-              type="submit"
-              label="Upload & Kirim Offering Letter"
-              :loading="updatingStage"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="offeringModalOpen = false" />
+            <UButton type="submit" label="Upload & Kirim Offering Letter" :loading="updatingStage" />
           </div>
         </form>
       </UCard>
     </div>
 
     <!-- Shared Document Preview Modal (CV and recruitment summaries) -->
-    <div
-      v-if="documentPreview.open"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="documentPreview.title"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        aria-label="Tutup pratinjau dokumen"
-        @click="closeDocumentPreview"
-      ></button>
+    <div v-if="documentPreview.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog" aria-modal="true" :aria-label="documentPreview.title">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" aria-label="Tutup pratinjau dokumen"
+        @click="closeDocumentPreview"></button>
       <UCard class="relative h-[85vh] w-full overflow-hidden lg:w-2/3">
         <div class="mb-4 flex items-start justify-between gap-4">
           <div>
             <h3 class="text-lg font-semibold text-highlighted">{{ documentPreview.title }}</h3>
             <p class="mt-1 text-sm text-muted">Pratinjau dokumen rekrutmen.</p>
           </div>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            aria-label="Tutup"
-            @click="closeDocumentPreview"
-          />
+          <UButton color="neutral" variant="ghost" icon="i-lucide-x" aria-label="Tutup" @click="closeDocumentPreview" />
         </div>
         <div v-if="loadingDocument" class="py-16 text-center text-sm text-muted">
           Memuat dokumen berkas...
         </div>
-        <div
-          v-else-if="documentPreview.url"
-          class="h-[calc(85vh-100px)] w-full rounded-md border border-default bg-slate-100 overflow-y-auto p-4"
-        >
+        <div v-else-if="documentPreview.url"
+          class="h-[calc(85vh-100px)] w-full rounded-md border border-default bg-slate-100 overflow-y-auto p-4">
           <VuePdfEmbed :source="documentPreview.url" />
         </div>
       </UCard>
@@ -8063,577 +6465,62 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-/* Global Stage Badge & Stepper Custom Colors */
-
-/* Candidate list badges use solid colors to preserve text contrast in both themes. */
-.candidate-stage-badge,
-.candidate-step-bullet[class*='stage-solid-'] {
-  color: #ffffff !important;
-}
-.candidate-stage-badge.stage-applied,
-.candidate-step-bullet.stage-solid-applied {
-  background-color: #475569 !important;
-  border-color: #334155 !important;
-}
-.candidate-stage-badge.stage-screening,
-.candidate-step-bullet.stage-solid-screening {
-  background-color: #0369a1 !important;
-  border-color: #075985 !important;
-}
-.candidate-stage-badge.stage-interview_hr,
-.candidate-stage-badge.stage-interview,
-.candidate-step-bullet.stage-solid-interview_hr,
-.candidate-step-bullet.stage-solid-interview {
-  background-color: #7e22ce !important;
-  border-color: #6b21a8 !important;
-}
-.candidate-stage-badge.stage-case_study,
-.candidate-step-bullet.stage-solid-case_study {
-  background-color: #c2410c !important;
-  border-color: #9a3412 !important;
-}
-.candidate-stage-badge.stage-interview_user,
-.candidate-step-bullet.stage-solid-interview_user {
-  background-color: #4338ca !important;
-  border-color: #3730a3 !important;
-}
-.candidate-stage-badge.stage-reference_check,
-.candidate-step-bullet.stage-solid-reference_check {
-  background-color: #0f766e !important;
-  border-color: #115e59 !important;
-}
-.candidate-stage-badge.stage-offering,
-.candidate-stage-badge.stage-offered,
-.candidate-step-bullet.stage-solid-offering,
-.candidate-step-bullet.stage-solid-offered {
-  background-color: #be185d !important;
-  border-color: #9d174d !important;
-}
-.candidate-stage-badge.stage-pkb,
-.candidate-step-bullet.stage-solid-pkb {
-  background-color: #b45309 !important;
-  border-color: #92400e !important;
-}
-.candidate-stage-badge.stage-hired,
-.candidate-step-bullet.stage-solid-hired {
-  background-color: #047857 !important;
-  border-color: #065f46 !important;
-}
-.candidate-stage-badge.stage-rejected,
-.candidate-step-bullet.stage-solid-rejected {
-  background-color: #b91c1c !important;
-  border-color: #991b1b !important;
-}
-.candidate-stage-badge > span {
-  background-color: currentColor !important;
+/* Global Stage Badges - Clean Unified Corporate Theme */
+.candidate-stage-badge {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: #2563eb !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
 }
 
-/* Softer candidate badges and completed step bullets, with high-contrast text. */
-.candidate-stage-badge.stage-applied,
-.candidate-step-bullet.stage-applied {
-  background-color: #f1f5f9 !important;
-  color: #334155 !important;
-  border-color: #94a3b8 !important;
-}
-.candidate-stage-badge.stage-screening,
-.candidate-step-bullet.stage-screening {
-  background-color: #e0f2fe !important;
-  color: #075985 !important;
-  border-color: #38bdf8 !important;
-}
-.candidate-stage-badge.stage-interview_hr,
-.candidate-stage-badge.stage-interview,
-.candidate-step-bullet.stage-interview_hr,
-.candidate-step-bullet.stage-interview {
-  background-color: #f3e8ff !important;
-  color: #6b21a8 !important;
-  border-color: #c084fc !important;
-}
-.candidate-stage-badge.stage-case_study,
-.candidate-step-bullet.stage-case_study {
-  background-color: #ffedd5 !important;
-  color: #9a3412 !important;
-  border-color: #fb923c !important;
-}
-.candidate-stage-badge.stage-interview_user,
-.candidate-step-bullet.stage-interview_user {
-  background-color: #e0e7ff !important;
-  color: #3730a3 !important;
-  border-color: #818cf8 !important;
-}
-.candidate-stage-badge.stage-reference_check,
-.candidate-step-bullet.stage-reference_check {
-  background-color: #ccfbf1 !important;
-  color: #115e59 !important;
-  border-color: #2dd4bf !important;
-}
-.candidate-stage-badge.stage-offering,
-.candidate-stage-badge.stage-offered,
-.candidate-step-bullet.stage-offering,
-.candidate-step-bullet.stage-offered {
-  background-color: #fce7f3 !important;
-  color: #9d174d !important;
-  border-color: #f472b6 !important;
-}
-.candidate-stage-badge.stage-pkb,
-.candidate-step-bullet.stage-pkb {
-  background-color: #fef3c7 !important;
-  color: #92400e !important;
-  border-color: #f59e0b !important;
-}
-.candidate-stage-badge.stage-hired,
-.candidate-step-bullet.stage-hired {
-  background-color: #d1fae5 !important;
-  color: #065f46 !important;
-  border-color: #34d399 !important;
-}
-.candidate-stage-badge.stage-rejected,
-.candidate-step-bullet.stage-rejected {
-  background-color: #fee2e2 !important;
-  color: #991b1b !important;
-  border-color: #f87171 !important;
+.dark .candidate-stage-badge,
+.portal-dark .candidate-stage-badge {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
 }
 
-/* Applied */
-.stage-applied {
-  background-color: #f1f5f9;
-  color: #334155;
-  border-color: #cbd5e1;
-}
-.stage-bullet-applied {
-  background-color: #64748b;
-}
-.stage-solid-applied {
-  background-color: #64748b;
-  border-color: #64748b;
-  color: #ffffff;
-}
-.text-stage-applied {
-  color: #334155;
-}
-.stage-ring-applied {
-  --tw-ring-color: rgba(100, 116, 139, 0.25);
+.candidate-stage-badge.stage-hired {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
 }
 
-.portal-dark .stage-applied {
-  background-color: rgba(148, 163, 184, 0.1);
-  color: #cbd5e1;
-  border-color: rgba(148, 163, 184, 0.2);
-}
-.portal-dark .stage-solid-applied {
-  background-color: #475569;
-  border-color: #475569;
-  color: #ffffff;
-}
-.portal-dark .text-stage-applied {
-  color: #cbd5e1;
+.dark .candidate-stage-badge.stage-hired,
+.portal-dark .candidate-stage-badge.stage-hired {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
 }
 
-/* Screening */
-.stage-screening {
-  background-color: #e0f2fe;
-  color: #0369a1;
-  border-color: #bae6fd;
-}
-.stage-bullet-screening {
-  background-color: #0284c7;
-}
-.stage-solid-screening {
-  background-color: #0284c7;
-  border-color: #0284c7;
-  color: #ffffff;
-}
-.text-stage-screening {
-  color: #0369a1;
-}
-.stage-ring-screening {
-  --tw-ring-color: rgba(2, 132, 199, 0.25);
+.candidate-stage-badge.stage-rejected {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
 }
 
-.portal-dark .stage-screening {
-  background-color: rgba(14, 165, 233, 0.15);
-  color: #7dd3fc;
-  border-color: rgba(14, 165, 233, 0.3);
-}
-.portal-dark .stage-solid-screening {
-  background-color: #0284c7;
-  border-color: #0284c7;
-  color: #ffffff;
-}
-.portal-dark .text-stage-screening {
-  color: #7dd3fc;
+.dark .candidate-stage-badge.stage-rejected,
+.portal-dark .candidate-stage-badge.stage-rejected {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
 }
 
-/* Wawancara HR / interview */
-.stage-interview_hr,
-.stage-interview {
-  background-color: #f3e8ff;
-  color: #6b21a8;
-  border-color: #e9d5ff;
-}
-.stage-bullet-interview_hr,
-.stage-bullet-interview {
-  background-color: #8b5cf6;
-}
-.stage-solid-interview_hr,
-.stage-solid-interview {
-  background-color: #8b5cf6;
-  border-color: #8b5cf6;
-  color: #ffffff;
-}
-.text-stage-interview_hr,
-.text-stage-interview {
-  color: #6b21a8;
-}
-.stage-ring-interview_hr,
-.stage-ring-interview {
-  --tw-ring-color: rgba(139, 92, 246, 0.25);
+/* Bullet Dots inside stage badges & dropdowns */
+[class*='stage-bullet-'] {
+  background-color: #3b82f6 !important;
 }
 
-.portal-dark .stage-interview_hr,
-.portal-dark .stage-interview {
-  background-color: rgba(168, 85, 247, 0.15);
-  color: #d8b4fe;
-  border-color: rgba(168, 85, 247, 0.3);
-}
-.portal-dark .stage-solid-interview_hr,
-.portal-dark .stage-solid-interview {
-  background-color: #8b5cf6;
-  border-color: #8b5cf6;
-  color: #ffffff;
-}
-.portal-dark .text-stage-interview_hr,
-.portal-dark .text-stage-interview {
-  color: #d8b4fe;
-}
-
-/* Case Study */
-.stage-case_study {
-  background-color: #ffedd5;
-  color: #c2410c;
-  border-color: #fed7aa;
-}
-.stage-bullet-case_study {
-  background-color: #f97316;
-}
-.stage-solid-case_study {
-  background-color: #f97316;
-  border-color: #f97316;
-  color: #ffffff;
-}
-.text-stage-case_study {
-  color: #c2410c;
-}
-.stage-ring-case_study {
-  --tw-ring-color: rgba(249, 115, 22, 0.25);
-}
-
-.portal-dark .stage-case_study {
-  background-color: rgba(249, 115, 22, 0.15);
-  color: #ffb780;
-  border-color: rgba(249, 115, 22, 0.3);
-}
-.portal-dark .stage-solid-case_study {
-  background-color: #ea580c;
-  border-color: #ea580c;
-  color: #ffffff;
-}
-.portal-dark .text-stage-case_study {
-  color: #ffb780;
-}
-
-/* Wawancara User */
-.stage-interview_user {
-  background-color: #e0e7ff;
-  color: #3730a3;
-  border-color: #c7d2fe;
-}
-.stage-bullet-interview_user {
-  background-color: #6366f1;
-}
-.stage-solid-interview_user {
-  background-color: #6366f1;
-  border-color: #6366f1;
-  color: #ffffff;
-}
-.text-stage-interview_user {
-  color: #3730a3;
-}
-.stage-ring-interview_user {
-  --tw-ring-color: rgba(99, 102, 241, 0.25);
-}
-
-.portal-dark .stage-interview_user {
-  background-color: rgba(99, 102, 241, 0.15);
-  color: #c7d2fe;
-  border-color: rgba(99, 102, 241, 0.3);
-}
-.portal-dark .stage-solid-interview_user {
-  background-color: #4f46e5;
-  border-color: #4f46e5;
-  color: #ffffff;
-}
-.portal-dark .text-stage-interview_user {
-  color: #c7d2fe;
-}
-
-/* Reference Check */
-.stage-reference_check {
-  background-color: #ccfbf1;
-  color: #0f766e;
-  border-color: #99f6e4;
-}
-.stage-bullet-reference_check {
-  background-color: #14b8a6;
-}
-.stage-solid-reference_check {
-  background-color: #14b8a6;
-  border-color: #14b8a6;
-  color: #ffffff;
-}
-.text-stage-reference_check {
-  color: #0f766e;
-}
-.stage-ring-reference_check {
-  --tw-ring-color: rgba(20, 184, 166, 0.25);
-}
-
-.portal-dark .stage-reference_check {
-  background-color: rgba(20, 184, 166, 0.15);
-  color: #99f6e4;
-  border-color: rgba(20, 184, 166, 0.3);
-}
-.portal-dark .stage-solid-reference_check {
-  background-color: #0d9488;
-  border-color: #0d9488;
-  color: #ffffff;
-}
-.portal-dark .text-stage-reference_check {
-  color: #99f6e4;
-}
-
-/* Offering / offered */
-.stage-offering,
-.stage-offered {
-  background-color: #fce7f3;
-  color: #be185d;
-  border-color: #fbcfe8;
-}
-.stage-bullet-offering,
-.stage-bullet-offered {
-  background-color: #ec4899;
-}
-.stage-solid-offering,
-.stage-solid-offered {
-  background-color: #ec4899;
-  border-color: #ec4899;
-  color: #ffffff;
-}
-.text-stage-offering,
-.text-stage-offered {
-  color: #be185d;
-}
-.stage-ring-offering,
-.stage-ring-offered {
-  --tw-ring-color: rgba(236, 72, 153, 0.25);
-}
-
-.portal-dark .stage-offering,
-.portal-dark .stage-offered {
-  background-color: rgba(236, 72, 153, 0.15);
-  color: #fbcfe8;
-  border-color: rgba(236, 72, 153, 0.3);
-}
-.portal-dark .stage-solid-offering,
-.portal-dark .stage-solid-offered {
-  background-color: #db2777;
-  border-color: #db2777;
-  color: #ffffff;
-}
-.portal-dark .text-stage-offering,
-.portal-dark .text-stage-offered {
-  color: #fbcfe8;
-}
-
-/* PKB */
-.stage-pkb {
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fde68a;
-}
-.stage-bullet-pkb {
-  background-color: #f59e0b;
-}
-.stage-solid-pkb {
-  background-color: #f59e0b;
-  border-color: #f59e0b;
-  color: #ffffff;
-}
-.text-stage-pkb {
-  color: #92400e;
-}
-.stage-ring-pkb {
-  --tw-ring-color: rgba(245, 158, 11, 0.25);
-}
-
-.portal-dark .stage-pkb {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #fde68a;
-  border-color: rgba(245, 158, 11, 0.3);
-}
-.portal-dark .stage-solid-pkb {
-  background-color: #d97706;
-  border-color: #d97706;
-  color: #ffffff;
-}
-.portal-dark .text-stage-pkb {
-  color: #fde68a;
-}
-
-/* Hired */
-.stage-hired {
-  background-color: #d1fae5;
-  color: #065f46;
-  border-color: #a7f3d0;
-}
 .stage-bullet-hired {
-  background-color: #10b981;
-}
-.stage-solid-hired {
-  background-color: #10b981;
-  border-color: #10b981;
-  color: #ffffff;
-}
-.text-stage-hired {
-  color: #065f46;
-}
-.stage-ring-hired {
-  --tw-ring-color: rgba(16, 185, 129, 0.25);
+  background-color: #10b981 !important;
 }
 
-.portal-dark .stage-hired {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #a7f3d0;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-.portal-dark .stage-solid-hired {
-  background-color: #059669;
-  border-color: #059669;
-  color: #ffffff;
-}
-.portal-dark .text-stage-hired {
-  color: #a7f3d0;
-}
-
-/* Rejected */
-.stage-rejected {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-color: #fca5a5;
-}
 .stage-bullet-rejected {
-  background-color: #ef4444;
-}
-.stage-solid-rejected {
-  background-color: #ef4444;
-  border-color: #ef4444;
-  color: #ffffff;
-}
-.text-stage-rejected {
-  color: #991b1b;
-}
-.stage-ring-rejected {
-  --tw-ring-color: rgba(239, 68, 68, 0.25);
+  background-color: #ef4444 !important;
 }
 
-.portal-dark .stage-rejected {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.3);
-}
-.portal-dark .stage-solid-rejected {
-  background-color: #dc2626;
-  border-color: #dc2626;
-  color: #ffffff;
-}
-.portal-dark .text-stage-rejected {
-  color: #fca5a5;
-}
-
-/* Teleported Dropdown Item Specific Custom Text Colors */
-
-.dropdown-text-stage-applied {
-  color: #334155;
-}
-.dark .dropdown-text-stage-applied {
-  color: #cbd5e1;
-}
-
-.dropdown-text-stage-screening {
-  color: #0369a1;
-}
-.dark .dropdown-text-stage-screening {
-  color: #7dd3fc;
-}
-
-.dropdown-text-stage-interview_hr,
-.dropdown-text-stage-interview {
-  color: #6b21a8;
-}
-.dark .dropdown-text-stage-interview_hr,
-.dark .dropdown-text-stage-interview {
-  color: #d8b4fe;
-}
-
-.dropdown-text-stage-case_study {
-  color: #c2410c;
-}
-.dark .dropdown-text-stage-case_study {
-  color: #ffb780;
-}
-
-.dropdown-text-stage-interview_user {
-  color: #3730a3;
-}
-.dark .dropdown-text-stage-interview_user {
-  color: #c7d2fe;
-}
-
-.dropdown-text-stage-reference_check {
-  color: #0f766e;
-}
-.dark .dropdown-text-stage-reference_check {
-  color: #99f6e4;
-}
-
-.dropdown-text-stage-offering,
-.dropdown-text-stage-offered {
-  color: #be185d;
-}
-.dark .dropdown-text-stage-offering,
-.dark .dropdown-text-stage-offered {
-  color: #fbcfe8;
-}
-
-.dropdown-text-stage-pkb {
-  color: #92400e;
-}
-.dark .dropdown-text-stage-pkb {
-  color: #fde68a;
-}
-
-.dropdown-text-stage-hired {
-  color: #065f46;
-}
-.dark .dropdown-text-stage-hired {
-  color: #a7f3d0;
-}
-
-.dropdown-text-stage-rejected {
-  color: #991b1b;
-}
-.dark .dropdown-text-stage-rejected {
-  color: #fca5a5;
+/* Teleported Dropdown Item Text Colors */
+[class*='dropdown-text-stage-'] {
+  color: var(--ui-text-highlighted, #1e293b);
 }
 
 .form-group-sm {
@@ -8641,9 +6528,11 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 3px;
 }
+
 .form-group-sm label {
   font-size: 10px;
 }
+
 .form-control-sm {
   width: 100% !important;
   padding: 6px 10px !important;
@@ -8657,20 +6546,24 @@ onBeforeUnmount(() => {
     border-color 0.15s ease-in-out,
     box-shadow 0.15s ease-in-out !important;
 }
+
 .dark .form-control-sm {
   background-color: #1f2937 !important;
   border-color: #374151 !important;
   color: #f3f4f6 !important;
 }
+
 .form-control-sm:disabled {
   background-color: #f3f4f6 !important;
   color: #9ca3af !important;
   cursor: not-allowed !important;
 }
+
 .dark .form-control-sm:disabled {
   background-color: #374151 !important;
   color: #6b7280 !important;
 }
+
 .form-control-sm:focus {
   border-color: #3b82f6 !important;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
@@ -8691,15 +6584,14 @@ onBeforeUnmount(() => {
 }
 
 .previous-document-card {
-  --document-accent: #64748b;
-  --document-soft: #f1f5f9;
   display: flex;
-  min-height: 86px;
+  min-height: 76px;
   align-items: flex-start;
-  gap: 11px;
-  padding: 13px 12px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
   border: 1px solid var(--ui-border);
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--ui-bg);
   color: var(--ui-text-highlighted);
   text-align: left;
@@ -8712,22 +6604,10 @@ onBeforeUnmount(() => {
 
 .previous-document-card:hover,
 .previous-document-card:focus-visible {
-  border-color: color-mix(in srgb, var(--document-accent) 45%, transparent);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--document-accent) 12%, transparent);
+  border-color: var(--ui-primary);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ui-primary) 12%, transparent);
   transform: translateY(-1px);
   outline: none;
-}
-
-.previous-document-icon {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  flex: 0 0 36px;
-  place-items: center;
-  border-radius: 9px;
-  background: var(--document-soft);
-  color: var(--document-accent);
-  font-size: 17px;
 }
 
 .previous-document-stage,
@@ -8738,69 +6618,40 @@ onBeforeUnmount(() => {
 
 .previous-document-stage {
   margin-bottom: 3px;
-  color: var(--document-accent);
-  font-size: 9px;
+  color: var(--ui-primary);
+  font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.03em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
 .previous-document-title {
   color: var(--ui-text-highlighted);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 750;
-  line-height: 1.25;
+  line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
 .previous-document-meta {
   margin-top: 5px;
   color: var(--ui-text-dimmed);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 500;
   line-height: 1.2;
 }
 
 .previous-document-action {
-  margin-top: 7px;
+  margin-top: 3px;
   flex: 0 0 auto;
-  color: color-mix(in srgb, var(--document-accent) 68%, var(--ui-text-dimmed));
-  font-size: 13px;
+  color: var(--ui-text-dimmed);
+  font-size: 14px;
+  transition: color 160ms ease;
 }
 
-.previous-document-card--hr {
-  --document-accent: #2563eb;
-  --document-soft: #dbeafe;
-}
-
-.previous-document-card--case-study {
-  --document-accent: #7c3aed;
-  --document-soft: #ede9fe;
-}
-
-.previous-document-card--user {
-  --document-accent: #d97706;
-  --document-soft: #fef3c7;
-}
-
-.previous-document-card--reference {
-  --document-accent: #0d9488;
-  --document-soft: #ccfbf1;
-}
-
-.previous-document-card--offering {
-  --document-accent: #db2777;
-  --document-soft: #fce7f3;
-}
-
-.previous-document-card--pkb {
-  --document-accent: #059669;
-  --document-soft: #d1fae5;
-}
-
-.dark .previous-document-card {
-  --document-soft: color-mix(in srgb, var(--document-accent) 17%, var(--ui-bg));
+.previous-document-card:hover .previous-document-action {
+  color: var(--ui-primary);
 }
 
 @media (max-width: 640px) {
@@ -8839,8 +6690,8 @@ onBeforeUnmount(() => {
   gap: 10px;
 }
 
-.interview-section-title > span,
-.interview-subsection-heading > span {
+.interview-section-title>span,
+.interview-subsection-heading>span {
   display: grid;
   width: 36px;
   height: 36px;
@@ -8939,8 +6790,8 @@ onBeforeUnmount(() => {
   color: #f59e0b;
 }
 
-.interview-info-tile > div,
-.interview-notification-item > div {
+.interview-info-tile>div,
+.interview-notification-item>div {
   min-width: 0;
 }
 
@@ -9080,7 +6931,7 @@ onBeforeUnmount(() => {
   gap: 9px;
 }
 
-.interview-subsection-heading > span {
+.interview-subsection-heading>span {
   width: 32px;
   height: 32px;
   flex-basis: 32px;
@@ -9088,7 +6939,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
 }
 
-.interview-subsection-heading > div {
+.interview-subsection-heading>div {
   min-width: 0;
   flex: 1;
 }
@@ -9118,7 +6969,7 @@ onBeforeUnmount(() => {
   background: color-mix(in srgb, var(--ui-bg-muted) 42%, var(--ui-bg));
 }
 
-.interview-round-identity > span {
+.interview-round-identity>span {
   display: grid;
   width: 34px;
   height: 34px;
@@ -9149,7 +7000,7 @@ onBeforeUnmount(() => {
   background: var(--ui-bg);
 }
 
-.interview-evaluation-panel > .interview-subsection-heading {
+.interview-evaluation-panel>.interview-subsection-heading {
   padding: 10px 11px;
   border-bottom: 1px solid var(--ui-border);
   background: color-mix(in srgb, var(--ui-bg-muted) 46%, var(--ui-bg));
@@ -9213,7 +7064,7 @@ onBeforeUnmount(() => {
   background: var(--interview-soft);
 }
 
-.interview-score-summary > div:last-child {
+.interview-score-summary>div:last-child {
   text-align: right;
 }
 
@@ -9228,7 +7079,7 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 
-.interview-empty-state > span {
+.interview-empty-state>span {
   margin-bottom: 3px;
   color: var(--ui-primary);
   font-size: 25px;
@@ -9240,6 +7091,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 780px) {
+
   .interview-section-heading,
   .interview-round-header {
     align-items: flex-start;
@@ -9267,7 +7119,7 @@ onBeforeUnmount(() => {
     justify-content: flex-start;
   }
 
-  .interview-score-summary > div:last-child {
+  .interview-score-summary>div:last-child {
     text-align: left;
   }
 }
