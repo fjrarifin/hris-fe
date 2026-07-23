@@ -45,11 +45,19 @@ const form = reactive({
   expires_at: '',
   application_deadline: '',
   status: 'draft',
+  hire_type: 'new_hire',
+  replaced_employee_nik: '',
+  replaced_employee_name: '',
 })
 
 // Autocomplete supervisor
 const supervisorSearch = ref('')
 const showSupervisorDropdown = ref(false)
+
+// Autocomplete karyawan yang di-replace
+const replacedEmployeeSearch = ref('')
+const showReplacedEmployeeDropdown = ref(false)
+
 
 // Master data organisasi flat
 const masterDivisions = ref([])
@@ -145,9 +153,15 @@ const supervisorSuggestions = computed(() => {
   const keyword = supervisorSearch.value.trim().toLowerCase()
   return employeesList.value
     .filter((e) => e.status === 'AKTIF')
-    .filter((e) => {
-      return e.name.toLowerCase().includes(keyword) || e.nik.toLowerCase().includes(keyword)
-    })
+    .filter((e) => e.name.toLowerCase().includes(keyword) || e.nik.toLowerCase().includes(keyword))
+    .slice(0, 10)
+})
+
+const replacedEmployeeSuggestions = computed(() => {
+  const keyword = replacedEmployeeSearch.value.trim().toLowerCase()
+  return employeesList.value
+    .filter((e) => e.status === 'AKTIF')
+    .filter((e) => e.name.toLowerCase().includes(keyword) || e.nik.toLowerCase().includes(keyword))
     .slice(0, 10)
 })
 
@@ -157,11 +171,11 @@ async function load() {
     const [vacanciesResponse, favsResponse, employeesResponse] = await Promise.all([
       getHrVacancies(),
       getHrVacancyFavorites(),
-      getEmployees(),
+      getEmployees().catch(() => ({ data: { data: [] } })),
     ])
     records.value = vacanciesResponse.data
     favorites.value = favsResponse.data
-    employeesList.value = employeesResponse.data.data || []
+    employeesList.value = employeesResponse.data?.data || employeesResponse.data || []
   } catch (error) {
     errorMessage.value = apiError(error)
   } finally {
@@ -206,8 +220,12 @@ function resetForm() {
     expires_at: '',
     application_deadline: '',
     status: 'draft',
+    hire_type: 'new_hire',
+    replaced_employee_nik: '',
+    replaced_employee_name: '',
   })
   supervisorSearch.value = ''
+  replacedEmployeeSearch.value = ''
 }
 
 function openCreate() {
@@ -241,8 +259,12 @@ function openEdit(record) {
       ? record.application_deadline.slice(0, 10)
       : '',
     status: record.status,
+    hire_type: record.hire_type || 'new_hire',
+    replaced_employee_nik: record.replaced_employee_nik || '',
+    replaced_employee_name: record.replaced_employee_name || '',
   })
   supervisorSearch.value = ''
+  replacedEmployeeSearch.value = record.replaced_employee_name || ''
   showModal.value = true
 }
 
@@ -367,6 +389,26 @@ function onSupervisorBlur() {
   }, 200)
 }
 
+function selectReplacedEmployee(employee) {
+  form.replaced_employee_nik = employee.nik
+  form.replaced_employee_name = employee.name
+  replacedEmployeeSearch.value = employee.name
+  showReplacedEmployeeDropdown.value = false
+}
+
+function removeReplacedEmployee() {
+  form.replaced_employee_nik = ''
+  form.replaced_employee_name = ''
+  replacedEmployeeSearch.value = ''
+}
+
+function onReplacedEmployeeBlur() {
+  setTimeout(() => {
+    showReplacedEmployeeDropdown.value = false
+  }, 200)
+}
+
+
 function onDivisionChange() {
   form.department = ''
   form.unit = ''
@@ -468,12 +510,24 @@ onMounted(() => {
             </thead>
             <tbody class="divide-y divide-default">
               <tr v-for="i in 5" :key="i">
-                <td class="py-3.5 px-4"><div class="h-4 bg-muted/30 rounded w-36"></div></td>
-                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-48"></div></td>
-                <td class="py-3.5 px-4"><div class="h-5 bg-muted/30 rounded-full w-14"></div></td>
-                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-20"></div></td>
-                <td class="py-3.5 px-4"><div class="h-4 bg-muted/20 rounded w-24"></div></td>
-                <td class="py-3.5 px-4 text-right"><div class="h-8 w-16 bg-muted/20 rounded ml-auto"></div></td>
+                <td class="py-3.5 px-4">
+                  <div class="h-4 bg-muted/30 rounded w-36"></div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="h-4 bg-muted/20 rounded w-48"></div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="h-5 bg-muted/30 rounded-full w-14"></div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="h-4 bg-muted/20 rounded w-20"></div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="h-4 bg-muted/20 rounded w-24"></div>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="h-8 w-16 bg-muted/20 rounded ml-auto"></div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -507,11 +561,8 @@ onMounted(() => {
         </template>
 
         <div class="space-y-5">
-          <div
-            v-for="(fav, index) in favorites"
-            :key="fav.id"
-            class="grid grid-cols-[auto_1fr_100px] items-center gap-4"
-          >
+          <div v-for="(fav, index) in favorites" :key="fav.id"
+            class="grid grid-cols-[auto_1fr_100px] items-center gap-4">
             <!-- Ranking Badge (lingkaran solid sesuai warna mockup) -->
             <div
               class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm"
@@ -523,8 +574,7 @@ onMounted(() => {
                     : index === 2
                       ? 'bg-amber-600'
                       : 'bg-slate-200 text-slate-500 shadow-none',
-              ]"
-            >
+              ]">
               {{ index + 1 }}
             </div>
 
@@ -548,11 +598,9 @@ onMounted(() => {
                           : index === 3
                             ? 'bg-blue-300/60'
                             : 'bg-blue-200/50',
-                  ]"
-                  :style="{
+                  ]" :style="{
                     width: `${favorites[0]?.total_applied ? (fav.total_applied / favorites[0].total_applied) * 100 : 0}%`,
-                  }"
-                >
+                  }">
                   <span class="text-[10px] font-bold text-white">
                     {{ fav.total_applied }}
                   </span>
@@ -562,21 +610,16 @@ onMounted(() => {
 
             <!-- Persentase Lolos (mockup style) -->
             <div class="text-right">
-              <span
-                class="text-base font-black block leading-none"
-                :class="[
-                  fav.percentage >= 60
-                    ? 'text-success'
-                    : fav.percentage >= 30
-                      ? 'text-warning'
-                      : 'text-danger',
-                ]"
-              >
+              <span class="text-base font-black block leading-none" :class="[
+                fav.percentage >= 60
+                  ? 'text-success'
+                  : fav.percentage >= 30
+                    ? 'text-warning'
+                    : 'text-danger',
+              ]">
                 {{ fav.percentage }}%
               </span>
-              <span class="text-[9px] font-bold text-muted uppercase tracking-wider block mt-0.5"
-                >LOLOS</span
-              >
+              <span class="text-[9px] font-bold text-muted uppercase tracking-wider block mt-0.5">LOLOS</span>
             </div>
           </div>
         </div>
@@ -596,83 +639,56 @@ onMounted(() => {
               <div class="flex items-center gap-2 w-full sm:w-auto">
                 <!-- Input Search -->
                 <div
-                  class="flex h-10 items-center gap-2 bg-default border border-default rounded-lg px-3 py-2 w-full sm:w-72"
-                >
+                  class="flex h-10 items-center gap-2 bg-default border border-default rounded-lg px-3 py-2 w-full sm:w-72">
                   <UIcon name="i-lucide-search" class="size-4 text-muted shrink-0" />
-                  <input
-                    v-model="search"
-                    type="search"
-                    placeholder="Cari lowongan, unit, atau atasan..."
-                    class="w-full bg-transparent border-0 text-xs outline-none text-highlighted"
-                  />
+                  <input v-model="search" type="search" placeholder="Cari lowongan, unit, atau atasan..."
+                    class="w-full bg-transparent border-0 text-xs outline-none text-highlighted" />
                 </div>
 
                 <!-- Tombol Tambah Lowongan -->
-                <UButton
-                  type="button"
-                  label="+ Tambah Lowongan"
-                  icon="i-lucide-plus"
-                  class="shrink-0 justify-center h-10 px-4 font-semibold text-sm"
-                  @click="openCreate"
-                />
+                <UButton type="button" label="+ Tambah Lowongan" icon="i-lucide-plus"
+                  class="shrink-0 justify-center h-10 px-4 font-semibold text-sm" @click="openCreate" />
               </div>
             </div>
 
             <!-- Tab Filter Simple (Underline / Line Tab Style) -->
             <div class="flex items-center gap-6 border-b border-default text-xs pt-1 overflow-x-auto">
-              <button
-                type="button"
-                :class="[
-                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
-                  statusFilter === 'all'
-                    ? 'border-primary text-highlighted font-semibold'
-                    : 'border-transparent text-muted hover:text-highlighted'
-                ]"
-                @click="statusFilter = 'all'"
-              >
+              <button type="button" :class="[
+                'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                statusFilter === 'all'
+                  ? 'border-primary text-highlighted font-semibold'
+                  : 'border-transparent text-muted hover:text-highlighted'
+              ]" @click="statusFilter = 'all'">
                 <span>Semua</span>
                 <span class="text-[10px] text-muted font-normal">({{ statusCounts.all }})</span>
               </button>
 
-              <button
-                type="button"
-                :class="[
-                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
-                  statusFilter === 'open'
-                    ? 'border-primary text-highlighted font-semibold'
-                    : 'border-transparent text-muted hover:text-highlighted'
-                ]"
-                @click="statusFilter = 'open'"
-              >
+              <button type="button" :class="[
+                'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                statusFilter === 'open'
+                  ? 'border-primary text-highlighted font-semibold'
+                  : 'border-transparent text-muted hover:text-highlighted'
+              ]" @click="statusFilter = 'open'">
                 <span>Open</span>
                 <span class="text-[10px] text-muted font-normal">({{ statusCounts.open }})</span>
               </button>
 
-              <button
-                type="button"
-                :class="[
-                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
-                  statusFilter === 'closed'
-                    ? 'border-primary text-highlighted font-semibold'
-                    : 'border-transparent text-muted hover:text-highlighted'
-                ]"
-                @click="statusFilter = 'closed'"
-              >
+              <button type="button" :class="[
+                'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                statusFilter === 'closed'
+                  ? 'border-primary text-highlighted font-semibold'
+                  : 'border-transparent text-muted hover:text-highlighted'
+              ]" @click="statusFilter = 'closed'">
                 <span>Closed</span>
                 <span class="text-[10px] text-muted font-normal">({{ statusCounts.closed }})</span>
               </button>
 
-              <button
-                v-if="statusCounts.draft > 0 || statusFilter === 'draft'"
-                type="button"
-                :class="[
-                  'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
-                  statusFilter === 'draft'
-                    ? 'border-primary text-highlighted font-semibold'
-                    : 'border-transparent text-muted hover:text-highlighted'
-                ]"
-                @click="statusFilter = 'draft'"
-              >
+              <button v-if="statusCounts.draft > 0 || statusFilter === 'draft'" type="button" :class="[
+                'pb-2.5 transition cursor-pointer font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2',
+                statusFilter === 'draft'
+                  ? 'border-primary text-highlighted font-semibold'
+                  : 'border-transparent text-muted hover:text-highlighted'
+              ]" @click="statusFilter = 'draft'">
                 <span>Draft</span>
                 <span class="text-[10px] text-muted font-normal">({{ statusCounts.draft }})</span>
               </button>
@@ -694,33 +710,38 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody class="divide-y divide-default">
-              <tr
-                v-for="record in filteredRecords"
-                :key="record.id"
-                class="hover:bg-muted/5 transition-colors"
-              >
+              <tr v-for="record in filteredRecords" :key="record.id" class="hover:bg-muted/5 transition-colors">
                 <!-- Lowongan -->
-                <td class="py-3.5 px-4 font-bold text-highlighted text-sm whitespace-nowrap">
-                  {{ record.title }}
+                <td class="py-3.5 px-4 text-sm whitespace-nowrap">
+                  <p class="font-bold text-highlighted">{{ record.title }}</p>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span v-if="record.hire_type === 'replacement'"
+                      class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                      :title="record.replaced_employee_name ? `Menggantikan: ${record.replaced_employee_name}` : 'Replacement'">
+                      <UIcon name="i-lucide-user-round-x" class="size-3" />
+                      Replacement{{ record.replaced_employee_name ? `: ${record.replaced_employee_name}` : '' }}
+                    </span>
+                    <span v-else
+                      class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                      <UIcon name="i-lucide-user-plus" class="size-3" />
+                      New Hire
+                    </span>
+                  </div>
                 </td>
 
                 <!-- Unit -->
                 <td class="py-3.5 px-4 text-muted font-medium text-xs">
-                  <div
-                    class="max-w-[200px] lg:max-w-[280px] truncate"
-                    :title="[record.division, record.department, record.unit].filter(Boolean).join(' / ')"
-                  >
+                  <div class="max-w-[200px] lg:max-w-[280px] truncate"
+                    :title="[record.division, record.department, record.unit].filter(Boolean).join(' / ')">
                     {{ [record.division, record.department, record.unit].filter(Boolean).join(' / ') || '-' }}
                   </div>
                 </td>
 
+
                 <!-- Status -->
                 <td class="py-3.5 px-4 whitespace-nowrap">
-                  <UBadge
-                    :color="getStatusColor(record.status)"
-                    variant="soft"
-                    class="capitalize text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                  >
+                  <UBadge :color="getStatusColor(record.status)" variant="soft"
+                    class="capitalize text-xs font-semibold px-2.5 py-0.5 rounded-full">
                     {{ record.status === 'open' ? 'Open' : record.status === 'closed' ? 'Closed' : record.status }}
                   </UBadge>
                 </td>
@@ -738,30 +759,19 @@ onMounted(() => {
                 <!-- Aksi -->
                 <td class="py-3.5 px-4 text-right whitespace-nowrap">
                   <div class="flex items-center justify-end gap-1.5">
-                    <button
-                      type="button"
+                    <button type="button"
                       class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 transition cursor-pointer"
-                      title="Edit Lowongan"
-                      @click="openEdit(record)"
-                    >
+                      title="Edit Lowongan" @click="openEdit(record)">
                       <UIcon name="i-lucide-pencil" class="size-4" />
                     </button>
-                    <button
-                      v-if="!record.candidates_count"
-                      type="button"
+                    <button v-if="!record.candidates_count" type="button"
                       class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 hover:text-danger transition cursor-pointer"
-                      title="Hapus Lowongan"
-                      @click="deleteVacancy(record)"
-                    >
+                      title="Hapus Lowongan" @click="deleteVacancy(record)">
                       <UIcon name="i-lucide-trash-2" class="size-4" />
                     </button>
-                    <button
-                      v-else-if="record.status !== 'closed'"
-                      type="button"
+                    <button v-else-if="record.status !== 'closed'" type="button"
                       class="flex h-8 w-8 items-center justify-center rounded-lg border border-default bg-muted/5 text-highlighted hover:bg-muted/20 hover:text-amber-500 transition cursor-pointer"
-                      title="Tutup Lowongan"
-                      @click="closeVacancy(record)"
-                    >
+                      title="Tutup Lowongan" @click="closeVacancy(record)">
                       <UIcon name="i-lucide-ban" class="size-4" />
                     </button>
                   </div>
@@ -779,18 +789,10 @@ onMounted(() => {
     </template>
 
     <!-- Modal Tambah/Edit Lowongan -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-slate-950/60"
-        aria-label="Tutup modal"
-        @click="closeModal"
-      ></button>
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true">
+      <button type="button" class="absolute inset-0 bg-slate-950/60" aria-label="Tutup modal"
+        @click="closeModal"></button>
       <UCard class="relative max-h-[92vh] w-full max-w-[75vw] overflow-y-auto">
         <template #header>
           <div class="flex items-start justify-between gap-4">
@@ -802,13 +804,7 @@ onMounted(() => {
                 Isi detail divisi, departemen, unit, jabatan dan atasan langsung.
               </p>
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="closeModal"
-            />
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="closeModal" />
           </div>
         </template>
 
@@ -826,50 +822,31 @@ onMounted(() => {
                 </div>
 
                 <!-- Breadcrumb Chip visual -->
-                <div
-                  v-if="form.division || form.department || form.unit || form.position"
-                  class="flex flex-wrap gap-1 text-[10px]"
-                >
-                  <span
-                    v-if="form.division"
-                    class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
-                    >{{ form.division }}</span
-                  >
-                  <span v-if="form.department" class="text-muted/50 flex items-center gap-0.5"
-                    >❯
+                <div v-if="form.division || form.department || form.unit || form.position"
+                  class="flex flex-wrap gap-1 text-[10px]">
+                  <span v-if="form.division"
+                    class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]">{{
+                      form.division }}</span>
+                  <span v-if="form.department" class="text-muted/50 flex items-center gap-0.5">❯
                     <span
-                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
-                      >{{ form.department }}</span
-                    ></span
-                  >
-                  <span v-if="form.unit" class="text-muted/50 flex items-center gap-0.5"
-                    >❯
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]">{{
+                        form.department }}</span></span>
+                  <span v-if="form.unit" class="text-muted/50 flex items-center gap-0.5">❯
                     <span
-                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
-                      >{{ form.unit }}</span
-                    ></span
-                  >
-                  <span v-if="form.position" class="text-muted/50 flex items-center gap-0.5"
-                    >❯
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]">{{
+                        form.unit }}</span></span>
+                  <span v-if="form.position" class="text-muted/50 flex items-center gap-0.5">❯
                     <span
-                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]"
-                      >{{ form.position }}</span
-                    ></span
-                  >
+                      class="px-1.5 py-0.5 rounded bg-default border border-default text-highlighted truncate max-w-[120px]">{{
+                        form.position }}</span></span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <!-- Divisi -->
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted"
-                      >Divisi <span class="text-danger">*</span></label
-                    >
-                    <select
-                      v-model="form.division"
-                      required
-                      :class="formControlClass"
-                      @change="onDivisionChange"
-                    >
+                    <label class="mb-1 block text-xs font-semibold text-muted">Divisi <span
+                        class="text-danger">*</span></label>
+                    <select v-model="form.division" required :class="formControlClass" @change="onDivisionChange">
                       <option value="">Pilih Divisi</option>
                       <option v-for="name in divisionOptions" :key="name" :value="name">
                         {{ name }}
@@ -879,16 +856,10 @@ onMounted(() => {
 
                   <!-- Departemen -->
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted"
-                      >Departemen <span class="text-danger">*</span></label
-                    >
-                    <select
-                      v-model="form.department"
-                      required
-                      :disabled="!form.division"
-                      :class="formControlClass"
-                      @change="onDepartmentChange"
-                    >
+                    <label class="mb-1 block text-xs font-semibold text-muted">Departemen <span
+                        class="text-danger">*</span></label>
+                    <select v-model="form.department" required :disabled="!form.division" :class="formControlClass"
+                      @change="onDepartmentChange">
                       <option value="">Pilih Departemen</option>
                       <option v-for="name in departmentOptions" :key="name" :value="name">
                         {{ name }}
@@ -899,12 +870,8 @@ onMounted(() => {
                   <!-- Unit -->
                   <div>
                     <label class="mb-1 block text-xs font-semibold text-muted">Unit</label>
-                    <select
-                      v-model="form.unit"
-                      :disabled="!form.department"
-                      :class="formControlClass"
-                      @change="onUnitChange"
-                    >
+                    <select v-model="form.unit" :disabled="!form.department" :class="formControlClass"
+                      @change="onUnitChange">
                       <option value="">Pilih Unit</option>
                       <option v-for="name in unitOptions" :key="name" :value="name">{{ name }}</option>
                     </select>
@@ -913,12 +880,8 @@ onMounted(() => {
                   <!-- Jabatan -->
                   <div>
                     <label class="mb-1 block text-xs font-semibold text-muted">Jabatan / Posisi</label>
-                    <select
-                      v-model="form.position"
-                      :disabled="!form.department"
-                      :class="formControlClass"
-                      @change="onPositionChange"
-                    >
+                    <select v-model="form.position" :disabled="!form.department" :class="formControlClass"
+                      @change="onPositionChange">
                       <option value="">Pilih Jabatan</option>
                       <option v-for="name in positionOptions" :key="name" :value="name">
                         {{ name }}
@@ -928,18 +891,105 @@ onMounted(() => {
                 </div>
               </div>
 
+
+              <!-- Tipe Lowongan -->
+              <div>
+                <label class="mb-2 block text-xs font-semibold text-muted">Tipe Lowongan <span
+                    class="text-danger">*</span></label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button"
+                    class="flex items-center gap-2.5 rounded-xl border-2 px-4 py-3 text-left transition-all" :class="form.hire_type === 'new_hire'
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-default bg-default text-muted hover:border-default/70 hover:text-highlighted'"
+                    @click="form.hire_type = 'new_hire'; removeReplacedEmployee()">
+                    <div class="flex size-8 shrink-0 items-center justify-center rounded-lg"
+                      :class="form.hire_type === 'new_hire' ? 'bg-primary/10' : 'bg-muted/10'">
+                      <UIcon name="i-lucide-user-plus" class="size-4" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-semibold leading-tight">New Hire</p>
+                      <p class="text-[10px] leading-tight opacity-70 mt-0.5">Rekrut karyawan baru</p>
+                    </div>
+                  </button>
+                  <button type="button"
+                    class="flex items-center gap-2.5 rounded-xl border-2 px-4 py-3 text-left transition-all" :class="form.hire_type === 'replacement'
+                      ? 'border-amber-500 bg-amber-500/5 text-amber-600 dark:text-amber-400'
+                      : 'border-default bg-default text-muted hover:border-default/70 hover:text-highlighted'"
+                    @click="form.hire_type = 'replacement'">
+                    <div class="flex size-8 shrink-0 items-center justify-center rounded-lg"
+                      :class="form.hire_type === 'replacement' ? 'bg-amber-500/10' : 'bg-muted/10'">
+                      <UIcon name="i-lucide-user-round-x" class="size-4" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-semibold leading-tight">Replacement</p>
+                      <p class="text-[10px] leading-tight opacity-70 mt-0.5">Menggantikan karyawan</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Karyawan yang digantikan (hanya muncul jika replacement) -->
+              <div v-if="form.hire_type === 'replacement'" class="relative">
+                <label class="mb-1 block text-xs font-semibold text-muted">
+                  Karyawan yang Digantikan <span class="text-danger">*</span>
+                </label>
+
+                <!-- Selected state -->
+                <div v-if="form.replaced_employee_nik"
+                  class="flex items-center justify-between rounded-xl border border-amber-400/50 bg-amber-50 dark:bg-amber-900/10 px-3 py-2">
+                  <div class="flex items-center gap-2.5">
+                    <div
+                      class="flex size-8 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold text-[10px] shrink-0">
+                      {{form.replaced_employee_name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}}
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-highlighted">{{ form.replaced_employee_name }}</p>
+                      <p class="text-[10px] text-muted">NIK: {{ form.replaced_employee_nik }}</p>
+                    </div>
+                  </div>
+                  <button type="button" @click="removeReplacedEmployee"
+                    class="size-6 flex items-center justify-center rounded-full hover:bg-muted/10 text-muted hover:text-highlighted transition-colors">
+                    <UIcon name="i-lucide-x" class="size-3.5" />
+                  </button>
+                </div>
+
+                <!-- Search state -->
+                <div v-else>
+                  <div class="flex items-center gap-1.5 bg-default border border-default rounded-md px-2.5 py-1.5">
+                    <UIcon name="i-lucide-search" class="size-4 text-muted" />
+                    <input v-model="replacedEmployeeSearch" placeholder="Cari nama karyawan atau NIK..."
+                      class="w-full bg-transparent border-0 text-sm outline-none text-highlighted"
+                      @focus="showReplacedEmployeeDropdown = true" @blur="onReplacedEmployeeBlur" />
+                  </div>
+                  <div v-if="showReplacedEmployeeDropdown && replacedEmployeeSearch.trim()"
+                    class="absolute z-20 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-default bg-default shadow-lg">
+                    <button v-for="employee in replacedEmployeeSuggestions" :key="employee.nik" type="button"
+                      class="flex w-full items-center gap-3 px-3 py-2 text-left text-xs text-highlighted hover:bg-muted/10"
+                      @click="selectReplacedEmployee(employee)">
+                      <div
+                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 font-bold text-amber-700 dark:text-amber-400 text-[9px]">
+                        {{employee.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}}
+                      </div>
+                      <div class="flex flex-col min-w-0">
+                        <span class="font-semibold truncate">{{ employee.name }}</span>
+                        <span class="text-[9px] text-muted">{{ employee.position || 'Staf' }} • NIK: {{ employee.nik
+                        }}</span>
+                      </div>
+                    </button>
+                    <p v-if="!replacedEmployeeSuggestions.length" class="px-3 py-2 text-xs text-muted">
+                      Karyawan tidak ditemukan.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <!-- Nama Lowongan & Status Lowongan -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-muted"
-                    >Nama Lowongan / Posisi <span class="text-danger">*</span></label
-                  >
-                  <input
-                    v-model="form.title"
-                    required
-                    placeholder="Masukkan nama lowongan secara spesifik"
-                    :class="formControlClass"
-                  />
+                  <label class="mb-1 block text-xs font-semibold text-muted">Nama Lowongan / Posisi <span
+                      class="text-danger">*</span></label>
+                  <input v-model="form.title" required placeholder="Masukkan nama lowongan secara spesifik"
+                    :class="formControlClass" />
                 </div>
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-muted">Status Lowongan</label>
@@ -951,37 +1001,25 @@ onMounted(() => {
                 </div>
               </div>
 
+
               <!-- Atasan Langsung Search-Select -->
               <div class="relative">
                 <label class="mb-1 block text-xs font-semibold text-muted">Atasan Langsung</label>
-                <div
-                  class="flex items-center gap-1 bg-default border border-default rounded-md px-2.5 py-1"
-                >
+                <div class="flex items-center gap-1 bg-default border border-default rounded-md px-2.5 py-1">
                   <UIcon name="i-lucide-search" class="size-4 text-muted" />
-                  <input
-                    v-model="supervisorSearch"
-                    placeholder="Cari nama karyawan atau NIK..."
+                  <input v-model="supervisorSearch" placeholder="Cari nama karyawan atau NIK..."
                     class="w-full bg-transparent border-0 text-sm outline-none text-highlighted"
-                    @focus="showSupervisorDropdown = true"
-                    @blur="onSupervisorBlur"
-                  />
+                    @focus="showSupervisorDropdown = true" @blur="onSupervisorBlur" />
                 </div>
 
                 <!-- Suggestions list -->
-                <div
-                  v-if="showSupervisorDropdown && supervisorSearch.trim()"
-                  class="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-default bg-default shadow-lg"
-                >
-                  <button
-                    v-for="employee in supervisorSuggestions"
-                    :key="employee.nik"
-                    type="button"
+                <div v-if="showSupervisorDropdown && supervisorSearch.trim()"
+                  class="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-default bg-default shadow-lg">
+                  <button v-for="employee in supervisorSuggestions" :key="employee.nik" type="button"
                     class="flex w-full items-center gap-3 px-3 py-2 text-left text-xs text-highlighted hover:bg-muted/10"
-                    @click="selectSupervisor(employee)"
-                  >
+                    @click="selectSupervisor(employee)">
                     <div
-                      class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 font-bold text-primary text-[9px]"
-                    >
+                      class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 font-bold text-primary text-[9px]">
                       {{
                         employee.name
                           .split(' ')
@@ -993,9 +1031,8 @@ onMounted(() => {
                     </div>
                     <div class="flex flex-col min-w-0">
                       <span class="font-semibold truncate">{{ employee.name }}</span>
-                      <span class="text-[9px] text-muted"
-                        >{{ employee.position || 'Staf' }} • NIK: {{ employee.nik }}</span
-                      >
+                      <span class="text-[9px] text-muted">{{ employee.position || 'Staf' }} • NIK: {{ employee.nik
+                      }}</span>
                     </div>
                   </button>
                   <div v-if="!supervisorSuggestions.length" class="p-3 text-center text-muted text-xs">
@@ -1004,14 +1041,11 @@ onMounted(() => {
                 </div>
 
                 <!-- Preview Card Atasan Langsung -->
-                <div
-                  v-if="form.supervisor_nik"
-                  class="mt-2 flex items-center justify-between p-2 rounded-lg border border-default bg-muted/10"
-                >
+                <div v-if="form.supervisor_nik"
+                  class="mt-2 flex items-center justify-between p-2 rounded-lg border border-default bg-muted/10">
                   <div class="flex items-center gap-3">
                     <div
-                      class="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-                    >
+                      class="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                       {{
                         form.supervisor_name
                           .split(' ')
@@ -1025,50 +1059,21 @@ onMounted(() => {
                       <span class="text-xs font-semibold text-highlighted">{{
                         form.supervisor_name
                       }}</span>
-                      <span class="text-[9px] text-muted"
-                        >Atasan Langsung • NIK: {{ form.supervisor_nik }}</span
-                      >
+                      <span class="text-[9px] text-muted">Atasan Langsung • NIK: {{ form.supervisor_nik }}</span>
                     </div>
                   </div>
-                  <UButton
-                    color="danger"
-                    variant="ghost"
-                    size="xs"
-                    icon="i-lucide-trash-2"
-                    @click="removeSupervisor"
-                  />
-                </div>
-              </div>
-
-              <!-- Tanggung Jawab & Deskripsi Lowongan -->
-              <div class="space-y-3">
-                <div>
-                  <label class="mb-1 block text-xs font-semibold text-muted">Tanggung Jawab</label
-                  ><textarea
-                    v-model="form.responsibilities"
-                    rows="3"
-                    placeholder="Satu poin per baris"
-                    :class="formControlClass"
-                  ></textarea>
-                </div>
-                <div>
-                  <label class="mb-1 block text-xs font-semibold text-muted">Deskripsi Lowongan</label>
-                  <textarea
-                    v-model="form.description"
-                    rows="3"
-                    placeholder="Tuliskan detail pekerjaan, kualifikasi, dll."
-                    :class="formControlClass"
-                  ></textarea>
+                  <UButton color="danger" variant="ghost" size="xs" icon="i-lucide-trash-2" @click="removeSupervisor" />
                 </div>
               </div>
             </div>
+
 
             <!-- KOLOM KANAN: Informasi Career Public, Kualifikasi & Benefit -->
             <div class="space-y-4">
               <!-- Informasi Career Public -->
               <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
                 <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
-                  Informasi Career Public
+                  Informasi Lowongan
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
@@ -1079,8 +1084,8 @@ onMounted(() => {
                       <option value="part_time">Paruh Waktu</option>
                       <option value="contract">Kontrak</option>
                       <option value="internship">Magang</option>
-                      <option value="temporary">Sementara</option>
                     </select>
+
                   </div>
                   <div>
                     <label class="mb-1 block text-xs font-semibold text-muted">Sistem Kerja</label>
@@ -1092,31 +1097,23 @@ onMounted(() => {
                     </select>
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted">Lokasi Kerja</label
-                    ><input
-                      v-model="form.location"
-                      maxlength="150"
-                      placeholder="Contoh: Jakarta Selatan"
-                      :class="formControlClass"
-                    />
+                    <label class="mb-1 block text-xs font-semibold text-muted">Lokasi Kerja</label><input
+                      v-model="form.location" maxlength="150" placeholder="Contoh: Jakarta Selatan"
+                      :class="formControlClass" />
                   </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted">Mulai Tayang</label
-                    ><input
-                      v-model="form.published_at"
-                      type="datetime-local"
-                      :class="formControlClass"
-                    />
+                    <label class="mb-1 block text-xs font-semibold text-muted">Mulai Tayang</label><input
+                      v-model="form.published_at" type="datetime-local" :class="formControlClass" />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted">Berhenti Tayang</label
-                    ><input v-model="form.expires_at" type="datetime-local" :class="formControlClass" />
+                    <label class="mb-1 block text-xs font-semibold text-muted">Berhenti Tayang</label><input
+                      v-model="form.expires_at" type="datetime-local" :class="formControlClass" />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-muted">Batas Lamaran</label
-                    ><input v-model="form.application_deadline" type="date" :class="formControlClass" />
+                    <label class="mb-1 block text-xs font-semibold text-muted">Batas Lamaran</label><input
+                      v-model="form.application_deadline" type="date" :class="formControlClass" />
                   </div>
                 </div>
               </div>
@@ -1124,22 +1121,22 @@ onMounted(() => {
               <!-- Kualifikasi & Benefit -->
               <div class="space-y-3">
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-muted">Kualifikasi</label
-                  ><textarea
-                    v-model="form.requirements"
-                    rows="3"
-                    placeholder="Satu poin per baris"
-                    :class="formControlClass"
-                  ></textarea>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Kualifikasi</label><textarea
+                    v-model="form.requirements" rows="3" placeholder="Satu poin per baris"
+                    :class="formControlClass"></textarea>
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-muted">Benefit</label
-                  ><textarea
-                    v-model="form.benefits"
-                    rows="3"
-                    placeholder="Satu poin per baris"
-                    :class="formControlClass"
-                  ></textarea>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Benefit</label><textarea
+                    v-model="form.benefits" rows="3" placeholder="Satu poin per baris"
+                    :class="formControlClass"></textarea>
+                </div>
+              </div>
+              <!-- Tanggung Jawab -->
+              <div class="space-y-3">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Tanggung Jawab</label><textarea
+                    v-model="form.responsibilities" rows="3" placeholder="Satu poin per baris"
+                    :class="formControlClass"></textarea>
                 </div>
               </div>
             </div>
@@ -1147,18 +1144,8 @@ onMounted(() => {
 
           <!-- Footer -->
           <div class="flex justify-end gap-2 border-t border-default pt-4">
-            <UButton
-              type="button"
-              label="Batal"
-              color="neutral"
-              variant="ghost"
-              @click="closeModal"
-            />
-            <UButton
-              type="submit"
-              :label="isEditMode ? 'Simpan Perubahan' : 'Buat Lowongan'"
-              :loading="isSubmitting"
-            />
+            <UButton type="button" label="Batal" color="neutral" variant="ghost" @click="closeModal" />
+            <UButton type="submit" :label="isEditMode ? 'Simpan Perubahan' : 'Buat Lowongan'" :loading="isSubmitting" />
           </div>
         </form>
       </UCard>

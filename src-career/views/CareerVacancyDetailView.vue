@@ -343,7 +343,19 @@ async function executeApply() {
   formError.value = ''
   errors.value = {}
   const payload = new FormData()
-  Object.entries(form).forEach(([key, value]) => value !== null && payload.append(key, value))
+  Object.entries(form).forEach(([key, value]) => {
+    if (value === null) return
+    if (key === 'phone') {
+      // Normalisasi ke format 08xxx sebelum dikirim
+      let phone = String(value).replace(/\D/g, '') // buang semua non-digit
+      if (phone.startsWith('628')) phone = '0' + phone.slice(2)       // 628xxx → 08xxx
+      else if (phone.startsWith('62')) phone = '0' + phone.slice(2)    // 62xxx  → 0xxx
+      payload.append(key, phone)
+    } else {
+      payload.append(key, value)
+    }
+  })
+
   try {
     const { data } = await submitApplication(vacancy.value.slug, payload)
     success.value = data.message

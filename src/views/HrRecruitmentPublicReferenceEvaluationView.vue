@@ -1,13 +1,10 @@
 <template>
-  <div
-    class="public-portal-container min-h-screen bg-slate-900 flex items-center justify-center p-4"
-  >
+  <div class="public-portal-container min-h-screen bg-slate-900 flex items-center justify-center p-4">
     <div class="portal-card" :class="{ 'portal-card--compact': loading || error || submitted }">
       <div class="portal-header text-center mb-8">
         <img src="/hompimplay_icon.png" alt="Hompimplay" class="brand-logo-public" />
         <div
-          class="logo-placeholder inline-block bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 shadow-md shadow-primary/20"
-        >
+          class="logo-placeholder inline-block bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 shadow-md shadow-primary/20">
           HRIS Portal
         </div>
         <h1 class="text-2xl font-bold text-white tracking-tight">Formulir Reference Check</h1>
@@ -19,8 +16,8 @@
 
       <div v-if="loading" class="loading-state text-center py-12">
         <div
-          class="spinner border-4 border-primary/20 border-t-primary rounded-full w-10 h-10 mx-auto animate-spin mb-4"
-        ></div>
+          class="spinner border-4 border-primary/20 border-t-primary rounded-full w-10 h-10 mx-auto animate-spin mb-4">
+        </div>
         <p class="text-slate-400 text-sm">Memuat formulir reference check...</p>
       </div>
       <div v-else-if="error" class="error-state text-center py-12">
@@ -54,134 +51,80 @@
 
         <FormSection title="A. Data Umum">
           <div class="reference-form-grid">
-            <Field label="Nama Pemberi Referensi"
-              ><input v-model.trim="form.reference_name" required
-            /></Field>
-            <Field label="Posisi Pemberi Referensi"
-              ><input v-model.trim="form.reference_position" required
-            /></Field>
-            <Field label="Hubungan Kerja"
-              ><select v-model="form.work_relationship" required>
+            <Field label="Nama Lengkap"><input v-model.trim="form.reference_name" required /></Field>
+            <Field label="Posisi Pemberi Referensi"><input v-model.trim="form.reference_position" required /></Field>
+            <Field label="Hubungan Kerja"><select v-model="form.work_relationship" required>
                 <option value="" disabled>Pilih hubungan</option>
                 <option value="Peer">Rekan Kerja</option>
                 <option value="Direct Report">Atasan Langsung</option>
                 <option value="Subordinate">Bawahan</option>
-              </select></Field
-            >
-            <Field label="Lama Bekerja Bersama Kandidat"
-              ><input
-                v-model.trim="form.worked_together_duration"
-                placeholder="Contoh: 2 tahun 6 bulan"
-                required
-            /></Field>
-            <Field label="Nama Perusahaan Terakhir Bekerja Bersama"
-              ><input v-model.trim="form.company_together" required
-            /></Field>
-            <Field label="Posisi Terakhir Kandidat"
-              ><input v-model.trim="form.candidate_last_position" required
-            /></Field>
+              </select></Field>
+            <Field label="Lama Bekerja Bersama Kandidat"><input v-model.trim="form.worked_together_duration"
+                placeholder="Contoh: 2 tahun 6 bulan" required /></Field>
+            <Field label="Nama Perusahaan Terakhir Bekerja Bersama"><input v-model.trim="form.company_together"
+                required /></Field>
+            <Field label="Posisi Terakhir Kandidat"><input v-model.trim="form.candidate_last_position" required />
+            </Field>
             <Field label="Alasan Kandidat Keluar" full>
               <textarea v-model.trim="form.candidate_exit_reason" rows="3" required></textarea>
             </Field>
-            <Field label="Kepergian Kandidat" full
-              ><select v-model="form.exit_initiator" required>
+            <Field label="Kepergian Kandidat" full><select v-model="form.exit_initiator" required>
                 <option value="" disabled>Pilih jawaban</option>
                 <option value="candidate">Atas inisiatif kandidat</option>
                 <option value="company">Keputusan perusahaan</option>
-              </select></Field
-            >
+              </select></Field>
           </div>
         </FormSection>
 
         <FormSection title="B. Performa Kerja & Kompetensi">
-          <Narrative
-            v-model="form.achievements"
-            label="Apa saja pencapaian kandidat selama bekerja?"
-          />
+          <Narrative v-model="form.achievements" label="Apa saja pencapaian kandidat selama bekerja?" />
           <Narrative v-model="form.top_strengths" label="Sebutkan 3 kelebihan utama kandidat." />
-          <Narrative
-            v-model="form.teamwork"
-            label="Bagaimana kemampuan kandidat dalam kerja sama tim?"
-          />
-          <Narrative
-            v-model="form.learning_adaptability"
-            label="Seberapa cepat kandidat mempelajari hal baru atau beradaptasi?"
-          />
-          <Narrative
-            v-model="form.conflict_handling"
-            label="Bagaimana kandidat menangani konflik?"
-          />
-          <Narrative
-            v-model="form.improvement_areas"
-            label="Sebutkan tiga hal yang masih perlu ditingkatkan."
-          />
+          <Narrative v-model="form.teamwork" label="Bagaimana kemampuan kandidat dalam kerja sama tim?" />
+          <Narrative v-model="form.learning_adaptability"
+            label="Seberapa cepat kandidat mempelajari hal baru atau beradaptasi?" />
+          <Narrative v-model="form.conflict_handling" label="Bagaimana kandidat menangani konflik?" />
+          <Narrative v-model="form.improvement_areas" label="Sebutkan tiga hal yang masih perlu ditingkatkan." />
         </FormSection>
 
         <FormSection title="C. Sikap & Etos Kerja">
-          <Narrative
-            v-model="form.reliability"
-            label="Seberapa dapat diandalkan kandidat menyelesaikan tugas tepat waktu?"
-          />
-          <Narrative
-            v-model="form.pressure_handling"
-            label="Bagaimana kandidat menghadapi tekanan atau deadline?"
-          />
-          <Narrative
-            v-model="form.commitment_attendance"
-            label="Bagaimana komitmen, kehadiran, dan ketepatan waktu kandidat?"
-          />
+          <Narrative v-model="form.reliability"
+            label="Seberapa dapat diandalkan kandidat menyelesaikan tugas tepat waktu?" />
+          <Narrative v-model="form.pressure_handling" label="Bagaimana kandidat menghadapi tekanan atau deadline?" />
+          <Narrative v-model="form.commitment_attendance"
+            label="Bagaimana komitmen, kehadiran, dan ketepatan waktu kandidat?" />
         </FormSection>
 
         <FormSection title="D. Penilaian Akhir">
-          <Narrative
-            v-model="form.work_again"
-            label="Apakah Anda bersedia bekerja sama lagi dengan kandidat? Mengapa?"
-          />
-          <Field label="Apakah Anda merekomendasikan kandidat?" full
-            ><select v-model="form.recommendation" required>
+          <Narrative v-model="form.work_again"
+            label="Apakah Anda bersedia bekerja sama lagi dengan kandidat? Mengapa?" />
+          <Field label="Apakah Anda merekomendasikan kandidat?" full><select v-model="form.recommendation" required>
               <option value="" disabled>Pilih jawaban</option>
               <option value="yes">Ya, saya rekomendasikan</option>
               <option value="no">Tidak saya rekomendasikan</option>
-            </select></Field
-          >
-          <Narrative
-            v-model="form.additional_notes"
-            label="Adakah hal lain yang perlu kami ketahui?"
-          />
+            </select></Field>
+          <Narrative v-model="form.additional_notes" label="Adakah hal lain yang perlu kami ketahui?" />
           <div class="assessment-card">
             <div class="assessment-title mb-3">
               Rating Akhir <span class="text-red-400">*</span>
             </div>
             <div class="grid grid-cols-5 gap-2">
-              <label
-                v-for="score in 5"
-                :key="score"
-                class="score-option"
-                :class="{ 'is-selected': form.rating === score }"
-                ><input v-model="form.rating" class="hidden" type="radio" :value="score" /><span
-                  class="text-base font-extrabold"
-                  >{{ score }}</span
-                ><span class="text-[8px] uppercase tracking-wide mt-0.5 font-bold">{{
-                  ratingLabels[score]
-                }}</span></label
-              >
+              <label v-for="score in 5" :key="score" class="score-option"
+                :class="{ 'is-selected': form.rating === score }"><input v-model="form.rating" class="hidden"
+                  type="radio" :value="score" /><span class="text-base font-extrabold">{{ score }}</span><span
+                  class="text-[8px] uppercase tracking-wide mt-0.5 font-bold">{{
+                    ratingLabels[score]
+                  }}</span></label>
             </div>
           </div>
         </FormSection>
 
         <FormSection v-if="type === 'managerial'" title="E. Teamwork & Leadership">
-          <Narrative
-            v-model="form.leadership"
-            label="Apakah kandidat menunjukkan kemampuan kepemimpinan? Berikan contoh."
-          />
-          <Narrative
-            v-model="form.leadership_conflict"
-            label="Bagaimana kandidat menyelesaikan konflik atau perbedaan pendapat?"
-          />
-          <Narrative
-            v-model="form.team_relationship"
-            label="Bagaimana hubungan kandidat dengan anggota tim dan rekan kerja?"
-          />
+          <Narrative v-model="form.leadership"
+            label="Apakah kandidat menunjukkan kemampuan kepemimpinan? Berikan contoh." />
+          <Narrative v-model="form.leadership_conflict"
+            label="Bagaimana kandidat menyelesaikan konflik atau perbedaan pendapat?" />
+          <Narrative v-model="form.team_relationship"
+            label="Bagaimana hubungan kandidat dengan anggota tim dan rekan kerja?" />
         </FormSection>
 
         <div v-if="validationError" class="validation-warning">
@@ -210,37 +153,37 @@ const FormSection = defineComponent({
   props: { title: String },
   setup:
     (props, { slots }) =>
-    () =>
-      h('section', { class: 'reference-question-section' }, [
-        h('h2', { class: 'reference-section-title' }, props.title),
-        h('div', { class: 'space-y-4' }, slots.default?.()),
-      ]),
+      () =>
+        h('section', { class: 'reference-question-section' }, [
+          h('h2', { class: 'reference-section-title' }, props.title),
+          h('div', { class: 'space-y-4' }, slots.default?.()),
+        ]),
 })
 const Field = defineComponent({
   props: { label: String, full: Boolean },
   setup:
     (props, { slots }) =>
-    () =>
-      h('label', { class: ['reference-field', props.full && 'reference-field--full'] }, [
-        h('span', [props.label, h('b', ' *')]),
-        ...(slots.default?.() || []),
-      ]),
+      () =>
+        h('label', { class: ['reference-field', props.full && 'reference-field--full'] }, [
+          h('span', [props.label, h('b', ' *')]),
+          ...(slots.default?.() || []),
+        ]),
 })
 const Narrative = defineComponent({
   props: { label: String, modelValue: String },
   emits: ['update:modelValue'],
   setup:
     (props, { emit }) =>
-    () =>
-      h('label', { class: 'reference-field reference-field--full' }, [
-        h('span', [props.label, h('b', ' *')]),
-        h('textarea', {
-          rows: 4,
-          required: true,
-          value: props.modelValue,
-          onInput: (event) => emit('update:modelValue', event.target.value),
-        }),
-      ]),
+      () =>
+        h('label', { class: 'reference-field reference-field--full' }, [
+          h('span', [props.label, h('b', ' *')]),
+          h('textarea', {
+            rows: 4,
+            required: true,
+            value: props.modelValue,
+            onInput: (event) => emit('update:modelValue', event.target.value),
+          }),
+        ]),
 })
 const route = useRoute()
 const type = ref(route.params.type || '')
@@ -279,11 +222,11 @@ const form = reactive({
   team_relationship: '',
 })
 const ratingLabels = {
-  1: 'Sangat Tidak',
-  2: 'Tidak',
-  3: 'Netral',
-  4: 'Rekomendasi',
-  5: 'Sangat',
+  1: 'Sangat tidak rekomendasi',
+  2: 'Tidak direkomendasikan',
+  3: 'Dipertimbangkan',
+  4: 'Direkomendasikan',
+  5: 'Sangat direkomendasi',
 }
 const complete = computed(() =>
   Object.entries(form)
@@ -362,15 +305,18 @@ async function handleSubmit() {
     -apple-system,
     sans-serif;
 }
+
 .portal-card {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
+
 .reference-question-section {
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 14px;
   background: rgba(15, 23, 42, 0.42);
   padding: 20px;
 }
+
 .reference-section-title {
   margin: 0 0 18px;
   color: #f8fafc;
@@ -378,23 +324,28 @@ async function handleSubmit() {
   font-weight: 800;
   letter-spacing: 0.08em;
 }
+
 .reference-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
+
 .reference-field {
   display: block;
   color: #cbd5e1;
   font-size: 12px;
   font-weight: 700;
 }
+
 .reference-field--full {
   grid-column: 1/-1;
 }
+
 .reference-field b {
   color: #fb7185;
 }
+
 .reference-field input,
 .reference-field select,
 .reference-field textarea {
@@ -408,26 +359,32 @@ async function handleSubmit() {
   color: #f8fafc;
   outline: none;
 }
+
 .reference-field textarea {
   resize: vertical;
   line-height: 1.55;
 }
+
 .reference-field input:focus,
 .reference-field select:focus,
 .reference-field textarea:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
+
 @media (max-width: 640px) {
   .reference-form-grid {
     grid-template-columns: 1fr;
   }
+
   .reference-field--full {
     grid-column: auto;
   }
+
   .reference-question-section {
     padding: 15px;
   }
+
   .score-option {
     padding-inline: 3px;
   }

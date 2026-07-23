@@ -7,7 +7,7 @@
       <div class="portal-header">
         <img src="/hompimplay_icon.png" alt="Logo" class="brand-logo-public" />
         <div class="logo-placeholder">HRIS Portal</div>
-        <h1>Formulir Onboarding Mandiri Karyawan Baru</h1>
+        <h1>Formulir Biodata Karyawan Baru</h1>
         <p class="subtitle" v-if="candidate">
           Selamat datang, <span class="highlight">{{ candidate.name }}</span
           >! Silakan lengkapi biodata Anda di bawah ini.
@@ -367,9 +367,12 @@ onMounted(async () => {
     candidate.value = res.data
 
     // Pre-fill default details
-    form.nama_karyawan = res.data.name
-    form.email = res.data.email
+    form.nama_karyawan = res.data.name || ''
+    form.email = res.data.email || ''
     form.no_hp = res.data.phone || ''
+    if (res.data.education_level) form.pendidikan_terakhir = res.data.education_level
+    if (res.data.education_major) form.jurusan = res.data.education_major
+    if (res.data.marital_status) form.status_pernikahan = res.data.marital_status
   } catch (err) {
     error.value =
       'Formulir onboarding tidak dapat dibuka. Tautan mungkin tidak valid, sudah kedaluwarsa, atau sudah pernah diselesaikan. Silakan hubungi HRD.'

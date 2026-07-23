@@ -361,6 +361,11 @@ export function getCaseStudySubmissionPreview(id) {
   return api.get(`/hr/recruitment/candidates/${id}/case-study-submission-preview`)
 }
 
+export function getCaseStudyQuestionPreview(id) {
+  return api.get(`/hr/recruitment/candidates/${id}/case-study-question-preview`)
+}
+
+
 export function scheduleUserInterviewRound(id, payload) {
   return api.post(`/hr/recruitment/candidates/${id}/schedule-user-interview-round`, payload)
 }
@@ -462,6 +467,10 @@ export function importOnboarding(id, payload) {
 
 export function saveOnboardingDraft(id, payload) {
   return api.post(`/hr/recruitment/candidates/${id}/save-onboarding-draft`, payload)
+}
+
+export function importCandidateAssessment(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/import-assessment`, payload)
 }
 
 // PUBLIC ROUTES (Unauthenticated)

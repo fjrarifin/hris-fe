@@ -154,6 +154,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/s/:code',
+      name: 'short-url-redirect',
+      beforeEnter: (to) => {
+        window.location.replace(`${backendUrl}/s/${encodeURIComponent(to.params.code)}`)
+        return false
+      },
+    },
+
+    {
       path: '/',
       component: AdminLayout,
       meta: { requiresAuth: true },
