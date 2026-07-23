@@ -20,6 +20,7 @@ const message = ref('')
 const errorMessage = ref('')
 const isSubmitting = ref(false)
 const isLoading = ref(true)
+const copiedPublicLinkId = ref(null)
 
 // Modal form state
 const showModal = ref(false)
@@ -430,6 +431,65 @@ function onPositionChange() {
   }
 }
 
+const careerSiteUrl = computed(() => {
+  const configuredUrl = import.meta.env.VITE_CAREER_SITE_URL
+  if (configuredUrl) return configuredUrl.replace(/\/$/, '')
+
+  const origin = globalThis.location?.origin || ''
+  if (globalThis.location?.port === '5173') {
+    return `${globalThis.location.protocol}//${globalThis.location.hostname}:5174`
+  }
+
+  return origin.replace(/\/$/, '')
+})
+
+function publicVacancyUrl(record) {
+  if (!record?.slug) return ''
+  return `${careerSiteUrl.value}/jobs/${encodeURIComponent(record.slug)}`
+}
+
+function canSharePublicVacancy(record) {
+  return record?.status === 'open' && Boolean(record?.slug)
+}
+
+async function copyPublicVacancyLink(record) {
+  const url = publicVacancyUrl(record)
+  if (!url) return
+
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+
+    copiedPublicLinkId.value = record.id
+    message.value = `Link public lowongan "${record.title}" berhasil disalin.`
+    setTimeout(() => {
+      if (copiedPublicLinkId.value === record.id) copiedPublicLinkId.value = null
+    }, 1800)
+  } catch (error) {
+    errorMessage.value = 'Gagal menyalin link lowongan. Silakan salin manual dari tombol buka link.'
+  }
+}
+
+function openPublicVacancy(record) {
+  const url = publicVacancyUrl(record)
+  if (!url) return
+  globalThis.open?.(url, '_blank', 'noopener,noreferrer')
+}
+
 function formatDate(value) {
   if (!value) return '-'
   const date = new Date(value)
@@ -725,6 +785,47 @@ onMounted(() => {
                       class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary">
                       <UIcon name="i-lucide-user-plus" class="size-3" />
                       New Hire
+                    </span>
+                  </div>
+                  <div class="mt-2 flex items-center gap-1.5 text-[11px]">
+                    <template v-if="canSharePublicVacancy(record)">
+                      <a
+                        :href="publicVacancyUrl(record)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex min-w-0 max-w-[220px] items-center gap-1 rounded-md bg-primary/5 px-2 py-1 font-semibold text-primary hover:bg-primary/10 hover:underline"
+                        :title="publicVacancyUrl(record)"
+                      >
+                        <UIcon name="i-lucide-link" class="size-3.5 shrink-0" />
+                        <span class="truncate">/jobs/{{ record.slug }}</span>
+                      </a>
+                      <button
+                        type="button"
+                        class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-default bg-default text-muted transition hover:bg-muted/10 hover:text-primary"
+                        :title="copiedPublicLinkId === record.id ? 'Link sudah disalin' : 'Salin link public'"
+                        @click.stop="copyPublicVacancyLink(record)"
+                      >
+                        <UIcon
+                          :name="copiedPublicLinkId === record.id ? 'i-lucide-check' : 'i-lucide-copy'"
+                          class="size-3.5"
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-default bg-default text-muted transition hover:bg-muted/10 hover:text-primary"
+                        title="Buka halaman public"
+                        @click.stop="openPublicVacancy(record)"
+                      >
+                        <UIcon name="i-lucide-external-link" class="size-3.5" />
+                      </button>
+                    </template>
+                    <span
+                      v-else
+                      class="inline-flex items-center gap-1 rounded-md bg-muted/10 px-2 py-1 font-semibold text-muted"
+                      title="Link public hanya aktif untuk lowongan berstatus Open"
+                    >
+                      <UIcon name="i-lucide-lock" class="size-3.5" />
+                      Tidak tampil public
                     </span>
                   </div>
                 </td>

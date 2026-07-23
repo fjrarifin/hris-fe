@@ -373,22 +373,27 @@ const formattedEmployees = computed(() => {
     })
 })
 
+function extractNik(val) {
+  if (!val) return ''
+  if (typeof val === 'object') return val.nik || val.id || ''
+  return String(val).trim()
+}
+
 const hrbpStaffEmployees = computed(() => {
-  return employees.value
+  const staffList = employees.value
     .filter((emp) => {
       const dept = (emp.department || emp.departement || emp.divisi || '').toLowerCase().trim()
       const position = (emp.position || emp.jabatan || '').toLowerCase().trim()
 
-      const isAsstManager =
-        position.includes('asst manager') ||
-        position.includes('assistant manager') ||
-        position.includes('asst. manager') ||
-        position.includes('ast manager') ||
-        position.includes('ast. manager')
-
-      const isFullManager = position.includes('manager') && !isAsstManager
-
-      return dept.includes('hrbp') && !isFullManager
+      return (
+        dept.includes('hr') ||
+        dept.includes('human') ||
+        dept.includes('people') ||
+        position.includes('hr') ||
+        position.includes('recruit') ||
+        position.includes('talent') ||
+        position.includes('people')
+      )
     })
     .map((emp) => {
       const empName = emp.name || emp.nama_karyawan || ''
@@ -399,8 +404,25 @@ const hrbpStaffEmployees = computed(() => {
         label: `${emp.nik} - ${empName} (${empPos})`,
       }
     })
-})
 
+  const list = staffList.length ? [...staffList] : [...formattedEmployees.value]
+
+  const currentPicNik = extractNik(editForm.pic_nik) || activeCandidate.value?.pic_nik
+  if (currentPicNik && !list.some((item) => String(item.nik) === String(currentPicNik))) {
+    const emp = employees.value.find((e) => String(e.nik) === String(currentPicNik))
+    if (emp) {
+      const empName = emp.name || emp.nama_karyawan || ''
+      const empPos = emp.position || emp.jabatan || '-'
+      list.unshift({
+        nik: emp.nik,
+        name: empName,
+        label: `${emp.nik} - ${empName} (${empPos})`,
+      })
+    }
+  }
+
+  return list
+})
 
 function removeInterviewer(nik) {
   userInterviewForm.interviewer_niks = userInterviewForm.interviewer_niks.filter(
@@ -409,15 +431,18 @@ function removeInterviewer(nik) {
 }
 
 function getEmployeeLabelByNik(nik) {
-  const emp = employees.value.find((e) => String(e.nik) === String(nik))
-  if (!emp) return `NIK: ${nik}`
+  const cleanNik = extractNik(nik)
+  if (!cleanNik || cleanNik === 'null' || cleanNik === 'undefined') return '-'
+  const emp = employees.value.find((e) => String(e.nik) === String(cleanNik))
+  if (!emp) return `NIK: ${cleanNik}`
   const name = emp.name || emp.nama_karyawan || ''
   const pos = emp.position || emp.jabatan || ''
-  return pos ? `${name} (${pos})` : name || `NIK: ${nik}`
+  return pos ? `${name} (${pos})` : name || `NIK: ${cleanNik}`
 }
 
 async function load() {
   try {
+    const activeCandidateId = activeCandidate.value?.id || selectedCandidateId.value
     const [cRes, vRes, eRes] = await Promise.all([
       getHrCandidates(),
       getHrVacancies(),
@@ -428,8 +453,11 @@ async function load() {
     employees.value = eRes.data?.data ?? eRes.data ?? []
 
     // If there is an active candidate, refresh their details
-    if (activeCandidate.value) {
-      await selectCandidate(activeCandidate.value)
+    if (activeCandidateId) {
+      const freshCandidate = candidates.value.find((candidate) => Number(candidate.id) === Number(activeCandidateId))
+      if (freshCandidate) {
+        await selectCandidate(freshCandidate)
+      }
     }
   } catch (error) {
     errorMessage.value = apiError(error)
@@ -512,8 +540,8 @@ async function saveCandidate() {
     formData.append('marital_status', form.marital_status)
     formData.append('known_person', form.known_person || '')
     formData.append('referred_from', form.referred_from || '')
-    formData.append('pic_nik', form.pic_nik)
-    formData.append('atasan_langsung_nik', form.atasan_langsung_nik || '')
+    formData.append('pic_nik', extractNik(form.pic_nik))
+    formData.append('atasan_langsung_nik', extractNik(form.atasan_langsung_nik))
     formData.append('last_company', form.last_company || '')
     formData.append('resume', createCandidateCvFile.value)
 
@@ -543,8 +571,8 @@ function openEditDialog(candidate) {
     marital_status: candidate.marital_status || '',
     known_person: candidate.known_person || '',
     referred_from: candidate.referred_from || '',
-    pic_nik: candidate.pic_nik || '',
-    atasan_langsung_nik: candidate.atasan_langsung_nik || candidate.atasan_langsung || '',
+    pic_nik: extractNik(candidate.pic_nik),
+    atasan_langsung_nik: extractNik(candidate.atasan_langsung_nik || candidate.atasan_langsung),
     last_company: candidate.last_company || '',
   })
   editDialogOpen.value = true
@@ -564,6 +592,9 @@ async function updateCandidate() {
     const candidateStatus =
       candidates.value.find((candidate) => candidate.id === editForm.id)?.status ||
       activeCandidate.value?.status
+    const cleanPicNik = extractNik(editForm.pic_nik) || null
+    const cleanAtasanNik = extractNik(editForm.atasan_langsung_nik) || null
+
     const response = await updateHrCandidate(editForm.id, {
       vacancy_id: editForm.vacancy_id || null,
       name: editForm.name,
@@ -578,10 +609,14 @@ async function updateCandidate() {
       marital_status: editForm.marital_status,
       known_person: editForm.known_person,
       referred_from: editForm.referred_from,
-      pic_nik: editForm.pic_nik,
-      atasan_langsung_nik: editForm.atasan_langsung_nik || null,
+      pic_nik: cleanPicNik,
+      atasan_langsung_nik: cleanAtasanNik,
       last_company: editForm.last_company,
     })
+
+    if (response.data?.data) {
+      selectedCandidateDetails.value = response.data.data
+    }
 
     message.value = response.data.message || 'Kandidat berhasil diperbarui.'
     closeEditDialog()
@@ -597,10 +632,9 @@ const updatingStage = ref(false)
 
 async function updateStage(candidate, newStage) {
   if (newStage === 'interview_hr') {
-    if (!candidate?.pic_nik) {
-      const err = 'PIC Screening wajib diisi terlebih dahulu sebelum melanjutkan kandidat ke tahap Wawancara HR.'
-      errorMessage.value = err
-      notifier.error(err)
+    const picNik = extractNik(candidate?.pic_nik)
+    if (!picNik) {
+      errorMessage.value = 'PIC Screening wajib diisi terlebih dahulu sebelum melanjutkan kandidat ke tahap Wawancara HR.'
       return
     }
     openHrInterviewModal()
@@ -987,17 +1021,28 @@ async function selectCandidate(candidate) {
   if (!candidate) return
   viewedStageKey.value = null
   selectedCandidateId.value = candidate.id
+  if (selectedCandidateDetails.value?.id !== candidate.id) {
+    selectedCandidateDetails.value = null
+  }
   loadingDetails.value = true
   isAuditLogsExpanded.value = false
   message.value = ''
   errorMessage.value = ''
   try {
     const res = await getHrCandidateDetail(candidate.id)
-    selectedCandidateDetails.value = res.data?.candidate || candidate
+    const freshCandidate = res.data?.candidate || candidate
+    selectedCandidateDetails.value = freshCandidate
+    const candidateIndex = candidates.value.findIndex((item) => Number(item.id) === Number(freshCandidate.id))
+    if (candidateIndex !== -1) {
+      candidates.value.splice(candidateIndex, 1, {
+        ...candidates.value[candidateIndex],
+        ...freshCandidate,
+      })
+    }
     changeLogs.value = res.data?.change_logs || []
     previousApplications.value = res.data?.previous_applications || []
 
-    let obData = res.data?.candidate?.onboarding_data
+    let obData = freshCandidate.onboarding_data
     if (obData && typeof obData === 'string') {
       try {
         obData = JSON.parse(obData)
@@ -1007,7 +1052,7 @@ async function selectCandidate(candidate) {
     }
     const data = (obData && typeof obData === 'object') ? obData : {}
 
-    const cand = res.data?.candidate || candidate
+    const cand = freshCandidate
     onboardingEditForm.nik = cand.employee_nik || data.nik || ''
     onboardingEditForm.pin = data.pin || ''
     onboardingEditForm.nama_karyawan = data.nama_karyawan || cand.name || ''
@@ -1647,10 +1692,9 @@ const hrInterviewForm = reactive({
 })
 
 function openHrInterviewModal() {
-  if (!activeCandidate.value?.pic_nik) {
-    const err = 'PIC Screening wajib diisi terlebih dahulu sebelum menjadwalkan Wawancara HR.'
-    errorMessage.value = err
-    notifier.error(err)
+  const picNik = extractNik(activeCandidate.value?.pic_nik)
+  if (!picNik) {
+    errorMessage.value = 'PIC Screening wajib diisi terlebih dahulu sebelum menjadwalkan Wawancara HR.'
     return
   }
   if (activeCandidate.value) {
@@ -2032,7 +2076,10 @@ async function submitUserInterview() {
       ...userInterviewForm,
       interviewer_nik: userInterviewForm.interviewer_niks.join(','),
     }
-    await scheduleUserInterviewRound(activeCandidate.value.id, payload)
+    const response = await scheduleUserInterviewRound(activeCandidate.value.id, payload)
+    if (response.data?.data) {
+      selectedCandidateDetails.value = response.data.data
+    }
     userInterviewModalOpen.value = false
     message.value = `Jadwal Wawancara User Round ${userInterviewForm.round} berhasil disimpan.`
     await load()
@@ -3185,6 +3232,20 @@ function getRoundEvaluationProgress(round) {
 }
 
 const activeUserInterviewTab = ref(1)
+const activeEvaluatorTab = ref(0)
+
+watch(
+  () => [activeUserInterviewTab.value, activeCandidate.value?.id],
+  () => {
+    const evals = getRoundEvaluations(activeUserInterviewTab.value)
+    if (evals.length) {
+      activeEvaluatorTab.value = evals[0].id
+    } else {
+      activeEvaluatorTab.value = 0
+    }
+  },
+  { immediate: true },
+)
 
 const displayedUserInterviewRounds = computed(() => {
   const rounds = (activeCandidate.value?.user_interviews || [])
@@ -4414,66 +4475,112 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
 
-                    <!-- Section 6: Evaluasi Pewawancara Header -->
+                    <!-- Section 6: Evaluasi Pewawancara (Tab Layout) -->
                     <div class="pt-4 pb-2">
+                      <!-- Header -->
                       <div class="flex items-center justify-between mb-3">
-                        <span class="font-bold text-highlighted text-sm">Evaluasi pewawancara</span>
-                        <span class="text-xs text-muted font-medium">
-                          {{ getRoundEvaluationProgress(activeUserInterviewTab).completed }} dari {{
-                            getRoundEvaluationProgress(activeUserInterviewTab).total }} mengisi
+                        <span class="text-xs font-semibold text-highlighted">Evaluasi pewawancara</span>
+                        <span class="text-xs text-muted">
+                          {{ getRoundEvaluationProgress(activeUserInterviewTab).completed }} / {{
+                            getRoundEvaluationProgress(activeUserInterviewTab).total }} selesai
                         </span>
                       </div>
 
-                      <!-- Evaluator List Rows -->
-                      <div class="space-y-2">
-                        <div v-for="ev in getRoundEvaluations(activeUserInterviewTab)" :key="ev.id"
-                          class="flex flex-wrap items-center justify-between gap-2 py-2 px-3 bg-muted/5 border border-default/60 rounded-xl text-xs">
-                          <div>
-                            <span class="font-bold block text-highlighted">{{ ev.interviewer?.nama_karyawan ||
-                              ev.interviewer_nik }}</span>
-                            <span class="text-[11px] text-muted">NIK {{ ev.interviewer_nik }}</span>
-                          </div>
-
-                          <div class="flex items-center gap-2">
-                            <span v-if="ev.submitted_at" class="font-medium text-emerald-600 dark:text-emerald-400">
-                              Selesai Mengisi (Skor: {{ ev.interview_total_score }}/36)
+                      <!-- Evaluator Tabs -->
+                      <div v-if="getRoundEvaluations(activeUserInterviewTab).length">
+                        <!-- Tab Pills -->
+                        <div class="flex flex-wrap gap-1.5 mb-3">
+                          <button
+                            v-for="ev in getRoundEvaluations(activeUserInterviewTab)"
+                            :key="ev.id"
+                            @click="activeEvaluatorTab = ev.id"
+                            class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border"
+                            :class="activeEvaluatorTab === ev.id
+                              ? 'bg-primary text-white border-primary shadow-sm'
+                              : 'bg-muted/10 text-muted border-default/50 hover:border-primary/40 hover:text-highlighted'"
+                          >
+                            <span class="truncate max-w-[100px]">
+                              {{ (ev.interviewer?.nama_karyawan || ev.interviewer_nik || '').split(' ').slice(0, 2).join(' ') }}
                             </span>
-                            <span v-else class="font-medium text-amber-600 dark:text-amber-400">
-                              Menunggu pengisian
-                            </span>
-
-                            <UButton v-if="!isViewingHistoricalStage && !ev.submitted_at" size="xs" variant="soft"
-                              color="primary" icon="i-lucide-send" label="Kirim link" :loading="updatingStage"
-                              :disabled="updatingStage || !getUserInterview(activeUserInterviewTab).completed_at"
-                              :title="getUserInterview(activeUserInterviewTab).completed_at
-                                ? 'Kirim formulir evaluasi ke pewawancara'
-                                : 'Tandai interview selesai terlebih dahulu'
-                                " @click="triggerUserInterviewEvaluationWa(activeUserInterviewTab, ev.id)" />
-                            <UButton v-if="ev.submitted_at" size="xs" variant="soft" color="primary" icon="i-lucide-eye"
-                              label="Lihat" @click="
-                                previewInterviewerEvaluation(
-                                  ev.id,
-                                  ev.interviewer?.nama_karyawan || ev.interviewer_nik,
-                                )
-                                " />
-                          </div>
-
-                          <!-- Optional notes if submitted -->
-                          <div v-if="ev.submitted_at && (ev.interview_evaluation_notes || ev.interview_recommendation)"
-                            class="w-full mt-1 bg-muted/10 p-2 rounded-lg text-[11px] space-y-1">
-                            <div class="flex items-center justify-between">
-                              <span class="font-bold text-muted uppercase text-[9px]">Catatan Evaluator</span>
-                              <UBadge v-if="ev.interview_recommendation"
-                                :color="ev.interview_recommendation === 'disarankan' ? 'success' : ev.interview_recommendation === 'dipertimbangkan' ? 'warning' : 'danger'"
-                                size="xs">
-                                {{ evalRecommendationLabel(ev.interview_recommendation) }}
-                              </UBadge>
-                            </div>
-                            <p v-if="ev.interview_evaluation_notes" class="text-highlighted italic whitespace-pre-wrap">
-                              &ldquo;{{ ev.interview_evaluation_notes }}&rdquo;
-                            </p>
-                          </div>
+                            <span
+                              class="size-1.5 rounded-full flex-shrink-0"
+                              :class="ev.submitted_at ? 'bg-emerald-400' : 'bg-amber-400'"
+                            />
+                          </button>
                         </div>
+
+                        <!-- Active Evaluator Panel -->
+                        <template v-for="ev in getRoundEvaluations(activeUserInterviewTab)" :key="ev.id">
+                          <div v-if="activeEvaluatorTab === ev.id"
+                            class="rounded-xl border border-default/60 bg-muted/5 p-3 space-y-2.5 text-xs"
+                          >
+                            <!-- Evaluator Identity -->
+                            <div class="flex items-center justify-between">
+                              <div>
+                                <span class="block font-semibold text-highlighted text-[12px]">
+                                  {{ ev.interviewer?.nama_karyawan || ev.interviewer_nik }}
+                                </span>
+                                <span class="text-muted">NIK {{ ev.interviewer_nik }}</span>
+                              </div>
+                              <div class="flex items-center gap-1.5">
+                                <span v-if="ev.submitted_at" class="text-emerald-600 dark:text-emerald-400 font-medium">
+                                  Skor: {{ ev.interview_total_score }}/36
+                                </span>
+                                <UBadge
+                                  :color="ev.submitted_at ? 'success' : 'warning'"
+                                  size="xs"
+                                  variant="soft"
+                                >
+                                  {{ ev.submitted_at ? 'Selesai' : 'Menunggu' }}
+                                </UBadge>
+                              </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-2">
+                              <UButton
+                                v-if="!isViewingHistoricalStage && !ev.submitted_at"
+                                size="xs" variant="soft" color="primary" icon="i-lucide-send" label="Kirim link"
+                                :loading="updatingStage"
+                                :disabled="updatingStage || !getUserInterview(activeUserInterviewTab).completed_at"
+                                :title="getUserInterview(activeUserInterviewTab).completed_at
+                                  ? 'Kirim formulir evaluasi ke pewawancara'
+                                  : 'Tandai interview selesai terlebih dahulu'"
+                                @click="triggerUserInterviewEvaluationWa(activeUserInterviewTab, ev.id)"
+                              />
+                              <UButton
+                                v-if="ev.submitted_at"
+                                size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat evaluasi"
+                                @click="previewInterviewerEvaluation(ev.id, ev.interviewer?.nama_karyawan || ev.interviewer_nik)"
+                              />
+                            </div>
+
+                            <!-- Notes & Recommendation -->
+                            <div
+                              v-if="ev.submitted_at && (ev.interview_evaluation_notes || ev.interview_recommendation)"
+                              class="bg-muted/10 p-2.5 rounded-lg space-y-1.5"
+                            >
+                              <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-muted uppercase tracking-wide">Catatan</span>
+                                <UBadge
+                                  v-if="ev.interview_recommendation"
+                                  :color="ev.interview_recommendation === 'disarankan' ? 'success' : ev.interview_recommendation === 'dipertimbangkan' ? 'warning' : 'danger'"
+                                  size="sm"
+                                >
+                                  {{ evalRecommendationLabel(ev.interview_recommendation) }}
+                                </UBadge>
+                              </div>
+                              <p v-if="ev.interview_evaluation_notes" class="text-xs text-highlighted italic whitespace-pre-wrap">
+                                &ldquo;{{ ev.interview_evaluation_notes }}&rdquo;
+                              </p>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+
+                      <!-- Empty evaluators -->
+                      <div v-else class="py-3 text-center text-xs text-muted">
+                        Belum ada pewawancara yang ditetapkan.
                       </div>
                     </div>
 
@@ -4494,7 +4601,7 @@ onBeforeUnmount(() => {
                           : getRoundConsensusRecommendation(activeUserInterviewTab) === 'Dipertimbangkan'
                             ? 'warning'
                             : 'danger'
-                          " size="xs">
+                          " size="sm">
                           {{ getRoundConsensusRecommendation(activeUserInterviewTab) }}
                         </UBadge>
                       </div>
