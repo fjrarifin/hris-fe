@@ -56,6 +56,7 @@ import StaffRecruitmentRequestView from '../views/StaffRecruitmentRequestView.vu
 import StaffPerformanceReviewView from '../views/StaffPerformanceReviewView.vue'
 import StaffTalentView from '../views/StaffTalentView.vue'
 import HrMasterOrgStructureView from '../views/HrMasterOrgStructureView.vue'
+import HrLeaveBalanceView from '../views/HrLeaveBalanceView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -342,6 +343,12 @@ const router = createRouter({
           name: 'hr-contracts',
           component: HrContractView,
           meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
+        },
+        {
+          path: 'hr/leave-balances',
+          name: 'hr-leave-balances',
+          component: HrLeaveBalanceView,
+          meta: { title: 'Sisa Jatah Cuti / PH / EO', levels: [0, 1, 2], menuKey: 'hr-leave-balances' },
         },
         {
           path: 'hr/master/positions',
