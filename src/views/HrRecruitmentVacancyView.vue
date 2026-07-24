@@ -435,12 +435,11 @@ const careerSiteUrl = computed(() => {
   const configuredUrl = import.meta.env.VITE_CAREER_SITE_URL
   if (configuredUrl) return configuredUrl.replace(/\/$/, '')
 
-  const origin = globalThis.location?.origin || ''
   if (globalThis.location?.port === '5173') {
     return `${globalThis.location.protocol}//${globalThis.location.hostname}:5174`
   }
 
-  return origin.replace(/\/$/, '')
+  return 'https://karir.hompimplay.id'
 })
 
 function publicVacancyUrl(record) {
