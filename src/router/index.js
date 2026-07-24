@@ -323,6 +323,12 @@ const router = createRouter({
           meta: { title: 'Absensi', levels: [1, 2], menuKey: 'attendance' },
         },
         {
+          path: 'hr/leave-balances',
+          name: 'hr-leave-balances',
+          component: HrLeaveBalanceView,
+          meta: { title: 'Sisa Jatah Cuti / PH / EO', levels: [0, 1, 2], menuKey: 'hr-leave-balances' },
+        },
+        {
           path: 'hr/attendance/minimum-monitoring',
           name: 'hr-attendance-minimum',
           component: HrAttendanceMinimumView,
@@ -343,12 +349,6 @@ const router = createRouter({
           name: 'hr-contracts',
           component: HrContractView,
           meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
-        },
-        {
-          path: 'hr/leave-balances',
-          name: 'hr-leave-balances',
-          component: HrLeaveBalanceView,
-          meta: { title: 'Sisa Jatah Cuti / PH / EO', levels: [0, 1, 2], menuKey: 'hr-leave-balances' },
         },
         {
           path: 'hr/master/positions',
