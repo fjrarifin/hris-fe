@@ -27,7 +27,14 @@ const form = reactive({
   payroll_group: 'staff',
   dasar_bpjs: 0,
   dasar_jp: 0,
+  rate_jkn_karyawan_percent: '1.00',
+  rate_jkn_perusahaan_percent: '4.00',
+  rate_jht_karyawan_percent: '2.00',
+  rate_jht_perusahaan_percent: '3.70',
+  rate_jp_karyawan_percent: '1.00',
+  rate_jp_perusahaan_percent: '2.00',
   rate_jkk_percent: '0.54',
+  rate_jkm_percent: '0.30',
   is_active: true,
   notes: '',
 })
@@ -80,7 +87,26 @@ async function loadComponents() {
 
 function edit(record) {
   selected.value = record
-  Object.assign(form, record.profile)
+  Object.assign(form, {
+    gaji_pokok: 0,
+    tunjangan_jabatan: 0,
+    tunjangan_tidak_tetap: 0,
+    bruto_man_power: 0,
+    payroll_group: 'staff',
+    dasar_bpjs: 0,
+    dasar_jp: 0,
+    rate_jkn_karyawan_percent: '1.00',
+    rate_jkn_perusahaan_percent: '4.00',
+    rate_jht_karyawan_percent: '2.00',
+    rate_jht_perusahaan_percent: '3.70',
+    rate_jp_karyawan_percent: '1.00',
+    rate_jp_perusahaan_percent: '2.00',
+    rate_jkk_percent: '0.54',
+    rate_jkm_percent: '0.30',
+    is_active: true,
+    notes: '',
+    ...record.profile,
+  })
 }
 
 function closeForm() {
@@ -316,51 +342,212 @@ onMounted(() => Promise.all([load(), loadComponents()]))
             Edit Master Payroll - {{ selected.name }}
           </h3></template
         >
-        <form class="grid gap-4 sm:grid-cols-2" @submit.prevent="saveProfile">
-          <label
-            v-for="field in [
-              ['gaji_pokok', 'Gaji Pokok'],
-              ['tunjangan_jabatan', 'Tunjangan Jabatan'],
-              ['tunjangan_tidak_tetap', 'TTT Lama / Referensi'],
-              ['bruto_man_power', 'Bruto Man Power'],
-              ['dasar_bpjs', 'Dasar BPJS'],
-              ['dasar_jp', 'Dasar JP'],
-              ['rate_jkk_percent', 'Rate JKK (%)'],
-            ]"
-            :key="field[0]"
-            class="text-sm text-muted"
-            >{{ field[1]
-            }}<input
-              v-model="form[field[0]]"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
-          /></label>
-          <label class="text-sm text-muted"
-            >Grup Payroll
-            <select
-              v-model="form.payroll_group"
-              required
-              class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
-            >
-              <option value="staff">Staff+</option>
-              <option value="operator">Operator</option>
-            </select>
-          </label>
-          <label class="flex items-center gap-2 text-sm text-muted"
-            ><input v-model="form.is_active" type="checkbox" /> Master payroll aktif</label
-          >
-          <label class="text-sm text-muted sm:col-span-2"
-            >Catatan<textarea
-              v-model="form.notes"
-              rows="3"
-              class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted"
-            ></textarea>
-          </label>
-          <div class="flex gap-2 sm:col-span-2">
-            <UButton type="submit" label="Simpan Master" :loading="saving" /><UButton
+        <form class="space-y-5" @submit.prevent="saveProfile">
+          <!-- Section 1: Gaji & Dasar Penghitungan -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+              <UIcon name="i-lucide-banknote" class="size-4 text-primary" />
+              Gaji &amp; Dasar Penghitungan
+            </h4>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="text-xs font-medium text-muted">
+                Gaji Pokok
+                <input
+                  v-model="form.gaji_pokok"
+                  type="number"
+                  min="0"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Tunjangan Jabatan
+                <input
+                  v-model="form.tunjangan_jabatan"
+                  type="number"
+                  min="0"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                TTT Lama / Referensi
+                <input
+                  v-model="form.tunjangan_tidak_tetap"
+                  type="number"
+                  min="0"
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Bruto Man Power
+                <input
+                  v-model="form.bruto_man_power"
+                  type="number"
+                  min="0"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Dasar Pot. BPJS Kes
+                <input
+                  v-model="form.dasar_bpjs"
+                  type="number"
+                  min="0"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Dasar Pot. BPJS Ket
+                <input
+                  v-model="form.dasar_jp"
+                  type="number"
+                  min="0"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted sm:col-span-2">
+                Grup Payroll
+                <select
+                  v-model="form.payroll_group"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                >
+                  <option value="staff">Staff+</option>
+                  <option value="operator">Operator</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Section 2: Rate & Potongan BPJS -->
+          <div class="border-t border-default pt-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+              <UIcon name="i-lucide-shield-check" class="size-4 text-emerald-500" />
+              Rate &amp; Potongan BPJS (%)
+            </h4>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="text-xs font-medium text-muted">
+                Rate BPJS Kesehatan / JKN Karyawan (%)
+                <input
+                  v-model="form.rate_jkn_karyawan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate BPJS Kesehatan / JKN Perusahaan (%)
+                <input
+                  v-model="form.rate_jkn_perusahaan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JHT Karyawan (%)
+                <input
+                  v-model="form.rate_jht_karyawan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JHT Perusahaan (%)
+                <input
+                  v-model="form.rate_jht_perusahaan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JP Karyawan (%)
+                <input
+                  v-model="form.rate_jp_karyawan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JP Perusahaan (%)
+                <input
+                  v-model="form.rate_jp_perusahaan_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JKK (%)
+                <input
+                  v-model="form.rate_jkk_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+              <label class="text-xs font-medium text-muted">
+                Rate JKM (%)
+                <input
+                  v-model="form.rate_jkm_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  max="100"
+                  required
+                  class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- Section 3: Status & Catatan -->
+          <div class="border-t border-default pt-4 space-y-3">
+            <label class="flex items-center gap-2 text-xs font-medium text-muted">
+              <input v-model="form.is_active" type="checkbox" class="rounded border-default" /> Master payroll aktif
+            </label>
+            <label class="block text-xs font-medium text-muted">
+              Catatan
+              <textarea
+                v-model="form.notes"
+                rows="2"
+                class="mt-1.5 w-full rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+              ></textarea>
+            </label>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2 border-t border-default pt-4">
+            <UButton type="submit" label="Simpan Master" :loading="saving" />
+            <UButton
               type="button"
               label="Batal"
               color="neutral"
