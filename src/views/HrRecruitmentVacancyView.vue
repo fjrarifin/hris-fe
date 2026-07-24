@@ -1218,8 +1218,13 @@ onMounted(() => {
                 </div>
               </div>
 
-              <!-- Kualifikasi & Benefit -->
+              <!-- Deskripsi, Kualifikasi & Benefit -->
               <div class="space-y-3">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-muted">Deskripsi Lowongan</label><textarea
+                    v-model="form.description" rows="3" placeholder="Gambaran umum mengenai posisi dan peran lowongan ini"
+                    :class="formControlClass"></textarea>
+                </div>
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-muted">Kualifikasi</label><textarea
                     v-model="form.requirements" rows="3" placeholder="Satu poin per baris"
