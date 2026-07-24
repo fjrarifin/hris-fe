@@ -272,50 +272,51 @@
       </div>
     </UCard>
 
-    <!-- Modal Detail Rincian Jatah Karyawan (Clean Standard Overlay) -->
-    <Teleport to="body">
-      <div
-        v-if="detailModalOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-        role="dialog"
-        aria-modal="true"
-      >
+    <!-- Modal Detail Rincian Jatah Karyawan -->
+    <div
+      v-if="detailModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+    >
         <!-- Backdrop Overlay -->
-        <div
-          class="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"
+        <button
+          type="button"
+          class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity cursor-default w-full h-full border-0 p-0"
           @click="detailModalOpen = false"
-        ></div>
+        ></button>
 
-        <!-- Modal Box Container -->
-        <div class="relative w-full sm:max-w-3xl max-h-[90vh] flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-default shadow-2xl z-10 overflow-hidden">
-          <!-- Header -->
-          <div class="p-4 sm:p-5 border-b border-default flex items-center justify-between bg-muted/10">
-            <div class="flex items-center gap-3 min-w-0">
-              <div
-                class="size-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
-                :class="getAvatarBg(selectedEmployeeDetails?.employee?.nama_karyawan || '')"
-              >
-                {{ getInitials(selectedEmployeeDetails?.employee?.nama_karyawan || '') }}
+        <!-- Modal Box Container (Using UCard to adapt to active light/dark theme) -->
+        <UCard class="relative max-h-[90vh] w-full max-w-3xl flex flex-col overflow-hidden z-10 shadow-2xl">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="size-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
+                  :class="getAvatarBg(selectedEmployeeDetails?.employee?.nama_karyawan || '')"
+                >
+                  {{ getInitials(selectedEmployeeDetails?.employee?.nama_karyawan || '') }}
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-base font-bold text-highlighted truncate">
+                    {{ selectedEmployeeDetails?.employee?.nama_karyawan || 'Rincian Karyawan' }}
+                  </h3>
+                  <p class="text-xs text-muted truncate">
+                    NIK: {{ selectedEmployeeDetails?.employee?.nik || '-' }} &bull;
+                    {{ selectedEmployeeDetails?.employee?.departement || '-' }} &bull;
+                    {{ selectedEmployeeDetails?.employee?.jabatan || '-' }}
+                  </p>
+                </div>
               </div>
-              <div class="min-w-0">
-                <h3 class="text-base font-bold text-highlighted truncate">
-                  {{ selectedEmployeeDetails?.employee?.nama_karyawan || 'Rincian Karyawan' }}
-                </h3>
-                <p class="text-xs text-muted truncate">
-                  NIK: {{ selectedEmployeeDetails?.employee?.nik || '-' }} &bull;
-                  {{ selectedEmployeeDetails?.employee?.departement || '-' }} &bull;
-                  {{ selectedEmployeeDetails?.employee?.jabatan || '-' }}
-                </p>
-              </div>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                size="xs"
+                @click="detailModalOpen = false"
+              />
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-lucide-x"
-              size="xs"
-              @click="detailModalOpen = false"
-            />
-          </div>
+          </template>
 
           <!-- Body (Scrollable) -->
           <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
@@ -557,14 +558,15 @@
           </div>
 
           <!-- Footer -->
-          <div class="p-4 border-t border-default bg-muted/10 flex justify-end">
-            <UButton color="neutral" variant="soft" size="xs" @click="detailModalOpen = false">
-              Tutup
-            </UButton>
-          </div>
-        </div>
+          <template #footer>
+            <div class="flex justify-end">
+              <UButton color="neutral" variant="soft" size="xs" @click="detailModalOpen = false">
+                Tutup
+              </UButton>
+            </div>
+          </template>
+        </UCard>
       </div>
-    </Teleport>
   </div>
 </template>
 
