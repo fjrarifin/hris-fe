@@ -150,19 +150,45 @@ async function handlePullEmployee(emp, cloudId = null) {
   }
 }
 
-async function handleSendEmployee(emp, cloudId = null) {
+const sendModal = reactive({
+  open: false,
+  employee: null,
+  selectedClouds: [],
+  sending: false,
+})
+
+function openSendModal(emp) {
+  sendModal.employee = emp
+  sendModal.selectedClouds = clouds.value.map((c) => c.id)
+  sendModal.open = true
+}
+
+async function submitSendModal() {
+  if (!sendModal.employee || !sendModal.selectedClouds.length) return
+  sendModal.sending = true
   actionLoading.value = true
   message.value = ''
   errorMessage.value = ''
+
   try {
-    const { data } = await sendEmployeeItFingerspot(emp.nik, { cloud_id: cloudId })
-    message.value = data.message || `Kirim data biometrik ${emp.name} berhasil.`
+    let successCount = 0
+    for (const cloudId of sendModal.selectedClouds) {
+      await sendEmployeeItFingerspot(sendModal.employee.nik, { cloud_id: cloudId })
+      successCount++
+    }
+    message.value = `Profile & biometrik ${sendModal.employee.name} berhasil dikirim ke ${successCount} target mesin!`
+    sendModal.open = false
     await loadData()
   } catch (error) {
-    errorMessage.value = apiError(error, `Gagal kirim data ${emp.name}.`)
+    errorMessage.value = apiError(error, 'Gagal mengalirkan data ke mesin.')
   } finally {
+    sendModal.sending = false
     actionLoading.value = false
   }
+}
+
+async function handleSendEmployee(emp, cloudId = null) {
+  openSendModal(emp)
 }
 
 async function handlePullAttlog() {
@@ -390,6 +416,7 @@ onMounted(() => {
               <th class="p-3">Nama Karyawan</th>
               <th class="p-3">Departemen</th>
               <th class="p-3">Status Biometrik</th>
+              <th class="p-3">Status Sync Mesin</th>
               <th class="p-3">RFID Card</th>
               <th class="p-3">Terakhir Ditarik</th>
               <th class="p-3 text-right">Aksi Sync</th>
@@ -397,13 +424,13 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="7" class="p-8 text-center text-muted">
+              <td colspan="8" class="p-8 text-center text-muted">
                 Memuat inventory biometrik...
               </td>
             </tr>
 
             <tr v-else-if="!employees.length">
-              <td colspan="7" class="p-8 text-center text-muted">
+              <td colspan="8" class="p-8 text-center text-muted">
                 Tidak ada data karyawan sesuai filter.
               </td>
             </tr>
@@ -432,6 +459,18 @@ onMounted(() => {
                   variant="subtle"
                   label="Belum Ada"
                 />
+              </td>
+              <td class="whitespace-nowrap p-3">
+                <div class="flex flex-wrap gap-1">
+                  <UBadge
+                    v-for="m in clouds"
+                    :key="m.id"
+                    :color="(emp.synced_clouds || []).includes(m.id) ? 'success' : 'neutral'"
+                    variant="subtle"
+                    size="xs"
+                    :label="((emp.synced_clouds || []).includes(m.id) ? '✓ ' : '✕ ') + m.name"
+                  />
+                </div>
               </td>
               <td class="whitespace-nowrap p-3">
                 <span v-if="emp.card" class="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -516,6 +555,92 @@ onMounted(() => {
         </table>
       </div>
     </UCard>
+
+    <!-- Send to Specific Machine Modal -->
+    <div
+      v-if="sendModal.open"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
+        aria-label="Tutup modal"
+        @click="sendModal.open = false"
+      ></button>
+      <UCard class="relative max-h-[88vh] w-full max-w-md overflow-hidden">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold text-highlighted">Kirim Data Karyawan Ke Mesin</h3>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="sendModal.open = false"
+            />
+          </div>
+        </template>
+
+        <div class="space-y-4">
+          <p class="text-sm font-semibold text-highlighted">
+            {{ sendModal.employee?.name }} (PIN: {{ sendModal.employee?.pin }})
+          </p>
+          <p class="text-xs text-muted">
+            Pilih mesin mana saja yang ingin dikirimkan data profil & biometrik karyawan ini:
+          </p>
+
+          <div class="space-y-2">
+            <label
+              v-for="c in clouds"
+              :key="c.id"
+              class="flex cursor-pointer items-center gap-3 rounded-lg border border-default bg-muted/10 p-3 hover:bg-muted/20"
+            >
+              <input
+                v-model="sendModal.selectedClouds"
+                type="checkbox"
+                :value="c.id"
+                class="size-4 rounded border-default text-primary focus:ring-primary"
+              />
+              <div class="flex flex-1 items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-highlighted">{{ c.name }}</p>
+                  <p class="font-mono text-xs text-muted">{{ c.id }}</p>
+                </div>
+                <UBadge
+                  :color="(sendModal.employee?.synced_clouds || []).includes(c.id) ? 'success' : 'neutral'"
+                  variant="subtle"
+                  size="xs"
+                  :label="(sendModal.employee?.synced_clouds || []).includes(c.id) ? '✓ Sudah Sync' : '✕ Belum'"
+                />
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              label="Batal"
+              @click="sendModal.open = false"
+            />
+            <UButton
+              type="button"
+              color="emerald"
+              variant="solid"
+              icon="i-lucide-send"
+              label="Kirim ke Mesin Terpilih"
+              :loading="sendModal.sending"
+              :disabled="!sendModal.selectedClouds.length"
+              @click="submitSendModal"
+            />
+          </div>
+        </template>
+      </UCard>
+    </div>
   </section>
 </template>
 
