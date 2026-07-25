@@ -593,6 +593,12 @@ const router = createRouter({
           meta: { title: 'Log Perubahan', levels: [0], menuKey: 'audit-logs' },
         },
         {
+          path: 'it/fingerspot',
+          name: 'it-fingerspot',
+          component: () => import('../views/ItFingerspotView.vue'),
+          meta: { title: 'Mesin Fingerspot', levels: [0], menuKey: 'it-fingerspot' },
+        },
+        {
           path: 'it/users',
           name: 'it-users',
           component: ItUserManagementView,

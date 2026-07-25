@@ -101,3 +101,27 @@ export function forceLogoutItSession(sessionId) {
 export function forceLogoutItUserSessions(userId) {
   return api.delete(`/it/active-sessions/users/${userId}`)
 }
+
+export function getItFingerspot(params) {
+  return api.get('/it/fingerspot', { params })
+}
+
+export function pullAllItFingerspot(payload) {
+  return api.post('/it/fingerspot/pull-all', payload)
+}
+
+export function sendAllItFingerspot(payload) {
+  return api.post('/it/fingerspot/send-all', payload)
+}
+
+export function pullAttlogItFingerspot(payload) {
+  return api.post('/it/fingerspot/pull-attlog', payload)
+}
+
+export function pullEmployeeItFingerspot(nik, payload) {
+  return api.post(`/it/fingerspot/employees/${encodeURIComponent(nik)}/pull`, payload)
+}
+
+export function sendEmployeeItFingerspot(nik, payload) {
+  return api.post(`/it/fingerspot/employees/${encodeURIComponent(nik)}/send`, payload)
+}
