@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import AlertToastBridge from '../components/AlertToastBridge.vue'
+import { askConfirmation } from '../utils/confirmDialog'
 import {
   getItFingerspot,
   pullAllItFingerspot,
@@ -66,9 +67,14 @@ async function loadData() {
 
 async function handlePullAll(cloudId = null) {
   const machineLabel = cloudId ? `mesin ${cloudId}` : 'SEMUA MESIN'
-  if (!confirm(`Apakah Anda yakin ingin mengirim perintah Tarik Biometrik untuk seluruh karyawan dari ${machineLabel}?`)) {
-    return
-  }
+  const confirmed = await askConfirmation({
+    title: 'Konfirmasi Tarik Massal Biometrik',
+    message: `Apakah Anda yakin ingin mengirim perintah Tarik Biometrik untuk seluruh karyawan dari ${machineLabel}?`,
+    confirmLabel: 'Ya, Tarik Biometrik',
+    cancelLabel: 'Batal',
+    color: 'primary',
+  })
+  if (!confirmed) return
 
   actionLoading.value = true
   message.value = ''
@@ -86,9 +92,14 @@ async function handlePullAll(cloudId = null) {
 
 async function handleSendAll(cloudId = null) {
   const machineLabel = cloudId ? `mesin ${cloudId}` : 'SEMUA MESIN'
-  if (!confirm(`Apakah Anda yakin ingin MENGIRIM seluruh profile & template biometrik karyawan ke ${machineLabel}?`)) {
-    return
-  }
+  const confirmed = await askConfirmation({
+    title: 'Konfirmasi Kirim Massal Biometrik',
+    message: `Apakah Anda yakin ingin MENGIRIM seluruh profile & template biometrik karyawan ke ${machineLabel}?`,
+    confirmLabel: 'Ya, Kirim Data',
+    cancelLabel: 'Batal',
+    color: 'emerald',
+  })
+  if (!confirmed) return
 
   actionLoading.value = true
   message.value = ''
