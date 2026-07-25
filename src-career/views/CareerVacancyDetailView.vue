@@ -24,18 +24,15 @@ const activeTab = ref('description')
 const parsedDesc = computed(() => {
   const raw = vacancy.value?.description || ''
 
-  let mainParagraph = raw
   let highlightSentence = ''
   let techStack = []
   let valueAdded = []
 
   const linesArray = raw.split(/\r?\n/)
-  const cleanParagraphs = []
+  const cleanLines = []
 
   for (let line of linesArray) {
     const trimLine = line.trim()
-    if (!trimLine) continue
-
     const lower = trimLine.toLowerCase()
     if (
       lower.startsWith('tech stack:') ||
@@ -64,7 +61,7 @@ const parsedDesc = computed(() => {
     ) {
       highlightSentence = trimLine
     } else {
-      cleanParagraphs.push(trimLine)
+      cleanLines.push(line)
     }
   }
 
@@ -119,9 +116,7 @@ const parsedDesc = computed(() => {
     })
   }
 
-  if (cleanParagraphs.length > 0) {
-    mainParagraph = cleanParagraphs.join('\n\n')
-  }
+  const mainParagraph = cleanLines.join('\n')
 
   return {
     mainParagraph,
@@ -143,6 +138,9 @@ const form = reactive({
   previous_salary: '',
   expected_salary: '',
   referred_from: '',
+  years_of_experience: '< 1 Tahun',
+  willing_to_work_in_bandung: 'Ya',
+  custom_answers: {},
   resume: null,
   website: '',
 })
@@ -232,6 +230,17 @@ function validateStep(activeStep) {
     if (!form.resume) nextErrors.resume = ['CV wajib dipilih.']
     else if (form.resume.type !== 'application/pdf') nextErrors.resume = ['CV harus berupa PDF.']
     else if (form.resume.size > 5 * 1024 * 1024) nextErrors.resume = ['Ukuran CV maksimal 5 MB.']
+  } else if (activeStep === 3) {
+    if (!form.years_of_experience) nextErrors.years_of_experience = ['Pengalaman di posisi ini wajib dipilih.']
+    if (!form.willing_to_work_in_bandung) nextErrors.willing_to_work_in_bandung = ['Kesediaan bekerja di Bandung wajib dipilih.']
+    if (Array.isArray(vacancy.value?.custom_questions)) {
+      vacancy.value.custom_questions.forEach((q) => {
+        const qKey = q.id || q.question
+        if (q.required && (!form.custom_answers || !form.custom_answers[qKey] || !String(form.custom_answers[qKey]).trim())) {
+          nextErrors['custom_' + qKey] = [`Pertanyaan "${q.question}" wajib diisi.`]
+        }
+      })
+    }
   }
   errors.value = nextErrors
   formError.value = Object.keys(nextErrors).length
@@ -332,7 +341,7 @@ async function load() {
 }
 
 function apply() {
-  if (submitting.value || !validateStep(1) || !validateStep(2)) return
+  if (submitting.value || !validateStep(1) || !validateStep(2) || !validateStep(3)) return
   confirmChecked.value = false
   showConfirmModal.value = true
 }
@@ -346,11 +355,12 @@ async function executeApply() {
   Object.entries(form).forEach(([key, value]) => {
     if (value === null) return
     if (key === 'phone') {
-      // Normalisasi ke format 08xxx sebelum dikirim
-      let phone = String(value).replace(/\D/g, '') // buang semua non-digit
-      if (phone.startsWith('628')) phone = '0' + phone.slice(2)       // 628xxx → 08xxx
-      else if (phone.startsWith('62')) phone = '0' + phone.slice(2)    // 62xxx  → 0xxx
+      let phone = String(value).replace(/\D/g, '')
+      if (phone.startsWith('628')) phone = '0' + phone.slice(2)
+      else if (phone.startsWith('62')) phone = '0' + phone.slice(2)
       payload.append(key, phone)
+    } else if (key === 'custom_answers') {
+      payload.append(key, JSON.stringify(value || {}))
     } else {
       payload.append(key, value)
     }
@@ -365,11 +375,13 @@ async function executeApply() {
       error.response?.status === 429
         ? 'Terlalu banyak percobaan. Silakan tunggu sebelum mencoba kembali.'
         : error.response?.data?.message || 'Lamaran gagal dikirim. Periksa kembali data Anda.'
-    step.value = Object.keys(errors.value).some((key) =>
-      ['name', 'email', 'phone', 'marital_status'].includes(key),
-    )
-      ? 1
-      : 2
+    if (Object.keys(errors.value).some((key) => ['name', 'email', 'phone', 'marital_status'].includes(key))) {
+      step.value = 1
+    } else if (Object.keys(errors.value).some((key) => ['education_level', 'education_major', 'previous_salary', 'expected_salary', 'referred_from', 'resume'].includes(key))) {
+      step.value = 2
+    } else {
+      step.value = 3
+    }
   } finally {
     submitting.value = false
   }
@@ -608,10 +620,10 @@ onBeforeUnmount(() => {
               </button>
             </header>
             <div v-if="!success" class="stepper">
-              <div v-for="item in 3" :key="item" :class="{ active: step === item, done: step > item }">
+              <div v-for="item in 4" :key="item" :class="{ active: step === item, done: step > item }">
                 <span>{{ step > item ? '✓' : item }}</span>
                 <small>{{
-                  ['Profil & Kontak', 'Pendidikan & Finansial', 'Review'][item - 1]
+                  ['Profil & Kontak', 'Pendidikan & Finansial', 'Detail Pekerjaan', 'Review'][item - 1]
                 }}</small>
               </div>
             </div>
@@ -627,7 +639,7 @@ onBeforeUnmount(() => {
               </div>
               <section v-show="step === 1" class="modal-step">
                 <div class="step-heading">
-                  <span>LANGKAH 1 DARI 3</span>
+                  <span>LANGKAH 1 DARI 4</span>
                   <h3>Profil & Kontak</h3>
                   <p>Ceritakan informasi dasar dan kontak aktifmu.</p>
                 </div>
@@ -664,7 +676,7 @@ onBeforeUnmount(() => {
               </section>
               <section v-show="step === 2" class="modal-step">
                 <div class="step-heading">
-                  <span>LANGKAH 2 DARI 3</span>
+                  <span>LANGKAH 2 DARI 4</span>
                   <h3>Pendidikan & Finansial</h3>
                   <p>Lengkapi latar belakang dan ekspektasi kariermu.</p>
                 </div>
@@ -721,7 +733,53 @@ onBeforeUnmount(() => {
               </section>
               <section v-show="step === 3" class="modal-step">
                 <div class="step-heading">
-                  <span>LANGKAH 3 DARI 3</span>
+                  <span>LANGKAH 3 DARI 4</span>
+                  <h3>Detail Pekerjaan & Pertanyaan</h3>
+                  <p>Isi pengalaman serta pertanyaan kualifikasi lowongan ini.</p>
+                </div>
+                <div class="modal-form-grid">
+                  <label class="full-field">Pengalaman di posisi ini berapa tahun?
+                    <select v-model="form.years_of_experience">
+                      <option value="" disabled>Pilih durasi pengalaman</option>
+                      <option>&lt; 1 Tahun</option>
+                      <option>1 - 2 Tahun</option>
+                      <option>3 - 5 Tahun</option>
+                      <option>5 - 10 Tahun</option>
+                      <option>&gt; 10 Tahun</option>
+                      <option>Belum berpengalaman</option>
+                    </select>
+                    <small v-if="errors.years_of_experience">{{ errors.years_of_experience[0] }}</small>
+                  </label>
+
+                  <label class="full-field">Bersedia bekerja di Bandung?
+                    <select v-model="form.willing_to_work_in_bandung">
+                      <option value="Ya">Ya, bersedia</option>
+                      <option value="Tidak">Tidak bersedia</option>
+                    </select>
+                    <small v-if="errors.willing_to_work_in_bandung">{{ errors.willing_to_work_in_bandung[0] }}</small>
+                  </label>
+
+                  <template v-if="Array.isArray(vacancy.custom_questions) && vacancy.custom_questions.length">
+                    <div v-for="q in vacancy.custom_questions" :key="q.id || q.question" class="full-field">
+                      <label class="full-field">
+                        {{ q.question }} <span v-if="!q.required" class="optional">Opsional</span>
+                        <select v-if="q.type === 'select'" v-model="form.custom_answers[q.id || q.question]">
+                          <option value="" disabled>Pilih jawaban</option>
+                          <option v-for="opt in (Array.isArray(q.options) ? q.options : (q.options ? q.options.split(',') : []))" :key="opt" :value="opt.trim()">
+                            {{ opt.trim() }}
+                          </option>
+                        </select>
+                        <textarea v-else-if="q.type === 'textarea'" v-model.trim="form.custom_answers[q.id || q.question]" rows="2" placeholder="Tuliskan jawaban Anda..."></textarea>
+                        <input v-else v-model.trim="form.custom_answers[q.id || q.question]" type="text" placeholder="Jawaban Anda..." />
+                        <small v-if="errors['custom_' + (q.id || q.question)]">{{ errors['custom_' + (q.id || q.question)][0] }}</small>
+                      </label>
+                    </div>
+                  </template>
+                </div>
+              </section>
+              <section v-show="step === 4" class="modal-step">
+                <div class="step-heading">
+                  <span>LANGKAH 4 DARI 4</span>
                   <h3>Review Lamaran</h3>
                   <p>Pastikan seluruh informasi sudah benar sebelum dikirim.</p>
                 </div>
@@ -790,6 +848,28 @@ onBeforeUnmount(() => {
                     </div>
                   </dl>
                 </div>
+                <div class="review-section">
+                  <div class="review-title">
+                    <h4>Detail Pekerjaan & Pertanyaan</h4>
+                    <button type="button" @click="step = 3">Ubah</button>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Pengalaman di posisi ini</dt>
+                      <dd>{{ form.years_of_experience || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt>Bersedia bekerja di Bandung</dt>
+                      <dd>{{ form.willing_to_work_in_bandung || '-' }}</dd>
+                    </div>
+                    <template v-if="Array.isArray(vacancy.custom_questions) && vacancy.custom_questions.length">
+                      <div v-for="q in vacancy.custom_questions" :key="q.id || q.question">
+                        <dt>{{ q.question }}</dt>
+                        <dd>{{ form.custom_answers[q.id || q.question] || '-' }}</dd>
+                      </div>
+                    </template>
+                  </dl>
+                </div>
                 <div class="review-consent">
                   Dengan mengirim lamaran, Anda menyetujui pemrosesan data untuk kebutuhan
                   recruitment.
@@ -802,7 +882,7 @@ onBeforeUnmount(() => {
                   ← Kembali
                 </button>
                 <span v-else></span>
-                <button v-if="step < 3" type="button" class="button" @click="nextStep">
+                <button v-if="step < 4" type="button" class="button" @click="nextStep">
                   Lanjut →
                 </button>
                 <button v-else class="button" :disabled="submitting">
@@ -977,6 +1057,8 @@ onBeforeUnmount(() => {
   font-size: 14.5px;
   line-height: 1.7;
   color: #475569;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .checkmark-list {

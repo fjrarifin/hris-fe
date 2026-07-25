@@ -49,6 +49,7 @@ const form = reactive({
   hire_type: 'new_hire',
   replaced_employee_nik: '',
   replaced_employee_name: '',
+  custom_questions: [],
 })
 
 // Autocomplete supervisor
@@ -224,9 +225,29 @@ function resetForm() {
     hire_type: 'new_hire',
     replaced_employee_nik: '',
     replaced_employee_name: '',
+    custom_questions: [],
   })
   supervisorSearch.value = ''
   replacedEmployeeSearch.value = ''
+}
+
+function addCustomQuestion() {
+  if (!Array.isArray(form.custom_questions)) {
+    form.custom_questions = []
+  }
+  form.custom_questions.push({
+    id: 'q_' + Date.now(),
+    question: '',
+    type: 'text',
+    options: '',
+    required: true,
+  })
+}
+
+function removeCustomQuestion(index) {
+  if (Array.isArray(form.custom_questions)) {
+    form.custom_questions.splice(index, 1)
+  }
 }
 
 function openCreate() {
@@ -263,6 +284,9 @@ function openEdit(record) {
     hire_type: record.hire_type || 'new_hire',
     replaced_employee_nik: record.replaced_employee_nik || '',
     replaced_employee_name: record.replaced_employee_name || '',
+    custom_questions: Array.isArray(record.custom_questions)
+      ? JSON.parse(JSON.stringify(record.custom_questions))
+      : [],
   })
   supervisorSearch.value = ''
   replacedEmployeeSearch.value = record.replaced_employee_name || ''
@@ -279,12 +303,28 @@ async function handleSubmit() {
   message.value = ''
   errorMessage.value = ''
 
+  const payload = {
+    ...form,
+    custom_questions: (form.custom_questions || []).map((q) => ({
+      ...q,
+      options:
+        typeof q.options === 'string'
+          ? q.options
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : Array.isArray(q.options)
+            ? q.options
+            : [],
+    })),
+  }
+
   try {
     if (isEditMode.value) {
-      const response = await updateHrVacancy(currentEditId.value, form)
+      const response = await updateHrVacancy(currentEditId.value, payload)
       message.value = response.data.message || 'Lowongan berhasil diperbarui.'
     } else {
-      const response = await createHrVacancy(form)
+      const response = await createHrVacancy(payload)
       message.value = response.data.message || 'Lowongan berhasil dibuat.'
     }
     closeModal()
@@ -1165,11 +1205,7 @@ onMounted(() => {
                   <UButton color="danger" variant="ghost" size="xs" icon="i-lucide-trash-2" @click="removeSupervisor" />
                 </div>
               </div>
-            </div>
 
-
-            <!-- KOLOM KANAN: Informasi Career Public, Kualifikasi & Benefit -->
-            <div class="space-y-4">
               <!-- Informasi Career Public -->
               <div class="rounded-xl border border-dashed border-default bg-muted/10 p-4 space-y-4">
                 <p class="text-[10px] font-semibold text-primary uppercase tracking-wider">
@@ -1217,6 +1253,11 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
+            </div>
+
+
+            <!-- KOLOM KANAN: Kualifikasi & Benefit -->
+            <div class="space-y-4">
 
               <!-- Deskripsi, Kualifikasi & Benefit -->
               <div class="space-y-3">
@@ -1242,6 +1283,52 @@ onMounted(() => {
                   <label class="mb-1 block text-xs font-semibold text-muted">Tanggung Jawab</label><textarea
                     v-model="form.responsibilities" rows="3" placeholder="Satu poin per baris"
                     :class="formControlClass"></textarea>
+                </div>
+              </div>
+
+              <!-- Pertanyaan Tambahan (Screening Questions) -->
+              <div class="space-y-3 border-t border-default pt-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="text-xs font-bold text-main">Pertanyaan Tambahan Lowongan (Screening Questions)</h4>
+                    <p class="text-[0.7rem] text-muted">Pertanyaan khusus yang diisi kandidat saat melamar lowongan ini.</p>
+                  </div>
+                  <UButton type="button" size="xs" color="primary" variant="soft" icon="i-heroicons-plus" label="Tambah Pertanyaan" @click="addCustomQuestion" />
+                </div>
+
+                <div v-if="!form.custom_questions || !form.custom_questions.length" class="rounded-lg border border-dashed border-default p-3 text-center text-xs text-muted">
+                  Belum ada pertanyaan tambahan khusus. Dua pertanyaan default (Pengalaman & Bekerja di Bandung) akan selalu otomatis ditampilkan.
+                </div>
+
+                <div v-for="(q, index) in form.custom_questions" :key="q.id || index" class="rounded-lg border border-default p-3 bg-subtle space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-main">Pertanyaan #{{ index + 1 }}</span>
+                    <UButton type="button" size="xs" color="red" variant="ghost" icon="i-heroicons-trash" label="Hapus" @click="removeCustomQuestion(index)" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-[0.7rem] font-semibold text-muted">Teks Pertanyaan</label>
+                    <input v-model="q.question" type="text" placeholder="Contoh: Apakah Anda memiliki SIM A/C aktif?" :class="formControlClass" />
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label class="mb-1 block text-[0.7rem] font-semibold text-muted">Tipe Input</label>
+                      <select v-model="q.type" :class="formControlClass">
+                        <option value="text">Teks Isian Pendek</option>
+                        <option value="textarea">Teks Isian Panjang (Textarea)</option>
+                        <option value="select">Pilihan Dropdown (Select)</option>
+                      </select>
+                    </div>
+                    <div class="flex items-center pt-4">
+                      <label class="inline-flex items-center gap-2 text-xs font-medium text-main cursor-pointer">
+                        <input v-model="q.required" type="checkbox" class="rounded border-default text-primary focus:ring-primary" />
+                        Wajib Diisi oleh Kandidat
+                      </label>
+                    </div>
+                  </div>
+                  <div v-if="q.type === 'select'">
+                    <label class="mb-1 block text-[0.7rem] font-semibold text-muted">Opsi Pilihan (pisahkan dengan koma)</label>
+                    <input :value="Array.isArray(q.options) ? q.options.join(', ') : q.options" @input="q.options = $event.target.value" type="text" placeholder="Contoh: Ya, Tidak, Lainnya" :class="formControlClass" />
+                  </div>
                 </div>
               </div>
             </div>

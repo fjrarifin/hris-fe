@@ -909,8 +909,9 @@ select:focus-visible {
 
 .stepper {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding: 22px 30px 0;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 22px 20px 0;
 }
 
 .stepper>div {

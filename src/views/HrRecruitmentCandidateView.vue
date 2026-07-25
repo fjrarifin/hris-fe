@@ -1076,6 +1076,7 @@ async function selectCandidate(candidate) {
     onboardingEditForm.no_bpjs = data.no_bpjs || ''
     onboardingEditForm.bank = data.bank || ''
     onboardingEditForm.no_rekening = data.no_rekening || ''
+    onboardingEditForm.nama_pemilik_rekening = data.nama_pemilik_rekening || ''
     onboardingEditForm.pendidikan_terakhir = data.pendidikan_terakhir || ''
     onboardingEditForm.nama_institusi = data.nama_institusi || ''
     onboardingEditForm.jurusan = data.jurusan || ''
@@ -2829,6 +2830,7 @@ const onboardingEditForm = reactive({
   no_bpjs: '',
   bank: '',
   no_rekening: '',
+  nama_pemilik_rekening: '',
   pendidikan_terakhir: '',
   nama_institusi: '',
   jurusan: '',
@@ -3049,6 +3051,7 @@ function openOnboardingVerificationModal() {
   onboardingEditForm.no_bpjs = data.no_bpjs || ''
   onboardingEditForm.bank = data.bank || ''
   onboardingEditForm.no_rekening = data.no_rekening || ''
+  onboardingEditForm.nama_pemilik_rekening = data.nama_pemilik_rekening || ''
   onboardingEditForm.pendidikan_terakhir = data.pendidikan_terakhir || ''
   onboardingEditForm.nama_institusi = data.nama_institusi || ''
   onboardingEditForm.jurusan = data.jurusan || ''
@@ -5579,6 +5582,11 @@ onBeforeUnmount(() => {
                 <label class="text-[10px] font-bold uppercase text-muted">No. Rekening</label>
                 <input v-model="onboardingEditForm.no_rekening" :disabled="!!activeCandidate?.employee_nik"
                   :class="onboardingFormControlClass" type="text" />
+              </div>
+              <div class="form-group-sm">
+                <label class="text-[10px] font-bold uppercase text-muted">Nama Pemilik Rekening</label>
+                <input v-model="onboardingEditForm.nama_pemilik_rekening" :disabled="!!activeCandidate?.employee_nik"
+                  :class="onboardingFormControlClass" type="text" placeholder="Sesuai buku tabungan" />
               </div>
               <div class="form-group-sm">
                 <label class="text-[10px] font-bold uppercase text-muted">No. NPWP</label>

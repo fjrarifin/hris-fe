@@ -198,6 +198,16 @@
               <label>Nomor Rekening <span class="required">*</span></label>
               <input v-model="form.no_rekening" type="text" required />
             </div>
+
+            <div class="form-group">
+              <label>Nama Pemilik Rekening <span class="required">*</span></label>
+              <input
+                v-model="form.nama_pemilik_rekening"
+                type="text"
+                required
+                placeholder="Sesuai nama di buku tabungan"
+              />
+            </div>
           </div>
         </div>
 
@@ -336,6 +346,7 @@ const form = reactive({
   no_bpjs: '',
   bank: '',
   no_rekening: '',
+  nama_pemilik_rekening: '',
   pendidikan_terakhir: '',
   nama_institusi: '',
   jurusan: '',
