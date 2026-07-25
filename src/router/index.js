@@ -422,6 +422,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'hr/overtime-recap',
+          name: 'hr-overtime-recap',
+          component: () => import('../views/HrOvertimeRecapView.vue'),
+          meta: {
+            title: 'Rekap Lembur Karyawan',
+            levels: [2],
+            menuKey: 'hr-overtime-recap',
+          },
+        },
+        {
           path: 'hr/approvals/ph',
           name: 'hr-approval-ph',
           component: HrApprovalView,

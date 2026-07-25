@@ -6,7 +6,9 @@ import EmployeeFormFields from '../components/EmployeeFormFields.vue'
 import {
   getEmployee,
   getEmployeeFingerspotClouds,
+  getEmployeeFingerspotTemplate,
   getEmployees,
+  pullEmployeeFingerspotUserinfo,
   sendEmployeeFingerspotUserinfo,
   updateEmployee,
 } from '../services/employeeService'
@@ -26,7 +28,44 @@ const loadingOptions = ref(false)
 const fingerspotClouds = ref([])
 const selectedFingerspotCloudId = ref('')
 const sendingFingerspotUserinfo = ref(false)
+const pullingFingerspotUserinfo = ref(false)
+const fingerspotTemplate = ref(null)
 const nik = computed(() => String(route.params.nik || ''))
+
+async function loadFingerspotTemplate() {
+  if (!nik.value) return
+  try {
+    const res = await getEmployeeFingerspotTemplate(nik.value)
+    fingerspotTemplate.value = res.data.data ?? null
+  } catch (err) {
+    console.error('Failed to fetch fingerspot template status', err)
+  }
+}
+
+async function pullFromFingerspot() {
+  if (!selectedFingerspotCloudId.value || selectedFingerspotCloudId.value === 'all') return
+
+  pullingFingerspotUserinfo.value = true
+  message.value = ''
+  errorMessage.value = ''
+
+  try {
+    const response = await pullEmployeeFingerspotUserinfo(nik.value, {
+      cloud_id: selectedFingerspotCloudId.value,
+    })
+
+    if (response.data.ok) {
+      message.value = response.data.message
+      setTimeout(() => loadFingerspotTemplate(), 3000)
+    } else {
+      errorMessage.value = response.data.message
+    }
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal memicu penarikan biometrik dari mesin absensi.')
+  } finally {
+    pullingFingerspotUserinfo.value = false
+  }
+}
 const contractFormOpen = ref(false)
 const editingContractId = ref(null)
 const currentContractHasDocument = ref(false)
@@ -98,6 +137,7 @@ async function loadEmployee() {
     fingerspotClouds.value = fingerspotCloudsResponse.data.data ?? []
     selectedFingerspotCloudId.value =
       fingerspotClouds.value.length > 1 ? 'all' : fingerspotClouds.value[0]?.id || ''
+    await loadFingerspotTemplate()
   } catch (error) {
     errorMessage.value = apiError(error, 'Detail karyawan tidak dapat dimuat.')
   } finally {
@@ -366,53 +406,80 @@ onBeforeUnmount(closeDocumentPreview)
       </template>
     </form>
 
-    <UCard v-if="!loading && form.nik" title="Mesin Absensi">
+    <UCard v-if="!loading && form.nik" title="Mesin Absensi & Biometrik">
       <template #header>
-        <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+        <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h3 class="font-semibold text-highlighted">Kirim ke Mesin Absensi</h3>
+            <h3 class="font-semibold text-highlighted">Integrasi Mesin Absensi & Biometrik</h3>
             <p class="mt-1 text-sm text-muted">
-              Kirim nama dan PIN ke Fingerspot supaya karyawan bisa dicari di mesin untuk enroll
-              sidik jari.
+              Tarik data biometrik/sidik jari dari mesin asal, lalu kirim ke mesin lainnya agar karyawan tidak perlu enroll ulang.
             </p>
           </div>
-          <UButton
-            type="button"
-            icon="i-lucide-fingerprint"
-            label="Kirim Userinfo"
-            :loading="sendingFingerspotUserinfo"
-            :disabled="!form.pin || !selectedFingerspotCloudId || !fingerspotClouds.length"
-            @click="sendToFingerspot"
-          />
+          <div class="flex flex-wrap items-center gap-2">
+            <UButton
+              type="button"
+              variant="outline"
+              icon="i-lucide-download"
+              label="Tarik Biometrik"
+              :loading="pullingFingerspotUserinfo"
+              :disabled="!form.pin || !selectedFingerspotCloudId || selectedFingerspotCloudId === 'all' || !fingerspotClouds.length"
+              @click="pullFromFingerspot"
+            />
+            <UButton
+              type="button"
+              icon="i-lucide-send"
+              label="Kirim ke Mesin"
+              :loading="sendingFingerspotUserinfo"
+              :disabled="!form.pin || !selectedFingerspotCloudId || !fingerspotClouds.length"
+              @click="sendToFingerspot"
+            />
+          </div>
         </div>
       </template>
 
       <div class="grid gap-4 md:grid-cols-3">
-        <label class="text-sm text-muted md:col-span-2">
-          Mesin Tujuan
+        <label class="text-sm text-muted md:col-span-1">
+          Mesin Absensi
           <select
             v-model="selectedFingerspotCloudId"
             class="mt-2 w-full rounded-lg border border-default bg-default p-2.5 text-highlighted disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="sendingFingerspotUserinfo || !fingerspotClouds.length"
+            :disabled="sendingFingerspotUserinfo || pullingFingerspotUserinfo || !fingerspotClouds.length"
           >
             <option value="" disabled>Pilih mesin</option>
-            <option v-if="fingerspotClouds.length > 1" value="all">Semua mesin</option>
+            <option v-if="fingerspotClouds.length > 1" value="all">Semua mesin (Khusus Kirim)</option>
             <option v-for="cloud in fingerspotClouds" :key="cloud.id" :value="cloud.id">
               {{ cloud.name }}
             </option>
           </select>
         </label>
+
         <div class="rounded-lg border border-default bg-elevated p-4 text-sm">
           <p class="text-muted">PIN Absensi</p>
           <p class="mt-1 text-lg font-semibold text-highlighted">{{ form.pin || '-' }}</p>
           <p v-if="!form.pin" class="mt-2 text-xs text-warning">
-            Isi PIN saat membuat karyawan agar bisa dikirim ke mesin.
+            Isi PIN saat membuat karyawan agar bisa dikirim/ditarik dari mesin.
           </p>
         </div>
+
+        <div class="rounded-lg border border-default bg-elevated p-4 text-sm">
+          <p class="text-muted">Status Biometrik (Sidik Jari / Card)</p>
+          <div class="mt-1.5 flex items-center gap-2">
+            <span
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              :class="fingerspotTemplate?.has_template ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
+            >
+              {{ fingerspotTemplate?.has_template ? '✓ Template Biometrik Tersimpan' : 'Belum Ada Template' }}
+            </span>
+          </div>
+          <div v-if="fingerspotTemplate?.last_pulled_at" class="mt-2 text-xs text-muted">
+            <p>Ditarik: {{ fingerspotTemplate.last_pulled_at }}</p>
+            <p v-if="fingerspotTemplate.card">Kartu RFID: {{ fingerspotTemplate.card }}</p>
+          </div>
+        </div>
       </div>
+
       <p class="mt-3 text-xs text-muted">
-        Template sidik jari/wajah tidak dikirim dari HRIS. Setelah userinfo masuk ke mesin,
-        daftarkan verifikasi langsung dari mesin absensi.
+        💡 <strong>Tips Sinkronisasi:</strong> Jika karyawan baru enroll sidik jari di 1 mesin, pilih mesin tersebut lalu klik <strong>Tarik Biometrik</strong>. Setelah template tersimpan di sistem, pilih <strong>Semua mesin</strong> lalu klik <strong>Kirim ke Mesin</strong> agar sidik jari otomatis aktif di seluruh mesin absensi lainnya.
       </p>
     </UCard>
 

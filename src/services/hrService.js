@@ -159,6 +159,14 @@ export function cancelHrApproval(type, id, payload) {
   return api.post(`/hr/approvals/${type}/${id}/cancel`, payload)
 }
 
+export function getHrOvertimeRecap(params) {
+  return api.get('/hr/overtime-recap', { params })
+}
+
+export function exportHrOvertimeRecap(params) {
+  return api.get('/hr/overtime-recap/export', { params, responseType: 'blob' })
+}
+
 export function getHrSchedules(params) {
   return api.get('/hr/schedules', { params })
 }

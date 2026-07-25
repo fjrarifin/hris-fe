@@ -16,6 +16,14 @@ export function sendEmployeeFingerspotUserinfo(nik, payload) {
   return api.post(`/employee/${encodeURIComponent(nik)}/fingerspot-userinfo`, payload)
 }
 
+export function pullEmployeeFingerspotUserinfo(nik, payload) {
+  return api.post(`/employee/${encodeURIComponent(nik)}/fingerspot-pull-userinfo`, payload)
+}
+
+export function getEmployeeFingerspotTemplate(nik) {
+  return api.get(`/employee/${encodeURIComponent(nik)}/fingerspot-template`)
+}
+
 export function createEmployee(payload) {
   return api.post('/employee', payload)
 }
