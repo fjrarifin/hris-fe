@@ -28,6 +28,25 @@ const clouds = ref([])
 const employees = ref([])
 const webhookLogs = ref([])
 
+const page = ref(1)
+const itemsPerPage = 10
+
+const paginatedEmployees = computed(() => {
+  const start = (page.value - 1) * itemsPerPage
+  return employees.value.slice(start, start + itemsPerPage)
+})
+
+const visibleRange = computed(() => {
+  if (!employees.value.length) {
+    return '0 data'
+  }
+
+  const start = (page.value - 1) * itemsPerPage + 1
+  const end = Math.min(page.value * itemsPerPage, employees.value.length)
+
+  return `${start}-${end} dari ${employees.value.length} data`
+})
+
 const filters = reactive({
   search: '',
   department: '',
@@ -44,6 +63,7 @@ const attlogLoading = ref(false)
 async function loadData() {
   loading.value = true
   errorMessage.value = ''
+  page.value = 1
   try {
     const { data } = await getItFingerspot({
       search: filters.search,
@@ -388,7 +408,7 @@ onMounted(() => {
               </td>
             </tr>
 
-            <tr v-for="emp in employees" :key="emp.nik" class="border-t border-default hover:bg-muted/10">
+            <tr v-for="emp in paginatedEmployees" :key="emp.nik" class="border-t border-default hover:bg-muted/10">
               <td class="whitespace-nowrap p-3 font-mono">
                 <div class="font-bold text-highlighted">PIN: {{ emp.pin }}</div>
                 <div class="text-xs text-muted">NIK: {{ emp.nik }}</div>
@@ -447,6 +467,22 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div
+        v-if="!loading && employees.length"
+        class="mt-4 flex flex-col items-center justify-between gap-3 border-t border-default pt-4 sm:flex-row"
+      >
+        <p class="text-sm text-muted">Menampilkan {{ visibleRange }}</p>
+
+        <UPagination
+          v-model:page="page"
+          :total="employees.length"
+          :items-per-page="itemsPerPage"
+          :sibling-count="1"
+          show-controls
+        />
       </div>
     </UCard>
 
