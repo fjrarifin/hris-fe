@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import AlertToastBridge from '../components/AlertToastBridge.vue'
 import { exportHrOvertimeRecap, getHrOvertimeRecap } from '../services/hrService'
 import { apiError, statusColor, statusLabel } from '../utils/formatters'
@@ -30,9 +30,29 @@ const summary = reactive({
 const records = ref([])
 const departmentOptions = ref([])
 
+const page = ref(1)
+const itemsPerPage = 10
+
+const paginatedRecords = computed(() => {
+  const start = (page.value - 1) * itemsPerPage
+  return records.value.slice(start, start + itemsPerPage)
+})
+
+const visibleRange = computed(() => {
+  if (!records.value.length) {
+    return '0 data'
+  }
+
+  const start = (page.value - 1) * itemsPerPage + 1
+  const end = Math.min(page.value * itemsPerPage, records.value.length)
+
+  return `${start}-${end} dari ${records.value.length} data`
+})
+
 async function loadData() {
   loading.value = true
   errorMessage.value = ''
+  page.value = 1
   try {
     const response = await getHrOvertimeRecap({
       search: form.search,
@@ -265,7 +285,7 @@ onMounted(() => {
               </td>
             </tr>
 
-            <tr v-for="item in records" :key="item.id" class="border-t border-default hover:bg-muted/10">
+            <tr v-for="item in paginatedRecords" :key="item.id" class="border-t border-default hover:bg-muted/10">
               <td class="whitespace-nowrap p-3 font-medium">
                 {{ item.date_formatted }}
               </td>
@@ -295,6 +315,22 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div
+        v-if="!loading && records.length"
+        class="mt-4 flex flex-col items-center justify-between gap-3 border-t border-default pt-4 sm:flex-row"
+      >
+        <p class="text-sm text-muted">Menampilkan {{ visibleRange }}</p>
+
+        <UPagination
+          v-model:page="page"
+          :total="records.length"
+          :items-per-page="itemsPerPage"
+          :sibling-count="1"
+          show-controls
+        />
       </div>
     </UCard>
   </section>
