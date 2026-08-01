@@ -42,7 +42,11 @@ const isImageDocument = computed(() => {
 function openDocumentPreview(item) {
   documentPreview.open = true
   documentPreview.title = `Surat Sakit / Dokumen - ${item.employee_name}`
-  documentPreview.url = item.document_url
+  let url = item.document_url || ''
+  if (url.includes('hr.hompimplay.id/storage/')) {
+    url = url.replace('hr.hompimplay.id/storage/', 'api-hr.hompimplay.id/storage/')
+  }
+  documentPreview.url = url
   documentPreview.loading = true
   documentPreview.error = false
 }

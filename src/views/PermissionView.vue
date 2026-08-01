@@ -30,7 +30,11 @@ const isImageDocument = computed(() => {
 function openDocumentPreview(item) {
   documentPreview.open = true
   documentPreview.title = `Dokumen ${item.type === 'sakit' ? 'Surat Sakit' : 'Izin'}`
-  documentPreview.url = item.document_url
+  let url = item.document_url || ''
+  if (url.includes('hr.hompimplay.id/storage/')) {
+    url = url.replace('hr.hompimplay.id/storage/', 'api-hr.hompimplay.id/storage/')
+  }
+  documentPreview.url = url
   documentPreview.loading = true
   documentPreview.error = false
 }
