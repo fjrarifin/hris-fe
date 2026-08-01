@@ -268,35 +268,56 @@ function updateMobileCta() {
 }
 
 function jobPosting(job) {
-  return {
+  const published = job.published_at ? new Date(job.published_at) : new Date()
+  let validDeadline = job.valid_through || (job.application_deadline ? `${job.application_deadline}T23:59:59+07:00` : null)
+  if (!validDeadline) {
+    const fallbackDate = new Date(published.getTime() + 90 * 24 * 60 * 60 * 1000)
+    validDeadline = fallbackDate.toISOString()
+  }
+
+  const schema = {
     '@context': 'https://schema.org',
     '@type': 'JobPosting',
     title: job.title,
     description: [job.description, job.responsibilities, job.requirements]
       .filter(Boolean)
-      .join('\n\n'),
-    datePosted: job.published_at,
-    validThrough: job.application_deadline
-      ? `${job.application_deadline}T23:59:59+07:00`
-      : undefined,
-    employmentType: job.employment_type?.toUpperCase(),
+      .join('\n\n') || job.title,
+    datePosted: job.published_at || published.toISOString(),
+    validThrough: validDeadline,
+    employmentType: job.employment_type?.toUpperCase() || 'FULL_TIME',
     hiringOrganization: {
       '@type': 'Organization',
       name: companyName,
       sameAs: siteUrl,
     },
-    jobLocation: job.location
-      ? {
-        '@type': 'Place',
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: job.location,
-          addressCountry: 'ID',
-        },
-      }
-      : undefined,
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: job.street_address || 'Jl. Soekarno Hatta (Area Outlet / Kantor Hompim Play)',
+        addressLocality: job.location || 'Bandung',
+        addressRegion: job.address_region || 'Jawa Barat',
+        postalCode: job.postal_code || '40235',
+        addressCountry: 'ID',
+      },
+    },
     jobLocationType: job.workplace_type === 'remote' ? 'TELECOMMUTE' : undefined,
   }
+
+  if ((job.salary_min || job.salary_max) && !job.hide_salary) {
+    schema.baseSalary = {
+      '@type': 'MonetaryAmount',
+      currency: 'IDR',
+      value: {
+        '@type': 'QuantitativeValue',
+        minValue: Number(job.salary_min || job.salary_max),
+        maxValue: Number(job.salary_max || job.salary_min),
+        unitText: 'MONTH',
+      },
+    }
+  }
+
+  return schema
 }
 
 async function loadRelated() {

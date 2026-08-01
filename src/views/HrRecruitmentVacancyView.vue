@@ -39,6 +39,12 @@ const form = reactive({
   employment_type: '',
   workplace_type: '',
   location: '',
+  street_address: '',
+  address_region: '',
+  postal_code: '',
+  salary_min: null,
+  salary_max: null,
+  hide_salary: false,
   responsibilities: '',
   requirements: '',
   benefits: '',
@@ -272,6 +278,12 @@ function openEdit(record) {
     employment_type: record.employment_type || '',
     workplace_type: record.workplace_type || '',
     location: record.location || '',
+    street_address: record.street_address || '',
+    address_region: record.address_region || '',
+    postal_code: record.postal_code || '',
+    salary_min: record.salary_min != null ? record.salary_min : null,
+    salary_max: record.salary_max != null ? record.salary_max : null,
+    hide_salary: Boolean(record.hide_salary),
     responsibilities: record.responsibilities || '',
     requirements: record.requirements || '',
     benefits: record.benefits || '',
@@ -1250,6 +1262,36 @@ onMounted(() => {
                   <div>
                     <label class="mb-1 block text-xs font-semibold text-muted">Batas Lamaran</label><input
                       v-model="form.application_deadline" type="date" :class="formControlClass" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-default/50 pt-3">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Alamat Jalan (SEO Google)</label>
+                    <input v-model="form.street_address" placeholder="Contoh: Jl. Soekarno Hatta No. 123" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Provinsi / Region (SEO)</label>
+                    <input v-model="form.address_region" placeholder="Contoh: Jawa Barat" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Kode Pos (SEO)</label>
+                    <input v-model="form.postal_code" placeholder="Contoh: 40235" :class="formControlClass" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-default/50 pt-3">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Gaji Min (Rp/bulan)</label>
+                    <input v-model.number="form.salary_min" type="number" min="0" placeholder="Contoh: 4000000" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-muted">Gaji Max (Rp/bulan)</label>
+                    <input v-model.number="form.salary_max" type="number" min="0" placeholder="Contoh: 7000000" :class="formControlClass" />
+                  </div>
+                  <div class="flex items-center pt-5">
+                    <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-muted">
+                      <input v-model="form.hide_salary" type="checkbox" class="rounded border-default text-primary focus:ring-primary" />
+                      <span>Sembunyikan Gaji di Publik</span>
+                    </label>
                   </div>
                 </div>
               </div>
