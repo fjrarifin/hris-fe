@@ -571,7 +571,7 @@ onMounted(async () => {
                 />
                 <UBadge
                   v-else
-                  :color="['C', 'PH', 'EO'].includes(record.status_code) ? 'success' : 'info'"
+                  :color="['C', 'PH', 'EO', 'SDC', 'S', 'I'].includes(record.status_code) ? 'success' : 'info'"
                   variant="subtle"
                   :label="record.status_label"
                 />
