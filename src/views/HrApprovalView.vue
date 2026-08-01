@@ -28,6 +28,8 @@ const documentPreview = reactive({
   open: false,
   title: '',
   url: '',
+  loading: false,
+  error: false,
 })
 
 const isImageDocument = computed(() => {
@@ -41,12 +43,16 @@ function openDocumentPreview(item) {
   documentPreview.open = true
   documentPreview.title = `Surat Sakit / Dokumen - ${item.employee_name}`
   documentPreview.url = item.document_url
+  documentPreview.loading = true
+  documentPreview.error = false
 }
 
 function closeDocumentPreview() {
   documentPreview.open = false
   documentPreview.title = ''
   documentPreview.url = ''
+  documentPreview.loading = false
+  documentPreview.error = false
 }
 
 const filteredRequests = computed(() => {
@@ -283,19 +289,55 @@ watch(
           </div>
         </div>
 
-        <div class="flex h-[70vh] w-full items-center justify-center overflow-auto rounded-lg border border-default bg-slate-950/40 p-2">
-          <img
-            v-if="isImageDocument"
-            :src="documentPreview.url"
-            :alt="documentPreview.title"
-            class="max-h-full max-w-full rounded object-contain shadow-lg"
-          />
-          <iframe
-            v-else
-            :src="documentPreview.url"
-            class="h-full w-full rounded border-0 bg-white"
-            title="Pratinjau Dokumen"
-          ></iframe>
+        <div class="relative flex h-[70vh] w-full items-center justify-center overflow-auto rounded-lg border border-default bg-slate-950/40 p-2">
+          <div
+            v-if="documentPreview.loading"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-slate-950/60 text-slate-200"
+          >
+            <UIcon name="i-lucide-loader-2" class="h-7 w-7 animate-spin text-primary" />
+            <span class="text-xs">Memuat pratinjau berkas...</span>
+          </div>
+
+          <div
+            v-if="documentPreview.error"
+            class="flex flex-col items-center justify-center text-center p-6 space-y-3 text-slate-300 max-w-md"
+          >
+            <UIcon name="i-lucide-alert-triangle" class="h-10 w-10 text-amber-400" />
+            <div>
+              <p class="font-medium text-sm text-highlighted">Pratinjau tidak dapat dimuat langsung</p>
+              <p class="text-xs text-muted mt-1">
+                Berkas tidak ditemukan atau formatnya tidak didukung secara langsung oleh pratinjau browser.
+              </p>
+            </div>
+            <a
+              :href="documentPreview.url"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 shadow"
+            >
+              <UIcon name="i-lucide-external-link" class="h-4 w-4" />
+              Buka / Unduh Berkas Langsung
+            </a>
+          </div>
+
+          <template v-else>
+            <img
+              v-if="isImageDocument"
+              :src="documentPreview.url"
+              :alt="documentPreview.title"
+              class="max-h-full max-w-full rounded object-contain shadow-lg"
+              @load="documentPreview.loading = false"
+              @error="documentPreview.error = true; documentPreview.loading = false"
+            />
+            <iframe
+              v-else
+              :src="documentPreview.url"
+              class="h-full w-full rounded border-0 bg-white"
+              title="Pratinjau Dokumen"
+              @load="documentPreview.loading = false"
+              @error="documentPreview.error = true; documentPreview.loading = false"
+            ></iframe>
+          </template>
         </div>
       </UCard>
     </div>
