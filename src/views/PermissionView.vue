@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { createPermission, deletePermission, getPermissions } from '../services/staffService'
 import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
@@ -11,6 +11,31 @@ const saving = ref(false)
 const message = ref('')
 const errorMessage = ref('')
 const todayDate = new Date().toISOString().slice(0, 10)
+
+const documentPreview = reactive({
+  open: false,
+  title: '',
+  url: '',
+})
+
+const isImageDocument = computed(() => {
+  if (!documentPreview.url) return false
+  const urlWithoutQuery = documentPreview.url.split('?')[0]
+  const ext = urlWithoutQuery.split('.').pop()?.toLowerCase()
+  return ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext)
+})
+
+function openDocumentPreview(item) {
+  documentPreview.open = true
+  documentPreview.title = `Dokumen ${item.type === 'sakit' ? 'Surat Sakit' : 'Izin'}`
+  documentPreview.url = item.document_url
+}
+
+function closeDocumentPreview() {
+  documentPreview.open = false
+  documentPreview.title = ''
+  documentPreview.url = ''
+}
 
 async function load() {
   loading.value = true
@@ -168,14 +193,17 @@ onMounted(load)
               <td class="p-3">{{ permissionDateLabel(item) }}</td>
               <td class="p-3">{{ item.type === 'sakit' ? 'Sakit' : 'Izin' }}</td>
               <td class="p-3">
-                <a
-                  v-if="item.document_url"
-                  :href="item.document_url"
-                  target="_blank"
-                  rel="noopener"
-                  class="text-primary"
-                  >Lihat dokumen</a
-                >
+                <div v-if="item.document_url" class="space-y-1">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 font-medium text-primary hover:underline text-xs sm:text-sm"
+                    @click="openDocumentPreview(item)"
+                  >
+                    <UIcon name="i-lucide-file-text" class="h-4 w-4" />
+                    Lihat dokumen
+                  </button>
+                  <p v-if="item.reason" class="text-xs text-muted">{{ item.reason }}</p>
+                </div>
                 <span v-else>{{ item.reason || '-' }}</span>
               </td>
               <td class="p-3">
@@ -203,5 +231,61 @@ onMounted(load)
         </table>
       </div>
     </UCard>
+
+    <div
+      v-if="documentPreview.open"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="documentPreview.title"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup pratinjau dokumen"
+        @click="closeDocumentPreview"
+      ></button>
+      <UCard class="relative max-h-[90vh] w-full overflow-hidden sm:max-w-4xl">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-semibold text-highlighted">{{ documentPreview.title }}</h3>
+            <p class="mt-0.5 text-xs text-muted">Pratinjau berkas dokumen pengajuan.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              :href="documentPreview.url"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1 rounded-lg border border-default bg-default px-2.5 py-1.5 text-xs font-medium text-highlighted hover:bg-muted/10"
+            >
+              <UIcon name="i-lucide-external-link" class="h-3.5 w-3.5" />
+              Buka di Tab Baru
+            </a>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              aria-label="Tutup"
+              @click="closeDocumentPreview"
+            />
+          </div>
+        </div>
+
+        <div class="flex h-[70vh] w-full items-center justify-center overflow-auto rounded-lg border border-default bg-slate-950/40 p-2">
+          <img
+            v-if="isImageDocument"
+            :src="documentPreview.url"
+            :alt="documentPreview.title"
+            class="max-h-full max-w-full rounded object-contain shadow-lg"
+          />
+          <iframe
+            v-else
+            :src="documentPreview.url"
+            class="h-full w-full rounded border-0 bg-white"
+            title="Pratinjau Dokumen"
+          ></iframe>
+        </div>
+      </UCard>
+    </div>
   </section>
 </template>
