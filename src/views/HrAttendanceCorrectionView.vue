@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import {
   getHrAttendanceCorrections,
   saveHrAttendanceCorrection,
+  exportHrAttendanceCorrections,
   autoCorrectHrPayrollProcessAttendance,
   getHrAttendanceOptions,
 } from '../services/hrService'
@@ -38,11 +39,45 @@ const form = reactive({
 })
 const loading = ref(false)
 const saving = ref(false)
+const exporting = ref(false)
 const message = ref('')
 const errorMessage = ref('')
 
 const autoCorrecting = ref([])
 const autoCorrectingAll = ref(false)
+
+async function exportExcel() {
+  exporting.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const response = await exportHrAttendanceCorrections({
+      start_date: filters.start_date,
+      end_date: filters.end_date,
+      q: filters.q || null,
+      status_filter: filters.status_filter,
+      departments: filters.departments.length ? filters.departments : null,
+      employee_niks: filters.employee_niks.length ? filters.employee_niks : null,
+    })
+
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `rekap_koreksi_absensi_${filters.start_date}_${filters.end_date}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    message.value = 'File Excel rekap koreksi absensi berhasil diunduh.'
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal mengunduh file Excel koreksi absensi.')
+  } finally {
+    exporting.value = false
+  }
+}
 
 const displayedDepartments = computed(() => {
   const keyword = departmentSearch.value.trim().toLowerCase()
@@ -505,6 +540,15 @@ onMounted(async () => {
 
         <div class="flex items-center gap-3">
           <UButton type="submit" label="Tampilkan" icon="i-lucide-search" :loading="loading" />
+          <UButton
+            type="button"
+            label="Export Excel"
+            icon="i-lucide-file-spreadsheet"
+            color="emerald"
+            variant="soft"
+            :loading="exporting"
+            @click="exportExcel"
+          />
         </div>
       </form>
     </UCard>
@@ -516,15 +560,27 @@ onMounted(async () => {
             <h3 class="font-semibold text-highlighted">Temuan Absensi - {{ periodLabel() }}</h3>
             <p class="text-xs text-muted">Daftar scan masuk atau pulang yang belum lengkap</p>
           </div>
-          <UButton
-            v-if="hasIncompleteScans"
-            size="sm"
-            color="warning"
-            label="Auto Koreksi Semua"
-            icon="i-lucide-wand-2"
-            :loading="autoCorrectingAll"
-            @click="autoCorrectAll"
-          />
+          <div class="flex items-center gap-2">
+            <UButton
+              type="button"
+              size="sm"
+              color="emerald"
+              variant="soft"
+              label="Export Excel"
+              icon="i-lucide-file-spreadsheet"
+              :loading="exporting"
+              @click="exportExcel"
+            />
+            <UButton
+              v-if="hasIncompleteScans"
+              size="sm"
+              color="warning"
+              label="Auto Koreksi Semua"
+              icon="i-lucide-wand-2"
+              :loading="autoCorrectingAll"
+              @click="autoCorrectAll"
+            />
+          </div>
         </div>
       </template>
       <div v-if="loading && !data" class="py-10 text-center text-sm text-muted">

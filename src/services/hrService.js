@@ -147,6 +147,10 @@ export function saveHrAttendanceCorrection(nik, payload) {
   return api.put(`/hr/attendance-corrections/${encodeURIComponent(nik)}`, payload)
 }
 
+export function exportHrAttendanceCorrections(params) {
+  return api.get('/hr/attendance-corrections/export', { params, responseType: 'blob' })
+}
+
 export function getHrApprovals(type, params) {
   return api.get(`/hr/approvals/${type}`, { params })
 }
