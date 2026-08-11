@@ -61,12 +61,51 @@ async function readNotification(notificationId) {
   }
 }
 
+function resolveNotificationPath(notification) {
+  if (notification.data?.path) {
+    return notification.data.path
+  }
+  const data = notification.data || {}
+  const type = String(data.type || '').toUpperCase()
+  const title = String(notification.title || '').toLowerCase()
+  const message = String(notification.message || '').toLowerCase()
+
+  if (type === 'CUTI' || title.includes('cuti') || message.includes('cuti')) {
+    return data.request_id ? '/staff/approvals' : '/staff/leave'
+  }
+  if (type === 'PH' || title.includes('ph') || title.includes('libur') || message.includes('ph')) {
+    return data.request_id ? '/staff/approvals' : '/staff/public-holiday'
+  }
+  if (type === 'IZIN' || type === 'SAKIT' || title.includes('izin') || title.includes('sakit')) {
+    return data.request_id ? '/staff/approvals' : '/staff/permission'
+  }
+  if (type === 'LEMBUR' || title.includes('lembur')) {
+    return data.request_id ? '/staff/approvals' : '/staff/overtime'
+  }
+  if (type === 'EO' || title.includes('extra off')) {
+    return data.request_id ? '/staff/approvals' : '/staff/extra-off'
+  }
+  if (data.mobile_path === '/team-approvals' || title.includes('pengajuan baru')) {
+    return '/staff/approvals'
+  }
+  if (title.includes('pelamar') || title.includes('kandidat')) {
+    return '/hr/recruitment/candidates'
+  }
+  if (title.includes('kontrak')) {
+    return '/staff/contracts'
+  }
+  if (title.includes('absen') || title.includes('kehadiran')) {
+    return '/staff/attendance'
+  }
+  return null
+}
+
 async function openNotification(notification) {
   if (!notification.read_at) {
     await readNotification(notification.id)
   }
 
-  const path = notification.data?.path
+  const path = resolveNotificationPath(notification)
   if (path) {
     notificationOpen.value = false
     await router.push(path)

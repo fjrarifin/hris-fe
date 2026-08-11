@@ -72,6 +72,9 @@ const vacancies = ref([])
 const selectedVacancyFilter = ref(route.query.vacancy_id ? String(route.query.vacancy_id) : '')
 const selectedStatusFilters = ref(route.query.status ? [String(route.query.status)] : [])
 const selectedPicFilter = ref('')
+const selectedDepartmentFilter = ref('')
+const collapsedDepartments = reactive({})
+
 const search = ref('')
 const message = ref('')
 const errorMessage = ref('')
@@ -170,7 +173,6 @@ const editForm = reactive({
   last_company: '',
 })
 
-
 const stages = [
   { key: 'applied', label: 'Applied', color: 'neutral', icon: 'i-lucide-file-user' },
   { key: 'screening', label: 'Screening', color: 'sky', icon: 'i-lucide-search-check' },
@@ -200,6 +202,17 @@ const formControlClass =
 const onboardingFormControlClass =
   'w-full rounded-md border border-[var(--ui-border)] bg-[var(--ui-bg)] px-3 py-1.5 text-[var(--ui-text-highlighted)] outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/20 disabled:bg-[var(--ui-bg-muted)] disabled:text-[var(--ui-text-dimmed)]'
 
+const availableDepartments = computed(() => {
+  const depts = new Set()
+  vacancies.value.forEach((v) => {
+    if (v.department) depts.add(v.department)
+  })
+  candidates.value.forEach((c) => {
+    if (c.vacancy?.department) depts.add(c.vacancy.department)
+  })
+  return Array.from(depts).sort()
+})
+
 const filteredCandidates = computed(() => {
   const keyword = search.value.trim().toLowerCase()
   return candidates.value.filter((c) => {
@@ -213,9 +226,31 @@ const filteredCandidates = computed(() => {
     const matchesStatus =
       !selectedStatusFilters.value.length || selectedStatusFilters.value.includes(c.status)
     const matchesPic = !selectedPicFilter.value || c.pic_nik === selectedPicFilter.value
+    const matchesDept =
+      !selectedDepartmentFilter.value ||
+      (c.vacancy?.department || 'Umum (Tanpa Dept)') === selectedDepartmentFilter.value
 
-    return matchesSearch && matchesVacancy && matchesStatus && matchesPic
+    return matchesSearch && matchesVacancy && matchesStatus && matchesPic && matchesDept
   })
+})
+
+const groupedCandidatesByDepartment = computed(() => {
+  const groups = {}
+  filteredCandidates.value.forEach((c) => {
+    const dept = c.vacancy?.department || 'Umum (Tanpa Dept)'
+    if (!groups[dept]) groups[dept] = []
+    groups[dept].push(c)
+  })
+  return Object.keys(groups)
+    .sort((a, b) => {
+      if (a.startsWith('Umum')) return 1
+      if (b.startsWith('Umum')) return -1
+      return a.localeCompare(b)
+    })
+    .map((dept) => ({
+      department: dept,
+      candidates: groups[dept],
+    }))
 })
 
 const candidatesByStage = computed(() => {
@@ -368,7 +403,7 @@ const formattedEmployees = computed(() => {
         nik: emp.nik,
         name: empName,
         position: empPos,
-        label: `${emp.nik} - ${empName} (${empPos}${deptInfo}${divInfo})`,
+        label: `${empName} - ${emp.nik} (${empPos}${deptInfo}${divInfo})`,
       }
     })
 })
@@ -401,7 +436,7 @@ const hrbpStaffEmployees = computed(() => {
       return {
         nik: emp.nik,
         name: empName,
-        label: `${emp.nik} - ${empName} (${empPos})`,
+        label: `${empName} - ${emp.nik} (${empPos})`,
       }
     })
 
@@ -416,7 +451,7 @@ const hrbpStaffEmployees = computed(() => {
       list.unshift({
         nik: emp.nik,
         name: empName,
-        label: `${emp.nik} - ${empName} (${empPos})`,
+        label: `${empName} - ${emp.nik} (${empPos})`,
       })
     }
   }
@@ -3523,11 +3558,18 @@ onBeforeUnmount(() => {
               <input v-model="search" type="search" placeholder="Cari nama, email, hp..."
                 class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
               <div class="grid grid-cols-2 gap-2">
+                <select v-model="selectedDepartmentFilter"
+                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
+                  <option value="">Semua Dept</option>
+                  <option v-for="d in availableDepartments" :key="d" :value="d">{{ d }}</option>
+                </select>
                 <select v-model="selectedVacancyFilter"
                   class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
                   <option value="">Semua Lowongan</option>
                   <option v-for="v in vacancies" :key="v.id" :value="v.id">{{ v.title }}</option>
                 </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
                 <USelectMenu v-model="selectedStatusFilters" :items="stages" value-key="key" label-key="label"
                   placeholder="Filter Tahap" multiple class="w-full">
                   <!-- Custom trigger display -->
@@ -3557,43 +3599,67 @@ onBeforeUnmount(() => {
                       item.label }}</span>
                   </template>
                 </USelectMenu>
+                <select v-model="selectedPicFilter"
+                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
+                  <option value="">Semua PIC</option>
+                  <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
+                    {{ emp.name }}
+                  </option>
+                </select>
               </div>
-              <select v-model="selectedPicFilter"
-                class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
-                <option value="">Semua PIC Screening</option>
-                <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
-                  {{ emp.name }}
-                </option>
-              </select>
             </div>
           </div>
         </template>
 
-        <div class="overflow-y-auto divide-y divide-default flex-1">
-          <div v-for="candidate in filteredCandidates" :key="candidate.id" @click="selectCandidate(candidate)"
-            class="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/10 transition-colors" :class="selectedCandidate?.id === candidate.id ? 'bg-accented border-l-4 border-primary' : ''
-              ">
-            <!-- Avatar Circle -->
-            <div class="size-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-              :class="getAvatarStyle(candidate.name).bg">
-              {{ getInitials(candidate.name) }}
-            </div>
-            <div class="min-w-0 flex-1">
-              <h4 class="font-bold text-sm text-highlighted truncate">
-                {{ candidate.name }}
-              </h4>
-              <p class="text-xs text-muted truncate mt-0.5">
-                {{ candidate.vacancy?.title || 'Umum' }}
-              </p>
-              <!-- Stage Badge -->
-              <div class="mt-1.5 flex">
-                <span
-                  class="candidate-stage-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-xs transition-colors"
-                  :class="`stage-${getStageClass(candidate.status)}`">
-                  <span class="w-1.5 h-1.5 rounded-full"
-                    :class="`stage-bullet-${getStageClass(candidate.status)}`"></span>
-                  {{ getStageLabel(candidate.status) }}
+        <div class="overflow-y-auto flex-1 p-2 space-y-2 bg-default">
+          <!-- Department Grouped Candidate List -->
+          <div v-for="group in groupedCandidatesByDepartment" :key="group.department"
+            class="rounded-lg border border-default bg-default overflow-hidden">
+            <!-- Department Section Header -->
+            <div @click="collapsedDepartments[group.department] = !collapsedDepartments[group.department]"
+              class="sticky top-0 z-10 flex items-center justify-between px-3 py-2 bg-muted/20 backdrop-blur-xs cursor-pointer hover:bg-muted/35 transition-colors"
+              :class="{ 'border-b border-default': !collapsedDepartments[group.department] }">
+              <div class="flex items-center gap-2 min-w-0">
+                <UIcon name="i-lucide-building-2" class="size-4 text-primary shrink-0" />
+                <span class="text-xs font-bold text-highlighted uppercase tracking-wider truncate">
+                  {{ group.department }}
                 </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <UBadge color="primary" variant="subtle" size="xs" :label="group.candidates.length" />
+                <UIcon :name="collapsedDepartments[group.department] ? 'i-lucide-chevron-down' : 'i-lucide-chevron-up'"
+                  class="size-4 text-muted transition-transform" />
+              </div>
+            </div>
+
+            <!-- Candidates in Department -->
+            <div v-if="!collapsedDepartments[group.department]" class="divide-y divide-default">
+              <div v-for="candidate in group.candidates" :key="candidate.id" @click="selectCandidate(candidate)"
+                class="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/10 transition-colors" :class="selectedCandidate?.id === candidate.id ? 'bg-accented border-l-4 border-primary' : ''
+                  ">
+                <!-- Avatar Circle -->
+                <div class="size-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+                  :class="getAvatarStyle(candidate.name).bg">
+                  {{ getInitials(candidate.name) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-bold text-sm text-highlighted truncate">
+                    {{ candidate.name }}
+                  </h4>
+                  <p class="text-xs text-muted truncate mt-0.5">
+                    {{ candidate.vacancy?.title || 'Umum' }}
+                  </p>
+                  <!-- Stage & Dept Badges -->
+                  <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                    <span
+                      class="candidate-stage-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-xs transition-colors"
+                      :class="`stage-${getStageClass(candidate.status)}`">
+                      <span class="w-1.5 h-1.5 rounded-full"
+                        :class="`stage-bullet-${getStageClass(candidate.status)}`"></span>
+                      {{ getStageLabel(candidate.status) }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -4493,30 +4559,26 @@ onBeforeUnmount(() => {
                       <div v-if="getRoundEvaluations(activeUserInterviewTab).length">
                         <!-- Tab Pills -->
                         <div class="flex flex-wrap gap-1.5 mb-3">
-                          <button
-                            v-for="ev in getRoundEvaluations(activeUserInterviewTab)"
-                            :key="ev.id"
+                          <button v-for="ev in getRoundEvaluations(activeUserInterviewTab)" :key="ev.id"
                             @click="activeEvaluatorTab = ev.id"
                             class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border"
                             :class="activeEvaluatorTab === ev.id
                               ? 'bg-primary text-white border-primary shadow-sm'
-                              : 'bg-muted/10 text-muted border-default/50 hover:border-primary/40 hover:text-highlighted'"
-                          >
+                              : 'bg-muted/10 text-muted border-default/50 hover:border-primary/40 hover:text-highlighted'">
                             <span class="truncate max-w-[100px]">
-                              {{ (ev.interviewer?.nama_karyawan || ev.interviewer_nik || '').split(' ').slice(0, 2).join(' ') }}
+                              {{ (ev.interviewer?.nama_karyawan || ev.interviewer_nik || '').split(' ').slice(0,
+                                2).join(' ')
+                              }}
                             </span>
-                            <span
-                              class="size-1.5 rounded-full flex-shrink-0"
-                              :class="ev.submitted_at ? 'bg-emerald-400' : 'bg-amber-400'"
-                            />
+                            <span class="size-1.5 rounded-full flex-shrink-0"
+                              :class="ev.submitted_at ? 'bg-emerald-400' : 'bg-amber-400'" />
                           </button>
                         </div>
 
                         <!-- Active Evaluator Panel -->
                         <template v-for="ev in getRoundEvaluations(activeUserInterviewTab)" :key="ev.id">
                           <div v-if="activeEvaluatorTab === ev.id"
-                            class="rounded-xl border border-default/60 bg-muted/5 p-3 space-y-2.5 text-xs"
-                          >
+                            class="rounded-xl border border-default/60 bg-muted/5 p-3 space-y-2.5 text-xs">
                             <!-- Evaluator Identity -->
                             <div class="flex items-center justify-between">
                               <div>
@@ -4529,11 +4591,7 @@ onBeforeUnmount(() => {
                                 <span v-if="ev.submitted_at" class="text-emerald-600 dark:text-emerald-400 font-medium">
                                   Skor: {{ ev.interview_total_score }}/36
                                 </span>
-                                <UBadge
-                                  :color="ev.submitted_at ? 'success' : 'warning'"
-                                  size="xs"
-                                  variant="soft"
-                                >
+                                <UBadge :color="ev.submitted_at ? 'success' : 'warning'" size="xs" variant="soft">
                                   {{ ev.submitted_at ? 'Selesai' : 'Menunggu' }}
                                 </UBadge>
                               </div>
@@ -4541,39 +4599,32 @@ onBeforeUnmount(() => {
 
                             <!-- Action Buttons -->
                             <div class="flex items-center gap-2">
-                              <UButton
-                                v-if="!isViewingHistoricalStage && !ev.submitted_at"
-                                size="xs" variant="soft" color="primary" icon="i-lucide-send" label="Kirim link"
-                                :loading="updatingStage"
+                              <UButton v-if="!isViewingHistoricalStage && !ev.submitted_at" size="xs" variant="soft"
+                                color="primary" icon="i-lucide-send" label="Kirim link" :loading="updatingStage"
                                 :disabled="updatingStage || !getUserInterview(activeUserInterviewTab).completed_at"
                                 :title="getUserInterview(activeUserInterviewTab).completed_at
                                   ? 'Kirim formulir evaluasi ke pewawancara'
                                   : 'Tandai interview selesai terlebih dahulu'"
-                                @click="triggerUserInterviewEvaluationWa(activeUserInterviewTab, ev.id)"
-                              />
-                              <UButton
-                                v-if="ev.submitted_at"
-                                size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat evaluasi"
-                                @click="previewInterviewerEvaluation(ev.id, ev.interviewer?.nama_karyawan || ev.interviewer_nik)"
-                              />
+                                @click="triggerUserInterviewEvaluationWa(activeUserInterviewTab, ev.id)" />
+                              <UButton v-if="ev.submitted_at" size="xs" variant="soft" color="primary"
+                                icon="i-lucide-eye" label="Lihat evaluasi"
+                                @click="previewInterviewerEvaluation(ev.id, ev.interviewer?.nama_karyawan || ev.interviewer_nik)" />
                             </div>
 
                             <!-- Notes & Recommendation -->
                             <div
                               v-if="ev.submitted_at && (ev.interview_evaluation_notes || ev.interview_recommendation)"
-                              class="bg-muted/10 p-2.5 rounded-lg space-y-1.5"
-                            >
+                              class="bg-muted/10 p-2.5 rounded-lg space-y-1.5">
                               <div class="flex items-center justify-between">
                                 <span class="text-xs font-semibold text-muted uppercase tracking-wide">Catatan</span>
-                                <UBadge
-                                  v-if="ev.interview_recommendation"
+                                <UBadge v-if="ev.interview_recommendation"
                                   :color="ev.interview_recommendation === 'disarankan' ? 'success' : ev.interview_recommendation === 'dipertimbangkan' ? 'warning' : 'danger'"
-                                  size="sm"
-                                >
+                                  size="sm">
                                   {{ evalRecommendationLabel(ev.interview_recommendation) }}
                                 </UBadge>
                               </div>
-                              <p v-if="ev.interview_evaluation_notes" class="text-xs text-highlighted italic whitespace-pre-wrap">
+                              <p v-if="ev.interview_evaluation_notes"
+                                class="text-xs text-highlighted italic whitespace-pre-wrap">
                                 &ldquo;{{ ev.interview_evaluation_notes }}&rdquo;
                               </p>
                             </div>
@@ -5101,8 +5152,7 @@ onBeforeUnmount(() => {
                     <div class="shrink-0 flex items-center">
                       <template v-if="activeCandidate.onboarding_completed_at">
                         <UButton v-if="activeCandidate.employee_nik" size="xs" color="primary" variant="soft"
-                          icon="i-lucide-eye" label="Lihat Detail Biodata"
-                          @click="openOnboardingVerificationModal" />
+                          icon="i-lucide-eye" label="Lihat Detail Biodata" @click="openOnboardingVerificationModal" />
                         <div v-else class="flex flex-col gap-2 w-full sm:w-48">
                           <UButton size="xs" color="warning" variant="soft" icon="i-lucide-edit"
                             label="Lengkapi / Edit Data" @click="openOnboardingVerificationModal" />
@@ -5128,14 +5178,15 @@ onBeforeUnmount(() => {
                 <div class="flex items-center justify-between pb-3 border-b border-default/60">
                   <div>
                     <h5 class="text-sm font-bold text-highlighted">Formulir Biodata Karyawan Baru</h5>
-                    <p class="text-xs text-muted">Kelola pengiriman formulir biodata mandiri dan pantau status pengisian kandidat.</p>
+                    <p class="text-xs text-muted">Kelola pengiriman formulir biodata mandiri dan pantau status pengisian
+                      kandidat.</p>
                   </div>
                   <div class="flex items-center gap-2">
-                    <UButton size="xs" variant="soft" color="primary" icon="i-lucide-send" label="Kirim form biodata karyawan"
-                      :disabled="updatingStage" :loading="updatingStage && lastClickedBtn === 'email'"
-                      @click="triggerOnboardingFormLink" />
-                    <UButton size="xs" variant="soft" color="success" icon="i-lucide-message-circle" label="Kirim info ke WA"
-                      :disabled="!activeCandidate.onboarding_sent_at || updatingStage"
+                    <UButton size="xs" variant="soft" color="primary" icon="i-lucide-send"
+                      label="Kirim form biodata karyawan" :disabled="updatingStage"
+                      :loading="updatingStage && lastClickedBtn === 'email'" @click="triggerOnboardingFormLink" />
+                    <UButton size="xs" variant="soft" color="success" icon="i-lucide-message-circle"
+                      label="Kirim info ke WA" :disabled="!activeCandidate.onboarding_sent_at || updatingStage"
                       :loading="updatingStage && lastClickedBtn === 'wa'" @click="triggerOnboardingWa" />
                   </div>
                 </div>
@@ -5405,7 +5456,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Onboarding Verification & Import Dialog -->
-    <div v-if="onboardingVerificationModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+    <div v-if="onboardingVerificationModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog" aria-modal="true">
       <button type="button" class="absolute inset-0 bg-slate-950/60"
         @click="onboardingVerificationModalOpen = false"></button>
@@ -5767,7 +5818,8 @@ onBeforeUnmount(() => {
               <h5 class="text-xs font-bold text-highlighted uppercase tracking-wider">
                 Pengaturan NIK & PIN Karyawan Resmi
               </h5>
-              <span v-if="!isHrPayrollUser" class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+              <span v-if="!isHrPayrollUser"
+                class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                 <UIcon name="i-lucide-lock" class="size-3.5" /> Khusus akun hrpayroll
               </span>
             </div>
@@ -5781,8 +5833,8 @@ onBeforeUnmount(() => {
               <div class="form-group-sm" v-if="!activeCandidate?.employee_nik">
                 <label class="text-[10px] font-bold uppercase text-muted">PIN Absensi / Akses Karyawan <span
                     class="required">*</span></label>
-                <input v-model="onboardingEditForm.pin" :disabled="!isHrPayrollUser" :class="onboardingFormControlClass" type="text"
-                  placeholder="Contoh: 1234" required />
+                <input v-model="onboardingEditForm.pin" :disabled="!isHrPayrollUser" :class="onboardingFormControlClass"
+                  type="text" placeholder="Contoh: 1234" required />
               </div>
               <div class="form-group-sm" v-else>
                 <label class="text-[10px] font-bold uppercase text-muted">PIN Absensi</label>

@@ -150,11 +150,20 @@ onMounted(load)
               <td class="p-3">{{ formatDate(item.date) }}</td>
               <td class="p-3">{{ item.start_time }} - {{ item.end_time }}</td>
               <td class="p-3">
-                <UBadge
-                  :color="statusColor(item.status)"
-                  variant="subtle"
-                  :label="statusLabel(item.status)"
-                />
+                <div class="flex flex-col items-start gap-1">
+                  <UBadge
+                    :color="statusColor(item.status)"
+                    variant="subtle"
+                    :label="item.status === 'pending' && item.pending_with ? `Menunggu ${item.pending_with}` : statusLabel(item.status)"
+                  />
+                  <div v-if="item.status === 'rejected'" class="text-xs text-rose-600 dark:text-rose-400 font-medium space-y-0.5">
+                    <p v-if="item.rejected_by_name">Ditolak oleh: <span class="font-semibold">{{ item.rejected_by_name }}</span></p>
+                    <p v-if="item.reject_reason" class="italic">Alasan: {{ item.reject_reason }}</p>
+                  </div>
+                  <div v-else-if="item.status === 'pending' && item.pending_with" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                    Mandek di: {{ item.pending_with }}
+                  </div>
+                </div>
               </td>
               <td class="p-3">
                 <UButton

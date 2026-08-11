@@ -80,7 +80,10 @@ onMounted(load)
                 }}<span v-if="item.end_date"> - {{ formatDate(item.end_date) }}</span>
               </p>
               <p v-if="item.reason" class="mt-2 text-sm text-highlighted">{{ item.reason }}</p>
-              <p v-if="item.reject_reason" class="mt-2 text-sm text-error">
+              <p v-if="item.rejected_by_name" class="mt-2 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                Ditolak oleh: {{ item.rejected_by_name }}
+              </p>
+              <p v-if="item.reject_reason" class="mt-1 text-xs text-rose-600 dark:text-rose-400 italic">
                 Alasan: {{ item.reject_reason }}
               </p>
             </div>
