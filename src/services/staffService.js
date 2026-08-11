@@ -24,6 +24,14 @@ export function requestStaffProfilePhoneOtp(payload) {
   return api.post('/staff/profile/contact/phone-otp', payload)
 }
 
+export function getStaffGateQrHistory(params) {
+  return api.get('/staff/profile/gate-qr-usage', { params })
+}
+
+export function logStaffGateQrReason(payload) {
+  return api.post('/staff/profile/gate-qr-usage', payload)
+}
+
 export function getStaffAttendance(params) {
   return api.get('/staff/attendance', { params })
 }

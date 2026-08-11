@@ -16,6 +16,7 @@
     "@nuxt/ui": "^4.8.0",
     "axios": "^1.16.1",
     "pinia": "^3.0.4",
+    "qrcode": "^1.5.1",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.32",
     "vue-pdf-embed": "^2.1.5",

@@ -25,6 +25,7 @@ import ItPushNotificationView from '../views/ItPushNotificationView.vue'
 import ItServiceTogglesView from '../views/ItServiceTogglesView.vue'
 import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
+import StaffGateQrView from '../views/StaffGateQrView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
 import StaffContractView from '../views/StaffContractView.vue'
 import LeaveRequestView from '../views/LeaveRequestView.vue'
@@ -213,6 +214,12 @@ const router = createRouter({
           name: 'staff-profile',
           component: StaffProfileView,
           meta: { title: 'Profil Saya', levels: [3] },
+        },
+        {
+          path: 'staff/gate-qr',
+          name: 'staff-gate-qr',
+          component: StaffGateQrView,
+          meta: { title: 'QR Gate', levels: [3] },
         },
         {
           path: 'staff/attendance',

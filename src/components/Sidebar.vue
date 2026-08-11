@@ -105,6 +105,16 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         variant="pill"
         highlight
       />
+
+      <div v-if="auth.user?.level === 3" class="mt-4">
+        <RouterLink
+          to="/staff/gate-qr"
+          class="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
+        >
+          <UIcon name="i-lucide-qrcode" class="size-4 text-slate-100" />
+          Akses QR Gate
+        </RouterLink>
+      </div>
     </div>
 
     <div ref="accountMenuRef" class="relative mt-auto">
