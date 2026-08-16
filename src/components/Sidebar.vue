@@ -106,7 +106,15 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         highlight
       />
 
-      <div v-if="auth.user?.level === 3" class="mt-4">
+      <div v-if="auth.user?.level === 3" class="mt-4 space-y-2">
+        <RouterLink
+          v-if="auth.user?.allow_mobile_attendance"
+          to="/staff/self-attendance"
+          class="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/20 px-4 py-3 text-sm font-semibold text-white transition hover:border-primary hover:bg-primary/30"
+        >
+          <UIcon name="i-lucide-camera" class="size-4 text-primary" />
+          Absensi Mandiri (Web/iOS)
+        </RouterLink>
         <RouterLink
           to="/staff/gate-qr"
           class="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"

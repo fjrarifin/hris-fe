@@ -131,6 +131,12 @@ const staffTodayStatus = computed(() => {
   return status ? weeklyAttendanceLabel(status) : 'Belum Absen'
 })
 const staffQuickActions = computed(() => [
+  ...(auth.user?.allow_mobile_attendance ? [{
+    label: 'Absen Self',
+    icon: 'i-lucide-camera',
+    to: '/staff/self-attendance',
+    color: 'primary',
+  }] : []),
   {
     label: 'Absensi',
     icon: 'i-lucide-fingerprint',

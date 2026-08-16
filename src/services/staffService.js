@@ -36,6 +36,10 @@ export function getStaffAttendance(params) {
   return api.get('/staff/attendance', { params })
 }
 
+export function submitStaffSelfAttendance(payload) {
+  return api.post('/staff/attendance/selfie', payload)
+}
+
 export function getStaffContracts() {
   return api.get('/staff/contracts')
 }

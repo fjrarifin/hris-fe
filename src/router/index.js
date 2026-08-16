@@ -27,6 +27,7 @@ import ItUserManagementView from '../views/ItUserManagementView.vue'
 import StaffProfileView from '../views/StaffProfileView.vue'
 import StaffGateQrView from '../views/StaffGateQrView.vue'
 import StaffAttendanceView from '../views/StaffAttendanceView.vue'
+import StaffSelfAttendanceView from '../views/StaffSelfAttendanceView.vue'
 import StaffContractView from '../views/StaffContractView.vue'
 import LeaveRequestView from '../views/LeaveRequestView.vue'
 import PublicHolidayView from '../views/PublicHolidayView.vue'
@@ -226,6 +227,12 @@ const router = createRouter({
           name: 'staff-attendance',
           component: StaffAttendanceView,
           meta: { title: 'Absensi Saya', levels: [3], menuKey: 'staff-attendance' },
+        },
+        {
+          path: 'staff/self-attendance',
+          name: 'staff-self-attendance',
+          component: StaffSelfAttendanceView,
+          meta: { title: 'Absensi Mandiri Web', levels: [3], menuKey: 'staff-attendance' },
         },
         {
           path: 'staff/contracts',

@@ -3658,6 +3658,11 @@ onBeforeUnmount(() => {
                         :class="`stage-bullet-${getStageClass(candidate.status)}`"></span>
                       {{ getStageLabel(candidate.status) }}
                     </span>
+                    <span v-if="candidate.is_duplicate"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                      <UIcon name="i-lucide-copy" class="size-3" />
+                      Duplicate
+                    </span>
                   </div>
                 </div>
               </div>
@@ -3697,9 +3702,16 @@ onBeforeUnmount(() => {
                 </label>
               </div>
               <div>
-                <h3 class="text-xl font-bold text-highlighted">
-                  {{ activeCandidate.name }}
-                </h3>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-xl font-bold text-highlighted">
+                    {{ activeCandidate.name }}
+                  </h3>
+                  <span v-if="activeCandidate.is_duplicate"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                    <UIcon name="i-lucide-copy" class="size-3.5" />
+                    Melamar >1 Lowongan (Duplicate)
+                  </span>
+                </div>
                 <p class="text-sm text-muted mt-1 flex flex-wrap gap-x-2 gap-y-1">
                   <span>{{ activeCandidate.email }}</span>
                   <span class="text-muted/40">•</span>
@@ -3737,6 +3749,32 @@ onBeforeUnmount(() => {
               <UButton v-if="activeCandidate.status !== 'hired'" size="sm" variant="outline" color="neutral"
                 icon="i-lucide-pencil" label="Edit" :disabled="updatingStage"
                 @click="openEditDialog(activeCandidate)" />
+            </div>
+          </div>
+
+          <!-- Duplicate / Other Applications Alert Banner -->
+          <div v-if="activeCandidate.is_duplicate || (activeCandidate.other_applications && activeCandidate.other_applications.length)"
+            class="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2 text-amber-900 dark:text-amber-200">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <UIcon name="i-lucide-copy" class="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <span>Kandidat Ini Melamar di Lowongan / Posisi Lain</span>
+              </div>
+              <UButton size="xs" variant="soft" color="warning" icon="i-lucide-history"
+                label="Lihat History Complete" @click="historyModalOpen = true" />
+            </div>
+            <div class="space-y-1.5 pt-1 border-t border-amber-500/20 text-xs">
+              <div v-for="otherApp in activeCandidate.other_applications" :key="otherApp.id"
+                class="flex items-center justify-between gap-2 bg-amber-500/10 dark:bg-amber-900/30 px-3 py-1 rounded-lg">
+                <div class="truncate">
+                  <span class="font-bold text-highlighted">Posisi: {{ otherApp.vacancy_title }}</span>
+                  <span v-if="otherApp.vacancy_department" class="text-muted ml-1">({{ otherApp.vacancy_department }})</span>
+                  <span class="text-muted text-[11px] ml-2">• #{{ otherApp.id }} • Applied: {{ formatDateTime(otherApp.created_at) }}</span>
+                </div>
+                <UBadge :color="getStageBadgeColor(otherApp.status)" variant="soft" size="xs" class="shrink-0 font-semibold">
+                  {{ getStageLabel(otherApp.status) }}
+                </UBadge>
+              </div>
             </div>
           </div>
 
@@ -5354,6 +5392,12 @@ onBeforeUnmount(() => {
                   <UButton type="button" icon="i-lucide-arrow-right" trailing :label="`Lanjutkan ke ${nextStage.label}`"
                     :loading="updatingStage" :disabled="!canPromoteCandidate" @click="promoteCandidate"
                     class="font-semibold shadow-xs" />
+
+                  <UButton v-if="activeCandidate.status === 'applied' || activeCandidate.status === 'screening'"
+                    type="button" color="indigo" variant="soft" icon="i-lucide-users-round"
+                    label="Loncat ke Wawancara User ➔" :loading="updatingStage"
+                    @click="updateStage(activeCandidate, 'interview_user')"
+                    class="font-medium shadow-xs" />
 
                   <UButton v-if="activeCandidate.status === 'interview_hr'" type="button" color="info" variant="soft"
                     icon="i-lucide-file-code" label="Gunakan Case Study (Opsional)" :loading="updatingStage"

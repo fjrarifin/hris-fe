@@ -71,8 +71,7 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Extra Off</h2>
       <p class="mt-1 text-sm text-muted">
-        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Saldo EO tidak memiliki masa
-        expired dan dapat digunakan selama karyawan masih aktif.
+        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Pengajuan Extra Off maksimal dilakukan 3 bulan setelah akhir periode payroll.
       </p>
     </div>
 
@@ -108,7 +107,7 @@ onMounted(load)
               :key="`${source.source_period_start}|${source.source_period_end}`"
               :value="`${source.source_period_start}|${source.source_period_end}`"
             >
-              {{ source.label }} - sisa {{ source.remaining_days }} hari
+              {{ source.label }} - sisa {{ source.remaining_days }} hari (Exp Pengajuan: {{ formatDate(source.expired_at) }})
             </option>
           </select>
         </label>
