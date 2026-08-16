@@ -669,7 +669,7 @@ async function updateStage(candidate, newStage) {
   if (newStage === 'interview_hr') {
     let picNik = extractNik(candidate?.pic_nik)
     if (!picNik) {
-      picNik = auth.user?.karyawan?.nik || auth.user?.nik || null
+      picNik = authStore.user?.karyawan?.nik || authStore.user?.nik || null
       if (picNik) {
         candidate.pic_nik = picNik
       }
@@ -1736,7 +1736,7 @@ const hrInterviewForm = reactive({
 function openHrInterviewModal() {
   let picNik = extractNik(activeCandidate.value?.pic_nik)
   if (!picNik) {
-    picNik = auth.user?.karyawan?.nik || auth.user?.nik || null
+    picNik = authStore.user?.karyawan?.nik || authStore.user?.nik || null
     if (picNik && activeCandidate.value) {
       activeCandidate.value.pic_nik = picNik
     }
