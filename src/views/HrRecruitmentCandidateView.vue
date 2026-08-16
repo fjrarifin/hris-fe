@@ -1734,7 +1734,13 @@ const hrInterviewForm = reactive({
 })
 
 function openHrInterviewModal() {
-  const picNik = extractNik(activeCandidate.value?.pic_nik)
+  let picNik = extractNik(activeCandidate.value?.pic_nik)
+  if (!picNik) {
+    picNik = auth.user?.karyawan?.nik || auth.user?.nik || null
+    if (picNik && activeCandidate.value) {
+      activeCandidate.value.pic_nik = picNik
+    }
+  }
   if (!picNik) {
     errorMessage.value = 'PIC Screening wajib diisi terlebih dahulu sebelum menjadwalkan Wawancara HR.'
     return

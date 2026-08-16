@@ -16,12 +16,14 @@ const mediaStream = ref(null)
 const cameraActive = ref(false)
 const cameraLoading = ref(false)
 const cameraError = ref('')
+const cameraPermissionStatus = ref('')
 
 const gpsLoading = ref(false)
 const gpsCoords = ref(null)
 const gpsAccuracy = ref(null)
 const gpsStatusText = ref('Mendeteksi posisi GPS...')
 const gpsError = ref('')
+const gpsPermissionStatus = ref('')
 
 const liveTime = ref('')
 const liveDate = ref('')
@@ -35,6 +37,11 @@ const resultData = ref(null)
 const capturedPhotoUrl = ref('')
 
 const allowMobileAttendance = computed(() => Boolean(auth.user?.allow_mobile_attendance))
+
+const isInsecureHttp = computed(() => {
+  if (typeof window === 'undefined') return false
+  return !window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'
+})
 
 function startClock() {
   const update = () => {
@@ -61,15 +68,22 @@ async function getGPSLocation() {
   gpsAccuracy.value = null
 
   if (!navigator.geolocation) {
-    gpsError.value = 'Browser Anda tidak mendukung Geolocation.'
+    gpsError.value = 'Browser Anda tidak mendukung fitur Geolocation.'
     gpsStatusText.value = 'GPS tidak tersedia di browser ini.'
+    gpsLoading.value = false
+    return
+  }
+
+  if (isInsecureHttp.value) {
+    gpsError.value = 'Akses GPS diblokir oleh Chrome karena diakses via HTTP (bukan HTTPS). Gunakan HTTPS atau izinkan insecure origin di Chrome.'
+    gpsStatusText.value = 'Gagal mengakses GPS (Insecure HTTP)'
     gpsLoading.value = false
     return
   }
 
   const options = {
     enableHighAccuracy: true,
-    timeout: 10000,
+    timeout: 15000,
     maximumAge: 0,
   }
 
@@ -82,10 +96,20 @@ async function getGPSLocation() {
       gpsAccuracy.value = acc
       gpsStatusText.value = `Koordinat: ${lat.toFixed(5)}, ${lon.toFixed(5)} (Akurasi ±${acc}m)`
       gpsLoading.value = false
+      gpsPermissionStatus.value = 'granted'
     },
     (err) => {
       console.warn('Geolocation error:', err)
-      gpsError.value = 'Gagal mengakses GPS. Pastikan Izin Lokasi diaktifkan pada browser/perangkat Anda.'
+      if (err.code === 1) { // PERMISSION_DENIED
+        gpsPermissionStatus.value = 'denied'
+        gpsError.value = 'Izin Lokasi/GPS ditolak oleh browser Chrome Anda. Klik ikon gembok/setelan di samping alamat URL browser ➔ Izin ➔ Aktifkan Lokasi.'
+      } else if (err.code === 2) { // POSITION_UNAVAILABLE
+        gpsError.value = 'Sinyal/Lokasi GPS tidak dapat ditemukan. Pastikan GPS/Location Service pada HP/Komputer Anda diaktifkan.'
+      } else if (err.code === 3) { // TIMEOUT
+        gpsError.value = 'Waktu deteksi lokasi GPS habis. Silakan klik tombol "Coba Ulang GPS".'
+      } else {
+        gpsError.value = 'Gagal membaca posisi GPS. Pastikan izin lokasi diberikan pada browser Anda.'
+      }
       gpsStatusText.value = 'Lokasi GPS tidak dapat dibaca.'
       gpsLoading.value = false
     },
@@ -98,8 +122,14 @@ async function startCamera() {
   cameraLoading.value = true
   cameraActive.value = false
 
+  if (isInsecureHttp.value) {
+    cameraError.value = 'Akses Kamera diblokir oleh Chrome karena diakses via HTTP (Insecure Context). Chrome memerlukan akses HTTPS untuk membuka Kamera.'
+    cameraLoading.value = false
+    return
+  }
+
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    cameraError.value = 'Browser/perangkat Anda tidak mendukung akses kamera.'
+    cameraError.value = 'Browser/perangkat Anda tidak mendukung Web Camera API.'
     cameraLoading.value = false
     return
   }
@@ -119,9 +149,20 @@ async function startCamera() {
       await videoRef.value.play()
     }
     cameraActive.value = true
+    cameraPermissionStatus.value = 'granted'
   } catch (err) {
     console.error('Camera access error:', err)
-    cameraError.value = 'Gagal membuka kamera depan. Pastikan Izin Kamera diizinkan pada Safari/Chrome browser Anda.'
+    cameraPermissionStatus.value = 'denied'
+    const name = err.name || ''
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+      cameraError.value = 'Izin Kamera ditolak oleh Anda/Browser. Silakan klik ikon gembok/setelan di samping alamat URL Chrome ➔ Pilih Kamera ➔ Diizinkan (Allow), lalu refresh.'
+    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+      cameraError.value = 'Kamera depan tidak ditemukan pada perangkat ini.'
+    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+      cameraError.value = 'Kamera sedang digunakan oleh aplikasi/tab lain (seperti Zoom/Meet). Tutup aplikasi tersebut terlebih dahulu.'
+    } else {
+      cameraError.value = 'Gagal membuka kamera depan. Pastikan Izin Kamera diberikan pada browser Anda.'
+    }
   } finally {
     cameraLoading.value = false
   }
@@ -207,11 +248,15 @@ function resetAttendance() {
   startCamera()
 }
 
+function requestAllPermissions() {
+  getGPSLocation()
+  startCamera()
+}
+
 onMounted(() => {
   startClock()
   if (allowMobileAttendance.value) {
-    getGPSLocation()
-    startCamera()
+    requestAllPermissions()
   }
 })
 
@@ -237,8 +282,13 @@ onBeforeUnmount(() => {
       <UButton to="/staff/attendance" variant="soft" color="neutral" size="sm" icon="i-lucide-history" label="Riwayat" />
     </div>
 
+    <!-- Warning Insecure HTTP -->
+    <UAlert v-if="isInsecureHttp" color="red" variant="soft" icon="i-lucide-shield-alert"
+      title="Memerlukan Akses HTTPS (Secure Context)"
+      description="Chrome dan browser modern memerlukan protokol HTTPS untuk memberikan izin Kamera & GPS. Jika diakses melalui HTTP IP lokal, silakan buka alamat web menggunakan domain HTTPS atau izinkan Unsafety Insecure Origin pada setelan Chrome." />
+
     <!-- Alert Access Restriction -->
-    <UAlert v-if="!allowMobileAttendance" color="warning" variant="soft" icon="i-lucide-shield-alert"
+    <UAlert v-else-if="!allowMobileAttendance" color="warning" variant="soft" icon="i-lucide-shield-alert"
       title="Akses Absensi Mandiri Belum Diizinkan"
       description="Akun Anda belum memiliki izin absensi mobile/web mandiri (allow_mobile_attendance = 0). Silakan hubungi tim HR atau IT Administrator untuk mengaktifkan izin ini." />
 
@@ -296,6 +346,21 @@ onBeforeUnmount(() => {
           <div class="text-xs font-semibold text-muted uppercase tracking-wide">{{ liveDate }}</div>
         </div>
 
+        <!-- Permission Prompt Action Strip if camera or GPS blocked -->
+        <div v-if="cameraError || gpsError" class="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 space-y-2 text-xs">
+          <div class="flex items-center gap-2 font-bold text-amber-700 dark:text-amber-300">
+            <UIcon name="i-lucide-lock" class="size-4 shrink-0" />
+            <span>Diperlukan Izin Browser Chrome (Kamera & GPS)</span>
+          </div>
+          <p class="text-muted leading-relaxed">
+            Jika popup izin tidak muncul otomatis, silakan klik tombol di bawah untuk memicu popup izin browser Chrome Anda:
+          </p>
+          <div class="flex items-center gap-2 flex-wrap pt-1">
+            <UButton size="xs" color="primary" variant="solid" icon="i-lucide-camera" label="Aktifkan Kamera" @click="startCamera" />
+            <UButton size="xs" color="sky" variant="solid" icon="i-lucide-map-pin" label="Aktifkan GPS" @click="getGPSLocation" />
+          </div>
+        </div>
+
         <!-- Camera Scanner Card -->
         <div class="relative w-full aspect-3/4 max-w-sm mx-auto rounded-2xl overflow-hidden bg-slate-950 border border-default shadow-inner flex flex-col items-center justify-center">
           <video v-show="cameraActive" ref="videoRef" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100" />
@@ -318,8 +383,10 @@ onBeforeUnmount(() => {
           <!-- Camera Error State -->
           <div v-if="cameraError" class="text-center p-6 text-red-400 space-y-3">
             <UIcon name="i-lucide-camera-off" class="size-8 mx-auto" />
-            <p class="text-xs leading-relaxed max-w-xs">{{ cameraError }}</p>
-            <UButton size="xs" color="primary" variant="soft" label="Coba Kamera Lagi" @click="startCamera" />
+            <p class="text-xs leading-relaxed max-w-xs text-left font-sans bg-black/40 p-3 rounded-lg border border-red-500/20">
+              {{ cameraError }}
+            </p>
+            <UButton size="xs" color="primary" variant="solid" icon="i-lucide-refresh-cw" label="Coba Kamera Lagi" @click="startCamera" />
           </div>
         </div>
 
@@ -339,7 +406,9 @@ onBeforeUnmount(() => {
             <UBadge v-else-if="gpsLoading" color="warning" variant="soft" size="xs" class="shrink-0">Mencari GPS...</UBadge>
             <UBadge v-else color="red" variant="soft" size="xs" class="shrink-0">GPS Gagal</UBadge>
           </div>
-          <p v-if="gpsError" class="text-[11px] text-red-500 mt-1">{{ gpsError }}</p>
+          <p v-if="gpsError" class="text-[11px] text-red-500 leading-relaxed bg-red-500/10 p-2.5 rounded-lg border border-red-500/20 mt-1">
+            {{ gpsError }}
+          </p>
         </div>
 
         <!-- Primary Action Submit Button -->
