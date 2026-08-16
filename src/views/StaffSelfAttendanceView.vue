@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
           Absensi Mandiri (Self Attendance)
         </h2>
         <p class="mt-1 text-sm text-muted">
-          Lakukan absensi selfie & koordinat GPS secara mandiri via Web / iOS Safari / Android.
+          Lakukan absensi selfie & koordinat GPS secara mandiri via Web Browser di perangkat manapun (iOS, Android, Laptop, PC).
         </p>
       </div>
       <UButton to="/staff/attendance" variant="soft" color="neutral" size="sm" icon="i-lucide-history" label="Riwayat" />

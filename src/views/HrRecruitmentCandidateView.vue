@@ -667,7 +667,13 @@ const updatingStage = ref(false)
 
 async function updateStage(candidate, newStage) {
   if (newStage === 'interview_hr') {
-    const picNik = extractNik(candidate?.pic_nik)
+    let picNik = extractNik(candidate?.pic_nik)
+    if (!picNik) {
+      picNik = auth.user?.karyawan?.nik || auth.user?.nik || null
+      if (picNik) {
+        candidate.pic_nik = picNik
+      }
+    }
     if (!picNik) {
       errorMessage.value = 'PIC Screening wajib diisi terlebih dahulu sebelum melanjutkan kandidat ke tahap Wawancara HR.'
       return
@@ -5392,6 +5398,12 @@ onBeforeUnmount(() => {
                   <UButton type="button" icon="i-lucide-arrow-right" trailing :label="`Lanjutkan ke ${nextStage.label}`"
                     :loading="updatingStage" :disabled="!canPromoteCandidate" @click="promoteCandidate"
                     class="font-semibold shadow-xs" />
+
+                  <UButton v-if="activeCandidate.status === 'applied'"
+                    type="button" color="sky" variant="soft" icon="i-lucide-user-check"
+                    label="Loncat ke Wawancara HR ➔" :loading="updatingStage"
+                    @click="updateStage(activeCandidate, 'interview_hr')"
+                    class="font-medium shadow-xs" />
 
                   <UButton v-if="activeCandidate.status === 'applied' || activeCandidate.status === 'screening'"
                     type="button" color="indigo" variant="soft" icon="i-lucide-users-round"

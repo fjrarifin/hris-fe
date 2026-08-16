@@ -113,7 +113,7 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
           class="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/20 px-4 py-3 text-sm font-semibold text-white transition hover:border-primary hover:bg-primary/30"
         >
           <UIcon name="i-lucide-camera" class="size-4 text-primary" />
-          Absensi Mandiri (Web/iOS)
+          Absensi Mandiri (Web App)
         </RouterLink>
         <RouterLink
           to="/staff/gate-qr"
