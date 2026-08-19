@@ -3,6 +3,7 @@ import NotificationHost from './components/NotificationHost.vue'
 import ConfirmDialogHost from './components/ConfirmDialogHost.vue'
 import OnlineUsersFloating from './components/OnlineUsersFloating.vue'
 import RequestActivityHost from './components/RequestActivityHost.vue'
+import AndroidApkPromptHost from './components/AndroidApkPromptHost.vue'
 </script>
 
 <template>
@@ -12,5 +13,6 @@ import RequestActivityHost from './components/RequestActivityHost.vue'
     <ConfirmDialogHost />
     <NotificationHost />
     <OnlineUsersFloating />
+    <AndroidApkPromptHost />
   </UApp>
 </template>
