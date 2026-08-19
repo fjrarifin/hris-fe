@@ -476,7 +476,7 @@ onMounted(() => {
             </p>
           </div>
           <div class="flex size-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
-            <span class="i-lucide-calendar text-xl"></span>
+            <UIcon name="i-lucide-calendar" class="size-6" />
           </div>
         </div>
       </div>
@@ -492,7 +492,7 @@ onMounted(() => {
             </p>
           </div>
           <div class="flex size-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-            <span class="i-lucide-radio text-xl"></span>
+            <UIcon name="i-lucide-radio" class="size-6" />
           </div>
         </div>
       </div>
@@ -508,7 +508,7 @@ onMounted(() => {
             </p>
           </div>
           <div class="flex size-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
-            <span class="i-lucide-users text-xl"></span>
+            <UIcon name="i-lucide-users" class="size-6" />
           </div>
         </div>
       </div>
@@ -518,7 +518,7 @@ onMounted(() => {
     <div class="flex flex-col gap-3 rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
         <div class="relative flex-1 max-w-md">
-          <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
+          <UIcon name="i-lucide-search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted" />
           <input
             v-model="filters.search"
             type="text"
@@ -567,7 +567,7 @@ onMounted(() => {
             <tr v-if="loading && !events.length">
               <td colspan="6" class="px-5 py-12 text-center text-muted">
                 <div class="inline-flex items-center gap-2">
-                  <span class="i-lucide-loader-2 size-5 animate-spin"></span>
+                  <UIcon name="i-lucide-loader-2" class="size-5 animate-spin" />
                   <span>Memuat daftar event...</span>
                 </div>
               </td>
@@ -576,7 +576,7 @@ onMounted(() => {
             <tr v-else-if="!events.length">
               <td colspan="6" class="px-5 py-12 text-center text-muted">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="i-lucide-calendar-x size-8 text-muted"></span>
+                  <UIcon name="i-lucide-calendar-x" class="size-8 text-muted" />
                   <p class="font-medium text-highlighted">Belum ada event absensi</p>
                   <p class="text-xs text-muted">Klik tombol "Buat Event Absen" di atas untuk membuat public link baru.</p>
                 </div>
@@ -597,7 +597,7 @@ onMounted(() => {
                   {{ item.deskripsi }}
                 </div>
                 <div class="mt-1 flex items-center gap-2 text-[11px] text-muted">
-                  <span class="i-lucide-user size-3"></span>
+                  <UIcon name="i-lucide-user" class="size-3" />
                   <span>{{ item.creator?.name || 'Admin' }}</span>
                   <span>•</span>
                   <span>{{ formatDateTime(item.created_at) }}</span>
@@ -613,18 +613,18 @@ onMounted(() => {
                   <button
                     type="button"
                     title="Salin Link"
-                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-highlighted"
+                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-highlighted flex items-center justify-center"
                     @click="copyPublicLink(item.slug)"
                   >
-                    <span class="i-lucide-copy size-4"></span>
+                    <UIcon name="i-lucide-copy" class="size-4" />
                   </button>
                   <button
                     type="button"
                     title="Buka QR Code"
-                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-primary"
+                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-primary flex items-center justify-center"
                     @click="openQrModal(item)"
                   >
-                    <span class="i-lucide-qr-code size-4"></span>
+                    <UIcon name="i-lucide-qr-code" class="size-4" />
                   </button>
                 </div>
               </td>
@@ -655,7 +655,7 @@ onMounted(() => {
                   class="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
                   @click="openParticipantsModal(item)"
                 >
-                  <span class="i-lucide-users size-3.5"></span>
+                  <UIcon name="i-lucide-users" class="size-3.5" />
                   <span>{{ item.absensi_events_count || 0 }} Peserta</span>
                 </button>
               </td>
@@ -1009,7 +1009,7 @@ onMounted(() => {
           <!-- Search Bar -->
           <div class="border-b border-default bg-muted/20 px-6 py-3">
             <div class="relative max-w-sm">
-              <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
+              <UIcon name="i-lucide-search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted" />
               <input
                 v-model="participantSearch"
                 type="text"
@@ -1023,13 +1023,13 @@ onMounted(() => {
           <div class="max-h-[55vh] overflow-y-auto px-6 py-2">
             <div v-if="loadingParticipants" class="py-12 text-center text-muted">
               <div class="inline-flex items-center gap-2">
-                <span class="i-lucide-loader-2 size-5 animate-spin"></span>
+                <UIcon name="i-lucide-loader-2" class="size-5 animate-spin" />
                 <span>Memuat data peserta...</span>
               </div>
             </div>
 
             <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-muted">
-              <span class="i-lucide-user-x mx-auto size-8 text-muted"></span>
+              <UIcon name="i-lucide-user-x" class="mx-auto size-8 text-muted" />
               <p class="mt-2 text-sm font-medium">Belum ada peserta yang melakukan absensi.</p>
             </div>
 
@@ -1065,7 +1065,7 @@ onMounted(() => {
                           class="size-full object-cover"
                         />
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                          <span class="i-lucide-zoom-in text-white"></span>
+                          <UIcon name="i-lucide-zoom-in" class="size-5 text-white" />
                         </div>
                       </button>
                       <span v-else class="text-muted">-</span>

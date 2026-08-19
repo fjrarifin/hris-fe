@@ -268,7 +268,12 @@ onBeforeUnmount(() => {
       class="flex min-h-screen flex-col items-center justify-center p-6 text-center"
     >
       <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
-        <img :src="backendLogoUrl" alt="Hompimplay Logo" class="mx-auto size-16 rounded-2xl object-contain shadow-md" />
+        <!-- Logo Hompimplay (Direct against canvas, no wrapping card, auto width) -->
+        <img
+          :src="backendLogoUrl"
+          alt="Hompimplay Logo"
+          class="mx-auto h-16 w-auto object-contain"
+        />
 
         <h1 class="mt-4 text-xl font-bold text-slate-900">
           Akses Khusus Smartphone
@@ -289,7 +294,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="mt-6 border-t border-slate-100 pt-4 text-xs text-slate-400">
-          HRIS Attendance System • Hompim Play
+          HRIS Attendance System • Build by IT DEPT • Hompim Play
         </div>
       </div>
     </div>
@@ -299,13 +304,19 @@ onBeforeUnmount(() => {
       <!-- App / Portal Header -->
       <header class="flex items-center justify-between pb-3.5 pt-1 border-b border-slate-200">
         <div class="flex items-center gap-3">
-          <img :src="backendLogoUrl" alt="Hompimplay Logo" class="size-10 rounded-xl object-contain shadow-xs" />
+          <!-- Logo Hompimplay (Direct, large, auto width) -->
+          <img
+            :src="backendLogoUrl"
+            alt="Hompimplay Logo"
+            class="h-11 w-auto object-contain"
+          />
           <div>
             <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Presensi Event</p>
             <p class="text-sm font-bold text-slate-900 leading-tight">Hompim Play HRIS</p>
           </div>
         </div>
 
+        <!-- ONLY Live Badge Icon Retained -->
         <div v-if="eventData && eventData.effective_status === 'aktif'" class="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
           <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Live</span>
@@ -316,26 +327,13 @@ onBeforeUnmount(() => {
       <main class="flex-1 py-4 flex flex-col justify-center">
         <!-- 1. Loading State -->
         <div v-if="loadingEvent" class="py-16 text-center">
-          <div class="inline-flex size-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 animate-spin">
-            <span class="i-lucide-loader-2 text-2xl"></span>
-          </div>
-          <p class="mt-4 text-sm text-slate-600 font-medium">Memuat data event absensi...</p>
+          <p class="text-sm text-slate-600 font-medium">Memuat data event absensi...</p>
         </div>
 
         <!-- 2. Error / Not Found / Expired / Inactive State -->
         <div v-else-if="pageError || (eventData && !eventData.can_attend)" class="my-auto">
           <div class="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-lg">
-            <!-- Icon -->
-            <div
-              class="mx-auto flex size-14 items-center justify-center rounded-2xl"
-              :class="eventData?.is_expired ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'"
-            >
-              <span v-if="eventData?.is_expired" class="i-lucide-clock text-2xl"></span>
-              <span v-else-if="eventData?.is_not_started" class="i-lucide-calendar text-2xl"></span>
-              <span v-else class="i-lucide-ban text-2xl"></span>
-            </div>
-
-            <h2 class="mt-4 text-lg font-bold text-slate-900">
+            <h2 class="text-lg font-bold text-slate-900">
               <span v-if="eventData?.is_expired">Absensi Telah Berakhir</span>
               <span v-else-if="eventData?.is_not_started">Absensi Belum Dibuka</span>
               <span v-else-if="eventData?.is_inactive">Event Sedang Ditutup</span>
@@ -355,7 +353,7 @@ onBeforeUnmount(() => {
 
         <!-- 3. Active Flow -->
         <div v-else-if="eventData" class="space-y-4">
-          <!-- Event Header Banner -->
+          <!-- Event Header Banner (Icons removed) -->
           <div class="rounded-3xl border border-blue-200/80 bg-linear-to-br from-blue-600 to-indigo-700 p-5 text-white shadow-lg shadow-blue-600/15">
             <h1 class="text-lg font-bold text-white leading-snug">
               {{ eventData.nama_event }}
@@ -363,18 +361,16 @@ onBeforeUnmount(() => {
             <p v-if="eventData.deskripsi" class="mt-1 text-xs text-blue-100 leading-relaxed">
               {{ eventData.deskripsi }}
             </p>
-            <div class="mt-3 flex items-center gap-1.5 text-xs text-blue-100 font-medium">
-              <span class="i-lucide-clock size-3.5"></span>
-              <span>Berlaku s/d {{ eventData.tanggal_selesai_formatted }}</span>
+            <div class="mt-3 text-xs text-blue-100 font-medium">
+              Berlaku s/d {{ eventData.tanggal_selesai_formatted }}
             </div>
           </div>
 
           <!-- STEP 1: Input & Validasi NIK -->
           <div v-if="currentStep === 1" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-md space-y-5">
             <div>
-              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600">
-                <span class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">1</span>
-                <span>Langkah 1: Identifikasi Karyawan</span>
+              <div class="text-xs font-bold uppercase tracking-wider text-blue-600">
+                Langkah 1: Identifikasi Karyawan
               </div>
               <h2 class="mt-1.5 text-base font-bold text-slate-900">Masukkan NIK Karyawan</h2>
               <p class="text-xs text-slate-500 mt-0.5">
@@ -383,8 +379,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Error alert -->
-            <div v-if="nikError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700 flex items-start gap-2.5">
-              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-500 mt-0.5"></span>
+            <div v-if="nikError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700">
               <div class="leading-relaxed font-medium">{{ nikError }}</div>
             </div>
 
@@ -393,18 +388,15 @@ onBeforeUnmount(() => {
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">
                   Nomor Induk Karyawan (NIK)
                 </label>
-                <div class="relative">
-                  <span class="i-lucide-id-card absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></span>
-                  <input
-                    v-model="nikInput"
-                    type="text"
-                    placeholder="Contoh: HPP25120031"
-                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3.5 pl-11 pr-4 text-base font-mono font-bold tracking-wider text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:outline-none uppercase"
-                    autofocus
-                    required
-                    @input="nikInput = nikInput.toUpperCase()"
-                  />
-                </div>
+                <input
+                  v-model="nikInput"
+                  type="text"
+                  placeholder="Contoh: HPP25120031"
+                  class="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3.5 px-4 text-base font-mono font-bold tracking-wider text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:outline-none uppercase"
+                  autofocus
+                  required
+                  @input="nikInput = nikInput.toUpperCase()"
+                />
               </div>
 
               <button
@@ -412,9 +404,7 @@ onBeforeUnmount(() => {
                 :disabled="validatingNik || !nikInput.trim()"
                 class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <span v-if="validatingNik" class="i-lucide-loader-2 size-4 animate-spin"></span>
                 <span>{{ validatingNik ? 'Memeriksa Data...' : 'Lanjut ke Foto Selfie' }}</span>
-                <span v-if="!validatingNik" class="i-lucide-arrow-right size-4"></span>
               </button>
             </form>
           </div>
@@ -422,23 +412,17 @@ onBeforeUnmount(() => {
           <!-- STEP 2: Camera Selfie Capture -->
           <div v-if="currentStep === 2" class="rounded-3xl border border-slate-200 bg-white p-5 shadow-md space-y-4">
             <div>
-              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600">
-                <span class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">2</span>
-                <span>Langkah 2: Foto Selfie Kehadiran</span>
+              <div class="text-xs font-bold uppercase tracking-wider text-blue-600">
+                Langkah 2: Foto Selfie Kehadiran
               </div>
             </div>
 
             <!-- Verified Employee Card -->
-            <div v-if="verifiedEmployee" class="flex items-center gap-3 rounded-2xl bg-blue-50/80 p-3.5 border border-blue-100">
-              <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white font-bold shadow-xs">
-                <span class="i-lucide-user text-xl"></span>
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold text-slate-900">{{ verifiedEmployee.nama_karyawan }}</p>
-                <p class="text-xs text-slate-600">
-                  NIK: <span class="font-mono text-blue-700 font-bold">{{ verifiedEmployee.nik }}</span> • {{ verifiedEmployee.jabatan || 'Karyawan' }}
-                </p>
-              </div>
+            <div v-if="verifiedEmployee" class="rounded-2xl bg-blue-50/80 p-4 border border-blue-100">
+              <p class="truncate text-sm font-bold text-slate-900">{{ verifiedEmployee.nama_karyawan }}</p>
+              <p class="text-xs text-slate-600 mt-0.5">
+                NIK: <span class="font-mono text-blue-700 font-bold">{{ verifiedEmployee.nik }}</span> • {{ verifiedEmployee.jabatan || 'Karyawan' }}
+              </p>
             </div>
 
             <!-- Camera Viewport / Captured Preview -->
@@ -471,13 +455,11 @@ onBeforeUnmount(() => {
 
               <!-- Camera Loading Indicator -->
               <div v-if="cameraLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-white">
-                <span class="i-lucide-loader-2 size-8 animate-spin text-blue-400"></span>
-                <p class="mt-2 text-xs font-medium text-slate-300">Membuka kamera selfie...</p>
+                <p class="text-xs font-medium text-slate-300">Membuka kamera selfie...</p>
               </div>
 
               <!-- Camera Error State -->
               <div v-if="cameraError && !capturedPhotoBase64" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900/95 text-rose-300">
-                <span class="i-lucide-camera-off size-8 text-rose-400 mb-2"></span>
                 <p class="text-xs leading-relaxed">{{ cameraError }}</p>
                 <button
                   type="button"
@@ -490,8 +472,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Submit error -->
-            <div v-if="submitError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-start gap-2">
-              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-500 mt-0.5"></span>
+            <div v-if="submitError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
               <div class="leading-relaxed font-medium">{{ submitError }}</div>
             </div>
 
@@ -509,10 +490,9 @@ onBeforeUnmount(() => {
                 <button
                   type="button"
                   :disabled="!cameraActive"
-                  class="flex-2 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-blue-700 transition-all"
+                  class="flex-2 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center hover:bg-blue-700 transition-all"
                   @click="takeSnapshot"
                 >
-                  <span class="i-lucide-camera size-4"></span>
                   <span>Ambil Foto</span>
                 </button>
               </div>
@@ -530,12 +510,10 @@ onBeforeUnmount(() => {
                 <button
                   type="button"
                   :disabled="submittingAttendance"
-                  class="flex-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all"
+                  class="flex-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center hover:bg-emerald-700 transition-all"
                   @click="submitAttendance"
                 >
-                  <span v-if="submittingAttendance" class="i-lucide-loader-2 size-4 animate-spin"></span>
                   <span>{{ submittingAttendance ? 'Mengirim...' : 'Kirim Absensi' }}</span>
-                  <span v-if="!submittingAttendance" class="i-lucide-check size-4"></span>
                 </button>
               </div>
             </div>
@@ -543,11 +521,6 @@ onBeforeUnmount(() => {
 
           <!-- STEP 3: Success Confirmation Screen -->
           <div v-if="currentStep === 3 && attendanceResult" class="rounded-3xl border border-emerald-200 bg-white p-6 text-center shadow-xl space-y-5">
-            <!-- Animated checkmark -->
-            <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-md shadow-emerald-500/10">
-              <span class="i-lucide-check-circle-2 text-3xl"></span>
-            </div>
-
             <div>
               <h2 class="text-xl font-bold text-slate-900">Absensi Berhasil Tercatat!</h2>
               <p class="mt-1 text-xs text-slate-500">
@@ -596,9 +569,9 @@ onBeforeUnmount(() => {
         </div>
       </main>
 
-      <!-- Footer -->
+      <!-- Footer with Build by IT DEPT -->
       <footer class="pt-3 pb-2 text-center text-[11px] text-slate-400 border-t border-slate-200">
-        HRIS Presensi Event • Hompim Play &copy; 2026
+        HRIS Presensi Event • Build by IT DEPT • Hompim Play &copy; 2026
       </footer>
     </div>
   </div>
