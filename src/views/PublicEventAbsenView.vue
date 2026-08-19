@@ -7,6 +7,7 @@ import {
   submitPublicEventAttendance,
   validatePublicEventNik,
 } from '../services/eventAbsenService'
+import { backendLogoUrl } from '../services/api'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug)
@@ -267,11 +268,9 @@ onBeforeUnmount(() => {
       class="flex min-h-screen flex-col items-center justify-center p-6 text-center"
     >
       <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
-        <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-          <span class="i-lucide-smartphone text-3xl"></span>
-        </div>
+        <img :src="backendLogoUrl" alt="Hompimplay Logo" class="mx-auto size-16 rounded-2xl object-contain shadow-md" />
 
-        <h1 class="mt-5 text-xl font-bold text-slate-900">
+        <h1 class="mt-4 text-xl font-bold text-slate-900">
           Akses Khusus Smartphone
         </h1>
         <p class="mt-2 text-sm leading-relaxed text-slate-600">
@@ -299,13 +298,11 @@ onBeforeUnmount(() => {
     <div v-else class="flex flex-1 flex-col mx-auto w-full max-w-md p-4">
       <!-- App / Portal Header -->
       <header class="flex items-center justify-between pb-3.5 pt-1 border-b border-slate-200">
-        <div class="flex items-center gap-2.5">
-          <div class="flex size-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-md shadow-blue-500/20">
-            <span class="i-lucide-calendar-check text-lg"></span>
-          </div>
+        <div class="flex items-center gap-3">
+          <img :src="backendLogoUrl" alt="Hompimplay Logo" class="size-10 rounded-xl object-contain shadow-xs" />
           <div>
             <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Presensi Event</p>
-            <p class="text-sm font-bold text-slate-900 leading-none">HRIS Portal</p>
+            <p class="text-sm font-bold text-slate-900 leading-tight">Hompim Play HRIS</p>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import QRCode from 'qrcode'
+import SecureImage from '../components/SecureImage.vue'
 import {
   createEventAbsen,
   deleteEventAbsen,
@@ -133,7 +134,7 @@ function openCreateModal() {
     deskripsi: '',
     slug: '',
     tanggal_mulai: formatDateTimeInput(new Date()),
-    tanggal_selesai: formatDateTimeInput(new Date(Date.now() + 8 * 3600 * 1000)), // default +8 hours
+    tanggal_selesai: formatDateTimeInput(new Date(Date.now() + 8 * 3600 * 1000)),
     status: 'aktif',
   })
   Object.keys(formErrors).forEach((k) => delete formErrors[k])
@@ -464,7 +465,7 @@ onMounted(() => {
 
     <!-- Summary Statistics KPI Cards -->
     <div class="grid gap-4 sm:grid-cols-3">
-      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
+      <div class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -480,7 +481,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
+      <div class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -496,7 +497,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
+      <div class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -514,7 +515,7 @@ onMounted(() => {
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="flex flex-col gap-3 rounded-xl border border-default bg-card p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
         <div class="relative flex-1 max-w-md">
           <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
@@ -549,7 +550,7 @@ onMounted(() => {
     </div>
 
     <!-- Events List Table -->
-    <div class="overflow-hidden rounded-xl border border-default bg-card shadow-xs">
+    <div class="overflow-hidden rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead class="border-b border-default bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted">
@@ -727,31 +728,40 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Create / Edit Event Modal -->
+    <!-- Create / Edit Event Modal (Solid Nuxt UCard) -->
     <div
       v-if="showFormModal"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
     >
-      <div class="w-full max-w-lg rounded-2xl border border-default bg-card p-6 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-default pb-4">
-          <div>
-            <h3 class="text-lg font-bold text-highlighted">
-              {{ isEditing ? 'Edit Event Absensi' : 'Buat Event Absensi Baru' }}
-            </h3>
-            <p class="text-xs text-muted">
-              Isi data detail event untuk membuat link absensi publik karyawan.
-            </p>
-          </div>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            icon="i-lucide-x"
-            @click="showFormModal = false"
-          />
-        </div>
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup form event"
+        @click="showFormModal = false"
+      ></button>
 
-        <form class="mt-4 space-y-4" @submit.prevent="saveEvent">
+      <UCard class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto shadow-2xl">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-bold text-highlighted">
+                {{ isEditing ? 'Edit Event Absensi' : 'Buat Event Absensi Baru' }}
+              </h3>
+              <p class="text-xs text-muted">
+                Isi data detail event untuk membuat link absensi publik karyawan.
+              </p>
+            </div>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="showFormModal = false"
+            />
+          </div>
+        </template>
+
+        <form class="space-y-4" @submit.prevent="saveEvent">
           <!-- Nama Event -->
           <div>
             <label class="block text-xs font-semibold uppercase text-muted">
@@ -873,45 +883,56 @@ onMounted(() => {
             />
           </div>
         </form>
-      </div>
+      </UCard>
     </div>
 
-    <!-- QR Code Modal -->
+    <!-- QR Code Modal (Solid Nuxt UCard) -->
     <div
       v-if="showQrModal && selectedQrEvent"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
     >
-      <div class="w-full max-w-sm rounded-2xl border border-default bg-card p-6 text-center shadow-2xl">
-        <div class="flex items-center justify-between pb-3">
-          <h3 class="font-bold text-highlighted">QR Code Absensi</h3>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            icon="i-lucide-x"
-            @click="showQrModal = false"
-          />
-        </div>
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup QR modal"
+        @click="showQrModal = false"
+      ></button>
 
-        <div class="mt-2">
-          <p class="text-base font-semibold text-highlighted">
-            {{ selectedQrEvent.nama_event }}
-          </p>
-          <p class="mt-1 text-xs text-muted">
-            Scan QR Code ini menggunakan HP untuk melakukan absensi event.
-          </p>
+      <UCard class="relative w-full max-w-sm overflow-hidden shadow-2xl text-center">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-highlighted">QR Code Absensi</h3>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="showQrModal = false"
+            />
+          </div>
+        </template>
 
-          <div class="my-5 flex items-center justify-center">
+        <div class="space-y-4">
+          <div>
+            <p class="text-base font-semibold text-highlighted">
+              {{ selectedQrEvent.nama_event }}
+            </p>
+            <p class="mt-1 text-xs text-muted">
+              Scan QR Code ini menggunakan HP untuk melakukan absensi event.
+            </p>
+          </div>
+
+          <div class="flex items-center justify-center py-2">
             <div class="rounded-2xl border border-default bg-white p-3 shadow-inner">
               <canvas ref="qrCanvasRef" class="mx-auto rounded-lg"></canvas>
             </div>
           </div>
 
-          <div class="rounded-lg bg-muted/50 p-2.5 text-xs font-mono text-muted">
+          <div class="rounded-lg bg-muted/50 p-2.5 text-xs font-mono text-muted break-all">
             {{ publicBaseUrl }}{{ selectedQrEvent.slug }}
           </div>
 
-          <div class="mt-5 grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2 pt-2">
             <UButton
               color="neutral"
               variant="outline"
@@ -930,196 +951,216 @@ onMounted(() => {
             />
           </div>
         </div>
-      </div>
+      </UCard>
     </div>
 
-    <!-- Participants Detail Modal / Drawer -->
+    <!-- Participants Detail Modal / Drawer (Solid Nuxt UCard) -->
     <div
       v-if="showParticipantsModal && selectedDetailEvent"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
     >
-      <div class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-default bg-card shadow-2xl">
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-default px-6 py-4">
-          <div>
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60"
+        aria-label="Tutup modal peserta"
+        @click="showParticipantsModal = false"
+      ></button>
+
+      <UCard class="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden shadow-2xl">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-highlighted">
+                  Daftar Peserta Hadir
+                </h3>
+                <UBadge
+                  color="primary"
+                  variant="subtle"
+                  :label="`${participants.length} Hadir`"
+                />
+              </div>
+              <p class="mt-0.5 text-xs text-muted">
+                {{ selectedDetailEvent.nama_event }} ({{ formatDateTime(selectedDetailEvent.tanggal_mulai) }} - {{ formatDateTime(selectedDetailEvent.tanggal_selesai) }})
+              </p>
+            </div>
+
             <div class="flex items-center gap-2">
-              <h3 class="text-lg font-bold text-highlighted">
-                Daftar Peserta Hadir
-              </h3>
-              <UBadge
-                color="primary"
-                variant="subtle"
-                :label="`${participants.length} Hadir`"
+              <UButton
+                color="neutral"
+                variant="outline"
+                size="sm"
+                icon="i-lucide-download"
+                label="Export CSV"
+                @click="downloadExport(selectedDetailEvent)"
+              />
+              <UButton
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-x"
+                @click="showParticipantsModal = false"
               />
             </div>
-            <p class="mt-0.5 text-xs text-muted">
-              {{ selectedDetailEvent.nama_event }} ({{ formatDateTime(selectedDetailEvent.tanggal_mulai) }} - {{ formatDateTime(selectedDetailEvent.tanggal_selesai) }})
-            </p>
+          </div>
+        </template>
+
+        <div class="-mx-6 -my-4 flex flex-col">
+          <!-- Search Bar -->
+          <div class="border-b border-default bg-muted/20 px-6 py-3">
+            <div class="relative max-w-sm">
+              <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
+              <input
+                v-model="participantSearch"
+                type="text"
+                placeholder="Cari NIK, nama, atau jabatan..."
+                class="w-full rounded-md border border-default bg-default py-1.5 pl-9 pr-3 text-xs text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
+              />
+            </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <!-- Participants Table Body -->
+          <div class="max-h-[55vh] overflow-y-auto px-6 py-2">
+            <div v-if="loadingParticipants" class="py-12 text-center text-muted">
+              <div class="inline-flex items-center gap-2">
+                <span class="i-lucide-loader-2 size-5 animate-spin"></span>
+                <span>Memuat data peserta...</span>
+              </div>
+            </div>
+
+            <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-muted">
+              <span class="i-lucide-user-x mx-auto size-8 text-muted"></span>
+              <p class="mt-2 text-sm font-medium">Belum ada peserta yang melakukan absensi.</p>
+            </div>
+
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="border-b border-default bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <tr>
+                    <th class="px-4 py-3">Foto Selfie</th>
+                    <th class="px-4 py-3">NIK</th>
+                    <th class="px-4 py-3">Nama Karyawan</th>
+                    <th class="px-4 py-3">Jabatan & Divisi</th>
+                    <th class="px-4 py-3">Waktu Absen</th>
+                    <th class="px-4 py-3">Device / IP</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-default">
+                  <tr
+                    v-for="att in filteredParticipants"
+                    :key="att.id"
+                    class="transition-colors hover:bg-muted/30"
+                  >
+                    <!-- Photo Thumbnail -->
+                    <td class="px-4 py-2.5">
+                      <button
+                        v-if="att.foto_url"
+                        type="button"
+                        class="group relative size-12 overflow-hidden rounded-xl border border-default bg-muted shadow-xs transition-transform hover:scale-105"
+                        @click="selectedPhotoPreview = att"
+                      >
+                        <SecureImage
+                          :src="att.foto_url"
+                          alt="Foto Selfie"
+                          class="size-full object-cover"
+                        />
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                          <span class="i-lucide-zoom-in text-white"></span>
+                        </div>
+                      </button>
+                      <span v-else class="text-muted">-</span>
+                    </td>
+
+                    <!-- NIK -->
+                    <td class="px-4 py-2.5 font-mono font-bold text-highlighted">
+                      {{ att.nik_karyawan }}
+                    </td>
+
+                    <!-- Nama -->
+                    <td class="px-4 py-2.5 font-medium text-highlighted">
+                      {{ att.karyawan?.nama_karyawan || '-' }}
+                    </td>
+
+                    <!-- Jabatan / Divisi -->
+                    <td class="px-4 py-2.5">
+                      <div class="text-highlighted">{{ att.karyawan?.jabatan || '-' }}</div>
+                      <div class="text-[11px] text-muted">{{ att.karyawan?.divisi || '-' }}</div>
+                    </td>
+
+                    <!-- Waktu Absen -->
+                    <td class="px-4 py-2.5 text-highlighted">
+                      <div class="font-medium">{{ formatDateTime(att.jam_absen) }}</div>
+                    </td>
+
+                    <!-- Device / IP -->
+                    <td class="px-4 py-2.5">
+                      <div class="font-mono text-[11px] text-muted">{{ att.ip_address || '-' }}</div>
+                      <div class="line-clamp-1 max-w-[140px] text-[10px] text-muted" :title="att.user_agent">
+                        {{ att.user_agent || '-' }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex items-center justify-end">
             <UButton
               color="neutral"
               variant="outline"
               size="sm"
-              icon="i-lucide-download"
-              label="Export CSV"
-              @click="downloadExport(selectedDetailEvent)"
+              label="Tutup"
+              @click="showParticipantsModal = false"
             />
+          </div>
+        </template>
+      </UCard>
+    </div>
+
+    <!-- Photo Zoom Modal (Solid Nuxt UCard) -->
+    <div
+      v-if="selectedPhotoPreview"
+      class="fixed inset-0 z-60 flex items-center justify-center p-4"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/80"
+        aria-label="Tutup preview foto"
+        @click="selectedPhotoPreview = null"
+      ></button>
+
+      <UCard class="relative max-w-md w-full overflow-hidden shadow-2xl">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div class="min-w-0 flex-1">
+              <p class="font-bold text-highlighted truncate">
+                {{ selectedPhotoPreview.karyawan?.nama_karyawan || selectedPhotoPreview.nik_karyawan }}
+              </p>
+              <p class="text-xs text-muted">
+                NIK: {{ selectedPhotoPreview.nik_karyawan }} • {{ formatDateTime(selectedPhotoPreview.jam_absen) }}
+              </p>
+            </div>
             <UButton
               color="neutral"
               variant="ghost"
               size="sm"
               icon="i-lucide-x"
-              @click="showParticipantsModal = false"
+              @click="selectedPhotoPreview = null"
             />
           </div>
-        </div>
+        </template>
 
-        <!-- Search Bar -->
-        <div class="border-b border-default bg-muted/20 px-6 py-3">
-          <div class="relative max-w-sm">
-            <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
-            <input
-              v-model="participantSearch"
-              type="text"
-              placeholder="Cari NIK, nama, atau jabatan..."
-              class="w-full rounded-md border border-default bg-default py-1.5 pl-9 pr-3 text-xs text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <!-- Participants Table Body -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <div v-if="loadingParticipants" class="py-12 text-center text-muted">
-            <div class="inline-flex items-center gap-2">
-              <span class="i-lucide-loader-2 size-5 animate-spin"></span>
-              <span>Memuat data peserta...</span>
-            </div>
-          </div>
-
-          <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-muted">
-            <span class="i-lucide-user-x mx-auto size-8 text-muted"></span>
-            <p class="mt-2 text-sm font-medium">Belum ada peserta yang melakukan absensi.</p>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="border-b border-default bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted">
-                <tr>
-                  <th class="px-4 py-3">Foto Selfie</th>
-                  <th class="px-4 py-3">NIK</th>
-                  <th class="px-4 py-3">Nama Karyawan</th>
-                  <th class="px-4 py-3">Jabatan & Divisi</th>
-                  <th class="px-4 py-3">Waktu Absen</th>
-                  <th class="px-4 py-3">Device / IP</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-default">
-                <tr
-                  v-for="att in filteredParticipants"
-                  :key="att.id"
-                  class="transition-colors hover:bg-muted/30"
-                >
-                  <!-- Photo Thumbnail -->
-                  <td class="px-4 py-2.5">
-                    <button
-                      v-if="att.foto_url"
-                      type="button"
-                      class="group relative size-11 overflow-hidden rounded-xl border border-default bg-muted shadow-xs transition-transform hover:scale-105"
-                      @click="selectedPhotoPreview = att"
-                    >
-                      <img
-                        :src="att.foto_url"
-                        alt="Foto Selfie"
-                        class="size-full object-cover"
-                      />
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                        <span class="i-lucide-zoom-in text-white"></span>
-                      </div>
-                    </button>
-                    <span v-else class="text-muted">-</span>
-                  </td>
-
-                  <!-- NIK -->
-                  <td class="px-4 py-2.5 font-mono font-bold text-highlighted">
-                    {{ att.nik_karyawan }}
-                  </td>
-
-                  <!-- Nama -->
-                  <td class="px-4 py-2.5 font-medium text-highlighted">
-                    {{ att.karyawan?.nama_karyawan || '-' }}
-                  </td>
-
-                  <!-- Jabatan / Divisi -->
-                  <td class="px-4 py-2.5">
-                    <div class="text-highlighted">{{ att.karyawan?.jabatan || '-' }}</div>
-                    <div class="text-[11px] text-muted">{{ att.karyawan?.divisi || '-' }}</div>
-                  </td>
-
-                  <!-- Waktu Absen -->
-                  <td class="px-4 py-2.5 text-highlighted">
-                    <div class="font-medium">{{ formatDateTime(att.jam_absen) }}</div>
-                  </td>
-
-                  <!-- Device / IP -->
-                  <td class="px-4 py-2.5">
-                    <div class="font-mono text-[11px] text-muted">{{ att.ip_address || '-' }}</div>
-                    <div class="line-clamp-1 max-w-[140px] text-[10px] text-muted" :title="att.user_agent">
-                      {{ att.user_agent || '-' }}
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="flex items-center justify-end border-t border-default px-6 py-3">
-          <UButton
-            color="neutral"
-            variant="outline"
-            size="sm"
-            label="Tutup"
-            @click="showParticipantsModal = false"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Photo Zoom Modal -->
-    <div
-      v-if="selectedPhotoPreview"
-      class="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 p-4"
-      @click.self="selectedPhotoPreview = null"
-    >
-      <div class="relative max-w-md overflow-hidden rounded-2xl border border-default bg-card p-4 shadow-2xl">
-        <button
-          type="button"
-          class="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-950/60 text-white transition-colors hover:bg-slate-950"
-          @click="selectedPhotoPreview = null"
-        >
-          <span class="i-lucide-x size-4"></span>
-        </button>
-
-        <div class="overflow-hidden rounded-xl bg-black">
-          <img
+        <div class="overflow-hidden rounded-xl bg-black flex items-center justify-center">
+          <SecureImage
             :src="selectedPhotoPreview.foto_url"
             alt="Foto Selfie Peserta"
             class="max-h-[65vh] w-full object-contain"
           />
         </div>
-
-        <div class="mt-3 text-center">
-          <p class="font-bold text-highlighted">
-            {{ selectedPhotoPreview.karyawan?.nama_karyawan || selectedPhotoPreview.nik_karyawan }}
-          </p>
-          <p class="text-xs text-muted">
-            NIK: {{ selectedPhotoPreview.nik_karyawan }} • {{ formatDateTime(selectedPhotoPreview.jam_absen) }}
-          </p>
-        </div>
-      </div>
+      </UCard>
     </div>
   </section>
 </template>
