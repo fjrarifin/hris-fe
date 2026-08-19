@@ -1,12 +1,11 @@
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import QRCode from 'qrcode'
 import {
   createEventAbsen,
   deleteEventAbsen,
   exportEventAbsenParticipants,
   getEventAbsenDetail,
-  getEventAbsenExportUrl,
   getEventAbsenList,
   updateEventAbsen,
 } from '../services/eventAbsenService'
@@ -70,6 +69,9 @@ const publicBaseUrl = computed(() => {
   }
   return '/absen-event/'
 })
+
+const formControlClass =
+  'w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20'
 
 const filteredParticipants = computed(() => {
   if (!participantSearch.value.trim()) {
@@ -234,7 +236,7 @@ async function openQrModal(item) {
   try {
     if (qrCanvasRef.value) {
       await QRCode.toCanvas(qrCanvasRef.value, fullUrl, {
-        width: 280,
+        width: 260,
         margin: 2,
         color: {
           dark: '#0f172a',
@@ -401,27 +403,27 @@ function getStatusBadge(item) {
     return {
       label: 'Aktif',
       color: 'emerald',
-      bgClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+      variant: 'subtle',
     }
   }
   if (status === 'kadaluarsa') {
     return {
       label: 'Selesai',
       color: 'neutral',
-      bgClass: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
+      variant: 'subtle',
     }
   }
   if (status === 'mendatang') {
     return {
       label: 'Mendatang',
       color: 'primary',
-      bgClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+      variant: 'subtle',
     }
   }
   return {
     label: 'Nonaktif',
     color: 'error',
-    bgClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+    variant: 'subtle',
   }
 }
 
@@ -431,83 +433,80 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <section class="space-y-6">
     <!-- Header Section -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Absensi Event & Non-Kerja
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
+        <h2 class="text-2xl font-semibold text-highlighted">Absensi Event & Non-Kerja</h2>
+        <p class="mt-1 text-sm text-muted">
           Kelola public link absensi untuk kegiatan workshop, training K3, gathering, dan acara temporal lainnya.
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2">
         <UButton
           color="neutral"
           variant="outline"
           icon="i-lucide-refresh-cw"
+          label="Muat Ulang"
           :loading="loading"
           @click="loadEvents(pagination.current_page)"
-        >
-          Muat Ulang
-        </UButton>
+        />
         <UButton
           color="primary"
+          variant="solid"
           icon="i-lucide-plus"
+          label="Buat Event Absen"
           @click="openCreateModal"
-        >
-          Buat Event Absen
-        </UButton>
+        />
       </div>
     </div>
 
     <!-- Summary Statistics KPI Cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
               Total Event
             </p>
-            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+            <p class="mt-1 text-2xl font-bold text-highlighted">
               {{ summary.total_events || 0 }}
             </p>
           </div>
-          <div class="flex size-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+          <div class="flex size-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
             <span class="i-lucide-calendar text-xl"></span>
           </div>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
               Event Aktif Berjalan
             </p>
-            <p class="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <p class="mt-1 text-2xl font-bold text-emerald-600">
               {{ summary.active_events || 0 }}
             </p>
           </div>
-          <div class="flex size-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <div class="flex size-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
             <span class="i-lucide-radio text-xl"></span>
           </div>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="rounded-xl border border-default bg-card p-5 shadow-xs">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
               Total Kehadiran Peserta
             </p>
-            <p class="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+            <p class="mt-1 text-2xl font-bold text-indigo-600">
               {{ summary.total_attendances || 0 }}
             </p>
           </div>
-          <div class="flex size-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+          <div class="flex size-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
             <span class="i-lucide-users text-xl"></span>
           </div>
         </div>
@@ -515,22 +514,22 @@ onMounted(() => {
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 rounded-xl border border-default bg-card p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
         <div class="relative flex-1 max-w-md">
-          <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></span>
+          <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
           <input
             v-model="filters.search"
             type="text"
             placeholder="Cari nama event, deskripsi, atau slug..."
-            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            class="w-full rounded-md border border-default bg-default py-2 pl-9 pr-4 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
             @keyup.enter="loadEvents(1)"
           />
         </div>
 
         <select
           v-model="filters.status"
-          class="rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          class="rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none"
           @change="loadEvents(1)"
         >
           <option value="">Semua Status</option>
@@ -541,20 +540,19 @@ onMounted(() => {
 
         <UButton
           color="neutral"
-          variant="soft"
+          variant="outline"
           size="sm"
+          label="Filter"
           @click="loadEvents(1)"
-        >
-          Filter
-        </UButton>
+        />
       </div>
     </div>
 
     <!-- Events List Table -->
-    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="overflow-hidden rounded-xl border border-default bg-card shadow-xs">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-          <thead class="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-default bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted">
             <tr>
               <th class="px-5 py-3.5">Nama Event & Deskripsi</th>
               <th class="px-5 py-3.5">Public Link</th>
@@ -564,9 +562,9 @@ onMounted(() => {
               <th class="px-5 py-3.5 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody class="divide-y divide-default">
             <tr v-if="loading && !events.length">
-              <td colspan="6" class="px-5 py-12 text-center text-slate-400">
+              <td colspan="6" class="px-5 py-12 text-center text-muted">
                 <div class="inline-flex items-center gap-2">
                   <span class="i-lucide-loader-2 size-5 animate-spin"></span>
                   <span>Memuat daftar event...</span>
@@ -575,11 +573,11 @@ onMounted(() => {
             </tr>
 
             <tr v-else-if="!events.length">
-              <td colspan="6" class="px-5 py-12 text-center text-slate-400">
+              <td colspan="6" class="px-5 py-12 text-center text-muted">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="i-lucide-calendar-x size-8 text-slate-300"></span>
-                  <p class="font-medium text-slate-600 dark:text-slate-300">Belum ada event absensi</p>
-                  <p class="text-xs text-slate-400">Klik tombol "Buat Event Absen" di atas untuk membuat public link baru.</p>
+                  <span class="i-lucide-calendar-x size-8 text-muted"></span>
+                  <p class="font-medium text-highlighted">Belum ada event absensi</p>
+                  <p class="text-xs text-muted">Klik tombol "Buat Event Absen" di atas untuk membuat public link baru.</p>
                 </div>
               </td>
             </tr>
@@ -587,17 +585,17 @@ onMounted(() => {
             <tr
               v-for="item in events"
               :key="item.id"
-              class="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+              class="transition-colors hover:bg-muted/30"
             >
               <!-- Event Name & Desc -->
               <td class="px-5 py-4">
-                <div class="font-semibold text-slate-900 dark:text-white">
+                <div class="font-semibold text-highlighted">
                   {{ item.nama_event }}
                 </div>
-                <div v-if="item.deskripsi" class="mt-0.5 line-clamp-1 text-xs text-slate-500 dark:text-slate-400">
+                <div v-if="item.deskripsi" class="mt-0.5 line-clamp-1 text-xs text-muted">
                   {{ item.deskripsi }}
                 </div>
-                <div class="mt-1 flex items-center gap-2 text-[11px] text-slate-400">
+                <div class="mt-1 flex items-center gap-2 text-[11px] text-muted">
                   <span class="i-lucide-user size-3"></span>
                   <span>{{ item.creator?.name || 'Admin' }}</span>
                   <span>•</span>
@@ -608,13 +606,13 @@ onMounted(() => {
               <!-- Public Link -->
               <td class="px-5 py-4">
                 <div class="flex items-center gap-2">
-                  <span class="inline-block max-w-[180px] truncate font-mono text-xs text-slate-600 dark:text-slate-400">
+                  <span class="inline-block max-w-[180px] truncate font-mono text-xs text-muted">
                     /absen-event/{{ item.slug }}
                   </span>
                   <button
                     type="button"
                     title="Salin Link"
-                    class="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-highlighted"
                     @click="copyPublicLink(item.slug)"
                   >
                     <span class="i-lucide-copy size-4"></span>
@@ -622,7 +620,7 @@ onMounted(() => {
                   <button
                     type="button"
                     title="Buka QR Code"
-                    class="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary-600 dark:hover:bg-slate-800 dark:hover:text-primary-400"
+                    class="rounded-lg p-1 text-muted transition-colors hover:bg-muted hover:text-primary"
                     @click="openQrModal(item)"
                   >
                     <span class="i-lucide-qr-code size-4"></span>
@@ -632,29 +630,28 @@ onMounted(() => {
 
               <!-- Periode -->
               <td class="px-5 py-4">
-                <div class="text-xs font-medium text-slate-700 dark:text-slate-200">
+                <div class="text-xs font-medium text-highlighted">
                   {{ formatDateTime(item.tanggal_mulai) }}
                 </div>
-                <div class="text-[11px] text-slate-400">
+                <div class="text-[11px] text-muted">
                   s/d {{ formatDateTime(item.tanggal_selesai) }}
                 </div>
               </td>
 
               <!-- Status Badge -->
               <td class="px-5 py-4 text-center">
-                <span
-                  class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium"
-                  :class="getStatusBadge(item).bgClass"
-                >
-                  {{ getStatusBadge(item).label }}
-                </span>
+                <UBadge
+                  :color="getStatusBadge(item).color"
+                  :variant="getStatusBadge(item).variant"
+                  :label="getStatusBadge(item).label"
+                />
               </td>
 
               <!-- Total Attendances -->
               <td class="px-5 py-4 text-center">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
                   @click="openParticipantsModal(item)"
                 >
                   <span class="i-lucide-users size-3.5"></span>
@@ -705,8 +702,8 @@ onMounted(() => {
       </div>
 
       <!-- Pagination Footer -->
-      <div v-if="pagination.last_page > 1" class="flex items-center justify-between border-t border-slate-200 px-5 py-3 dark:border-slate-800">
-        <p class="text-xs text-slate-500 dark:text-slate-400">
+      <div v-if="pagination.last_page > 1" class="flex items-center justify-between border-t border-default px-5 py-3">
+        <p class="text-xs text-muted">
           Menampilkan halaman {{ pagination.current_page }} dari {{ pagination.last_page }} (Total {{ pagination.total }} event)
         </p>
         <div class="flex items-center gap-2">
@@ -714,20 +711,18 @@ onMounted(() => {
             color="neutral"
             variant="outline"
             size="xs"
+            label="Sebelumnya"
             :disabled="pagination.current_page <= 1"
             @click="loadEvents(pagination.current_page - 1)"
-          >
-            Sebelumnya
-          </UButton>
+          />
           <UButton
             color="neutral"
             variant="outline"
             size="xs"
+            label="Berikutnya"
             :disabled="pagination.current_page >= pagination.last_page"
             @click="loadEvents(pagination.current_page + 1)"
-          >
-            Berikutnya
-          </UButton>
+          />
         </div>
       </div>
     </div>
@@ -735,38 +730,38 @@ onMounted(() => {
     <!-- Create / Edit Event Modal -->
     <div
       v-if="showFormModal"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-xs"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
     >
-      <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+      <div class="w-full max-w-lg rounded-2xl border border-default bg-card p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-default pb-4">
           <div>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+            <h3 class="text-lg font-bold text-highlighted">
               {{ isEditing ? 'Edit Event Absensi' : 'Buat Event Absensi Baru' }}
             </h3>
-            <p class="text-xs text-slate-500">
+            <p class="text-xs text-muted">
               Isi data detail event untuk membuat link absensi publik karyawan.
             </p>
           </div>
-          <button
-            type="button"
-            class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-x"
             @click="showFormModal = false"
-          >
-            <span class="i-lucide-x size-5"></span>
-          </button>
+          />
         </div>
 
         <form class="mt-4 space-y-4" @submit.prevent="saveEvent">
           <!-- Nama Event -->
           <div>
-            <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            <label class="block text-xs font-semibold uppercase text-muted">
               Nama Event / Acara <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="form.nama_event"
               type="text"
               placeholder="Contoh: Training K3 Pabrik - 20 Agustus 2026"
-              class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              :class="formControlClass"
               required
               @input="handleNameInput"
             />
@@ -777,36 +772,36 @@ onMounted(() => {
 
           <!-- Deskripsi -->
           <div>
-            <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            <label class="block text-xs font-semibold uppercase text-muted">
               Deskripsi / Keterangan (Opsional)
             </label>
             <textarea
               v-model="form.deskripsi"
               rows="2"
               placeholder="Catatan tambahan mengenai lokasi atau instruksi event..."
-              class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              :class="formControlClass"
             ></textarea>
           </div>
 
           <!-- Slug Custom -->
           <div>
-            <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            <label class="block text-xs font-semibold uppercase text-muted">
               Slug Link Publik <span class="text-rose-500">*</span>
             </label>
-            <div class="mt-1.5 flex rounded-xl border border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
-              <span class="flex select-none items-center pl-3 text-xs text-slate-400">
+            <div class="mt-1.5 flex rounded-md border border-default bg-default">
+              <span class="flex select-none items-center pl-3 text-xs text-muted">
                 /absen-event/
               </span>
               <input
                 v-model="form.slug"
                 type="text"
                 placeholder="training-k3-agustus"
-                class="w-full bg-transparent px-2 py-2 text-sm font-mono text-slate-900 focus:outline-none dark:text-white"
+                class="w-full bg-transparent px-2 py-2 text-sm font-mono text-highlighted focus:outline-none"
                 required
               />
             </div>
-            <p class="mt-1 text-[11px] text-slate-400">
-              URL Link: <span class="font-mono text-primary-600 dark:text-primary-400">{{ publicBaseUrl }}{{ form.slug || 'slug-event' }}</span>
+            <p class="mt-1 text-[11px] text-muted">
+              URL Link: <span class="font-mono text-primary">{{ publicBaseUrl }}{{ form.slug || 'slug-event' }}</span>
             </p>
             <p v-if="formErrors.slug" class="mt-1 text-xs text-rose-500">
               {{ formErrors.slug[0] }}
@@ -816,13 +811,13 @@ onMounted(() => {
           <!-- Waktu Mulai & Selesai -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+              <label class="block text-xs font-semibold uppercase text-muted">
                 Tanggal & Jam Mulai <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.tanggal_mulai"
                 type="datetime-local"
-                class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                :class="formControlClass"
                 required
               />
               <p v-if="formErrors.tanggal_mulai" class="mt-1 text-xs text-rose-500">
@@ -831,13 +826,13 @@ onMounted(() => {
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+              <label class="block text-xs font-semibold uppercase text-muted">
                 Tanggal & Jam Selesai <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.tanggal_selesai"
                 type="datetime-local"
-                class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                :class="formControlClass"
                 required
               />
               <p v-if="formErrors.tanggal_selesai" class="mt-1 text-xs text-rose-500">
@@ -848,12 +843,12 @@ onMounted(() => {
 
           <!-- Status -->
           <div>
-            <label class="block text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            <label class="block text-xs font-semibold uppercase text-muted">
               Status Event
             </label>
             <select
               v-model="form.status"
-              class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              :class="formControlClass"
             >
               <option value="aktif">Aktif (Bisa Diabsen Sesuai Jadwal)</option>
               <option value="nonaktif">Nonaktif (Tutup / Kunci Absen Sementara)</option>
@@ -861,22 +856,21 @@ onMounted(() => {
           </div>
 
           <!-- Footer Buttons -->
-          <div class="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <div class="mt-6 flex items-center justify-end gap-3 border-t border-default pt-4">
             <UButton
               color="neutral"
               variant="outline"
               type="button"
+              label="Batal"
               @click="showFormModal = false"
-            >
-              Batal
-            </UButton>
+            />
             <UButton
               color="primary"
+              variant="solid"
               type="submit"
+              :label="isEditing ? 'Simpan Perubahan' : 'Buat Event'"
               :loading="saving"
-            >
-              {{ isEditing ? 'Simpan Perubahan' : 'Buat Event' }}
-            </UButton>
+            />
           </div>
         </form>
       </div>
@@ -885,35 +879,35 @@ onMounted(() => {
     <!-- QR Code Modal -->
     <div
       v-if="showQrModal && selectedQrEvent"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-xs"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
     >
-      <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+      <div class="w-full max-w-sm rounded-2xl border border-default bg-card p-6 text-center shadow-2xl">
         <div class="flex items-center justify-between pb-3">
-          <h3 class="font-bold text-slate-900 dark:text-white">QR Code Absensi</h3>
-          <button
-            type="button"
-            class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
+          <h3 class="font-bold text-highlighted">QR Code Absensi</h3>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-x"
             @click="showQrModal = false"
-          >
-            <span class="i-lucide-x size-5"></span>
-          </button>
+          />
         </div>
 
         <div class="mt-2">
-          <p class="text-base font-semibold text-slate-900 dark:text-white">
+          <p class="text-base font-semibold text-highlighted">
             {{ selectedQrEvent.nama_event }}
           </p>
-          <p class="mt-1 text-xs text-slate-500">
+          <p class="mt-1 text-xs text-muted">
             Scan QR Code ini menggunakan HP untuk melakukan absensi event.
           </p>
 
           <div class="my-5 flex items-center justify-center">
-            <div class="rounded-2xl border-2 border-slate-100 bg-white p-3 shadow-inner dark:border-slate-700">
+            <div class="rounded-2xl border border-default bg-white p-3 shadow-inner">
               <canvas ref="qrCanvasRef" class="mx-auto rounded-lg"></canvas>
             </div>
           </div>
 
-          <div class="rounded-xl bg-slate-50 p-2.5 text-xs font-mono text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          <div class="rounded-lg bg-muted/50 p-2.5 text-xs font-mono text-muted">
             {{ publicBaseUrl }}{{ selectedQrEvent.slug }}
           </div>
 
@@ -922,19 +916,18 @@ onMounted(() => {
               color="neutral"
               variant="outline"
               icon="i-lucide-download"
+              label="Unduh Gambar"
               class="w-full justify-center"
               @click="downloadQrCode"
-            >
-              Unduh Gambar
-            </UButton>
+            />
             <UButton
               color="primary"
+              variant="solid"
               icon="i-lucide-printer"
+              label="Cetak Poster"
               class="w-full justify-center"
               @click="printQrPoster"
-            >
-              Cetak Poster
-            </UButton>
+            />
           </div>
         </div>
       </div>
@@ -943,21 +936,23 @@ onMounted(() => {
     <!-- Participants Detail Modal / Drawer -->
     <div
       v-if="showParticipantsModal && selectedDetailEvent"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-xs"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
     >
-      <div class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-default bg-card shadow-2xl">
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+        <div class="flex items-center justify-between border-b border-default px-6 py-4">
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 class="text-lg font-bold text-highlighted">
                 Daftar Peserta Hadir
               </h3>
-              <span class="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-bold text-blue-600 dark:text-blue-400">
-                {{ participants.length }} Hadir
-              </span>
+              <UBadge
+                color="primary"
+                variant="subtle"
+                :label="`${participants.length} Hadir`"
+              />
             </div>
-            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            <p class="mt-0.5 text-xs text-muted">
               {{ selectedDetailEvent.nama_event }} ({{ formatDateTime(selectedDetailEvent.tanggal_mulai) }} - {{ formatDateTime(selectedDetailEvent.tanggal_selesai) }})
             </p>
           </div>
@@ -968,50 +963,49 @@ onMounted(() => {
               variant="outline"
               size="sm"
               icon="i-lucide-download"
+              label="Export CSV"
               @click="downloadExport(selectedDetailEvent)"
-            >
-              Export CSV
-            </UButton>
-            <button
-              type="button"
-              class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
               @click="showParticipantsModal = false"
-            >
-              <span class="i-lucide-x size-5"></span>
-            </button>
+            />
           </div>
         </div>
 
         <!-- Search Bar -->
-        <div class="border-b border-slate-200 bg-slate-50/60 px-6 py-3 dark:border-slate-800 dark:bg-slate-800/40">
+        <div class="border-b border-default bg-muted/20 px-6 py-3">
           <div class="relative max-w-sm">
-            <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></span>
+            <span class="i-lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted"></span>
             <input
               v-model="participantSearch"
               type="text"
               placeholder="Cari NIK, nama, atau jabatan..."
-              class="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="w-full rounded-md border border-default bg-default py-1.5 pl-9 pr-3 text-xs text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
             />
           </div>
         </div>
 
         <!-- Participants Table Body -->
         <div class="flex-1 overflow-y-auto p-6">
-          <div v-if="loadingParticipants" class="py-12 text-center text-slate-400">
+          <div v-if="loadingParticipants" class="py-12 text-center text-muted">
             <div class="inline-flex items-center gap-2">
               <span class="i-lucide-loader-2 size-5 animate-spin"></span>
               <span>Memuat data peserta...</span>
             </div>
           </div>
 
-          <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-slate-400">
-            <span class="i-lucide-user-x mx-auto size-8 text-slate-300"></span>
+          <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-muted">
+            <span class="i-lucide-user-x mx-auto size-8 text-muted"></span>
             <p class="mt-2 text-sm font-medium">Belum ada peserta yang melakukan absensi.</p>
           </div>
 
           <div v-else class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-              <thead class="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-default bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted">
                 <tr>
                   <th class="px-4 py-3">Foto Selfie</th>
                   <th class="px-4 py-3">NIK</th>
@@ -1021,18 +1015,18 @@ onMounted(() => {
                   <th class="px-4 py-3">Device / IP</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody class="divide-y divide-default">
                 <tr
                   v-for="att in filteredParticipants"
                   :key="att.id"
-                  class="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                  class="transition-colors hover:bg-muted/30"
                 >
                   <!-- Photo Thumbnail -->
                   <td class="px-4 py-2.5">
                     <button
                       v-if="att.foto_url"
                       type="button"
-                      class="group relative size-11 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-xs transition-transform hover:scale-105 dark:border-slate-700"
+                      class="group relative size-11 overflow-hidden rounded-xl border border-default bg-muted shadow-xs transition-transform hover:scale-105"
                       @click="selectedPhotoPreview = att"
                     >
                       <img
@@ -1044,34 +1038,34 @@ onMounted(() => {
                         <span class="i-lucide-zoom-in text-white"></span>
                       </div>
                     </button>
-                    <span v-else class="text-slate-400">-</span>
+                    <span v-else class="text-muted">-</span>
                   </td>
 
                   <!-- NIK -->
-                  <td class="px-4 py-2.5 font-mono font-bold text-slate-900 dark:text-white">
+                  <td class="px-4 py-2.5 font-mono font-bold text-highlighted">
                     {{ att.nik_karyawan }}
                   </td>
 
                   <!-- Nama -->
-                  <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white">
+                  <td class="px-4 py-2.5 font-medium text-highlighted">
                     {{ att.karyawan?.nama_karyawan || '-' }}
                   </td>
 
                   <!-- Jabatan / Divisi -->
                   <td class="px-4 py-2.5">
-                    <div class="text-slate-700 dark:text-slate-300">{{ att.karyawan?.jabatan || '-' }}</div>
-                    <div class="text-[11px] text-slate-400">{{ att.karyawan?.divisi || '-' }}</div>
+                    <div class="text-highlighted">{{ att.karyawan?.jabatan || '-' }}</div>
+                    <div class="text-[11px] text-muted">{{ att.karyawan?.divisi || '-' }}</div>
                   </td>
 
                   <!-- Waktu Absen -->
-                  <td class="px-4 py-2.5 text-slate-700 dark:text-slate-300">
+                  <td class="px-4 py-2.5 text-highlighted">
                     <div class="font-medium">{{ formatDateTime(att.jam_absen) }}</div>
                   </td>
 
                   <!-- Device / IP -->
                   <td class="px-4 py-2.5">
-                    <div class="font-mono text-[11px] text-slate-600 dark:text-slate-400">{{ att.ip_address || '-' }}</div>
-                    <div class="line-clamp-1 max-w-[140px] text-[10px] text-slate-400" :title="att.user_agent">
+                    <div class="font-mono text-[11px] text-muted">{{ att.ip_address || '-' }}</div>
+                    <div class="line-clamp-1 max-w-[140px] text-[10px] text-muted" :title="att.user_agent">
                       {{ att.user_agent || '-' }}
                     </div>
                   </td>
@@ -1082,15 +1076,14 @@ onMounted(() => {
         </div>
 
         <!-- Modal Footer -->
-        <div class="flex items-center justify-end border-t border-slate-200 px-6 py-3 dark:border-slate-800">
+        <div class="flex items-center justify-end border-t border-default px-6 py-3">
           <UButton
             color="neutral"
             variant="outline"
             size="sm"
+            label="Tutup"
             @click="showParticipantsModal = false"
-          >
-            Tutup
-          </UButton>
+          />
         </div>
       </div>
     </div>
@@ -1098,19 +1091,19 @@ onMounted(() => {
     <!-- Photo Zoom Modal -->
     <div
       v-if="selectedPhotoPreview"
-      class="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
+      class="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 p-4"
       @click.self="selectedPhotoPreview = null"
     >
-      <div class="relative max-w-md overflow-hidden rounded-3xl bg-white p-4 shadow-2xl dark:bg-slate-900">
+      <div class="relative max-w-md overflow-hidden rounded-2xl border border-default bg-card p-4 shadow-2xl">
         <button
           type="button"
-          class="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-900/60 text-white backdrop-blur-xs transition-colors hover:bg-slate-900"
+          class="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-950/60 text-white transition-colors hover:bg-slate-950"
           @click="selectedPhotoPreview = null"
         >
           <span class="i-lucide-x size-4"></span>
         </button>
 
-        <div class="overflow-hidden rounded-2xl bg-black">
+        <div class="overflow-hidden rounded-xl bg-black">
           <img
             :src="selectedPhotoPreview.foto_url"
             alt="Foto Selfie Peserta"
@@ -1119,14 +1112,14 @@ onMounted(() => {
         </div>
 
         <div class="mt-3 text-center">
-          <p class="font-bold text-slate-900 dark:text-white">
+          <p class="font-bold text-highlighted">
             {{ selectedPhotoPreview.karyawan?.nama_karyawan || selectedPhotoPreview.nik_karyawan }}
           </p>
-          <p class="text-xs text-slate-500">
+          <p class="text-xs text-muted">
             NIK: {{ selectedPhotoPreview.nik_karyawan }} • {{ formatDateTime(selectedPhotoPreview.jam_absen) }}
           </p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>

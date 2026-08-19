@@ -92,7 +92,8 @@ async function loadEvent() {
 }
 
 async function handleValidateNik() {
-  if (!nikInput.value.trim()) {
+  const normalizedNik = nikInput.value.trim().toUpperCase()
+  if (!normalizedNik) {
     nikError.value = 'Silakan masukkan NIK Anda.'
     return
   }
@@ -101,7 +102,7 @@ async function handleValidateNik() {
   nikError.value = ''
 
   try {
-    const { data } = await validatePublicEventNik(slug.value, { nik: nikInput.value.trim() })
+    const { data } = await validatePublicEventNik(slug.value, { nik: normalizedNik })
     verifiedEmployee.value = data.data
     currentStep.value = 2
     await nextTick()
@@ -205,7 +206,7 @@ async function submitAttendance() {
   submitError.value = ''
 
   const payload = {
-    nik: verifiedEmployee.value?.nik || nikInput.value.trim(),
+    nik: (verifiedEmployee.value?.nik || nikInput.value.trim()).toUpperCase(),
     photo: capturedPhotoBase64.value,
     user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
   }
@@ -256,60 +257,60 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased flex flex-col justify-between">
+  <div class="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased flex flex-col justify-between">
     <!-- Hidden canvas for capturing snapshot -->
     <canvas ref="canvasRef" class="hidden"></canvas>
 
-    <!-- Desktop Blocking Gatekeeper Screen -->
+    <!-- Desktop Blocking Gatekeeper Screen (Light Theme) -->
     <div
       v-if="!isMobileDevice"
       class="flex min-h-screen flex-col items-center justify-center p-6 text-center"
     >
-      <div class="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-8 shadow-2xl backdrop-blur-xl">
-        <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+      <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+        <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
           <span class="i-lucide-smartphone text-3xl"></span>
         </div>
 
-        <h1 class="mt-5 text-xl font-bold text-white">
+        <h1 class="mt-5 text-xl font-bold text-slate-900">
           Akses Khusus Smartphone
         </h1>
-        <p class="mt-2 text-sm leading-relaxed text-slate-400">
-          Untuk menjaga keaslian absensi event dan pengambilan foto selfie, halaman ini
-          <strong class="text-slate-200">hanya dapat dibuka melalui Smartphone / HP</strong>.
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          Untuk verifikasi kehadiran dan pengambilan foto selfie, halaman ini
+          <strong class="text-slate-900">hanya dapat dibuka melalui Smartphone / HP</strong>.
         </p>
 
         <!-- Dynamic QR Code for quick opening on phone -->
         <div class="mt-6 flex flex-col items-center">
-          <div class="rounded-2xl bg-white p-3 shadow-lg">
-            <canvas ref="desktopQrCanvas" class="block"></canvas>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner">
+            <canvas ref="desktopQrCanvas" class="block rounded-lg"></canvas>
           </div>
-          <p class="mt-3 text-xs font-semibold text-blue-400">
+          <p class="mt-3 text-xs font-semibold text-blue-600">
             Arahkan kamera HP Anda ke QR Code di atas untuk membuka
           </p>
         </div>
 
-        <div class="mt-6 border-t border-slate-800 pt-4 text-xs text-slate-500">
+        <div class="mt-6 border-t border-slate-100 pt-4 text-xs text-slate-400">
           HRIS Attendance System • Hompim Play
         </div>
       </div>
     </div>
 
-    <!-- Mobile Screen View -->
+    <!-- Mobile Screen View (Light Theme Default) -->
     <div v-else class="flex flex-1 flex-col mx-auto w-full max-w-md p-4">
       <!-- App / Portal Header -->
-      <header class="flex items-center justify-between pb-4 pt-2 border-b border-slate-800/80">
+      <header class="flex items-center justify-between pb-3.5 pt-1 border-b border-slate-200">
         <div class="flex items-center gap-2.5">
           <div class="flex size-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-md shadow-blue-500/20">
             <span class="i-lucide-calendar-check text-lg"></span>
           </div>
           <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-blue-400">Presensi Event</p>
-            <p class="text-sm font-bold text-white">HRIS Portal</p>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Presensi Event</p>
+            <p class="text-sm font-bold text-slate-900 leading-none">HRIS Portal</p>
           </div>
         </div>
 
-        <div v-if="eventData && eventData.effective_status === 'aktif'" class="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-          <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div v-if="eventData && eventData.effective_status === 'aktif'" class="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
+          <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Live</span>
         </div>
       </header>
@@ -318,39 +319,39 @@ onBeforeUnmount(() => {
       <main class="flex-1 py-4 flex flex-col justify-center">
         <!-- 1. Loading State -->
         <div v-if="loadingEvent" class="py-16 text-center">
-          <div class="inline-flex size-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 animate-spin">
+          <div class="inline-flex size-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 animate-spin">
             <span class="i-lucide-loader-2 text-2xl"></span>
           </div>
-          <p class="mt-4 text-sm text-slate-400 font-medium">Memuat data event absensi...</p>
+          <p class="mt-4 text-sm text-slate-600 font-medium">Memuat data event absensi...</p>
         </div>
 
         <!-- 2. Error / Not Found / Expired / Inactive State -->
         <div v-else-if="pageError || (eventData && !eventData.can_attend)" class="my-auto">
-          <div class="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 text-center shadow-xl">
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-lg">
             <!-- Icon -->
             <div
               class="mx-auto flex size-14 items-center justify-center rounded-2xl"
-              :class="eventData?.is_expired ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'"
+              :class="eventData?.is_expired ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'"
             >
               <span v-if="eventData?.is_expired" class="i-lucide-clock text-2xl"></span>
               <span v-else-if="eventData?.is_not_started" class="i-lucide-calendar text-2xl"></span>
               <span v-else class="i-lucide-ban text-2xl"></span>
             </div>
 
-            <h2 class="mt-4 text-lg font-bold text-white">
+            <h2 class="mt-4 text-lg font-bold text-slate-900">
               <span v-if="eventData?.is_expired">Absensi Telah Berakhir</span>
               <span v-else-if="eventData?.is_not_started">Absensi Belum Dibuka</span>
               <span v-else-if="eventData?.is_inactive">Event Sedang Ditutup</span>
               <span v-else>Link Tidak Tersedia</span>
             </h2>
 
-            <p class="mt-2 text-xs leading-relaxed text-slate-400">
+            <p class="mt-2 text-xs leading-relaxed text-slate-600">
               {{ pageError || (eventData ? `Event "${eventData.nama_event}" sudah tidak menerima presensi baru.` : '') }}
             </p>
 
-            <div v-if="eventData" class="mt-5 rounded-2xl bg-slate-950/60 p-4 text-left border border-slate-800 text-xs space-y-1.5">
-              <div class="text-slate-400">Nama Event: <strong class="text-slate-200">{{ eventData.nama_event }}</strong></div>
-              <div class="text-slate-400">Batas Waktu: <span class="text-slate-300">{{ eventData.tanggal_selesai_formatted }}</span></div>
+            <div v-if="eventData" class="mt-5 rounded-2xl bg-slate-50 p-4 text-left border border-slate-200 text-xs space-y-1.5">
+              <div class="text-slate-500">Nama Event: <strong class="text-slate-800">{{ eventData.nama_event }}</strong></div>
+              <div class="text-slate-500">Batas Waktu: <span class="font-medium text-slate-700">{{ eventData.tanggal_selesai_formatted }}</span></div>
             </div>
           </div>
         </div>
@@ -358,41 +359,41 @@ onBeforeUnmount(() => {
         <!-- 3. Active Flow -->
         <div v-else-if="eventData" class="space-y-4">
           <!-- Event Header Banner -->
-          <div class="rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-950/40 via-slate-900/80 to-slate-900/90 p-5 shadow-xl backdrop-blur-md">
+          <div class="rounded-3xl border border-blue-200/80 bg-linear-to-br from-blue-600 to-indigo-700 p-5 text-white shadow-lg shadow-blue-600/15">
             <h1 class="text-lg font-bold text-white leading-snug">
               {{ eventData.nama_event }}
             </h1>
-            <p v-if="eventData.deskripsi" class="mt-1 text-xs text-slate-400 leading-relaxed">
+            <p v-if="eventData.deskripsi" class="mt-1 text-xs text-blue-100 leading-relaxed">
               {{ eventData.deskripsi }}
             </p>
-            <div class="mt-3 flex items-center gap-2 text-[11px] text-blue-300">
+            <div class="mt-3 flex items-center gap-1.5 text-xs text-blue-100 font-medium">
               <span class="i-lucide-clock size-3.5"></span>
               <span>Berlaku s/d {{ eventData.tanggal_selesai_formatted }}</span>
             </div>
           </div>
 
           <!-- STEP 1: Input & Validasi NIK -->
-          <div v-if="currentStep === 1" class="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl space-y-5">
+          <div v-if="currentStep === 1" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-md space-y-5">
             <div>
-              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600">
                 <span class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">1</span>
                 <span>Langkah 1: Identifikasi Karyawan</span>
               </div>
-              <h2 class="mt-1 text-base font-bold text-white">Masukkan NIK Karyawan</h2>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Masukkan NIK Anda yang terdaftar di database HRIS.
+              <h2 class="mt-1.5 text-base font-bold text-slate-900">Masukkan NIK Karyawan</h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Masukkan NIK Anda yang terdaftar di database HRIS (contoh: <span class="font-mono font-semibold text-slate-700">HPP25120031</span>).
               </p>
             </div>
 
             <!-- Error alert -->
-            <div v-if="nikError" class="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-xs text-rose-300 flex items-start gap-2.5">
-              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-400 mt-0.5"></span>
-              <div class="leading-relaxed">{{ nikError }}</div>
+            <div v-if="nikError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700 flex items-start gap-2.5">
+              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-500 mt-0.5"></span>
+              <div class="leading-relaxed font-medium">{{ nikError }}</div>
             </div>
 
             <form @submit.prevent="handleValidateNik" class="space-y-4">
               <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1.5">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
                   Nomor Induk Karyawan (NIK)
                 </label>
                 <div class="relative">
@@ -400,11 +401,11 @@ onBeforeUnmount(() => {
                   <input
                     v-model="nikInput"
                     type="text"
-                    inputmode="numeric"
-                    placeholder="Contoh: 2024001"
-                    class="w-full rounded-2xl border border-slate-700 bg-slate-950 py-3.5 pl-11 pr-4 text-base font-mono font-bold tracking-wider text-white placeholder:text-slate-600 focus:border-blue-500 focus:outline-none"
+                    placeholder="Contoh: HPP25120031"
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3.5 pl-11 pr-4 text-base font-mono font-bold tracking-wider text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:outline-none uppercase"
                     autofocus
                     required
+                    @input="nikInput = nikInput.toUpperCase()"
                   />
                 </div>
               </div>
@@ -412,7 +413,7 @@ onBeforeUnmount(() => {
               <button
                 type="submit"
                 :disabled="validatingNik || !nikInput.trim()"
-                class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <span v-if="validatingNik" class="i-lucide-loader-2 size-4 animate-spin"></span>
                 <span>{{ validatingNik ? 'Memeriksa Data...' : 'Lanjut ke Foto Selfie' }}</span>
@@ -422,29 +423,29 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- STEP 2: Camera Selfie Capture -->
-          <div v-if="currentStep === 2" class="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-4">
+          <div v-if="currentStep === 2" class="rounded-3xl border border-slate-200 bg-white p-5 shadow-md space-y-4">
             <div>
-              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600">
                 <span class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">2</span>
                 <span>Langkah 2: Foto Selfie Kehadiran</span>
               </div>
             </div>
 
             <!-- Verified Employee Card -->
-            <div v-if="verifiedEmployee" class="flex items-center gap-3 rounded-2xl bg-slate-950/80 p-3 border border-slate-800">
-              <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 font-bold">
-                <span class="i-lucide-user text-lg"></span>
+            <div v-if="verifiedEmployee" class="flex items-center gap-3 rounded-2xl bg-blue-50/80 p-3.5 border border-blue-100">
+              <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white font-bold shadow-xs">
+                <span class="i-lucide-user text-xl"></span>
               </div>
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold text-white">{{ verifiedEmployee.nama_karyawan }}</p>
-                <p class="text-xs text-slate-400">
-                  NIK: <span class="font-mono text-blue-400 font-semibold">{{ verifiedEmployee.nik }}</span> • {{ verifiedEmployee.jabatan || 'Karyawan' }}
+                <p class="truncate text-sm font-bold text-slate-900">{{ verifiedEmployee.nama_karyawan }}</p>
+                <p class="text-xs text-slate-600">
+                  NIK: <span class="font-mono text-blue-700 font-bold">{{ verifiedEmployee.nik }}</span> • {{ verifiedEmployee.jabatan || 'Karyawan' }}
                 </p>
               </div>
             </div>
 
             <!-- Camera Viewport / Captured Preview -->
-            <div class="relative overflow-hidden rounded-2xl bg-black border border-slate-800 aspect-3/4 flex items-center justify-center">
+            <div class="relative overflow-hidden rounded-2xl bg-slate-900 border border-slate-300 aspect-3/4 flex items-center justify-center shadow-inner">
               <!-- Live Video Feed -->
               <video
                 v-show="cameraActive && !capturedPhotoBase64"
@@ -468,22 +469,22 @@ onBeforeUnmount(() => {
                 v-if="cameraActive && !capturedPhotoBase64"
                 class="pointer-events-none absolute inset-0 flex items-center justify-center p-6"
               >
-                <div class="size-48 rounded-full border-2 border-dashed border-white/50 shadow-2xl"></div>
+                <div class="size-48 rounded-full border-2 border-dashed border-white/70 shadow-2xl"></div>
               </div>
 
               <!-- Camera Loading Indicator -->
-              <div v-if="cameraLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 text-slate-400">
+              <div v-if="cameraLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-white">
                 <span class="i-lucide-loader-2 size-8 animate-spin text-blue-400"></span>
-                <p class="mt-2 text-xs font-medium">Membuka kamera selfie...</p>
+                <p class="mt-2 text-xs font-medium text-slate-300">Membuka kamera selfie...</p>
               </div>
 
               <!-- Camera Error State -->
-              <div v-if="cameraError && !capturedPhotoBase64" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/95 text-rose-300">
+              <div v-if="cameraError && !capturedPhotoBase64" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900/95 text-rose-300">
                 <span class="i-lucide-camera-off size-8 text-rose-400 mb-2"></span>
                 <p class="text-xs leading-relaxed">{{ cameraError }}</p>
                 <button
                   type="button"
-                  class="mt-4 rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700"
+                  class="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700"
                   @click="startCamera"
                 >
                   Coba Buka Kamera Lagi
@@ -492,9 +493,9 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Submit error -->
-            <div v-if="submitError" class="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2">
-              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-400 mt-0.5"></span>
-              <div class="leading-relaxed">{{ submitError }}</div>
+            <div v-if="submitError" class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-start gap-2">
+              <span class="i-lucide-alert-circle size-4 shrink-0 text-rose-500 mt-0.5"></span>
+              <div class="leading-relaxed font-medium">{{ submitError }}</div>
             </div>
 
             <!-- Camera Controls -->
@@ -503,7 +504,7 @@ onBeforeUnmount(() => {
               <div v-if="!capturedPhotoBase64" class="flex gap-2">
                 <button
                   type="button"
-                  class="flex-1 rounded-2xl bg-slate-800 py-3 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                  class="flex-1 rounded-2xl border border-slate-300 bg-slate-100 py-3 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
                   @click="resetToStep1"
                 >
                   Ganti NIK
@@ -511,7 +512,7 @@ onBeforeUnmount(() => {
                 <button
                   type="button"
                   :disabled="!cameraActive"
-                  class="flex-2 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/30 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
+                  class="flex-2 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-blue-700 transition-all"
                   @click="takeSnapshot"
                 >
                   <span class="i-lucide-camera size-4"></span>
@@ -524,7 +525,7 @@ onBeforeUnmount(() => {
                 <button
                   type="button"
                   :disabled="submittingAttendance"
-                  class="flex-1 rounded-2xl bg-slate-800 py-3 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                  class="flex-1 rounded-2xl border border-slate-300 bg-slate-100 py-3 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
                   @click="retakePhoto"
                 >
                   Foto Ulang
@@ -532,7 +533,7 @@ onBeforeUnmount(() => {
                 <button
                   type="button"
                   :disabled="submittingAttendance"
-                  class="flex-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
+                  class="flex-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/25 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all"
                   @click="submitAttendance"
                 >
                   <span v-if="submittingAttendance" class="i-lucide-loader-2 size-4 animate-spin"></span>
@@ -544,52 +545,52 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- STEP 3: Success Confirmation Screen -->
-          <div v-if="currentStep === 3 && attendanceResult" class="rounded-3xl border border-emerald-500/20 bg-slate-900/90 p-6 text-center shadow-2xl space-y-5">
+          <div v-if="currentStep === 3 && attendanceResult" class="rounded-3xl border border-emerald-200 bg-white p-6 text-center shadow-xl space-y-5">
             <!-- Animated checkmark -->
-            <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+            <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-md shadow-emerald-500/10">
               <span class="i-lucide-check-circle-2 text-3xl"></span>
             </div>
 
             <div>
-              <h2 class="text-xl font-bold text-white">Absensi Berhasil Tercatat!</h2>
-              <p class="mt-1 text-xs text-slate-400">
+              <h2 class="text-xl font-bold text-slate-900">Absensi Berhasil Tercatat!</h2>
+              <p class="mt-1 text-xs text-slate-500">
                 Terima kasih, kehadiran Anda pada acara ini telah tersimpan dalam sistem HRIS.
               </p>
             </div>
 
             <!-- Receipt Detail Card -->
-            <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-left space-y-2.5">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left space-y-2.5">
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-400">Nama Event</span>
-                <span class="font-semibold text-white truncate max-w-[180px]">{{ attendanceResult.nama_event }}</span>
+                <span class="text-slate-500">Nama Event</span>
+                <span class="font-bold text-slate-900 truncate max-w-[180px]">{{ attendanceResult.nama_event }}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-400">Nama Karyawan</span>
-                <span class="font-bold text-white">{{ attendanceResult.nama_karyawan }}</span>
+                <span class="text-slate-500">Nama Karyawan</span>
+                <span class="font-bold text-slate-900">{{ attendanceResult.nama_karyawan }}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-400">NIK</span>
-                <span class="font-mono font-bold text-blue-400">{{ attendanceResult.nik }}</span>
+                <span class="text-slate-500">NIK</span>
+                <span class="font-mono font-bold text-blue-600">{{ attendanceResult.nik }}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-400">Waktu Presensi</span>
-                <span class="font-semibold text-emerald-400">{{ attendanceResult.jam_absen_formatted }}</span>
+                <span class="text-slate-500">Waktu Presensi</span>
+                <span class="font-bold text-emerald-600">{{ attendanceResult.jam_absen_formatted }}</span>
               </div>
 
               <!-- Selfie photo thumbnail -->
-              <div v-if="attendanceResult.foto_url || capturedPhotoBase64" class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                <span class="text-xs text-slate-400">Foto Terkirim</span>
+              <div v-if="attendanceResult.foto_url || capturedPhotoBase64" class="pt-2 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-xs text-slate-500">Foto Terkirim</span>
                 <img
                   :src="attendanceResult.foto_url || capturedPhotoBase64"
                   alt="Selfie Receipt"
-                  class="size-11 rounded-xl object-cover border border-slate-700"
+                  class="size-12 rounded-xl object-cover border border-slate-200 shadow-xs"
                 />
               </div>
             </div>
 
             <button
               type="button"
-              class="w-full rounded-2xl bg-slate-800 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-700"
+              class="w-full rounded-2xl bg-slate-100 border border-slate-300 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors"
               @click="resetToStep1"
             >
               Absen Peserta Lain
@@ -599,7 +600,7 @@ onBeforeUnmount(() => {
       </main>
 
       <!-- Footer -->
-      <footer class="pt-3 pb-2 text-center text-[11px] text-slate-600 border-t border-slate-850">
+      <footer class="pt-3 pb-2 text-center text-[11px] text-slate-400 border-t border-slate-200">
         HRIS Presensi Event • Hompim Play &copy; 2026
       </footer>
     </div>
