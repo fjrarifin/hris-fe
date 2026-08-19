@@ -19,6 +19,10 @@ const accountPhotoFailed = ref(false)
 const hasProfilePage = computed(() => auth.user?.level === 3)
 const accountPhotoUrl = computed(() => (accountPhotoFailed.value ? null : auth.user?.photo_url))
 const accountSubtitle = computed(() => auth.user?.position || auth.user?.level_label || 'Portal')
+const isAndroidBrowser = computed(() => {
+  if (typeof navigator === 'undefined') return false
+  return /Android/i.test(navigator.userAgent)
+})
 
 watch(
   () => auth.user?.photo_url,
@@ -130,6 +134,16 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         v-if="accountMenuOpen"
         class="absolute inset-x-0 bottom-full mb-2 overflow-hidden rounded-xl border border-slate-600 bg-slate-800 p-1 shadow-2xl"
       >
+        <a
+          v-if="isAndroidBrowser"
+          href="/download/ess-hompimplay-latest.apk"
+          download="ess-hompimplay-latest.apk"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-100 transition hover:bg-slate-700 hover:text-white"
+          @click="selectAccountLink"
+        >
+          <UIcon name="i-lucide-smartphone" class="size-4 text-emerald-400" />
+          Download APK Mobile
+        </a>
         <RouterLink
           v-if="hasProfilePage"
           to="/staff/profile"
