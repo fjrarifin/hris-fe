@@ -119,6 +119,12 @@ const router = createRouter({
       meta: { title: 'Pratinjau CV Kandidat' },
     },
     {
+      path: '/absen-event/:slug',
+      name: 'public-event-absen',
+      component: () => import('../views/PublicEventAbsenView.vue'),
+      meta: { title: 'Absensi Event Karyawan' },
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
@@ -635,6 +641,12 @@ const router = createRouter({
           name: 'it-active-sessions',
           component: ItActiveSessionsView,
           meta: { title: 'Sesi Login Aktif', levels: [0], menuKey: 'it-active-sessions' },
+        },
+        {
+          path: 'it/event-absen',
+          name: 'it-event-absen',
+          component: () => import('../views/ItEventAbsenView.vue'),
+          meta: { title: 'Absen Event', levels: [0, 1, 2], menuKey: 'it-event-absen' },
         },
       ],
     },
