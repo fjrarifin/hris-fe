@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
+  <div class="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col items-center justify-center p-4 sm:p-6">
     <!-- Desktop Blocking Screen -->
     <div
       v-if="!isMobile"
@@ -147,70 +147,73 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Header Section (Mobile) -->
-    <header class="w-full pt-8 pb-4 px-6 max-w-lg mx-auto flex flex-col items-center">
-      <img
-        :src="backendLogoUrl"
-        alt="Hompimplay Logo"
-        class="h-12 w-auto object-contain mb-4"
-      />
-      <h1 class="text-lg font-bold text-slate-900 text-center tracking-tight">
-        Akses Turnstile Gate Holding
-      </h1>
-      <p class="text-xs text-slate-500 text-center mt-1">
-        Masukkan NIK Karyawan Holding untuk mendapatkan QR Code Gate
-      </p>
-    </header>
+    <!-- Center Card Wrapper -->
+    <div class="w-full max-w-md space-y-4 my-auto">
+      <!-- Header Section (Mobile) -->
+      <header class="flex flex-col items-center text-center">
+        <img
+          :src="backendLogoUrl"
+          alt="Hompimplay Logo"
+          class="h-12 w-auto object-contain mb-3"
+        />
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+          Akses Turnstile Gate Holding
+        </h1>
+        <p class="text-xs text-slate-500 mt-1 max-w-xs">
+          Masukkan NIK Karyawan Holding untuk mendapatkan QR Code Gate
+        </p>
+      </header>
 
-    <!-- Main Content Form -->
-    <main class="w-full max-w-lg mx-auto px-5 py-2 flex-1 flex flex-col justify-center">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/70 border border-slate-200/80">
-        <!-- Error Alert -->
-        <div
-          v-if="errorMessage"
-          class="mb-5 rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-medium text-red-700 leading-relaxed"
-        >
-          {{ errorMessage }}
-        </div>
-
-        <form @submit.prevent="handleGenerateQr" class="space-y-5">
-          <div>
-            <label for="holdingNik" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              NIK Karyawan Holding
-            </label>
-            <input
-              id="holdingNik"
-              v-model="nikInput"
-              type="text"
-              required
-              autocomplete="off"
-              autocapitalize="characters"
-              placeholder="Contoh: HLD26001"
-              class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-base font-semibold text-slate-900 tracking-wider placeholder:font-normal placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all uppercase"
-              @input="nikInput = nikInput.toUpperCase()"
-            />
-            <p class="text-[11px] text-slate-400 mt-2 leading-normal">
-              Pastikan NIK Anda terdaftar aktif di master data Holding.
-            </p>
+      <!-- Main Content Form Card -->
+      <main class="w-full">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/70 border border-slate-200/80">
+          <!-- Error Alert -->
+          <div
+            v-if="errorMessage"
+            class="mb-5 rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-medium text-red-700 leading-relaxed"
+          >
+            {{ errorMessage }}
           </div>
 
-          <button
-            type="submit"
-            :disabled="loading || !nikInput.trim()"
-            class="w-full rounded-2xl bg-blue-600 py-4 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
-          >
-            <span v-if="loading">Memvalidasi Data...</span>
-            <span v-else>Dapatkan QR Code Gate</span>
-          </button>
-        </form>
-      </div>
-    </main>
+          <form @submit.prevent="handleGenerateQr" class="space-y-5">
+            <div>
+              <label for="holdingNik" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                NIK Karyawan Holding
+              </label>
+              <input
+                id="holdingNik"
+                v-model="nikInput"
+                type="text"
+                required
+                autocomplete="off"
+                autocapitalize="characters"
+                placeholder="Contoh: HLD26001"
+                class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-base font-semibold text-slate-900 tracking-wider placeholder:font-normal placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all uppercase"
+                @input="nikInput = nikInput.toUpperCase()"
+              />
+              <p class="text-[11px] text-slate-400 mt-2 leading-normal">
+                Pastikan NIK Anda terdaftar aktif di master data Holding.
+              </p>
+            </div>
 
-    <!-- Footer -->
-    <footer class="w-full py-6 text-center text-xs text-slate-400 max-w-lg mx-auto">
-      <p class="font-medium">HRIS Gate Holding • Build by IT DEPT</p>
-      <p class="text-[11px] text-slate-400 mt-1">Hompim Play © 2026</p>
-    </footer>
+            <button
+              type="submit"
+              :disabled="loading || !nikInput.trim()"
+              class="w-full rounded-2xl bg-blue-600 py-4 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span v-if="loading">Memvalidasi Data...</span>
+              <span v-else>Dapatkan QR Code Gate</span>
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="pt-2 text-center text-xs text-slate-400">
+        <p class="font-medium">HRIS Gate Holding • Build by IT DEPT</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Hompim Play © 2026</p>
+      </footer>
+    </div>
 
     <!-- QR Code Popup Modal -->
     <Teleport to="body">

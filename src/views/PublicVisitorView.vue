@@ -56,27 +56,28 @@ function resetForm() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
-    <!-- Header Section -->
-    <header class="w-full pt-8 pb-4 px-6 max-w-lg mx-auto flex flex-col items-center">
-      <img
-        :src="backendLogoUrl"
-        alt="Hompimplay Logo"
-        class="h-12 w-auto object-contain mb-4"
-      />
-      <h1 class="text-xl font-bold text-slate-900 text-center tracking-tight">
-        Buku Tamu Digital (Visitor Pass)
-      </h1>
-      <p class="text-xs text-slate-500 text-center mt-1">
-        Silakan isi data kunjungan Anda sebelum memasuki area gedung
-      </p>
-    </header>
+  <div class="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-lg space-y-4 my-auto">
+      <!-- Header Section -->
+      <header class="flex flex-col items-center text-center">
+        <img
+          :src="backendLogoUrl"
+          alt="Hompimplay Logo"
+          class="h-12 w-auto object-contain mb-3"
+        />
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+          Buku Tamu Digital (Visitor Pass)
+        </h1>
+        <p class="text-xs text-slate-500 mt-1 max-w-xs">
+          Silakan isi data kunjungan Anda sebelum memasuki area gedung
+        </p>
+      </header>
 
-    <!-- Main Content -->
-    <main class="w-full max-w-lg mx-auto px-5 py-2 flex-1 flex flex-col justify-center">
-      <!-- SUCCESS CONFIRMATION SCREEN -->
-      <div
-        v-if="isSuccess && successData"
+      <!-- Main Content -->
+      <main class="w-full">
+        <!-- SUCCESS CONFIRMATION SCREEN -->
+        <div
+          v-if="isSuccess && successData"
         class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/70 border border-slate-200/80 text-center animate-fade-in"
       >
         <!-- Success Badge -->
@@ -276,9 +277,10 @@ function resetForm() {
     </main>
 
     <!-- Footer -->
-    <footer class="w-full py-6 text-center text-xs text-slate-400 max-w-lg mx-auto">
+    <footer class="pt-2 text-center text-xs text-slate-400">
       <p class="font-medium">HRIS Buku Tamu Digital • Build by IT DEPT</p>
-      <p class="text-[11px] text-slate-400 mt-1">Hompim Play © 2026</p>
+      <p class="text-[11px] text-slate-400 mt-0.5">Hompim Play © 2026</p>
     </footer>
+    </div>
   </div>
 </template>
