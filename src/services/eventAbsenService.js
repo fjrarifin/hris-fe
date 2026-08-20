@@ -25,6 +25,10 @@ export function exportEventAbsenParticipants(id) {
   return api.get(`/event-absen/${id}/export`, { responseType: 'blob' })
 }
 
+export function downloadEventAbsenPhotos(id) {
+  return api.get(`/event-absen/${id}/download-photos`, { responseType: 'blob' })
+}
+
 export function getEventAbsenExportUrl(id) {
   const token = localStorage.getItem('hris_token')
   return `${backendUrl}/api/event-absen/${id}/export?token=${encodeURIComponent(token || '')}`

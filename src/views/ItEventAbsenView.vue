@@ -5,6 +5,7 @@ import SecureImage from '../components/SecureImage.vue'
 import {
   createEventAbsen,
   deleteEventAbsen,
+  downloadEventAbsenPhotos,
   exportEventAbsenParticipants,
   getEventAbsenDetail,
   getEventAbsenList,
@@ -395,6 +396,29 @@ async function downloadExport(item) {
     notifier.success('Rekap absensi berhasil diunduh.')
   } catch (err) {
     notifier.error(err.response?.data?.message || 'Gagal mengunduh rekap absensi.')
+  }
+}
+
+const downloadingPhotos = ref(false)
+
+async function downloadAllPhotos(item) {
+  downloadingPhotos.value = true
+  try {
+    const response = await downloadEventAbsenPhotos(item.id)
+    const blob = new Blob([response.data], { type: 'application/zip' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `Foto-Absen-${item.slug}.zip`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+    notifier.success('Semua foto absensi berhasil diunduh (.zip).')
+  } catch (err) {
+    notifier.error(err.response?.data?.message || 'Gagal mengunduh foto absensi. Pastikan peserta sudah memiliki foto selfie.')
+  } finally {
+    downloadingPhotos.value = false
   }
 }
 
@@ -986,6 +1010,15 @@ onMounted(() => {
             </div>
 
             <div class="flex items-center gap-2">
+              <UButton
+                color="neutral"
+                variant="outline"
+                size="sm"
+                icon="i-lucide-images"
+                label="Download Foto (.zip)"
+                :loading="downloadingPhotos"
+                @click="downloadAllPhotos(selectedDetailEvent)"
+              />
               <UButton
                 color="neutral"
                 variant="outline"

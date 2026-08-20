@@ -131,6 +131,12 @@ const router = createRouter({
       meta: { title: 'QR Gate Karyawan Holding' },
     },
     {
+      path: '/visitor',
+      name: 'public-visitor',
+      component: () => import('../views/PublicVisitorView.vue'),
+      meta: { title: 'Buku Tamu Digital (Visitor Pass)' },
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
@@ -375,6 +381,12 @@ const router = createRouter({
           name: 'hr-contracts',
           component: HrContractView,
           meta: { title: 'Kontrak Karyawan', levels: [2], menuKey: 'hr-contracts' },
+        },
+        {
+          path: 'hr/holding-employees',
+          name: 'hr-holding-employees',
+          component: () => import('../views/HrHoldingEmployeeView.vue'),
+          meta: { title: 'Karyawan Holding', levels: [0, 1, 2], menuKey: 'hr-holding-employees' },
         },
         {
           path: 'hr/master/positions',
@@ -653,6 +665,12 @@ const router = createRouter({
           name: 'it-event-absen',
           component: () => import('../views/ItEventAbsenView.vue'),
           meta: { title: 'Absen Event', levels: [0, 1, 2, 3], menuKey: 'it-event-absen' },
+        },
+        {
+          path: 'it/visitors',
+          name: 'it-visitors',
+          component: () => import('../views/ItVisitorLogView.vue'),
+          meta: { title: 'Buku Tamu / Visitor', levels: [0, 1, 2], menuKey: 'it-visitors' },
         },
       ],
     },
