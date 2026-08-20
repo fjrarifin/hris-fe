@@ -125,6 +125,12 @@ const router = createRouter({
       meta: { title: 'Absensi Event Karyawan' },
     },
     {
+      path: '/qr-holding',
+      name: 'public-qr-holding',
+      component: () => import('../views/PublicQrHoldingView.vue'),
+      meta: { title: 'QR Gate Karyawan Holding' },
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
@@ -646,7 +652,7 @@ const router = createRouter({
           path: 'it/event-absen',
           name: 'it-event-absen',
           component: () => import('../views/ItEventAbsenView.vue'),
-          meta: { title: 'Absen Event', levels: [0, 1, 2], menuKey: 'it-event-absen' },
+          meta: { title: 'Absen Event', levels: [0, 1, 2, 3], menuKey: 'it-event-absen' },
         },
       ],
     },

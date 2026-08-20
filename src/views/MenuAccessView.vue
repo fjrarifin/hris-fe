@@ -26,6 +26,20 @@ const menuGroups = [
       ),
   },
   {
+    key: 'it',
+    label: 'Menu IT & Fitur Event',
+    matches: (menu) =>
+      menu.key.startsWith('it-') ||
+      [
+        'it-event-absen',
+        'it-fingerspot',
+        'it-users',
+        'it-push-notifications',
+        'it-active-sessions',
+        'it-service-toggles',
+      ].includes(menu.key),
+  },
+  {
     key: 'hr',
     label: 'Menu HRD',
     matches: (menu) => menu.key.startsWith('hr-'),
