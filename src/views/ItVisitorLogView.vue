@@ -231,7 +231,7 @@ onMounted(() => {
           <input
             v-model="dateFilter"
             type="date"
-            class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3 py-2 text-xs font-medium text-highlighted focus:outline-none focus:ring-2 focus:ring-primary/20"
+            class="rounded-md border border-default bg-default px-3 py-2 text-xs font-medium text-highlighted focus:border-primary focus:outline-none"
           />
 
           <UButton
@@ -256,7 +256,7 @@ onMounted(() => {
     <UCard class="overflow-hidden border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-          <thead class="border-b border-default bg-slate-50 text-xs font-semibold uppercase text-muted dark:bg-slate-900/50">
+          <thead class="border-b border-default bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted">
             <tr>
               <th class="px-4 py-3.5">No. Tiket & Waktu</th>
               <th class="px-4 py-3.5">Identitas & Nama Tamu</th>
@@ -285,7 +285,7 @@ onMounted(() => {
               v-for="item in logs"
               v-else
               :key="item.id"
-              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+              class="hover:bg-muted/30 transition-colors"
             >
               <!-- No Tiket & Waktu -->
               <td class="px-4 py-3.5 whitespace-nowrap">

@@ -364,7 +364,7 @@ onMounted(() => {
 
             <select
               v-model="statusFilter"
-              class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3 py-2 text-xs font-medium text-highlighted focus:outline-none focus:ring-2 focus:ring-primary/20"
+              class="rounded-md border border-default bg-default px-3 py-2 text-xs font-medium text-highlighted focus:border-primary focus:outline-none"
             >
               <option value="">Semua Status</option>
               <option value="active">Aktif</option>
@@ -378,7 +378,7 @@ onMounted(() => {
       <UCard class="overflow-hidden border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-default bg-slate-50 text-xs font-semibold uppercase text-muted dark:bg-slate-900/50">
+            <thead class="border-b border-default bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted">
               <tr>
                 <th class="px-4 py-3.5">NIK & Nama</th>
                 <th class="px-4 py-3.5">Perusahaan</th>
@@ -407,7 +407,7 @@ onMounted(() => {
                 v-for="emp in employees"
                 v-else
                 :key="emp.id"
-                class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                class="hover:bg-muted/30 transition-colors"
               >
                 <td class="px-4 py-3.5">
                   <div class="font-bold text-highlighted">{{ emp.nama }}</div>
@@ -496,7 +496,7 @@ onMounted(() => {
             <input
               v-model="logsDate"
               type="date"
-              class="rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3 py-2 text-xs font-medium text-highlighted focus:outline-none focus:ring-2 focus:ring-primary/20"
+              class="rounded-md border border-default bg-default px-3 py-2 text-xs font-medium text-highlighted focus:border-primary focus:outline-none"
             />
           </div>
         </div>
@@ -506,7 +506,7 @@ onMounted(() => {
       <UCard class="overflow-hidden border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-default bg-slate-50 text-xs font-semibold uppercase text-muted dark:bg-slate-900/50">
+            <thead class="border-b border-default bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted">
               <tr>
                 <th class="px-4 py-3.5">Waktu Generate</th>
                 <th class="px-4 py-3.5">NIK & Nama</th>
@@ -535,7 +535,7 @@ onMounted(() => {
                 v-for="log in logs"
                 v-else
                 :key="log.id"
-                class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                class="hover:bg-muted/30 transition-colors"
               >
                 <td class="px-4 py-3.5 text-xs text-muted whitespace-nowrap">
                   {{ formatDateTime(log.generated_at || log.created_at) }}
@@ -577,160 +577,153 @@ onMounted(() => {
       </UCard>
     </div>
 
-    <!-- MODAL CREATE / EDIT -->
-    <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-150 ease-out"
-        enter-from-class="opacity-0"
-        leave-active-class="transition duration-100 ease-in"
-        leave-to-class="opacity-0"
-      >
-        <div
-          v-if="modalOpen"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs font-sans"
-          role="dialog"
-          aria-modal="true"
-        >
-          <Transition
-            appear
-            enter-active-class="transition duration-150 ease-out"
-            enter-from-class="translate-y-4 scale-95 opacity-0"
-            leave-active-class="transition duration-100 ease-in"
-            leave-to-class="translate-y-4 scale-95 opacity-0"
-          >
-            <div class="w-full max-w-md overflow-hidden rounded-2xl border border-default bg-[var(--ui-bg,#ffffff)] p-6 shadow-2xl">
-              <!-- Modal Header -->
-              <div class="flex items-center justify-between pb-4 border-b border-default">
-                <h3 class="text-base font-bold text-highlighted">
-                  {{ modalMode === 'create' ? 'Tambah Karyawan Holding' : 'Edit Karyawan Holding' }}
-                </h3>
-                <button
-                  type="button"
-                  class="text-muted hover:text-highlighted cursor-pointer"
-                  @click="modalOpen = false"
-                >
-                  <UIcon name="i-lucide-x" class="size-5" />
-                </button>
-              </div>
+    <!-- MODAL CREATE / EDIT (Native Nuxt UCard Modal with Active Theme) -->
+    <div
+      v-if="modalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
+        aria-label="Tutup modal"
+        @click="modalOpen = false"
+      ></button>
 
-              <!-- Form Body -->
-              <form @submit.prevent="handleSave" class="mt-4 space-y-4">
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                    NIK Karyawan <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    v-model="form.nik"
-                    type="text"
-                    required
-                    placeholder="Contoh: HLD26001"
-                    class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-semibold text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 uppercase"
-                    @input="form.nik = form.nik.toUpperCase()"
-                  />
-                  <p v-if="formErrors.nik" class="mt-1 text-xs text-red-500">{{ formErrors.nik[0] }}</p>
-                </div>
+      <UCard class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto shadow-2xl">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-highlighted">
+              {{ modalMode === 'create' ? 'Tambah Karyawan Holding' : 'Edit Karyawan Holding' }}
+            </h3>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              icon="i-lucide-x"
+              @click="modalOpen = false"
+            />
+          </div>
+        </template>
 
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                    Nama Lengkap <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    v-model="form.nama"
-                    type="text"
-                    required
-                    placeholder="Nama lengkap karyawan holding"
-                    class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-medium text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                  <p v-if="formErrors.nama" class="mt-1 text-xs text-red-500">{{ formErrors.nama[0] }}</p>
-                </div>
+        <form @submit.prevent="handleSave" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+              NIK Karyawan <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="form.nik"
+              type="text"
+              required
+              placeholder="Contoh: HLD26001"
+              class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-semibold text-highlighted focus:border-primary focus:outline-none uppercase"
+              @input="form.nik = form.nik.toUpperCase()"
+            />
+            <p v-if="formErrors.nik" class="mt-1 text-xs text-rose-500">{{ formErrors.nik[0] }}</p>
+          </div>
 
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                    Perusahaan / Holding
-                  </label>
-                  <input
-                    v-model="form.perusahaan"
-                    type="text"
-                    placeholder="Contoh: PT Hompimpa Global Holding"
-                    class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-medium text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+              Nama Lengkap <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="form.nama"
+              type="text"
+              required
+              placeholder="Nama lengkap karyawan holding"
+              class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted focus:border-primary focus:outline-none"
+            />
+            <p v-if="formErrors.nama" class="mt-1 text-xs text-rose-500">{{ formErrors.nama[0] }}</p>
+          </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                      Jabatan
-                    </label>
-                    <input
-                      v-model="form.jabatan"
-                      type="text"
-                      placeholder="Contoh: Manager"
-                      class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-medium text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+              Perusahaan / Holding
+            </label>
+            <input
+              v-model="form.perusahaan"
+              type="text"
+              placeholder="Contoh: PT Hompimpa Global Holding"
+              class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted focus:border-primary focus:outline-none"
+            />
+          </div>
 
-                  <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                      Departemen
-                    </label>
-                    <input
-                      v-model="form.departemen"
-                      type="text"
-                      placeholder="Contoh: Finance"
-                      class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-medium text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                    No. Handphone (Opsional)
-                  </label>
-                  <input
-                    v-model="form.no_hp"
-                    type="tel"
-                    placeholder="Contoh: 081234567890"
-                    class="w-full rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] px-3.5 py-2.5 text-sm font-medium text-highlighted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div class="flex items-center gap-3 pt-2">
-                  <input
-                    id="statusCheckbox"
-                    v-model="form.is_active"
-                    type="checkbox"
-                    class="size-4 rounded border-default text-primary focus:ring-primary"
-                  />
-                  <label for="statusCheckbox" class="text-xs font-semibold text-highlighted cursor-pointer">
-                    Status Karyawan Aktif (Dapat generate QR)
-                  </label>
-                </div>
-
-                <!-- Modal Actions -->
-                <div class="mt-6 flex items-center justify-end gap-2.5 pt-4 border-t border-default">
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    class="cursor-pointer font-medium"
-                    @click="modalOpen = false"
-                  >
-                    Batal
-                  </UButton>
-
-                  <UButton
-                    type="submit"
-                    color="primary"
-                    :loading="saving"
-                    class="cursor-pointer font-semibold"
-                  >
-                    {{ modalMode === 'create' ? 'Tambah Data' : 'Simpan Perubahan' }}
-                  </UButton>
-                </div>
-              </form>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+                Jabatan
+              </label>
+              <input
+                v-model="form.jabatan"
+                type="text"
+                placeholder="Contoh: Manager"
+                class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted focus:border-primary focus:outline-none"
+              />
             </div>
-          </Transition>
-        </div>
-      </Transition>
-    </Teleport>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+                Departemen
+              </label>
+              <input
+                v-model="form.departemen"
+                type="text"
+                placeholder="Contoh: Finance"
+                class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted focus:border-primary focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+              No. Handphone (Opsional)
+            </label>
+            <input
+              v-model="form.no_hp"
+              type="tel"
+              placeholder="Contoh: 081234567890"
+              class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm font-medium text-highlighted focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <input
+              id="statusCheckbox"
+              v-model="form.is_active"
+              type="checkbox"
+              class="size-4 rounded border-default text-primary focus:ring-primary"
+            />
+            <label for="statusCheckbox" class="text-xs font-semibold text-highlighted cursor-pointer">
+              Status Karyawan Aktif (Dapat generate QR)
+            </label>
+          </div>
+
+          <!-- Modal Actions -->
+          <div class="mt-6 flex items-center justify-end gap-2.5 pt-4 border-t border-default">
+            <UButton
+              color="neutral"
+              variant="outline"
+              size="sm"
+              class="cursor-pointer font-medium"
+              @click="modalOpen = false"
+            >
+              Batal
+            </UButton>
+
+            <UButton
+              type="submit"
+              color="primary"
+              variant="solid"
+              size="sm"
+              :loading="saving"
+              class="cursor-pointer font-semibold"
+            >
+              {{ modalMode === 'create' ? 'Tambah Data' : 'Simpan Perubahan' }}
+            </UButton>
+          </div>
+        </form>
+      </UCard>
+    </div>
   </div>
 </template>
