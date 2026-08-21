@@ -1,61 +1,119 @@
 <template>
-  <div class="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="space-y-6 pb-12">
+    <!-- Header Page -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-highlighted">
           Sisa Jatah Cuti, PH & Extra Off
         </h1>
         <p class="text-sm text-muted mt-1">
-          Monitoring sisa jatah cuti tahunan, public holiday, dan extra off seluruh karyawan.
+          Monitoring dan rekapitulasi sisa saldo cuti tahunan, public holiday, dan extra off seluruh karyawan
         </p>
       </div>
 
       <div class="flex items-center gap-2">
         <UButton
-          size="sm"
           color="neutral"
           variant="outline"
-          icon="i-lucide-refresh-cw"
+          class="cursor-pointer font-semibold"
           :loading="loading"
           @click="fetchData"
         >
+          <template #leading>
+            <UIcon name="i-lucide-refresh-cw" class="size-4" />
+          </template>
           Refresh Data
         </UButton>
         <UButton
-          size="sm"
           color="primary"
-          icon="i-lucide-download"
+          class="cursor-pointer font-semibold"
           :loading="exporting"
           @click="exportCsv"
         >
+          <template #leading>
+            <UIcon name="i-lucide-download" class="size-4" />
+          </template>
           Export CSV / Excel
         </UButton>
       </div>
     </div>
 
-    <!-- Filters Section -->
-    <UCard class="shadow-xs">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Total Karyawan</p>
+            <h3 class="mt-2 text-2xl font-bold text-highlighted">{{ totalEmployeesCount }}</h3>
+          </div>
+          <div class="flex size-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <UIcon name="i-lucide-users" class="size-6" />
+          </div>
+        </div>
+      </UCard>
+
+      <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Sisa Cuti Tahunan</p>
+            <h3 class="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ totalLeaveRemaining }} Hari</h3>
+          </div>
+          <div class="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <UIcon name="i-lucide-calendar-check" class="size-6" />
+          </div>
+        </div>
+      </UCard>
+
+      <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Sisa Public Holiday</p>
+            <h3 class="mt-2 text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ totalPhRemaining }} Hari</h3>
+          </div>
+          <div class="flex size-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <UIcon name="i-lucide-sparkles" class="size-6" />
+          </div>
+        </div>
+      </UCard>
+
+      <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Sisa Extra Off</p>
+            <h3 class="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">{{ totalEoRemaining }} Hari</h3>
+          </div>
+          <div class="flex size-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <UIcon name="i-lucide-clock-3" class="size-6" />
+          </div>
+        </div>
+      </UCard>
+    </div>
+
+    <!-- Filters Section Card -->
+    <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Search Input -->
         <div>
-          <label class="block text-xs font-semibold text-muted mb-1">Cari Karyawan / NIK</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+            Cari Karyawan / NIK
+          </label>
           <UInput
             v-model="filters.search"
             placeholder="Ketik nama, NIK, atau jabatan..."
             icon="i-lucide-search"
-            size="sm"
-            clearable
+            class="w-full"
             @update:model-value="debounceFetch"
           />
         </div>
 
         <!-- Filter Departemen -->
         <div>
-          <label class="block text-xs font-semibold text-muted mb-1">Departemen</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+            Departemen
+          </label>
           <select
             v-model="filters.departement"
-            class="w-full rounded-md border border-[var(--ui-border)] bg-[var(--ui-bg)] px-3 py-1.5 text-xs text-[var(--ui-text-highlighted)] outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             @change="fetchData"
           >
             <option value="">Semua Departemen</option>
@@ -67,10 +125,12 @@
 
         <!-- Filter Divisi -->
         <div>
-          <label class="block text-xs font-semibold text-muted mb-1">Divisi</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+            Divisi
+          </label>
           <select
             v-model="filters.divisi"
-            class="w-full rounded-md border border-[var(--ui-border)] bg-[var(--ui-bg)] px-3 py-1.5 text-xs text-[var(--ui-text-highlighted)] outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             @change="fetchData"
           >
             <option value="">Semua Divisi</option>
@@ -82,491 +142,525 @@
 
         <!-- Filter Sisa Jatah -->
         <div>
-          <label class="block text-xs font-semibold text-muted mb-1">Filter Jatah</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
+            Filter Status Saldo
+          </label>
           <select
             v-model="filters.balance_filter"
-            class="w-full rounded-md border border-[var(--ui-border)] bg-[var(--ui-bg)] px-3 py-1.5 text-xs text-[var(--ui-text-highlighted)] outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             @change="fetchData"
           >
             <option value="">Semua Karyawan</option>
-            <option value="has_leave">Punya Sisa Cuti Tahunan</option>
-            <option value="has_ph">Punya Sisa Public Holiday</option>
-            <option value="has_eo">Punya Sisa Extra Off</option>
+            <option value="has_leave">Punya Sisa Cuti Tahunan (>0)</option>
+            <option value="has_ph">Punya Sisa Public Holiday (>0)</option>
+            <option value="has_eo">Punya Sisa Extra Off (>0)</option>
             <option value="leave_empty">Cuti Tahunan Habis (0)</option>
           </select>
         </div>
       </div>
     </UCard>
 
-    <!-- Table Section -->
-    <UCard class="shadow-xs overflow-hidden">
+    <!-- Table Section Card -->
+    <UCard class="border border-default bg-[var(--ui-bg,#ffffff)] shadow-xs overflow-hidden">
+      <!-- Search Filter Summary Bar -->
+      <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between border-b border-default">
+        <div class="text-sm font-semibold text-highlighted flex items-center gap-2">
+          <UIcon name="i-lucide-list" class="size-4 text-primary" />
+          Daftar Rekap Saldo Karyawan
+        </div>
+
+        <div class="text-xs text-muted">
+          Total: <span class="font-semibold text-highlighted">{{ employees.length }} karyawan</span>
+        </div>
+      </div>
+
       <!-- Loading State -->
-      <div v-if="loading" class="py-16 text-center space-y-3">
-        <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary mx-auto" />
-        <p class="text-sm text-muted">Memuat data sisa jatah karyawan...</p>
+      <div v-if="loading" class="py-16 text-center text-muted">
+        <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary mx-auto mb-2" />
+        Memuat data saldo cuti & libur karyawan...
       </div>
 
       <!-- Data Table -->
-      <div v-else-if="employees.length" class="space-y-4">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-default bg-muted/10 text-muted uppercase tracking-wider text-[11px]">
-                <th class="py-3 px-4 font-semibold">Karyawan</th>
-                <th class="py-3 px-4 font-semibold">Departemen & Divisi</th>
-                <th class="py-3 px-4 font-semibold">Tgl Bergabung</th>
-                <th class="py-3 px-4 font-semibold text-center">Sisa Cuti Tahunan</th>
-                <th class="py-3 px-4 font-semibold text-center">Sisa Public Holiday (PH)</th>
-                <th class="py-3 px-4 font-semibold text-center">Sisa Extra Off (EO)</th>
-                <th class="py-3 px-4 font-semibold text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-default/60">
-              <tr
-                v-for="emp in paginatedEmployees"
-                :key="emp.nik"
-                class="hover:bg-muted/10 transition-colors"
-              >
-                <!-- Karyawan Info -->
-                <td class="py-3 px-4">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="size-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 text-white"
-                      :class="getAvatarBg(emp.nama_karyawan)"
-                    >
-                      {{ getInitials(emp.nama_karyawan) }}
-                    </div>
-                    <div class="min-w-0">
-                      <span class="font-bold text-highlighted block truncate text-sm">
-                        {{ emp.nama_karyawan }}
-                      </span>
-                      <div class="flex items-center gap-1.5 text-muted text-[11px] mt-0.5">
-                        <span>NIK: {{ emp.nik }}</span>
-                        <span>&bull;</span>
-                        <span class="capitalize">{{ emp.jabatan }}</span>
-                      </div>
+      <div v-else-if="employees.length" class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-default bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted">
+            <tr>
+              <th class="px-4 py-3.5">Karyawan</th>
+              <th class="px-4 py-3.5">Departemen & Divisi</th>
+              <th class="px-4 py-3.5">Tgl Bergabung</th>
+              <th class="px-4 py-3.5 text-center">Sisa Cuti Tahunan</th>
+              <th class="px-4 py-3.5 text-center">Sisa Public Holiday (PH)</th>
+              <th class="px-4 py-3.5 text-center">Sisa Extra Off (EO)</th>
+              <th class="px-4 py-3.5 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-default">
+            <tr
+              v-for="emp in paginatedEmployees"
+              :key="emp.nik"
+              class="hover:bg-muted/30 transition-colors"
+            >
+              <!-- Karyawan Info -->
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="size-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 text-white shadow-xs"
+                    :class="getAvatarBg(emp.nama_karyawan)"
+                  >
+                    {{ getInitials(emp.nama_karyawan) }}
+                  </div>
+                  <div class="min-w-0">
+                    <span class="font-semibold text-highlighted block truncate">
+                      {{ emp.nama_karyawan }}
+                    </span>
+                    <div class="flex items-center gap-1.5 text-xs text-muted mt-0.5">
+                      <span class="font-mono">{{ emp.nik }}</span>
+                      <span>•</span>
+                      <span class="capitalize">{{ emp.jabatan }}</span>
                     </div>
                   </div>
-                </td>
+                </div>
+              </td>
 
-                <!-- Departemen & Divisi -->
-                <td class="py-3 px-4">
-                  <span class="font-semibold text-highlighted block">{{ emp.departement }}</span>
-                  <span class="text-muted text-[11px]">{{ emp.divisi }}</span>
-                </td>
+              <!-- Departemen & Divisi -->
+              <td class="px-4 py-3.5">
+                <span class="font-medium text-highlighted block">{{ emp.departement || '-' }}</span>
+                <span class="text-xs text-muted">{{ emp.divisi || '-' }}</span>
+              </td>
 
-                <!-- Tanggal Bergabung -->
-                <td class="py-3 px-4">
-                  <span class="font-medium text-highlighted block">{{ formatDate(emp.join_date) }}</span>
-                  <span class="text-muted text-[11px]">{{ getTenure(emp.join_date) }}</span>
-                </td>
+              <!-- Tanggal Bergabung -->
+              <td class="px-4 py-3.5">
+                <span class="font-medium text-highlighted block">{{ formatDate(emp.join_date) }}</span>
+                <span class="text-xs text-muted">{{ getTenure(emp.join_date) }}</span>
+              </td>
 
-                <!-- Cuti Tahunan -->
-                <td class="py-3 px-4 text-center">
-                  <div class="inline-flex flex-col items-center">
-                    <UBadge
-                      :color="emp.leave.remaining > 0 ? 'success' : 'neutral'"
-                      variant="soft"
-                      size="sm"
-                      class="font-bold px-2.5"
-                    >
-                      {{ emp.leave.remaining }} Hari
-                    </UBadge>
-                    <span class="text-[10px] text-muted mt-1">
-                      Accrued {{ emp.leave.accrued }} &bull; Pakai {{ emp.leave.used }}
-                    </span>
-                  </div>
-                </td>
+              <!-- Cuti Tahunan -->
+              <td class="px-4 py-3.5 text-center">
+                <div class="inline-flex flex-col items-center">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold border"
+                    :class="emp.leave.remaining > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-muted/20 text-muted border-default'"
+                  >
+                    {{ emp.leave.remaining }} Hari
+                  </span>
+                  <span class="text-[11px] text-muted mt-1">
+                    Accrued {{ emp.leave.accrued }} • Pakai {{ emp.leave.used }}
+                  </span>
+                </div>
+              </td>
 
-                <!-- Public Holiday (PH) -->
-                <td class="py-3 px-4 text-center">
-                  <div class="inline-flex flex-col items-center">
-                    <UBadge
-                      :color="emp.public_holiday.remaining > 0 ? 'info' : 'neutral'"
-                      variant="soft"
-                      size="sm"
-                      class="font-bold px-2.5"
-                    >
-                      {{ emp.public_holiday.remaining }} Hari
-                    </UBadge>
-                    <span class="text-[10px] text-muted mt-1">
-                      Eligible {{ emp.public_holiday.eligible }} &bull; Pakai {{ emp.public_holiday.used }}
-                    </span>
-                  </div>
-                </td>
+              <!-- Public Holiday (PH) -->
+              <td class="px-4 py-3.5 text-center">
+                <div class="inline-flex flex-col items-center">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold border"
+                    :class="emp.public_holiday.remaining > 0 ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20' : 'bg-muted/20 text-muted border-default'"
+                  >
+                    {{ emp.public_holiday.remaining }} Hari
+                  </span>
+                  <span class="text-[11px] text-muted mt-1">
+                    Eligible {{ emp.public_holiday.eligible }} • Pakai {{ emp.public_holiday.used }}
+                  </span>
+                </div>
+              </td>
 
-                <!-- Extra Off (EO) -->
-                <td class="py-3 px-4 text-center">
-                  <div class="inline-flex flex-col items-center">
-                    <UBadge
-                      :color="emp.extra_off.remaining > 0 ? 'warning' : 'neutral'"
-                      variant="soft"
-                      size="sm"
-                      class="font-bold px-2.5"
-                    >
-                      {{ emp.extra_off.remaining }} Hari
-                    </UBadge>
-                    <span class="text-[10px] text-muted mt-1">
-                      Jatah {{ emp.extra_off.granted }} &bull; Pakai {{ emp.extra_off.used }}
-                    </span>
-                  </div>
-                </td>
+              <!-- Extra Off (EO) -->
+              <td class="px-4 py-3.5 text-center">
+                <div class="inline-flex flex-col items-center">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold border"
+                    :class="emp.extra_off.remaining > 0 ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' : 'bg-muted/20 text-muted border-default'"
+                  >
+                    {{ emp.extra_off.remaining }} Hari
+                  </span>
+                  <span class="text-[11px] text-muted mt-1">
+                    Jatah {{ emp.extra_off.granted }} • Pakai {{ emp.extra_off.used }}
+                  </span>
+                </div>
+              </td>
 
-                <!-- Action Button -->
-                <td class="py-3 px-4 text-right">
-                  <UButton
-                    size="xs"
-                    color="primary"
-                    variant="soft"
-                    icon="i-lucide-eye"
-                    label="Rincian"
-                    @click="openDetailModal(emp.nik)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination Controls (10 Baris per Halaman) -->
-        <div class="px-4 py-3 border-t border-default flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div class="text-muted">
-            Menampilkan <span class="font-bold text-highlighted">{{ startRecord }}</span> - <span class="font-bold text-highlighted">{{ endRecord }}</span> dari <span class="font-bold text-highlighted">{{ employees.length }}</span> karyawan
-          </div>
-
-          <div class="flex items-center gap-1.5">
-            <UButton
-              size="xs"
-              color="neutral"
-              variant="outline"
-              icon="i-lucide-chevron-left"
-              :disabled="currentPage === 1"
-              @click="currentPage--"
-            >
-              Sebelumnya
-            </UButton>
-
-            <span class="px-3 font-semibold text-highlighted">
-              Halaman {{ currentPage }} dari {{ totalPages }}
-            </span>
-
-            <UButton
-              size="xs"
-              color="neutral"
-              variant="outline"
-              trailing-icon="i-lucide-chevron-right"
-              :disabled="currentPage >= totalPages"
-              @click="currentPage++"
-            >
-              Selanjutnya
-            </UButton>
-          </div>
-        </div>
+              <!-- Action Button -->
+              <td class="px-4 py-3.5 text-right">
+                <UButton
+                  size="xs"
+                  color="primary"
+                  variant="outline"
+                  class="cursor-pointer font-semibold"
+                  @click="openDetailModal(emp.nik)"
+                >
+                  <template #leading>
+                    <UIcon name="i-lucide-eye" class="size-3.5" />
+                  </template>
+                  Rincian
+                </UButton>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Empty State -->
       <div v-else class="py-16 text-center space-y-2">
-        <UIcon name="i-lucide-users-round" class="size-10 text-muted mx-auto" />
+        <UIcon name="i-lucide-users" class="size-10 text-muted mx-auto" />
         <p class="text-sm font-bold text-highlighted">Tidak Ada Data Karyawan Ditemukan</p>
         <p class="text-xs text-muted">Coba ubah kata kunci pencarian atau reset filter di atas.</p>
+      </div>
+
+      <!-- Pagination -->
+      <div
+        v-if="employees.length > pageSize"
+        class="flex items-center justify-between border-t border-default p-4"
+      >
+        <p class="text-xs text-muted">
+          Menampilkan <span class="font-bold text-highlighted">{{ startRecord }}</span> - <span class="font-bold text-highlighted">{{ endRecord }}</span> dari <span class="font-bold text-highlighted">{{ employees.length }}</span> karyawan
+        </p>
+        <div class="flex items-center gap-2">
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="xs"
+            :disabled="currentPage <= 1"
+            class="cursor-pointer"
+            @click="currentPage--"
+          >
+            Sebelumnya
+          </UButton>
+          <span class="text-xs font-semibold text-highlighted px-2">
+            Halaman {{ currentPage }} dari {{ totalPages }}
+          </span>
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="xs"
+            :disabled="currentPage >= totalPages"
+            class="cursor-pointer"
+            @click="currentPage++"
+          >
+            Selanjutnya
+          </UButton>
+        </div>
       </div>
     </UCard>
 
     <!-- Modal Detail Rincian Jatah Karyawan -->
     <div
       v-if="detailModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto"
+      @click.self="detailModalOpen = false"
     >
-        <!-- Backdrop Overlay -->
-        <button
-          type="button"
-          class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity cursor-default w-full h-full border-0 p-0"
-          @click="detailModalOpen = false"
-        ></button>
-
-        <!-- Modal Box Container (Using UCard to adapt to active light/dark theme) -->
-        <UCard class="relative max-h-[90vh] w-full max-w-3xl flex flex-col overflow-hidden z-10 shadow-2xl">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3 min-w-0">
-                <div
-                  class="size-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
-                  :class="getAvatarBg(selectedEmployeeDetails?.employee?.nama_karyawan || '')"
-                >
-                  {{ getInitials(selectedEmployeeDetails?.employee?.nama_karyawan || '') }}
-                </div>
-                <div class="min-w-0">
-                  <h3 class="text-base font-bold text-highlighted truncate">
-                    {{ selectedEmployeeDetails?.employee?.nama_karyawan || 'Rincian Karyawan' }}
-                  </h3>
-                  <p class="text-xs text-muted truncate">
-                    NIK: {{ selectedEmployeeDetails?.employee?.nik || '-' }} &bull;
-                    {{ selectedEmployeeDetails?.employee?.departement || '-' }} &bull;
-                    {{ selectedEmployeeDetails?.employee?.jabatan || '-' }}
-                  </p>
-                </div>
-              </div>
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-x"
-                size="xs"
-                @click="detailModalOpen = false"
-              />
+      <UCard class="w-full max-w-3xl border border-default bg-[var(--ui-bg,#ffffff)] shadow-2xl relative my-8">
+        <!-- Header Modal -->
+        <div class="flex items-center justify-between border-b border-default pb-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <div
+              class="size-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-xs"
+              :class="getAvatarBg(selectedEmployeeDetails?.employee?.nama_karyawan || '')"
+            >
+              {{ getInitials(selectedEmployeeDetails?.employee?.nama_karyawan || '') }}
             </div>
-          </template>
+            <div class="min-w-0">
+              <h3 class="text-lg font-bold text-highlighted truncate">
+                {{ selectedEmployeeDetails?.employee?.nama_karyawan || 'Rincian Karyawan' }}
+              </h3>
+              <p class="text-xs text-muted truncate">
+                NIK: {{ selectedEmployeeDetails?.employee?.nik || '-' }} •
+                {{ selectedEmployeeDetails?.employee?.departement || '-' }} •
+                {{ selectedEmployeeDetails?.employee?.jabatan || '-' }}
+              </p>
+            </div>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            class="cursor-pointer"
+            @click="detailModalOpen = false"
+          >
+            <UIcon name="i-lucide-x" class="size-5" />
+          </UButton>
+        </div>
 
-          <!-- Body (Scrollable) -->
-          <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
-            <!-- Loading State for Modal -->
-            <div v-if="loadingDetailModal" class="py-16 text-center space-y-3">
-              <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary mx-auto" />
-              <p class="text-xs text-muted">Memuat rincian jatah karyawan...</p>
+        <!-- Body Modal -->
+        <div class="space-y-4 pt-4">
+          <!-- Loading State for Modal -->
+          <div v-if="loadingDetailModal" class="py-16 text-center text-muted">
+            <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary mx-auto mb-2" />
+            <p class="text-xs text-muted">Memuat rincian jatah karyawan...</p>
+          </div>
+
+          <div v-else-if="selectedEmployeeDetails" class="space-y-4">
+            <!-- Navigation Tabs inside Modal -->
+            <div class="flex border-b border-default gap-6 text-xs font-semibold overflow-x-auto">
+              <button
+                class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap cursor-pointer"
+                :class="activeDetailTab === 'leave' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
+                @click="activeDetailTab = 'leave'"
+              >
+                Cuti Tahunan (Sisa: {{ selectedEmployeeDetails.summary?.leave?.remaining ?? 0 }} Hari)
+              </button>
+              <button
+                class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap cursor-pointer"
+                :class="activeDetailTab === 'ph' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
+                @click="activeDetailTab = 'ph'"
+              >
+                Public Holiday (Sisa: {{ selectedEmployeeDetails.summary?.public_holiday?.remaining ?? 0 }} Hari)
+              </button>
+              <button
+                class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap cursor-pointer"
+                :class="activeDetailTab === 'eo' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
+                @click="activeDetailTab = 'eo'"
+              >
+                Extra Off (Sisa: {{ selectedEmployeeDetails.summary?.extra_off?.remaining ?? 0 }} Hari)
+              </button>
             </div>
 
-            <div v-else-if="selectedEmployeeDetails" class="space-y-4">
-              <!-- Navigation Tabs inside Modal -->
-              <div class="flex border-b border-default gap-6 text-xs font-semibold overflow-x-auto">
-                <button
-                  class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap"
-                  :class="activeDetailTab === 'leave' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
-                  @click="activeDetailTab = 'leave'"
-                >
-                  Cuti Tahunan (Sisa: {{ selectedEmployeeDetails.summary?.leave?.remaining ?? 0 }} Hari)
-                </button>
-                <button
-                  class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap"
-                  :class="activeDetailTab === 'ph' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
-                  @click="activeDetailTab = 'ph'"
-                >
-                  Public Holiday (Sisa: {{ selectedEmployeeDetails.summary?.public_holiday?.remaining ?? 0 }} Hari)
-                </button>
-                <button
-                  class="pb-2.5 transition-colors border-b-2 font-bold whitespace-nowrap"
-                  :class="activeDetailTab === 'eo' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-highlighted'"
-                  @click="activeDetailTab = 'eo'"
-                >
-                  Extra Off (Sisa: {{ selectedEmployeeDetails.summary?.extra_off?.remaining ?? 0 }} Hari)
-                </button>
+            <!-- Tab 1: Cuti Tahunan -->
+            <div v-if="activeDetailTab === 'leave'" class="space-y-4">
+              <!-- Leave Accruals -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-plus-circle" class="size-4 text-emerald-500" />
+                  Daftar Hak Accrual Cuti Tahunan
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.leave_accruals?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Periode</th>
+                        <th class="py-2.5 px-3">Tgl Accrual</th>
+                        <th class="py-2.5 px-3">Jumlah Hari</th>
+                        <th class="py-2.5 px-3">Kedaluwarsa</th>
+                        <th class="py-2.5 px-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="acc in selectedEmployeeDetails.details.leave_accruals" :key="acc.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">{{ acc.month }}/{{ acc.year }}</td>
+                        <td class="py-2 px-3 text-muted">{{ formatDate(acc.accrued_at) }}</td>
+                        <td class="py-2 px-3 font-bold" :class="acc.days < 0 ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-400'">
+                          {{ acc.days > 0 ? '+' : '' }}{{ acc.days }} Hari
+                        </td>
+                        <td class="py-2 px-3 text-muted">{{ formatDate(acc.expired_at) }}</td>
+                        <td class="py-2 px-3">
+                          <span
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                            :class="acc.is_used ? 'bg-muted/20 text-muted border-default' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'"
+                          >
+                            {{ acc.is_used ? 'Terpakai' : 'Aktif' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Belum ada catatan accrual cuti tahunan.
+                </p>
               </div>
 
-              <!-- TAB 1: CUTI TAHUNAN DETAILS -->
-              <div v-if="activeDetailTab === 'leave'" class="space-y-5">
-                <!-- Accrual History -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-history" class="size-4 text-primary" />
-                    Riwayat Akumulasi Hak Cuti (Accruals)
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.leave_accruals?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Tahun/Bulan</th>
-                          <th class="py-2.5 px-3">Hak Hari</th>
-                          <th class="py-2.5 px-3">Tgl Accrual</th>
-                          <th class="py-2.5 px-3">Tgl Kadaluarsa</th>
-                          <th class="py-2.5 px-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="acc in selectedEmployeeDetails.details.leave_accruals" :key="acc.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-semibold text-highlighted">{{ acc.year }} / {{ acc.month }}</td>
-                          <td class="py-2 px-3 font-bold text-emerald-600 dark:text-emerald-400">+{{ acc.days }} Hari</td>
-                          <td class="py-2 px-3 text-muted">{{ formatDate(acc.accrued_at) }}</td>
-                          <td class="py-2 px-3 text-muted">{{ formatDate(acc.expired_at) }}</td>
-                          <td class="py-2 px-3">
-                            <UBadge :color="acc.is_expired ? 'danger' : 'success'" variant="soft" size="xs">
-                              {{ acc.is_expired ? 'Kadaluarsa' : 'Aktif' }}
-                            </UBadge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Belum ada riwayat akumulasi cuti tahunan.</p>
+              <!-- Leave Requests -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-history" class="size-4 text-blue-500" />
+                  Riwayat Pengambilan Cuti Tahunan
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.leave_requests?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Rentang Tanggal</th>
+                        <th class="py-2.5 px-3">Hari</th>
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-3">Alasan</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="req in selectedEmployeeDetails.details.leave_requests" :key="req.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">
+                          {{ formatDate(req.start_date) }} - {{ formatDate(req.end_date) }}
+                        </td>
+                        <td class="py-2 px-3 font-bold text-highlighted">{{ req.days }} Hari</td>
+                        <td class="py-2 px-3">
+                          <span
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                            :class="req.status === 'approved' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'"
+                          >
+                            {{ req.status }}
+                          </span>
+                        </td>
+                        <td class="py-2 px-3 text-muted max-w-xs truncate">{{ req.reason || '-' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Belum ada riwayat pengambilan cuti tahunan.
+                </p>
+              </div>
+            </div>
 
-                <!-- Leave Requests Taken -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-calendar-check" class="size-4 text-primary" />
-                    Riwayat Pengajuan Cuti Tahunan
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.leave_requests?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Periode Cuti</th>
-                          <th class="py-2.5 px-3">Jumlah Hari</th>
-                          <th class="py-2.5 px-3">Alasan</th>
-                          <th class="py-2.5 px-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="req in selectedEmployeeDetails.details.leave_requests" :key="req.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-medium text-highlighted">
-                            {{ formatDate(req.start_date) }} - {{ formatDate(req.end_date) }}
-                          </td>
-                          <td class="py-2 px-3 font-bold text-highlighted">{{ req.days }} Hari</td>
-                          <td class="py-2 px-3 text-muted italic max-w-xs truncate">{{ req.reason || '-' }}</td>
-                          <td class="py-2 px-3">
-                            <UBadge :color="getApprovalStatusColor(req.status)" variant="soft" size="xs">
-                              {{ req.status }}
-                            </UBadge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Belum ada riwayat pengajuan cuti.</p>
+            <!-- Tab 2: Public Holiday (PH) -->
+            <div v-else-if="activeDetailTab === 'ph'" class="space-y-4">
+              <!-- Eligible Public Holidays -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-sparkles" class="size-4 text-indigo-500" />
+                  Daftar Hari Libur Nasional Eligible (90 Hari Terakhir)
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.ph_eligible_list?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Tanggal Libur</th>
+                        <th class="py-2.5 px-3">Nama Hari Libur</th>
+                        <th class="py-2.5 px-3">Status Claim</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="ph in selectedEmployeeDetails.details.ph_eligible_list" :key="ph.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">{{ formatDate(ph.holiday_date) }}</td>
+                        <td class="py-2 px-3 text-highlighted">{{ ph.name }}</td>
+                        <td class="py-2 px-3">
+                          <span
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                            :class="ph.claimed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'"
+                          >
+                            {{ ph.claimed ? 'Sudah Diklaim' : 'Belum Diklaim' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Tidak ada hari libur nasional eligible yang memenuhi syarat.
+                </p>
               </div>
 
-              <!-- TAB 2: PUBLIC HOLIDAY DETAILS -->
-              <div v-if="activeDetailTab === 'ph'" class="space-y-5">
-                <!-- Eligible Public Holidays -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-sparkles" class="size-4 text-indigo-500" />
-                    Daftar Hari Libur Nasional Eligible (90 Hari Terakhir)
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.ph_eligible_list?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Tanggal Libur</th>
-                          <th class="py-2.5 px-3">Nama Hari Libur</th>
-                          <th class="py-2.5 px-3">Status Claim</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="ph in selectedEmployeeDetails.details.ph_eligible_list" :key="ph.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-semibold text-highlighted">{{ formatDate(ph.holiday_date) }}</td>
-                          <td class="py-2 px-3 font-medium text-highlighted">{{ ph.name }}</td>
-                          <td class="py-2 px-3">
-                            <UBadge :color="ph.claimed ? 'success' : 'info'" variant="soft" size="xs">
-                              {{ ph.claimed ? 'Sudah Diklaim' : 'Belum Diklaim' }}
-                            </UBadge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Tidak ada hari libur nasional eligible yang belum diklaim.</p>
+              <!-- PH Claim Requests -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-history" class="size-4 text-indigo-500" />
+                  Riwayat Pengajuan Libur Pengganti PH
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.ph_requests?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Tgl Klaim Libur</th>
+                        <th class="py-2.5 px-3">Hari Libur Terkait</th>
+                        <th class="py-2.5 px-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="req in selectedEmployeeDetails.details.ph_requests" :key="req.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">{{ formatDate(req.claim_date) }}</td>
+                        <td class="py-2 px-3 text-highlighted">{{ req.holiday_name }} ({{ formatDate(req.holiday_date) }})</td>
+                        <td class="py-2 px-3">
+                          <span
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                            :class="req.status === 'approved' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'"
+                          >
+                            {{ req.status }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Belum ada riwayat pengajuan Public Holiday.
+                </p>
+              </div>
+            </div>
 
-                <!-- PH Claim Requests -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-clipboard-list" class="size-4 text-indigo-500" />
-                    Riwayat Klaim Public Holiday (PH)
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.ph_requests?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Hari Libur Acuan</th>
-                          <th class="py-2.5 px-3">Tgl Klaim Libur</th>
-                          <th class="py-2.5 px-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="req in selectedEmployeeDetails.details.ph_requests" :key="req.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-medium text-highlighted">{{ req.holiday_name }} ({{ formatDate(req.holiday_date) }})</td>
-                          <td class="py-2 px-3 font-bold text-highlighted">{{ formatDate(req.claim_date) }}</td>
-                          <td class="py-2 px-3">
-                            <UBadge :color="getApprovalStatusColor(req.status)" variant="soft" size="xs">
-                              {{ req.status }}
-                            </UBadge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Belum ada klaim Public Holiday.</p>
+            <!-- Tab 3: Extra Off (EO) -->
+            <div v-else-if="activeDetailTab === 'eo'" class="space-y-4">
+              <!-- Extra Off Sources -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-clock-3" class="size-4 text-amber-500" />
+                  Daftar Hak Extra Off (EO)
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.extra_off_sources?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Periode Sumber</th>
+                        <th class="py-2.5 px-3">Hak Hari</th>
+                        <th class="py-2.5 px-3">Terpakai</th>
+                        <th class="py-2.5 px-3">Sisa</th>
+                        <th class="py-2.5 px-3">Catatan</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="src in selectedEmployeeDetails.details.extra_off_sources" :key="src.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">{{ src.label }}</td>
+                        <td class="py-2 px-3 font-bold text-highlighted">{{ src.days }} Hari</td>
+                        <td class="py-2 px-3 text-muted">{{ src.used_days }} Hari</td>
+                        <td class="py-2 px-3 font-bold text-amber-600 dark:text-amber-400">{{ src.remaining_days }} Hari</td>
+                        <td class="py-2 px-3 text-muted italic text-[11px]">{{ src.notes || src.source || '-' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Belum ada jatah Extra Off yang ditetapkan.
+                </p>
               </div>
 
-              <!-- TAB 3: EXTRA OFF DETAILS -->
-              <div v-if="activeDetailTab === 'eo'" class="space-y-5">
-                <!-- Extra Off Sources -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-clock-3" class="size-4 text-amber-500" />
-                    Daftar Sumber Jatah Extra Off (EO)
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.extra_off_sources?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Periode Sumber</th>
-                          <th class="py-2.5 px-3">Hak Hari</th>
-                          <th class="py-2.5 px-3">Terpakai</th>
-                          <th class="py-2.5 px-3">Sisa</th>
-                          <th class="py-2.5 px-3">Catatan</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="src in selectedEmployeeDetails.details.extra_off_sources" :key="src.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-semibold text-highlighted">{{ src.label }}</td>
-                          <td class="py-2 px-3 font-bold text-highlighted">{{ src.days }} Hari</td>
-                          <td class="py-2 px-3 text-muted">{{ src.used_days }} Hari</td>
-                          <td class="py-2 px-3 font-bold text-amber-600 dark:text-amber-400">{{ src.remaining_days }} Hari</td>
-                          <td class="py-2 px-3 text-muted italic text-[11px]">{{ src.notes || src.source || '-' }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Belum ada jatah Extra Off yang ditetapkan.</p>
+              <!-- Extra Off Claim Requests -->
+              <div>
+                <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <UIcon name="i-lucide-history" class="size-4 text-amber-500" />
+                  Riwayat Pengajuan Extra Off (EO)
+                </h4>
+                <div v-if="selectedEmployeeDetails.details?.extra_off_requests?.length" class="overflow-x-auto border border-default rounded-lg">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-muted/20 text-muted uppercase tracking-wider text-[11px] border-b border-default font-semibold">
+                      <tr>
+                        <th class="py-2.5 px-3">Tgl Klaim Off</th>
+                        <th class="py-2.5 px-3">Periode Sumber EO</th>
+                        <th class="py-2.5 px-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      <tr v-for="req in selectedEmployeeDetails.details.extra_off_requests" :key="req.id" class="hover:bg-muted/20">
+                        <td class="py-2 px-3 font-semibold text-highlighted">{{ formatDate(req.claim_date) }}</td>
+                        <td class="py-2 px-3 text-muted">{{ req.source_period }}</td>
+                        <td class="py-2 px-3">
+                          <span
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                            :class="req.status === 'approved' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'"
+                          >
+                            {{ req.status }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-
-                <!-- Extra Off Claim Requests -->
-                <div>
-                  <h4 class="text-xs font-bold text-highlighted mb-2 flex items-center gap-2">
-                    <UIcon name="i-lucide-file-text" class="size-4 text-amber-500" />
-                    Riwayat Pengajuan Extra Off (EO)
-                  </h4>
-                  <div v-if="selectedEmployeeDetails.details?.extra_off_requests?.length" class="overflow-x-auto border border-default rounded-xl">
-                    <table class="w-full text-left text-xs">
-                      <thead class="bg-muted/10 text-muted uppercase text-[10px] border-b border-default">
-                        <tr>
-                          <th class="py-2.5 px-3">Tgl Klaim Off</th>
-                          <th class="py-2.5 px-3">Periode Sumber EO</th>
-                          <th class="py-2.5 px-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-default/50">
-                        <tr v-for="req in selectedEmployeeDetails.details.extra_off_requests" :key="req.id" class="hover:bg-muted/5">
-                          <td class="py-2 px-3 font-bold text-highlighted">{{ formatDate(req.claim_date) }}</td>
-                          <td class="py-2 px-3 text-muted">{{ req.source_period }}</td>
-                          <td class="py-2 px-3">
-                            <UBadge :color="getApprovalStatusColor(req.status)" variant="soft" size="xs">
-                              {{ req.status }}
-                            </UBadge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-xl text-center">Belum ada riwayat pengajuan Extra Off.</p>
-                </div>
+                <p v-else class="text-xs text-muted italic p-3 border border-dashed border-default rounded-lg text-center">
+                  Belum ada riwayat pengajuan Extra Off.
+                </p>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Footer -->
-          <template #footer>
-            <div class="flex justify-end">
-              <UButton color="neutral" variant="soft" size="xs" @click="detailModalOpen = false">
-                Tutup
-              </UButton>
-            </div>
-          </template>
-        </UCard>
-      </div>
+        <!-- Footer Modal -->
+        <div class="flex items-center justify-end border-t border-default pt-4 mt-4">
+          <UButton
+            color="neutral"
+            variant="outline"
+            class="cursor-pointer font-semibold"
+            @click="detailModalOpen = false"
+          >
+            Tutup
+          </UButton>
+        </div>
+      </UCard>
+    </div>
   </div>
 </template>
 
@@ -588,9 +682,15 @@ const filters = reactive({
   balance_filter: '',
 })
 
-// Pagination State (10 baris per halaman)
+// KPI Aggregates
+const totalEmployeesCount = computed(() => employees.value.length)
+const totalLeaveRemaining = computed(() => employees.value.reduce((acc, e) => acc + (e.leave?.remaining || 0), 0))
+const totalPhRemaining = computed(() => employees.value.reduce((acc, e) => acc + (e.public_holiday?.remaining || 0), 0))
+const totalEoRemaining = computed(() => employees.value.reduce((acc, e) => acc + (e.extra_off?.remaining || 0), 0))
+
+// Pagination State (15 baris per halaman standar)
 const currentPage = ref(1)
-const pageSize = 10
+const pageSize = 15
 
 const totalPages = computed(() => {
   return Math.ceil(employees.value.length / pageSize) || 1
@@ -650,7 +750,6 @@ async function exportCsv() {
 
     const downloadUrl = `${backendUrl}/api/hr/leave-balances/export?${params.toString()}`
 
-    // Trigger download using hidden anchor tag
     const link = document.createElement('a')
     link.href = downloadUrl
     link.target = '_blank'
@@ -753,14 +852,6 @@ function getTenure(joinDateStr) {
   } catch (e) {
     return ''
   }
-}
-
-function getApprovalStatusColor(status) {
-  const statusLower = (status || '').toLowerCase()
-  if (statusLower.includes('approved') || statusLower.includes('setuju')) return 'success'
-  if (statusLower.includes('reject') || statusLower.includes('tolak')) return 'danger'
-  if (statusLower.includes('cancel') || statusLower.includes('batal')) return 'neutral'
-  return 'warning'
 }
 
 onMounted(() => {

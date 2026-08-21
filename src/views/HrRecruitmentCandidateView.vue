@@ -191,9 +191,68 @@ const rejectModalOpen = ref(false)
 const rejectionReasonInput = ref('')
 const blacklistModalOpen = ref(false)
 const blacklistReasonInput = ref('')
+const selectedSort = ref('name_asc')
+const stageDropdownOpen = ref(false)
+const jumpStageConfirmation = reactive({
+  open: false,
+  targetStageKey: '',
+  targetStageLabel: '',
+})
+
+const workflowStages = [
+  { key: 'applied', label: 'Applied (Lamaran Masuk)', icon: 'i-lucide-file-user' },
+  { key: 'screening', label: 'Screening', icon: 'i-lucide-search-check' },
+  { key: 'interview_hr', label: 'Wawancara HR', icon: 'i-lucide-messages-square' },
+  { key: 'case_study', label: 'Case Study', icon: 'i-lucide-clipboard-list' },
+  { key: 'interview_user', label: 'Wawancara User', icon: 'i-lucide-users-round' },
+  { key: 'reference_check', label: 'Reference Check', icon: 'i-lucide-phone-call' },
+  { key: 'offering', label: 'Offering Letter', icon: 'i-lucide-mail' },
+  { key: 'pkb', label: 'Persetujuan PKB', icon: 'i-lucide-file-signature' },
+  { key: 'hired', label: 'Hired & Onboarding', icon: 'i-lucide-badge-check' },
+]
+
+function handleJumpToStage(stageKey) {
+  stageDropdownOpen.value = false
+  if (!activeCandidate.value) return
+  if (activeCandidate.value.status === stageKey) return
+
+  const targetStage = workflowStages.find((s) => s.key === stageKey)
+  jumpStageConfirmation.targetStageKey = stageKey
+  jumpStageConfirmation.targetStageLabel = targetStage ? targetStage.label : getStageLabel(stageKey)
+  jumpStageConfirmation.open = true
+}
+
+function confirmJumpStage() {
+  const targetKey = jumpStageConfirmation.targetStageKey
+  jumpStageConfirmation.open = false
+  if (!activeCandidate.value || !targetKey) return
+
+  if (targetKey === 'interview_hr') {
+    openHrInterviewModal()
+    return
+  }
+  if (targetKey === 'interview_user') {
+    openUserInterviewModal(1)
+    return
+  }
+  updateStage(activeCandidate.value, targetKey)
+}
 
 function getStageClass(status) {
   return status ? status.toLowerCase() : 'applied'
+}
+
+function getStageBadgeClasses(status) {
+  const s = (status || '').toLowerCase()
+  if (s === 'hired') return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+  if (s === 'rejected') return 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
+  if (s === 'offering') return 'bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-500/30'
+  if (s === 'pkb') return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
+  if (s === 'interview_hr') return 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30'
+  if (s === 'interview_user') return 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
+  if (s === 'case_study') return 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30'
+  if (s === 'screening') return 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30'
+  return 'bg-slate-500/15 text-slate-800 dark:text-slate-200 border-slate-500/30'
 }
 
 const formControlClass =
@@ -215,7 +274,7 @@ const availableDepartments = computed(() => {
 
 const filteredCandidates = computed(() => {
   const keyword = search.value.trim().toLowerCase()
-  return candidates.value.filter((c) => {
+  const list = candidates.value.filter((c) => {
     const matchesSearch =
       c.name.toLowerCase().includes(keyword) ||
       c.email.toLowerCase().includes(keyword) ||
@@ -231,6 +290,22 @@ const filteredCandidates = computed(() => {
       (c.vacancy?.department || 'Umum (Tanpa Dept)') === selectedDepartmentFilter.value
 
     return matchesSearch && matchesVacancy && matchesStatus && matchesPic && matchesDept
+  })
+
+  return list.sort((a, b) => {
+    if (selectedSort.value === 'name_asc') {
+      return (a.name || '').localeCompare(b.name || '')
+    }
+    if (selectedSort.value === 'name_desc') {
+      return (b.name || '').localeCompare(a.name || '')
+    }
+    if (selectedSort.value === 'date_desc') {
+      return new Date(b.applied_at || b.created_at || 0) - new Date(a.applied_at || a.created_at || 0)
+    }
+    if (selectedSort.value === 'date_asc') {
+      return new Date(a.applied_at || a.created_at || 0) - new Date(b.applied_at || b.created_at || 0)
+    }
+    return (a.name || '').localeCompare(b.name || '')
   })
 })
 
@@ -3570,18 +3645,34 @@ onBeforeUnmount(() => {
               <input v-model="search" type="search" placeholder="Cari nama, email, hp..."
                 class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
               <div class="grid grid-cols-2 gap-2">
+                <select v-model="selectedSort"
+                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full font-medium">
+                  <option value="name_asc">Urutkan: Nama (A - Z)</option>
+                  <option value="name_desc">Urutkan: Nama (Z - A)</option>
+                  <option value="date_desc">Urutkan: Tgl Melamar (Terbaru)</option>
+                  <option value="date_asc">Urutkan: Tgl Melamar (Terlama)</option>
+                </select>
                 <select v-model="selectedDepartmentFilter"
                   class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
                   <option value="">Semua Dept</option>
                   <option v-for="d in availableDepartments" :key="d" :value="d">{{ d }}</option>
                 </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
                 <select v-model="selectedVacancyFilter"
                   class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
                   <option value="">Semua Lowongan</option>
                   <option v-for="v in vacancies" :key="v.id" :value="v.id">{{ v.title }}</option>
                 </select>
+                <select v-model="selectedPicFilter"
+                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
+                  <option value="">Semua PIC</option>
+                  <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
+                    {{ emp.name }}
+                  </option>
+                </select>
               </div>
-              <div class="grid grid-cols-2 gap-2">
+              <div>
                 <USelectMenu v-model="selectedStatusFilters" :items="stages" value-key="key" label-key="label"
                   placeholder="Filter Tahap" multiple class="w-full">
                   <!-- Custom trigger display -->
@@ -3611,13 +3702,6 @@ onBeforeUnmount(() => {
                       item.label }}</span>
                   </template>
                 </USelectMenu>
-                <select v-model="selectedPicFilter"
-                  class="rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full">
-                  <option value="">Semua PIC</option>
-                  <option v-for="emp in hrbpStaffEmployees" :key="emp.nik" :value="emp.nik">
-                    {{ emp.name }}
-                  </option>
-                </select>
               </div>
             </div>
           </div>
@@ -3661,6 +3745,11 @@ onBeforeUnmount(() => {
                   <p class="text-xs text-muted truncate mt-0.5">
                     {{ candidate.vacancy?.title || 'Umum' }}
                   </p>
+                  <!-- Tanggal Melamar -->
+                  <div class="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                    <UIcon name="i-lucide-calendar-days" class="size-3 text-primary/70 shrink-0" />
+                    <span>Melamar: {{ formatDate(candidate.applied_at || candidate.created_at) }}</span>
+                  </div>
                   <!-- Stage & Dept Badges -->
                   <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
                     <span
@@ -3766,26 +3855,29 @@ onBeforeUnmount(() => {
 
           <!-- Duplicate / Other Applications Alert Banner -->
           <div v-if="activeCandidate.is_duplicate || (activeCandidate.other_applications && activeCandidate.other_applications.length)"
-            class="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2 text-amber-900 dark:text-amber-200">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <div class="flex items-center gap-2 font-bold text-sm">
-                <UIcon name="i-lucide-copy" class="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                <span>Kandidat Ini Melamar di Lowongan / Posisi Lain</span>
+            class="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 dark:bg-amber-950/30 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-copy" class="size-4.5 text-amber-700 dark:text-amber-400 shrink-0" />
+                <span class="font-bold text-sm text-slate-950 dark:text-amber-100">Kandidat Ini Melamar di Lowongan / Posisi Lain</span>
               </div>
-              <UButton size="xs" variant="soft" color="warning" icon="i-lucide-history"
-                label="Lihat History Complete" @click="historyModalOpen = true" />
+              <UButton size="xs" variant="solid" color="neutral" icon="i-lucide-history"
+                label="Lihat History Complete" class="cursor-pointer font-semibold shadow-xs" @click="historyModalOpen = true" />
             </div>
-            <div class="space-y-1.5 pt-1 border-t border-amber-500/20 text-xs">
+            <div class="space-y-2 pt-1 border-t border-amber-500/20 text-xs">
               <div v-for="otherApp in activeCandidate.other_applications" :key="otherApp.id"
-                class="flex items-center justify-between gap-2 bg-amber-500/10 dark:bg-amber-900/30 px-3 py-1 rounded-lg">
-                <div class="truncate">
-                  <span class="font-bold text-highlighted">Posisi: {{ otherApp.vacancy_title }}</span>
-                  <span v-if="otherApp.vacancy_department" class="text-muted ml-1">({{ otherApp.vacancy_department }})</span>
-                  <span class="text-muted text-[11px] ml-2">• #{{ otherApp.id }} • Applied: {{ formatDateTime(otherApp.created_at) }}</span>
+                class="flex items-center justify-between gap-2 bg-white dark:bg-slate-900 border border-amber-500/20 px-3.5 py-2.5 rounded-lg shadow-2xs">
+                <div class="truncate text-slate-800 dark:text-slate-200">
+                  <span class="font-bold text-slate-950 dark:text-white text-sm">Posisi: {{ otherApp.vacancy_title }}</span>
+                  <span v-if="otherApp.vacancy_department" class="text-slate-600 dark:text-slate-400 text-xs ml-1 font-medium">({{ otherApp.vacancy_department }})</span>
+                  <span class="text-slate-500 dark:text-slate-400 text-xs ml-2 font-mono">• #{{ otherApp.id }} • Applied: {{ formatDateTime(otherApp.created_at) }}</span>
                 </div>
-                <UBadge :color="getStageBadgeColor(otherApp.status)" variant="soft" size="xs" class="shrink-0 font-semibold">
+                <span
+                  class="shrink-0 font-bold text-xs px-2.5 py-0.5 rounded-md border shadow-2xs"
+                  :class="getStageBadgeClasses(otherApp.status)"
+                >
                   {{ getStageLabel(otherApp.status) }}
-                </UBadge>
+                </span>
               </div>
             </div>
           </div>
@@ -5399,41 +5491,84 @@ onBeforeUnmount(() => {
             <div v-if="!isViewingHistoricalStage" class="mt-8 border-t border-default pt-6 space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <!-- Promotion & Primary Action Buttons -->
-                <div v-if="nextStage && activeCandidate.status !== 'rejected'"
-                  class="flex items-center gap-2 flex-wrap">
-                  <UButton type="button" icon="i-lucide-arrow-right" trailing :label="`Lanjutkan ke ${nextStage.label}`"
+                <div class="flex items-center gap-2 flex-wrap">
+                  <UButton v-if="nextStage && activeCandidate.status !== 'rejected'" type="button" icon="i-lucide-arrow-right" trailing :label="`Lanjutkan ke ${nextStage.label}`"
                     :loading="updatingStage" :disabled="!canPromoteCandidate" @click="promoteCandidate"
-                    class="font-semibold shadow-xs" />
+                    class="font-semibold shadow-xs cursor-pointer" />
 
-                  <UButton v-if="activeCandidate.status === 'applied'"
-                    type="button" color="sky" variant="soft" icon="i-lucide-user-check"
-                    label="Loncat ke Wawancara HR ➔" :loading="updatingStage"
-                    @click="updateStage(activeCandidate, 'interview_hr')"
-                    class="font-medium shadow-xs" />
+                  <UButton v-if="activeCandidate.status === 'rejected'" type="button" color="primary" variant="outline"
+                    icon="i-lucide-rotate-ccw" label="Pulihkan Pipeline Kandidat" :loading="updatingStage"
+                    class="cursor-pointer font-semibold"
+                    @click="restoreCandidate" />
 
-                  <UButton v-if="activeCandidate.status === 'applied' || activeCandidate.status === 'screening'"
-                    type="button" color="indigo" variant="soft" icon="i-lucide-users-round"
-                    label="Loncat ke Wawancara User ➔" :loading="updatingStage"
-                    @click="updateStage(activeCandidate, 'interview_user')"
-                    class="font-medium shadow-xs" />
+                  <!-- Dropdown Loncat ke Tahap Manapun & Aksi Lainnya -->
+                  <div class="relative inline-block text-left">
+                    <div
+                      v-if="stageDropdownOpen"
+                      class="fixed inset-0 z-30"
+                      @click="stageDropdownOpen = false"
+                    ></div>
 
-                  <UButton v-if="activeCandidate.status === 'interview_hr'" type="button" color="info" variant="soft"
-                    icon="i-lucide-file-code" label="Gunakan Case Study (Opsional)" :loading="updatingStage"
-                    :disabled="!activeCandidate.interview_hr_completed_at || !isHrSummaryValid"
-                    @click="updateStage(activeCandidate, 'case_study')" class="font-medium shadow-xs" />
-                </div>
+                    <UButton
+                      type="button"
+                      color="neutral"
+                      variant="outline"
+                      icon="i-lucide-git-branch-plus"
+                      trailing-icon="i-lucide-chevron-down"
+                      label="Pindah / Loncat ke Tahap..."
+                      :disabled="updatingStage"
+                      class="font-semibold shadow-xs cursor-pointer relative z-40"
+                      @click="stageDropdownOpen = !stageDropdownOpen"
+                    />
 
-                <UButton v-if="activeCandidate.status === 'rejected'" type="button" color="primary" variant="outline"
-                  icon="i-lucide-rotate-ccw" label="Pulihkan Pipeline Kandidat" :loading="updatingStage"
-                  @click="restoreCandidate" />
+                    <!-- Dropdown Menu Box -->
+                    <div
+                      v-if="stageDropdownOpen"
+                      class="absolute left-0 bottom-full mb-2 w-64 rounded-xl border border-default bg-[var(--ui-bg,#ffffff)] shadow-2xl p-1.5 z-40 divide-y divide-default"
+                    >
+                      <div class="py-1">
+                        <p class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                          Pilih / Loncat ke Tahap
+                        </p>
+                        <button
+                          v-for="s in workflowStages"
+                          :key="s.key"
+                          type="button"
+                          class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-colors text-left cursor-pointer"
+                          :class="activeCandidate.status === s.key ? 'bg-primary/10 text-primary font-bold' : 'text-highlighted hover:bg-muted/20'"
+                          @click="handleJumpToStage(s.key)"
+                        >
+                          <span class="flex items-center gap-2">
+                            <UIcon :name="s.icon" class="size-4 shrink-0" :class="activeCandidate.status === s.key ? 'text-primary' : 'text-muted'" />
+                            {{ s.label }}
+                          </span>
+                          <span v-if="activeCandidate.status === s.key" class="text-[10px] text-primary font-bold">Saat ini</span>
+                        </button>
+                      </div>
 
-                <!-- Destructive Actions (Reject & Blacklist) -->
-                <div v-if="activeCandidate.status !== 'rejected' && activeCandidate.status !== 'hired'"
-                  class="flex items-center gap-2 shrink-0">
-                  <UButton type="button" variant="ghost" color="danger" icon="i-lucide-x-circle" label="Tandai Ditolak"
-                    :loading="updatingStage" @click="openRejectModal" />
-                  <UButton type="button" variant="solid" color="neutral" icon="i-lucide-user-x" label="Blacklist"
-                    :loading="updatingStage" @click="openBlacklistModal" />
+                      <div v-if="activeCandidate.status !== 'rejected' && activeCandidate.status !== 'hired'" class="py-1">
+                        <p class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                          Aksi Lainnya
+                        </p>
+                        <button
+                          type="button"
+                          class="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors text-left cursor-pointer"
+                          @click="stageDropdownOpen = false; openRejectModal()"
+                        >
+                          <UIcon name="i-lucide-x-circle" class="size-4 text-rose-500 shrink-0" />
+                          Tandai Ditolak
+                        </button>
+                        <button
+                          type="button"
+                          class="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-800 dark:text-slate-200 hover:bg-slate-500/10 transition-colors text-left cursor-pointer"
+                          @click="stageDropdownOpen = false; openBlacklistModal()"
+                        >
+                          <UIcon name="i-lucide-user-x" class="size-4 text-slate-600 dark:text-slate-400 shrink-0" />
+                          Blacklist Kandidat
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -7255,91 +7390,91 @@ onBeforeUnmount(() => {
 
 
     <!-- History & Track Record Modal -->
-
-    <div v-if="historyModalOpen" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    <div v-if="historyModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
       role="dialog" aria-modal="true" aria-label="History Pelamar">
-      <button type="button" class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+      <button type="button" class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs cursor-default"
         @click="historyModalOpen = false"></button>
       <div
-        class="relative w-full sm:max-w-2xl h-[92vh] sm:h-[88vh] bg-default rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-default">
+        class="relative w-full max-w-4xl lg:max-w-5xl h-[92vh] sm:h-[88vh] bg-default rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-default z-10">
 
         <!-- Header -->
-        <div class="px-5 py-4 border-b border-default shrink-0 bg-muted/5">
+        <div class="px-6 py-4 border-b border-default shrink-0 bg-muted/10">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-primary uppercase tracking-wider">Rekam Jejak & History Lamaran</p>
-              <h3 class="text-base font-bold text-highlighted mt-0.5">{{ activeCandidate?.name }}</h3>
+              <h3 class="text-lg font-bold text-highlighted mt-0.5">{{ activeCandidate?.name }}</h3>
             </div>
-            <button type="button" @click="historyModalOpen = false"
-              class="size-8 flex items-center justify-center rounded-lg text-muted hover:text-highlighted hover:bg-muted/10 transition-colors">
-              <UIcon name="i-lucide-x" class="size-5" />
-            </button>
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" class="cursor-pointer"
+              @click="historyModalOpen = false" />
           </div>
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto divide-y divide-default">
-          <div v-for="(prev, pIdx) in previousApplications" :key="prev.id" class="px-5 py-5 space-y-4">
+        <div class="flex-1 overflow-y-auto divide-y divide-default p-6 space-y-6">
+          <div v-for="(prev, pIdx) in previousApplications" :key="prev.id" class="space-y-4">
 
-            <!-- Lamaran meta header -->
-            <div class="rounded-xl border border-default bg-muted/10 p-4 space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
+            <!-- Lamaran Meta Header Card -->
+            <div class="rounded-xl border border-default bg-muted/20 p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-medium text-muted">
+                    <span class="text-xs font-semibold text-muted">
                       Lamaran {{ previousApplications.length - pIdx }} • {{ formatDateTime(prev.applied_at) }}
                     </span>
                     <!-- Badge jenis sumber -->
                     <span v-if="prev.source === 'linked'"
-                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
                       Rekam Penuh
                     </span>
                     <span v-else
-                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/20 text-muted">
+                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-muted/30 text-muted border border-default">
                       Snapshot
                     </span>
                   </div>
-                  <p class="text-sm font-bold text-highlighted mt-1">{{ prev.vacancy_title }}</p>
+                  <h4 class="text-base font-bold text-highlighted mt-1">Posisi: {{ prev.vacancy_title }}</h4>
                 </div>
-                <UBadge :color="getStageBadgeColor(prev.status)" variant="soft" size="sm"
-                  class="shrink-0 font-semibold">
+                <span class="shrink-0 font-bold text-xs px-2.5 py-1 rounded-md border shadow-2xs"
+                  :class="getStageBadgeClasses(prev.status)">
                   {{ getStageLabel(prev.status) }}
-                </UBadge>
+                </span>
               </div>
 
               <!-- Action Bar Per Lamaran: Import Semua & Lanjutkan Lamaran -->
               <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-default/60">
-                <UButton size="xs" variant="soft" color="primary" icon="i-lucide-copy-plus"
-                  label="Salin Semua Penilaian" :loading="importingAssessment && importAssessmentSourceId === prev.id"
+                <UButton size="xs" variant="outline" color="primary" icon="i-lucide-copy-plus"
+                  label="Salin Semua Penilaian" class="cursor-pointer font-semibold"
+                  :loading="importingAssessment && importAssessmentSourceId === prev.id"
                   @click="triggerImportAssessment(prev.id, ['interview_hr_text_summary', 'interview_hr_summary_path', 'case_study_submitted_file_path', 'offered_salary', 'join_date', 'notes'])" />
                 <UButton size="xs" variant="solid" color="primary" icon="i-lucide-rotate-ccw"
-                  label="Lanjutkan Lamaran (Restore Tahap Ini)"
+                  label="Lanjutkan Lamaran (Restore Tahap Ini)" class="cursor-pointer font-semibold"
                   :loading="importingAssessment && importAssessmentSourceId === prev.id"
                   @click="triggerImportAssessment(prev.id, ['interview_hr_text_summary', 'interview_hr_summary_path', 'case_study_submitted_file_path', 'offered_salary', 'join_date', 'notes'], true)" />
               </div>
             </div>
 
             <!-- Sub-Sections Assessment -->
-            <div class="space-y-3">
+            <div class="grid grid-cols-1 gap-3">
 
               <!-- Wawancara HR -->
               <div v-if="prev.interview_hr_text_summary || prev.interview_hr_summary_path"
                 class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Wawancara
-                    HR</span>
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-messages-square" class="size-4 text-purple-500" />
+                    Wawancara HR
+                  </span>
                   <div class="flex items-center gap-1.5">
-                    <UButton v-if="prev.interview_hr_summary_path" size="2xs" variant="ghost" color="neutral"
-                      icon="i-lucide-file-text" label="PDF"
+                    <UButton v-if="prev.interview_hr_summary_path" size="xs" variant="outline" color="neutral"
+                      icon="i-lucide-file-text" label="Lihat PDF" class="cursor-pointer font-medium"
                       @click="openPreviousDocumentByPath('Summary Wawancara HR', prev.interview_hr_summary_path)" />
-                    <UButton v-if="prev.interview_hr_text_summary" size="2xs" variant="soft" color="primary"
-                      icon="i-lucide-copy-plus" label="Import"
+                    <UButton v-if="prev.interview_hr_text_summary" size="xs" variant="soft" color="primary"
+                      icon="i-lucide-copy-plus" label="Import" class="cursor-pointer font-medium"
                       :loading="importingAssessment && importAssessmentSourceId === prev.id"
                       @click="triggerImportAssessment(prev.id, ['interview_hr_text_summary', 'interview_hr_summary_path'].filter(f => prev[f]))" />
                   </div>
                 </div>
                 <div class="px-4 py-3">
-                  <p v-if="prev.interview_hr_text_summary" class="text-xs text-highlighted leading-relaxed">
+                  <p v-if="prev.interview_hr_text_summary" class="text-sm text-highlighted leading-relaxed whitespace-pre-wrap">
                     {{ prev.interview_hr_text_summary }}
                   </p>
                 </div>
@@ -7349,27 +7484,32 @@ onBeforeUnmount(() => {
               <div v-if="(prev.user_interview_evaluations || []).filter(e => e.submitted_at).length"
                 class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Wawancara
-                    User</span>
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-users-round" class="size-4 text-indigo-500" />
+                    Wawancara User
+                  </span>
                 </div>
                 <div class="divide-y divide-default/40">
                   <div v-for="ev in (prev.user_interview_evaluations || []).filter(e => e.submitted_at)" :key="ev.id"
                     class="px-4 py-3 flex items-start justify-between gap-3">
                     <div class="min-w-0 flex-1">
-                      <p class="text-xs font-semibold text-highlighted">
+                      <p class="text-sm font-bold text-highlighted">
                         {{ ev.interviewer?.nama_karyawan || ev.interviewer_nik }}
-                        <span class="text-xs font-normal text-muted ml-1">• Tahap {{ ev.round }}</span>
+                        <span class="text-xs font-semibold text-muted ml-1.5">• Tahap {{ ev.round }}</span>
                       </p>
                       <p v-if="ev.interview_evaluation_notes" class="text-xs text-muted mt-1 leading-relaxed italic">
                         "{{ ev.interview_evaluation_notes }}"
                       </p>
                     </div>
                     <div class="text-right shrink-0">
-                      <p class="text-xs font-bold"
-                        :class="ev.interview_recommendation === 'disarankan' ? 'text-emerald-600 dark:text-emerald-400' : ev.interview_recommendation === 'dipertimbangkan' ? 'text-amber-500 dark:text-amber-400' : 'text-red-500 dark:text-red-400'">
+                      <p class="text-sm font-bold"
+                        :class="ev.interview_recommendation === 'disarankan' ? 'text-emerald-600 dark:text-emerald-400' : ev.interview_recommendation === 'dipertimbangkan' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'">
                         {{ ev.interview_total_score }}<span class="text-xs font-normal text-muted">/36</span>
                       </p>
-                      <p class="text-xs text-muted capitalize mt-0.5">{{ ev.interview_recommendation }}</p>
+                      <p class="text-xs font-semibold capitalize mt-0.5"
+                        :class="ev.interview_recommendation === 'disarankan' ? 'text-emerald-600 dark:text-emerald-400' : ev.interview_recommendation === 'dipertimbangkan' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'">
+                        {{ ev.interview_recommendation }}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -7379,18 +7519,20 @@ onBeforeUnmount(() => {
               <div v-if="prev.case_study_submitted_file_path"
                 class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Case
-                    Study</span>
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-clipboard-list" class="size-4 text-orange-500" />
+                    Case Study
+                  </span>
                   <div class="flex items-center gap-1.5">
-                    <UButton size="2xs" variant="ghost" color="neutral" icon="i-lucide-file-text" label="PDF"
+                    <UButton size="xs" variant="outline" color="neutral" icon="i-lucide-file-text" label="Lihat PDF" class="cursor-pointer font-medium"
                       @click="openPreviousDocumentByPath('Berkas Case Study', prev.case_study_submitted_file_path)" />
-                    <UButton size="2xs" variant="soft" color="primary" icon="i-lucide-copy-plus" label="Import"
+                    <UButton size="xs" variant="soft" color="primary" icon="i-lucide-copy-plus" label="Import" class="cursor-pointer font-medium"
                       :loading="importingAssessment && importAssessmentSourceId === prev.id"
                       @click="triggerImportAssessment(prev.id, ['case_study_submitted_file_path'])" />
                   </div>
                 </div>
                 <div class="px-4 py-3">
-                  <p class="text-xs text-muted">Disubmit {{ formatDate(prev.case_study_submitted_at) }}</p>
+                  <p class="text-xs text-muted">Disubmit pada {{ formatDate(prev.case_study_submitted_at) }}</p>
                 </div>
               </div>
 
@@ -7398,14 +7540,16 @@ onBeforeUnmount(() => {
               <div v-if="(prev.references || []).some(r => r.submitted_at)"
                 class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Reference
-                    Check</span>
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-phone-call" class="size-4 text-teal-500" />
+                    Reference Check
+                  </span>
                 </div>
                 <div class="divide-y divide-default/40">
                   <div v-for="ref in (prev.references || []).filter(r => r.submitted_at)" :key="ref.id"
                     class="px-4 py-3 flex items-center justify-between gap-3">
                     <div>
-                      <p class="text-xs font-semibold text-highlighted">{{ ref.name }}</p>
+                      <p class="text-sm font-bold text-highlighted">{{ ref.name }}</p>
                       <p class="text-xs text-muted">{{ ref.company }}</p>
                     </div>
                     <span class="text-xs font-semibold text-highlighted shrink-0">
@@ -7415,38 +7559,36 @@ onBeforeUnmount(() => {
                 </div>
               </div>
 
-              <!-- Offering -->
+              <!-- Offering Letter -->
               <div v-if="prev.offered_salary || prev.offering_letter_path"
                 class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Offering
-                    Letter</span>
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-mail" class="size-4 text-pink-500" />
+                    Offering Letter
+                  </span>
                   <div class="flex items-center gap-1.5">
-                    <UButton v-if="prev.offering_letter_path" size="2xs" variant="ghost" color="neutral"
-                      icon="i-lucide-file-text" label="PDF"
+                    <UButton v-if="prev.offering_letter_path" size="xs" variant="outline" color="neutral"
+                      icon="i-lucide-file-text" label="Lihat PDF" class="cursor-pointer font-medium"
                       @click="openPreviousDocumentByPath('Surat Penawaran Offering Letter', prev.offering_letter_path)" />
-                    <UButton v-if="prev.offered_salary" size="2xs" variant="soft" color="primary"
-                      icon="i-lucide-copy-plus" label="Import"
+                    <UButton v-if="prev.offered_salary" size="xs" variant="soft" color="primary"
+                      icon="i-lucide-copy-plus" label="Import" class="cursor-pointer font-medium"
                       :loading="importingAssessment && importAssessmentSourceId === prev.id"
                       @click="triggerImportAssessment(prev.id, ['offered_salary', 'join_date'].filter(f => prev[f]))" />
                   </div>
                 </div>
                 <div class="divide-y divide-default/40">
                   <div class="px-4 py-3 flex items-center justify-between">
-                    <span class="text-xs text-muted">Gaji ditawarkan</span>
-                    <span class="text-xs font-bold text-highlighted">Rp {{ Number(prev.offered_salary ||
-                      0).toLocaleString('id-ID') }}</span>
+                    <span class="text-xs text-muted">Gaji Ditawarkan</span>
+                    <span class="text-sm font-bold text-highlighted">Rp {{ Number(prev.offered_salary || 0).toLocaleString('id-ID') }}</span>
                   </div>
                   <div class="px-4 py-3 flex items-center justify-between">
-                    <span class="text-xs text-muted">Tanggal mulai kerja</span>
-                    <span class="text-xs font-medium text-highlighted">{{ prev.join_date ? formatDate(prev.join_date) :
-                      '-'
-                      }}</span>
+                    <span class="text-xs text-muted">Tanggal Mulai Kerja</span>
+                    <span class="text-xs font-semibold text-highlighted">{{ prev.join_date ? formatDate(prev.join_date) : '-' }}</span>
                   </div>
                   <div v-if="prev.offering_letter_signed_at" class="px-4 py-3 flex items-center justify-between">
-                    <span class="text-xs text-muted">Tanda tangan kandidat</span>
-                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✓ {{
-                      formatDate(prev.offering_letter_signed_at) }}</span>
+                    <span class="text-xs text-muted">Tanda Tangan Kandidat</span>
+                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✓ {{ formatDate(prev.offering_letter_signed_at) }}</span>
                   </div>
                 </div>
               </div>
@@ -7454,41 +7596,71 @@ onBeforeUnmount(() => {
               <!-- Catatan HRD -->
               <div v-if="prev.notes" class="rounded-xl bg-muted/5 border border-default overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-2.5 border-b border-default bg-muted/10">
-                  <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider">Catatan
-                    HRD</span>
-                  <UButton size="2xs" variant="soft" color="primary" icon="i-lucide-copy-plus" label="Import"
+                  <span class="text-xs font-bold text-highlighted uppercase tracking-wider flex items-center gap-1.5">
+                    <UIcon name="i-lucide-file-text" class="size-4 text-blue-500" />
+                    Catatan HRD
+                  </span>
+                  <UButton size="xs" variant="soft" color="primary" icon="i-lucide-copy-plus" label="Import" class="cursor-pointer font-medium"
                     :loading="importingAssessment && importAssessmentSourceId === prev.id"
                     @click="triggerImportAssessment(prev.id, ['notes'])" />
                 </div>
                 <div class="px-4 py-3">
-                  <p class="text-xs text-highlighted leading-relaxed whitespace-pre-wrap">{{ prev.notes }}</p>
+                  <p class="text-sm text-highlighted leading-relaxed whitespace-pre-wrap">{{ prev.notes }}</p>
                 </div>
               </div>
 
-              <!-- Empty -->
+              <!-- Empty State -->
               <p v-if="
                 !prev.interview_hr_text_summary && !prev.interview_hr_summary_path &&
                 !(prev.user_interview_evaluations || []).filter(e => e.submitted_at).length &&
                 !prev.case_study_submitted_file_path &&
                 !(prev.references || []).some(r => r.submitted_at) &&
                 !prev.offered_salary && !prev.offering_letter_path && !prev.notes
-              " class="text-xs text-muted py-1">Belum ada penilaian yang tercatat.</p>
+              " class="text-xs text-muted py-2 italic text-center border border-dashed border-default rounded-lg">Belum ada penilaian yang tercatat.</p>
 
             </div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="px-5 py-3 border-t border-default shrink-0 flex items-center justify-between bg-muted/5">
-          <p class="text-xs text-muted">{{ previousApplications.length }} lamaran sebelumnya</p>
-          <button type="button" @click="historyModalOpen = false"
-            class="text-xs font-semibold text-muted hover:text-highlighted transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/10">
-            Tutup
-          </button>
+        <div class="px-6 py-3.5 border-t border-default shrink-0 flex items-center justify-between bg-muted/10">
+          <p class="text-xs text-muted font-medium">Total: {{ previousApplications.length }} lamaran sebelumnya tercatat</p>
+          <UButton color="neutral" variant="outline" size="sm" label="Tutup" class="cursor-pointer font-semibold"
+            @click="historyModalOpen = false" />
         </div>
       </div>
     </div>
 
+    <!-- Jump Stage Confirmation Modal -->
+    <div v-if="jumpStageConfirmation.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"
+      aria-modal="true">
+      <button type="button" class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs cursor-default" @click="jumpStageConfirmation.open = false"></button>
+      <UCard class="relative w-full max-w-md border border-default bg-[var(--ui-bg,#ffffff)] shadow-2xl z-10">
+        <template #header>
+          <div class="flex items-center justify-between gap-4">
+            <p class="text-sm font-bold text-highlighted uppercase tracking-wide flex items-center gap-2">
+              <UIcon name="i-lucide-arrow-right-circle" class="text-primary size-5" />
+              Konfirmasi Pindah Tahap
+            </p>
+            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" class="cursor-pointer" @click="jumpStageConfirmation.open = false" />
+          </div>
+        </template>
+        <div class="space-y-3 text-sm">
+          <p class="text-highlighted leading-relaxed">
+            Apakah Anda yakin akan langsung memindahkan kandidat <strong class="font-bold text-primary">{{ activeCandidate?.name }}</strong> ke tahap <strong class="font-bold text-primary">{{ jumpStageConfirmation.targetStageLabel }}</strong>?
+          </p>
+          <p class="text-xs text-muted">
+            Kandidat akan segera dialihkan ke tahapan tersebut dalam alur rekrutmen.
+          </p>
+        </div>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton color="neutral" variant="outline" label="Batal" class="cursor-pointer font-semibold" @click="jumpStageConfirmation.open = false" />
+            <UButton color="primary" label="Ya, Pindahkan Kandidat" class="cursor-pointer font-semibold shadow-xs" :loading="updatingStage" @click="confirmJumpStage" />
+          </div>
+        </template>
+      </UCard>
+    </div>
 
     <!-- Rejection Reason Modal -->
     <div v-if="rejectModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog"

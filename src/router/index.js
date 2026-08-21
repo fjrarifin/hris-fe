@@ -361,6 +361,24 @@ const router = createRouter({
           meta: { title: 'Sisa Jatah Cuti / PH / EO', levels: [0, 1, 2], menuKey: 'hr-leave-balances' },
         },
         {
+          path: 'hr/adjustments/leave',
+          name: 'hr-leave-adjustments',
+          component: () => import('../views/HrLeaveAdjustmentView.vue'),
+          meta: { title: 'Adjustment Saldo Cuti', levels: [0, 1, 2], menuKey: 'hr-leave-adjustments' },
+        },
+        {
+          path: 'hr/adjustments/ph',
+          name: 'hr-ph-adjustments',
+          component: () => import('../views/HrPhAdjustmentView.vue'),
+          meta: { title: 'Adjustment Saldo PH', levels: [0, 1, 2], menuKey: 'hr-ph-adjustments' },
+        },
+        {
+          path: 'hr/adjustments/extra-off',
+          name: 'hr-extra-off-adjustments',
+          component: () => import('../views/HrExtraOffAdjustmentView.vue'),
+          meta: { title: 'Adjustment Saldo Extra Off', levels: [0, 1, 2], menuKey: 'hr-extra-off-adjustments' },
+        },
+        {
           path: 'hr/attendance/minimum-monitoring',
           name: 'hr-attendance-minimum',
           component: HrAttendanceMinimumView,
