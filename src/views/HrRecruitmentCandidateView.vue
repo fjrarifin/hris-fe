@@ -228,12 +228,17 @@ function confirmJumpStage() {
   if (!activeCandidate.value || !targetKey) return
 
   if (targetKey === 'interview_hr') {
-    openHrInterviewModal()
-    return
+    if (!activeCandidate.value.interview_hr_date) {
+      openHrInterviewModal()
+      return
+    }
   }
   if (targetKey === 'interview_user') {
-    openUserInterviewModal(1)
-    return
+    const existingInterviews = activeCandidate.value.user_interviews || []
+    if (!existingInterviews.length) {
+      openUserInterviewModal(1)
+      return
+    }
   }
   updateStage(activeCandidate.value, targetKey)
 }
@@ -753,13 +758,18 @@ async function updateStage(candidate, newStage) {
       errorMessage.value = 'PIC Screening wajib diisi terlebih dahulu sebelum melanjutkan kandidat ke tahap Wawancara HR.'
       return
     }
-    openHrInterviewModal()
-    return
+    if (!candidate.interview_hr_date) {
+      openHrInterviewModal()
+      return
+    }
   }
 
   if (newStage === 'interview_user') {
-    openUserInterviewModal(1)
-    return
+    const existingInterviews = candidate?.user_interviews || []
+    if (!existingInterviews.length) {
+      openUserInterviewModal(1)
+      return
+    }
   }
   if (updatingStage.value) return
   updatingStage.value = true
@@ -3406,7 +3416,7 @@ const canAddUserInterviewRound = computed(() => {
   if (nextRound <= 1 || nextRound > 3) return false
 
   const previousRound = nextRound - 1
-  return !!getUserInterview(previousRound)?.completed_at
+  return !!getUserInterview(previousRound)?.completed_at && isRoundEvaluationCompleted(previousRound)
 })
 
 function getRoundAverageScore(round) {
