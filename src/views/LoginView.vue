@@ -141,67 +141,35 @@ onMounted(() => {
         </div>
 
         <div class="login-alerts">
-          <AlertToastBridge
-            :message="resetSuccessMessage"
-            :warning="activeSessionMessage || expiredSessionMessage"
-            :error="errorMessage"
-          />
+          <AlertToastBridge :message="resetSuccessMessage" :warning="activeSessionMessage || expiredSessionMessage"
+            :error="errorMessage" />
         </div>
 
         <form class="mobile-form" autocomplete="on" @submit.prevent="submit">
-          <label
-            class="field"
-            :class="{ 'field--focus': nikFocus, 'field--error': !!errorMessage }"
-          >
+          <label class="field" :class="{ 'field--focus': nikFocus, 'field--error': !!errorMessage }">
             <UIcon name="i-lucide-id-card" class="field-icon" />
             <span class="field-inner">
-              <span
-                class="floating-label"
-                :class="{ 'floating-label--active': nikFocus || form.username }"
-              >
+              <span class="floating-label" :class="{ 'floating-label--active': nikFocus || form.username }">
                 NIK
               </span>
-              <input
-                id="mobile-username"
-                v-model.trim="form.username"
-                class="field-input"
-                name="username"
-                autocomplete="username"
-                inputmode="text"
-                required
-                @focus="nikFocus = true"
-                @blur="nikFocus = false"
-              />
+              <input id="mobile-username" v-model.trim="form.username" class="field-input" name="username"
+                autocomplete="username" inputmode="text" required @focus="nikFocus = true" @blur="nikFocus = false" />
             </span>
           </label>
 
           <label class="field" :class="{ 'field--focus': pwFocus, 'field--error': !!errorMessage }">
             <UIcon name="i-lucide-lock" class="field-icon" />
             <span class="field-inner">
-              <span
-                class="floating-label"
-                :class="{ 'floating-label--active': pwFocus || form.password }"
-              >
+              <span class="floating-label" :class="{ 'floating-label--active': pwFocus || form.password }">
                 Password
               </span>
-              <input
-                id="mobile-password"
-                v-model="form.password"
-                class="field-input"
-                name="password"
-                :type="showPassword ? 'text' : 'password'"
-                autocomplete="current-password"
-                required
-                @focus="pwFocus = true"
-                @blur="pwFocus = false"
-              />
+              <input id="mobile-password" v-model="form.password" class="field-input" name="password"
+                :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required
+                @focus="pwFocus = true" @blur="pwFocus = false" />
             </span>
-            <button
-              type="button"
-              class="eye-btn"
+            <button type="button" class="eye-btn"
               :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
-              @click="showPassword = !showPassword"
-            >
+              @click="showPassword = !showPassword">
               <UIcon :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" />
             </button>
           </label>
@@ -219,34 +187,15 @@ onMounted(() => {
 
         <form class="desktop-form space-y-4" @submit.prevent="submit">
           <UFormField>
-            <UInput
-              id="username"
-              v-model="form.username"
-              class="w-full"
-              size="xl"
-              name="username"
-              autocomplete="username"
-              placeholder="Masukkan NIK"
-              leading-icon="i-lucide-id-card"
-              required
-            />
+            <UInput id="username" v-model="form.username" class="w-full" size="xl" name="username"
+              autocomplete="username" placeholder="Masukkan NIK" leading-icon="i-lucide-id-card" required />
           </UFormField>
 
           <UFormField>
-            <UInput
-              id="password"
-              v-model="form.password"
-              class="w-full"
-              size="xl"
-              name="password"
-              :type="showPassword ? 'text' : 'password'"
-              autocomplete="current-password"
-              placeholder="Masukkan password"
-              leading-icon="i-lucide-lock"
-              :trailing-icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-              required
-              @click:trailing="showPassword = !showPassword"
-            />
+            <UInput id="password" v-model="form.password" class="w-full" size="xl" name="password"
+              :type="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Masukkan password"
+              leading-icon="i-lucide-lock" :trailing-icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" required
+              @click:trailing="showPassword = !showPassword" />
           </UFormField>
 
           <div class="forgot-row">
@@ -255,14 +204,7 @@ onMounted(() => {
             </RouterLink>
           </div>
 
-          <UButton
-            type="submit"
-            block
-            size="xl"
-            label="Masuk"
-            :loading="loading"
-            class="submit-button"
-          />
+          <UButton type="submit" block size="xl" label="Masuk" :loading="loading" class="submit-button" />
         </form>
 
         <div class="divider-row">
@@ -272,7 +214,7 @@ onMounted(() => {
         </div>
 
         <div class="action-row">
-          <a href="https://wa.me/6282117289833" target="_blank" class="action-button">
+          <a href="https://wa.me/6282111339833" target="_blank" class="action-button">
             <UIcon name="i-lucide-message-circle" class="action-icon action-icon-whatsapp" />
             Hubungi IT
           </a>
@@ -867,7 +809,7 @@ onMounted(() => {
     font-weight: 700;
   }
 
-  .desktop-form-heading > p:last-child {
+  .desktop-form-heading>p:last-child {
     margin-top: 4px;
     color: #6272a4;
     font-size: 13px;
