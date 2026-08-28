@@ -214,7 +214,7 @@ onMounted(() => {
         </div>
 
         <div class="action-row">
-          <a href="https://wa.me/6282111339833" target="_blank" class="action-button">
+          <a href="https://wa.me/6285111339833" target="_blank" class="action-button">
             <UIcon name="i-lucide-message-circle" class="action-icon action-icon-whatsapp" />
             Hubungi IT
           </a>
@@ -224,7 +224,7 @@ onMounted(() => {
           </RouterLink>
         </div>
 
-        <p class="mobile-footer">© {{ new Date().getFullYear() }} · Build by IT Dept · v1.0.0</p>
+        <p class="mobile-footer">© {{ new Date().getFullYear() }} · Build by IT Dept · </p>
       </section>
     </section>
   </main>
