@@ -239,7 +239,7 @@ function findingLabel(record) {
 }
 
 const isAbsenceCorrection = computed(() =>
-  ['leave', 'public_holiday', 'extra_off', 'sdc'].includes(form.correction_type),
+  ['leave', 'normative_leave', 'public_holiday', 'extra_off', 'sdc'].includes(form.correction_type),
 )
 
 function absenceTypeLabel(value) {
@@ -247,6 +247,7 @@ function absenceTypeLabel(value) {
     {
       time: 'Koreksi Jam Absen',
       leave: 'Cuti',
+      normative_leave: 'Cuti Normatif',
       public_holiday: 'PH',
       extra_off: 'Extra Off',
       sdc: 'SDC',
@@ -704,6 +705,7 @@ onMounted(async () => {
               <option value="leave" :disabled="(selected.absence_options?.leave_balance || 0) < 1">
                 Cuti - sisa {{ selected.absence_options?.leave_balance || 0 }}
               </option>
+              <option value="normative_leave">Cuti Normatif (Bebas / Tanpa Potong Saldo)</option>
               <option
                 value="public_holiday"
                 :disabled="!selected.absence_options?.public_holidays?.length"
@@ -798,7 +800,13 @@ onMounted(async () => {
         </div>
 
         <p
-          v-if="isAbsenceCorrection"
+          v-if="form.correction_type === 'normative_leave'"
+          class="rounded-lg border border-default bg-elevated p-3 text-sm text-highlighted"
+        >
+          ℹ️ Koreksi <strong>Cuti Normatif</strong> akan mencatat kehadiran sah <strong>tanpa memotong saldo cuti tahunan</strong> karyawan. Harap tuliskan jenis cuti normatif pada kolom Catatan (misal: Cuti Menikah / Melahirkan / Duka Cita / Istri Melahirkan).
+        </p>
+        <p
+          v-else-if="isAbsenceCorrection"
           class="rounded-lg border border-default bg-elevated p-3 text-sm text-muted"
         >
           Koreksi {{ absenceTypeLabel(form.correction_type) }} akan mengosongkan jam masuk dan jam

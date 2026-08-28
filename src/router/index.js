@@ -36,6 +36,7 @@ import PermissionView from '../views/PermissionView.vue'
 import StaffApprovalView from '../views/StaffApprovalView.vue'
 import OvertimeView from '../views/OvertimeView.vue'
 import StaffTeamScheduleView from '../views/StaffTeamScheduleView.vue'
+import StaffTeamAttendanceView from '../views/StaffTeamAttendanceView.vue'
 import GuideView from '../views/GuideView.vue'
 import HrApprovalView from '../views/HrApprovalView.vue'
 import HrContractView from '../views/HrContractView.vue'
@@ -299,6 +300,12 @@ const router = createRouter({
           name: 'staff-team-schedules',
           component: StaffTeamScheduleView,
           meta: { title: 'Jadwal Tim', levels: [3], menuKey: 'staff-team-schedules' },
+        },
+        {
+          path: 'staff/team-attendances',
+          name: 'staff-team-attendances',
+          component: StaffTeamAttendanceView,
+          meta: { title: 'Kehadiran Tim', levels: [3], menuKey: 'staff-team-attendances' },
         },
         {
           path: 'staff/guide',

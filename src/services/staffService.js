@@ -171,3 +171,14 @@ export function createStaffRecruitmentRequest(payload) {
 export function getSubordinateCandidates() {
   return api.get('/staff/subordinate-candidates')
 }
+
+export function getTeamAttendances(params) {
+  return api.get('/staff/team-attendances', { params })
+}
+
+export function downloadTeamAttendanceReport(params) {
+  return api.get('/staff/team-attendances/export', {
+    params,
+    responseType: 'blob',
+  })
+}
