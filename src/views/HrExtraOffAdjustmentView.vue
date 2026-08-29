@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import EmployeeSelect from '../components/EmployeeSelect.vue'
 import {
   getAdjustmentEmployees,
   getExtraOffAdjustments,
@@ -73,16 +74,6 @@ async function fetchEmployees(searchKeyword = '') {
   }
 }
 
-const filteredEmployees = computed(() => {
-  if (!employeeSearch.value.trim()) return employees.value
-  const q = employeeSearch.value.toLowerCase()
-  return employees.value.filter(e =>
-    (e.nama_karyawan && e.nama_karyawan.toLowerCase().includes(q)) ||
-    (e.nik && e.nik.toLowerCase().includes(q)) ||
-    (e.jabatan && e.jabatan.toLowerCase().includes(q))
-  )
-})
-
 function openCreateModal() {
   const now = new Date()
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
@@ -96,7 +87,6 @@ function openCreateModal() {
     periode_end: lastDay,
     notes: '',
   }
-  employeeSearch.value = ''
   formErrors.value = {}
   modalOpen.value = true
   if (employees.value.length === 0) {
@@ -409,28 +399,13 @@ onMounted(() => {
             <label class="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">
               Pilih Karyawan <span class="text-rose-500">*</span>
             </label>
-            <div class="space-y-2">
-              <UInput
-                v-model="employeeSearch"
-                icon="i-lucide-search"
-                placeholder="Ketik NIK atau nama karyawan..."
-                class="w-full"
-              />
-              <select
-                v-model="form.karyawan_nik"
-                class="w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                required
-              >
-                <option value="" disabled>-- Pilih Karyawan ({{ filteredEmployees.length }} ditemukan) --</option>
-                <option
-                  v-for="emp in filteredEmployees"
-                  :key="emp.nik"
-                  :value="emp.nik"
-                >
-                  {{ emp.nama_karyawan }} ({{ emp.nik }}) - {{ emp.jabatan || emp.departement || '-' }}
-                </option>
-              </select>
-            </div>
+            <EmployeeSelect
+              v-model="form.karyawan_nik"
+              :employees="employees"
+              :loading="loadingEmployees"
+              :error="formErrors.karyawan_nik"
+              placeholder="Cari NIK, nama, atau jabatan karyawan..."
+            />
             <p v-if="formErrors.karyawan_nik" class="text-xs text-rose-500 mt-1">
               {{ formErrors.karyawan_nik }}
             </p>
