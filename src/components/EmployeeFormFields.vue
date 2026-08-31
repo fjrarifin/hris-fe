@@ -20,6 +20,7 @@ const formattedSupervisors = computed(() => {
 })
 
 const positionLevels = ['Sr.', 'Md.', 'Jr.']
+const businessUnits = ref([])
 const positionTitles = ref([])
 const divisions = ref([])
 const departments = ref([])
@@ -28,6 +29,7 @@ const units = ref([])
 onMounted(async () => {
   try {
     const response = await getEmployeeOptions()
+    businessUnits.value = response.data.business_units || []
     positionTitles.value = response.data.position_titles || []
     divisions.value = response.data.divisions || []
     departments.value = response.data.departments || []
@@ -181,6 +183,15 @@ function removeChild(index) {
           <select v-model="props.form.posisi_title" :class="inputClass">
             <option value="">Pilih posisi</option>
             <option v-for="option in positionTitles" :key="option" :value="option">
+              {{ option }}
+            </option>
+          </select>
+        </label>
+        <label class="text-sm text-muted">
+          Bisnis Unit
+          <select v-model="props.form.bisnis_unit" :class="inputClass">
+            <option value="">Pilih bisnis unit</option>
+            <option v-for="option in businessUnits" :key="option" :value="option">
               {{ option }}
             </option>
           </select>
