@@ -31,6 +31,16 @@ const editDialog = ref({
 const type = computed(() => route.meta.type || 'positions')
 
 const typeLabels = {
+  'business-units': {
+    title: 'Master Bisnis Unit',
+    singular: 'Bisnis Unit',
+    placeholder: 'Contoh: HomPimPlay, Holding',
+  },
+  business_units: {
+    title: 'Master Bisnis Unit',
+    singular: 'Bisnis Unit',
+    placeholder: 'Contoh: HomPimPlay, Holding',
+  },
   positions: {
     title: 'Master Posisi (Titel)',
     singular: 'Posisi',

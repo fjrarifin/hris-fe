@@ -425,6 +425,17 @@ const router = createRouter({
           },
         },
         {
+          path: 'hr/master/business-units',
+          name: 'hr-master-business-units',
+          component: HrMasterOrgStructureView,
+          meta: {
+            title: 'Master Bisnis Unit',
+            levels: [2],
+            menuKey: 'hr-master-business-units',
+            type: 'business-units',
+          },
+        },
+        {
           path: 'hr/master/divisions',
           name: 'hr-master-divisions',
           component: HrMasterOrgStructureView,
