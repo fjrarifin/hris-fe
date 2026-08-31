@@ -1,15 +1,12 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getHrPayrollDashboard, saveMonthlyRevenue } from '../services/payrollDashboardService'
+import { getHrPayrollDashboard } from '../services/payrollDashboardService'
 import { apiError } from '../utils/formatters'
-import { notifier } from '../utils/notifications'
 
 const router = useRouter()
 
 const loading = ref(false)
-const savingRevenue = ref(false)
-const showRevenueModal = ref(false)
 const errorMessage = ref('')
 const dashboardData = ref(null)
 
@@ -20,14 +17,6 @@ const currentMonthValue = (() => {
 
 const selectedMonth = ref(currentMonthValue)
 const selectedBusinessUnit = ref('HomPimPlay')
-
-const revenueForm = reactive({
-  year: new Date().getFullYear(),
-  month: new Date().getMonth() + 1,
-  omset: 0,
-  branch_or_unit: 'HomPimPlay',
-  notes: '',
-})
 
 const formatRp = (val) => {
   if (val === null || val === undefined || isNaN(val)) return 'Rp 0'
@@ -56,43 +45,6 @@ const loadDashboard = async () => {
     errorMessage.value = apiError(err, 'Gagal memuat data dashboard payroll.')
   } finally {
     loading.value = false
-  }
-}
-
-const openRevenueModal = () => {
-  if (selectedMonth.value) {
-    const [y, m] = selectedMonth.value.split('-')
-    revenueForm.year = parseInt(y, 10)
-    revenueForm.month = parseInt(m, 10)
-  }
-  const currentOmset = dashboardData.value?.kpi?.omset || dashboardData.value?.score_cards?.omset || 0
-  revenueForm.omset = currentOmset
-  revenueForm.branch_or_unit = selectedBusinessUnit.value || 'HomPimPlay'
-  revenueForm.notes = ''
-  showRevenueModal.value = true
-}
-
-const handleSaveRevenue = async () => {
-  if (revenueForm.omset < 0) {
-    notifier.error('Nilai omset tidak boleh kurang dari 0.')
-    return
-  }
-  savingRevenue.value = true
-  try {
-    await saveMonthlyRevenue({
-      year: revenueForm.year,
-      month: revenueForm.month,
-      omset: revenueForm.omset,
-      branch_or_unit: revenueForm.branch_or_unit,
-      notes: revenueForm.notes,
-    })
-    notifier.success('Data omset bulanan berhasil disimpan.')
-    showRevenueModal.value = false
-    await loadDashboard()
-  } catch (err) {
-    notifier.error(apiError(err, 'Gagal menyimpan data omset.'))
-  } finally {
-    savingRevenue.value = false
   }
 }
 
@@ -274,18 +226,6 @@ onMounted(() => {
               <span>{{ meta.cutoff_label }}</span>
             </div>
           </div>
-          
-          <div class="hidden sm:block h-9 w-px bg-default mt-4"></div>
-
-          <div class="mt-4 flex items-center gap-2">
-            <UButton
-              icon="i-lucide-banknote"
-              color="neutral"
-              variant="soft"
-              label="Input Manual Omset"
-              @click="openRevenueModal"
-            />
-          </div>
         </div>
 
         <div class="flex items-center gap-2 self-end sm:self-center mt-2 sm:mt-0">
@@ -324,16 +264,13 @@ onMounted(() => {
                   {{ formatRp(scoreCards.omset) }}
                 </div>
               </div>
-              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl cursor-pointer" @click="openRevenueModal">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-trending-up" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Omset POS Live (Cut-off 25-24)</span>
-              <button class="text-primary hover:underline flex items-center gap-0.5" @click="openRevenueModal">
-                <span>Edit Manual</span>
-                <UIcon name="i-lucide-pencil" class="size-3" />
-              </button>
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
@@ -860,72 +797,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- Modal Input Omset Bulanan -->
-    <UModal v-model:open="showRevenueModal">
-      <template #content>
-        <div class="p-6 space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Pencatatan Keuangan</span>
-              <h3 class="text-lg font-bold text-highlighted mt-0.5">Input Omset Bulanan</h3>
-            </div>
-            <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="showRevenueModal = false" />
-          </div>
-
-          <p class="text-xs text-muted">
-            Data omset digunakan untuk menghitung persentase rasio efisiensi biaya Man Power terhadap pendapatan perusahaan.
-          </p>
-
-          <div class="space-y-3 pt-2">
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-xs font-semibold text-muted">Tahun</label>
-                <UInput v-model.number="revenueForm.year" type="number" class="mt-1 w-full" />
-              </div>
-              <div>
-                <label class="text-xs font-semibold text-muted">Bulan (1-12)</label>
-                <UInput v-model.number="revenueForm.month" type="number" min="1" max="12" class="mt-1 w-full" />
-              </div>
-            </div>
-
-            <div>
-              <label class="text-xs font-semibold text-muted">Bisnis Unit</label>
-              <UInput v-model="revenueForm.branch_or_unit" placeholder="HomPimPlay" class="mt-1 w-full" />
-            </div>
-
-            <div>
-              <label class="text-xs font-semibold text-muted">Nilai Omset (Rp)</label>
-              <UInput
-                v-model.number="revenueForm.omset"
-                type="number"
-                min="0"
-                step="100000"
-                placeholder="Contoh: 500000000"
-                class="mt-1 w-full text-base font-bold"
-              />
-              <p class="mt-1 text-xs text-primary font-semibold">{{ formatRp(revenueForm.omset) }}</p>
-            </div>
-
-            <div>
-              <label class="text-xs font-semibold text-muted">Catatan (Opsional)</label>
-              <UTextarea v-model="revenueForm.notes" placeholder="Catatan omset..." rows="2" class="mt-1 w-full" />
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-2 pt-4 border-t border-default">
-            <UButton label="Batal" color="neutral" variant="ghost" @click="showRevenueModal = false" />
-            <UButton
-              label="Simpan Omset"
-              color="primary"
-              :loading="savingRevenue"
-              icon="i-lucide-check"
-              @click="handleSaveRevenue"
-            />
-          </div>
-        </div>
-      </template>
-    </UModal>
   </div>
 </template>
 
