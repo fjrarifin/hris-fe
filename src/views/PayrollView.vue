@@ -468,7 +468,7 @@ onMounted(() => {
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
-              <span>Kasbon, Absensi, Keterlambatan, dll</span>
+              <span>Kasbon, Absensi, Izin, Denda (di luar BPJS/PPh)</span>
               <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
