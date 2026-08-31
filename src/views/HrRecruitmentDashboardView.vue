@@ -92,6 +92,22 @@ const kpis = computed(() => {
       action: () => openPipeline({ status: 'hired' }),
     },
     {
+      label: 'Permintaan Penambahan',
+      value: summary.permintaan_penambahan ?? 0,
+      note: 'FPTK penambahan manpower',
+      icon: 'i-lucide-user-plus',
+      tone: 'teal',
+      action: () => router.push({ name: 'hr-recruitment-requests' }),
+    },
+    {
+      label: 'Permintaan Penggantian',
+      value: summary.permintaan_penggantian ?? 0,
+      note: 'FPTK replacement karyawan',
+      icon: 'i-lucide-user-minus',
+      tone: 'amber',
+      action: () => router.push({ name: 'hr-recruitment-requests' }),
+    },
+    {
       label: 'Menunggu Tindakan',
       value: summary.pending_actions,
       note: 'Perlu ditindaklanjuti HR',
@@ -109,6 +125,11 @@ const kpis = computed(() => {
     },
   ]
 })
+
+const monthlyHiredTrend = computed(() => dashboard.value?.monthly_hired_trend || [])
+const maxMonthlyHired = computed(() => Math.max(1, ...(monthlyHiredTrend.value.map((m) => m.karyawan_baru || 0))))
+const cvCriteriaMatch = computed(() => dashboard.value?.cv_criteria_match || [])
+const stageDistribution = computed(() => dashboard.value?.stage_distribution || [])
 
 const maxPipelineReached = computed(() =>
   Math.max(1, ...(dashboard.value?.pipeline || []).map((item) => item.reached)),
@@ -1045,6 +1066,96 @@ onMounted(loadDashboard)
             </div>
           </div>
           <p v-if="!topSources.length" class="empty-copy">Sumber kandidat belum tercatat.</p>
+        </article>
+      </div>
+
+      <!-- Section: Tren Karyawan Baru & Analisis CV Rekrutmen (Sesuai Spesifikasi) -->
+      <div class="dashboard-two-column dashboard-two-column--wide">
+        <!-- Bar Card: Jumlah Karyawan Baru Setiap Bulan -->
+        <article class="dashboard-card">
+          <div class="card-heading">
+            <div>
+              <span class="section-kicker">Tren Hiring</span>
+              <h2>Jumlah Karyawan Baru setiap Bulan</h2>
+              <p>Tren karyawan baru yang bergabung (Hired / Onboarding) 12 bulan terakhir.</p>
+            </div>
+            <span class="heading-badge">12 Bulan Terakhir</span>
+          </div>
+
+          <div class="mt-4 flex h-48 items-end gap-2 border-b border-default pb-2">
+            <div
+              v-for="item in monthlyHiredTrend"
+              :key="item.month_key"
+              class="group relative flex flex-1 flex-col items-center gap-1"
+            >
+              <div
+                class="w-5 rounded-t bg-emerald-500 transition-all duration-300 group-hover:bg-emerald-400 sm:w-7"
+                :style="{ height: `${Math.max(6, (item.karyawan_baru / maxMonthlyHired) * 150)}px` }"
+              ></div>
+              <span class="mt-1 rotate-45 text-[10px] text-muted sm:rotate-0 sm:text-xs">
+                {{ item.month_label.split(' ')[0] }}
+              </span>
+
+              <!-- Tooltip -->
+              <div class="pointer-events-none absolute bottom-full mb-2 hidden w-36 rounded-lg bg-slate-900 p-2 text-xs text-white shadow-xl group-hover:block z-20">
+                <div class="font-bold">{{ item.month_label }}</div>
+                <div class="text-emerald-300">Karyawan Baru: {{ item.karyawan_baru }} Orang</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Pie Card: Kesesuaian Kriteria CV & Distribusi Proses -->
+        <article class="dashboard-card">
+          <div class="card-heading">
+            <div>
+              <span class="section-kicker">Kualifikasi Pelamar</span>
+              <h2>Kesesuaian Kriteria CV Masuk</h2>
+              <p>Rasio pelamar yang memenuhi kriteria (Qualified) vs tidak memenuhi syarat.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
+            <!-- Donut / Pie CV Match -->
+            <div class="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40">
+              <div class="text-xs font-semibold text-muted mb-2">Rasio Kualifikasi CV</div>
+              <div class="w-full space-y-2">
+                <div v-for="item in cvCriteriaMatch" :key="item.label" class="space-y-1">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="flex items-center gap-1.5">
+                      <span class="size-2.5 rounded-full" :style="{ backgroundColor: item.color }"></span>
+                      {{ item.label }}
+                    </span>
+                    <span class="font-bold">{{ item.value }}</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                    <div
+                      class="h-full rounded-full"
+                      :style="{
+                        width: `${dashboard.summary.total_candidates ? (item.value / dashboard.summary.total_candidates) * 100 : 0}%`,
+                        backgroundColor: item.color,
+                      }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stage Distribution Summary -->
+            <div class="flex flex-col justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40">
+              <div class="text-xs font-semibold text-muted mb-2">Sebaran Status Tahap</div>
+              <div class="space-y-1 max-h-36 overflow-y-auto pr-1 text-xs">
+                <div
+                  v-for="stg in stageDistribution"
+                  :key="stg.key"
+                  class="flex items-center justify-between py-0.5 border-b border-default/50"
+                >
+                  <span class="text-muted truncate" :title="stg.label">{{ stg.label }}</span>
+                  <span class="font-semibold text-highlighted ml-2">{{ stg.value }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </article>
       </div>
 
