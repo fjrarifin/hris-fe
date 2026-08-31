@@ -158,7 +158,7 @@ onMounted(() => {
 
 <template>
   <div class="payroll-dashboard space-y-6 pb-12">
-    <!-- Hero Section (Clean Gradient Hero matching Recruitment Dashboard) -->
+    <!-- Hero Section -->
     <div class="dashboard-hero rounded-2xl p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
@@ -248,7 +248,7 @@ onMounted(() => {
 
     <div v-else-if="dashboardData" class="space-y-6">
       <!-- ========================================== -->
-      <!-- 1. SCORE CARDS (BRIGHT TINTED CARDS)       -->
+      <!-- 1. SCORE CARDS (TINTED THEMED CARDS)       -->
       <!-- ========================================== -->
       <div>
         <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
@@ -830,9 +830,9 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-/* Scoped Theme Styles: Bright in Light Mode, Dark in Dark Mode */
-.dashboard-hero {
+<style>
+/* Global Theme-Aware CSS Variables specifically for Payroll Dashboard */
+.portal-light .payroll-dashboard .dashboard-hero {
   border: 1px solid #bfdbfe;
   background:
     radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.12), transparent 40%),
@@ -840,237 +840,238 @@ onMounted(() => {
   box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.06);
 }
 
-.dashboard-panel {
+.portal-light .payroll-dashboard .dashboard-panel {
   border: 1px solid #e2e8f0;
   background: #ffffff;
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
 }
 
-/* Light Theme KPI Tinted Cards */
-.kpi-card {
+.portal-light .payroll-dashboard .kpi-card {
   border: 1px solid var(--kpi-border, #e2e8f0);
   background: var(--kpi-bg, #ffffff);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
-.kpi-card:hover {
+.portal-light .payroll-dashboard .kpi-card:hover {
   box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.1);
 }
 
-.kpi-card--blue {
+.portal-light .payroll-dashboard .kpi-card--blue {
   --kpi-bg: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
   --kpi-border: #bfdbfe;
 }
-.kpi-card--blue .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--blue .kpi-icon {
   background: #dbeafe;
   color: #1d4ed8;
 }
-.kpi-card--blue .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--blue .kpi-label {
   color: #1d4ed8;
 }
 
-.kpi-card--emerald {
+.portal-light .payroll-dashboard .kpi-card--emerald {
   --kpi-bg: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
   --kpi-border: #a7f3d0;
 }
-.kpi-card--emerald .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--emerald .kpi-icon {
   background: #d1fae5;
   color: #047857;
 }
-.kpi-card--emerald .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--emerald .kpi-label {
   color: #047857;
 }
 
-.kpi-card--indigo {
+.portal-light .payroll-dashboard .kpi-card--indigo {
   --kpi-bg: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
   --kpi-border: #c7d2fe;
 }
-.kpi-card--indigo .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--indigo .kpi-icon {
   background: #e0e7ff;
   color: #4338ca;
 }
-.kpi-card--indigo .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--indigo .kpi-label {
   color: #4338ca;
 }
 
-.kpi-card--amber {
+.portal-light .payroll-dashboard .kpi-card--amber {
   --kpi-bg: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
   --kpi-border: #fde68a;
 }
-.kpi-card--amber .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--amber .kpi-icon {
   background: #fef3c7;
   color: #b45309;
 }
-.kpi-card--amber .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--amber .kpi-label {
   color: #b45309;
 }
 
-.kpi-card--orange {
+.portal-light .payroll-dashboard .kpi-card--orange {
   --kpi-bg: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
   --kpi-border: #fed7aa;
 }
-.kpi-card--orange .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--orange .kpi-icon {
   background: #ffedd5;
   color: #c2410c;
 }
-.kpi-card--orange .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--orange .kpi-label {
   color: #c2410c;
 }
 
-.kpi-card--teal {
+.portal-light .payroll-dashboard .kpi-card--teal {
   --kpi-bg: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
   --kpi-border: #99f6e4;
 }
-.kpi-card--teal .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--teal .kpi-icon {
   background: #ccfbf1;
   color: #0f766e;
 }
-.kpi-card--teal .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--teal .kpi-label {
   color: #0f766e;
 }
 
-.kpi-card--rose {
+.portal-light .payroll-dashboard .kpi-card--rose {
   --kpi-bg: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
   --kpi-border: #fecdd3;
 }
-.kpi-card--rose .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--rose .kpi-icon {
   background: #ffe4e6;
   color: #be123c;
 }
-.kpi-card--rose .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--rose .kpi-label {
   color: #be123c;
 }
 
-.kpi-card--purple {
+.portal-light .payroll-dashboard .kpi-card--purple {
   --kpi-bg: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
   --kpi-border: #e9d5ff;
 }
-.kpi-card--purple .kpi-icon {
+.portal-light .payroll-dashboard .kpi-card--purple .kpi-icon {
   background: #f3e8ff;
   color: #7e22ce;
 }
-.kpi-card--purple .kpi-label {
+.portal-light .payroll-dashboard .kpi-card--purple .kpi-label {
   color: #7e22ce;
 }
 
-/* Dark Mode Overrides (Only Active When .portal-dark is on) */
-:global(.portal-dark) .payroll-dashboard .dashboard-hero {
-  border-color: rgba(96, 165, 250, 0.3);
+/* ========================================== */
+/* DARK MODE OVERRIDES (When .portal-dark)    */
+/* ========================================== */
+.portal-dark .payroll-dashboard .dashboard-hero {
+  border-color: #27344c;
   background:
-    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
-    linear-gradient(135deg, rgba(30, 41, 59, 0.9), #111827 70%);
+    radial-gradient(circle at 90% 0%, rgba(37, 99, 235, 0.2), transparent 40%),
+    linear-gradient(135deg, #111c32, #0f172a 70%);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 
-:global(.portal-dark) .payroll-dashboard .dashboard-panel {
-  border-color: #334155;
-  background: #182235;
+.portal-dark .payroll-dashboard .dashboard-panel {
+  border-color: #27344c;
+  background: #111c32;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card {
-  border-color: #334155;
-  background: #182235;
+.portal-dark .payroll-dashboard .kpi-card {
+  border-color: #27344c;
+  background: #111c32;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card:hover {
+.portal-dark .payroll-dashboard .kpi-card:hover {
   border-color: rgba(96, 165, 250, 0.4);
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--blue {
-  --kpi-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--blue {
+  --kpi-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(96, 165, 250, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--blue .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--blue .kpi-icon {
   background: rgba(59, 130, 246, 0.2);
   color: #93c5fd;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--blue .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--blue .kpi-label {
   color: #93c5fd;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--emerald {
-  --kpi-bg: linear-gradient(135deg, rgba(6, 78, 59, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--emerald {
+  --kpi-bg: linear-gradient(135deg, rgba(6, 78, 59, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(52, 211, 153, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--emerald .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--emerald .kpi-icon {
   background: rgba(16, 185, 129, 0.2);
   color: #6ee7b7;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--emerald .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--emerald .kpi-label {
   color: #6ee7b7;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--indigo {
-  --kpi-bg: linear-gradient(135deg, rgba(49, 46, 129, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--indigo {
+  --kpi-bg: linear-gradient(135deg, rgba(49, 46, 129, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(129, 140, 248, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--indigo .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--indigo .kpi-icon {
   background: rgba(99, 102, 241, 0.2);
   color: #a5b4fc;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--indigo .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--indigo .kpi-label {
   color: #a5b4fc;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--amber {
-  --kpi-bg: linear-gradient(135deg, rgba(120, 53, 15, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--amber {
+  --kpi-bg: linear-gradient(135deg, rgba(120, 53, 15, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(251, 191, 36, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--amber .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--amber .kpi-icon {
   background: rgba(245, 158, 11, 0.2);
   color: #fde68a;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--amber .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--amber .kpi-label {
   color: #fde68a;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--orange {
-  --kpi-bg: linear-gradient(135deg, rgba(124, 45, 18, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--orange {
+  --kpi-bg: linear-gradient(135deg, rgba(124, 45, 18, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(251, 146, 60, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--orange .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--orange .kpi-icon {
   background: rgba(234, 88, 12, 0.2);
   color: #fdba74;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--orange .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--orange .kpi-label {
   color: #fdba74;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--teal {
-  --kpi-bg: linear-gradient(135deg, rgba(19, 78, 74, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--teal {
+  --kpi-bg: linear-gradient(135deg, rgba(19, 78, 74, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(45, 212, 191, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--teal .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--teal .kpi-icon {
   background: rgba(20, 184, 166, 0.2);
   color: #5eead4;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--teal .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--teal .kpi-label {
   color: #5eead4;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--rose {
-  --kpi-bg: linear-gradient(135deg, rgba(136, 19, 55, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--rose {
+  --kpi-bg: linear-gradient(135deg, rgba(136, 19, 55, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(251, 113, 133, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--rose .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--rose .kpi-icon {
   background: rgba(244, 63, 94, 0.2);
   color: #fda4af;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--rose .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--rose .kpi-label {
   color: #fda4af;
 }
 
-:global(.portal-dark) .payroll-dashboard .kpi-card--purple {
-  --kpi-bg: linear-gradient(135deg, rgba(88, 28, 135, 0.3) 0%, #182235 100%);
+.portal-dark .payroll-dashboard .kpi-card--purple {
+  --kpi-bg: linear-gradient(135deg, rgba(88, 28, 135, 0.3) 0%, #111c32 100%);
   --kpi-border: rgba(192, 132, 252, 0.35);
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--purple .kpi-icon {
+.portal-dark .payroll-dashboard .kpi-card--purple .kpi-icon {
   background: rgba(168, 85, 247, 0.2);
   color: #d8b4fe;
 }
-:global(.portal-dark) .payroll-dashboard .kpi-card--purple .kpi-label {
+.portal-dark .payroll-dashboard .kpi-card--purple .kpi-label {
   color: #d8b4fe;
 }
 </style>

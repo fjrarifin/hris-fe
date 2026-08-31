@@ -46,7 +46,7 @@ onMounted(load)
 
 <template>
   <div class="internal-dashboard space-y-6 pb-12">
-    <!-- Hero Header (Vibrant Gradient Hero matching Recruitment Dashboard) -->
+    <!-- Hero Header -->
     <div class="dashboard-hero rounded-2xl p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
@@ -289,9 +289,8 @@ onMounted(load)
   </div>
 </template>
 
-<style scoped>
-/* Scoped Theme Styles: Bright in Light Mode, Dark in Dark Mode */
-.dashboard-hero {
+<style>
+.portal-light .internal-dashboard .dashboard-hero {
   border: 1px solid #bfdbfe;
   background:
     radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.12), transparent 40%),
@@ -299,55 +298,57 @@ onMounted(load)
   box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.06);
 }
 
-.dashboard-panel {
+.portal-light .internal-dashboard .dashboard-panel {
   border: 1px solid #e2e8f0;
   background: #ffffff;
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
 }
 
-.leader-card {
+.portal-light .internal-dashboard .leader-card {
   border: 1px solid #dbeafe;
   background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
-.leader-card:hover {
+.portal-light .internal-dashboard .leader-card:hover {
   border-color: #93c5fd;
   box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.1);
 }
 
-.leader-time-box {
+.portal-light .internal-dashboard .leader-time-box {
   border: 1px solid rgba(226, 232, 240, 0.8);
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* Dark Mode Overrides (Only Active When .portal-dark is on) */
-:global(.portal-dark) .internal-dashboard .dashboard-hero {
-  border-color: rgba(96, 165, 250, 0.3);
+/* ========================================== */
+/* DARK MODE OVERRIDES (When .portal-dark)    */
+/* ========================================== */
+.portal-dark .internal-dashboard .dashboard-hero {
+  border-color: #27344c;
   background:
-    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
-    linear-gradient(135deg, rgba(30, 41, 59, 0.9), #111827 70%);
+    radial-gradient(circle at 90% 0%, rgba(37, 99, 235, 0.2), transparent 40%),
+    linear-gradient(135deg, #111c32, #0f172a 70%);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 
-:global(.portal-dark) .internal-dashboard .dashboard-panel {
-  border-color: #334155;
-  background: #182235;
+.portal-dark .internal-dashboard .dashboard-panel {
+  border-color: #27344c;
+  background: #111c32;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
 }
 
-:global(.portal-dark) .internal-dashboard .leader-card {
-  border-color: #334155;
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.25) 0%, #182235 100%);
+.portal-dark .internal-dashboard .leader-card {
+  border-color: #27344c;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.25) 0%, #111c32 100%);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-:global(.portal-dark) .internal-dashboard .leader-card:hover {
+.portal-dark .internal-dashboard .leader-card:hover {
   border-color: rgba(96, 165, 250, 0.4);
 }
 
-:global(.portal-dark) .internal-dashboard .leader-time-box {
-  border-color: #334155;
-  background: rgba(17, 24, 39, 0.7);
+.portal-dark .internal-dashboard .leader-time-box {
+  border-color: #27344c;
+  background: #0f172a;
 }
 </style>
