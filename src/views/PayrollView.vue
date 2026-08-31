@@ -266,6 +266,14 @@ onMounted(() => {
               <span class="text-sm font-bold text-highlighted">HomPimPlay</span>
             </div>
           </div>
+
+          <div v-if="meta.cutoff_label" class="flex flex-col">
+            <label class="text-xs font-medium text-muted">Periode Cut-Off</label>
+            <div class="mt-1 flex items-center gap-1.5 rounded-lg border border-default bg-elevated/40 px-3 py-1.5 text-xs font-semibold text-highlighted">
+              <UIcon name="i-lucide-clock" class="size-3.5 text-muted" />
+              <span>{{ meta.cutoff_label }}</span>
+            </div>
+          </div>
           
           <div class="hidden sm:block h-9 w-px bg-default mt-4"></div>
 
@@ -274,7 +282,7 @@ onMounted(() => {
               icon="i-lucide-banknote"
               color="neutral"
               variant="soft"
-              label="Input Omset Bulanan"
+              label="Input Manual Omset"
               @click="openRevenueModal"
             />
           </div>
@@ -321,9 +329,9 @@ onMounted(() => {
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
-              <span>Pendapatan bisnis bulan ini</span>
+              <span>Omset POS Live (Cut-off 25-24)</span>
               <button class="text-primary hover:underline flex items-center gap-0.5" @click="openRevenueModal">
-                <span>Input Omset</span>
+                <span>Edit Manual</span>
                 <UIcon name="i-lucide-pencil" class="size-3" />
               </button>
             </div>
