@@ -79,14 +79,14 @@ async function fetchEmployees(searchKeyword = '') {
   }
 }
 
-async function handleEmployeeChange(nik) {
+async function fetchAvailableHolidays() {
   form.value.public_holiday_id = ''
   availableHolidays.value = []
-  if (!nik) return
+  if (!form.value.karyawan_nik) return
 
   loadingHolidays.value = true
   try {
-    const { data } = await getEmployeeHolidays(nik)
+    const { data } = await getEmployeeHolidays(form.value.karyawan_nik, { type: form.value.type })
     availableHolidays.value = data.data || []
   } catch (err) {
     console.error('Failed to fetch employee holidays', err)
@@ -95,10 +95,23 @@ async function handleEmployeeChange(nik) {
   }
 }
 
+async function handleEmployeeChange(nik) {
+  fetchAvailableHolidays()
+}
+
+function handleTypeChange(type) {
+  form.value.type = type
+  fetchAvailableHolidays()
+}
+
 function handleHolidaySelect(holidayId) {
   const selected = availableHolidays.value.find(h => h.id === Number(holidayId))
-  if (selected && !form.value.notes) {
-    form.value.notes = `Pemotongan hak libur nasional: ${selected.name} (${selected.holiday_date})`
+  if (selected) {
+    if (form.value.type === 'add') {
+      form.value.notes = `Penambahan hak libur nasional: ${selected.name} (${selected.holiday_date})`
+    } else {
+      form.value.notes = `Pemotongan hak libur nasional: ${selected.name} (${selected.holiday_date})`
+    }
   }
 }
 
@@ -130,8 +143,10 @@ async function handleSave() {
   if (!form.value.karyawan_nik) {
     formErrors.value.karyawan_nik = 'Pilih karyawan terlebih dahulu.'
   }
-  if (form.value.type === 'deduct' && !form.value.public_holiday_id) {
-    formErrors.value.public_holiday_id = 'Pilih hari libur nasional yang ingin dipotong.'
+  if (!form.value.public_holiday_id) {
+    formErrors.value.public_holiday_id = form.value.type === 'add'
+      ? 'Pilih hari libur nasional yang ingin diberikan.'
+      : 'Pilih hari libur nasional yang ingin dipotong.'
   }
   if (!form.value.days || form.value.days < 1) {
     formErrors.value.days = 'Jumlah hari minimal 1.'
@@ -147,7 +162,7 @@ async function handleSave() {
     await createPhAdjustment({
       karyawan_nik: form.value.karyawan_nik,
       type: form.value.type,
-      public_holiday_id: form.value.type === 'deduct' && form.value.public_holiday_id ? Number(form.value.public_holiday_id) : null,
+      public_holiday_id: form.value.public_holiday_id ? Number(form.value.public_holiday_id) : null,
       days: Number(form.value.days),
       adjustment_date: form.value.adjustment_date || null,
       notes: form.value.notes.trim(),
@@ -449,10 +464,11 @@ onMounted(() => {
               <label
                 class="flex items-center justify-center gap-2 rounded-lg border p-3 cursor-pointer transition-all text-sm font-semibold"
                 :class="form.type === 'add' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500' : 'border-default bg-muted/10 text-muted hover:border-default/80'"
+                @click="handleTypeChange('add')"
               >
                 <input
                   type="radio"
-                  v-model="form.type"
+                  :checked="form.type === 'add'"
                   value="add"
                   class="sr-only"
                 />
@@ -463,10 +479,11 @@ onMounted(() => {
               <label
                 class="flex items-center justify-center gap-2 rounded-lg border p-3 cursor-pointer transition-all text-sm font-semibold"
                 :class="form.type === 'deduct' ? 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500' : 'border-default bg-muted/10 text-muted hover:border-default/80'"
+                @click="handleTypeChange('deduct')"
               >
                 <input
                   type="radio"
-                  v-model="form.type"
+                  :checked="form.type === 'deduct'"
                   value="deduct"
                   class="sr-only"
                 />
@@ -476,23 +493,29 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Dropdown Pilihan Hari Libur yang Dipotong (Jika Pengurangan) -->
-          <div v-if="form.type === 'deduct'" class="space-y-2 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3.5">
-            <label class="block text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
-              Pilih Hari Libur Nasional yang Dipotong <span class="text-rose-500">*</span>
+          <!-- Dropdown Pilihan Hari Libur Nasional (Untuk Penambahan & Pengurangan) -->
+          <div
+            class="space-y-2 rounded-xl border p-3.5"
+            :class="form.type === 'add' ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5'"
+          >
+            <label
+              class="block text-xs font-bold uppercase tracking-wider"
+              :class="form.type === 'add' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
+            >
+              {{ form.type === 'add' ? 'Pilih Hari Libur Nasional yang Diberikan' : 'Pilih Hari Libur Nasional yang Dipotong' }} <span class="text-rose-500">*</span>
             </label>
 
             <div v-if="!form.karyawan_nik" class="text-xs text-muted">
-              Silakan pilih karyawan terlebih dahulu untuk memuat daftar libur nasional yang dimiliki.
+              Silakan pilih karyawan terlebih dahulu untuk memuat daftar libur nasional yang tersedia.
             </div>
 
             <div v-else-if="loadingHolidays" class="text-xs text-muted flex items-center gap-2">
               <UIcon name="i-lucide-loader-2" class="size-4 animate-spin text-primary" />
-              Memuat daftar libur nasional karyawan...
+              Memuat daftar libur nasional...
             </div>
 
             <div v-else-if="availableHolidays.length === 0" class="text-xs font-medium text-rose-500">
-              Karyawan ini tidak memiliki jatah libur nasional aktif / eligible untuk dipotong.
+              {{ form.type === 'add' ? 'Tidak ada master libur nasional aktif dalam rentang 90 hari.' : 'Karyawan ini tidak memiliki jatah libur nasional aktif untuk dipotong.' }}
             </div>
 
             <div v-else>
@@ -502,7 +525,7 @@ onMounted(() => {
                 required
                 @change="handleHolidaySelect($event.target.value)"
               >
-                <option value="" disabled>-- Pilih Hari Libur Nasional yang Dipotong --</option>
+                <option value="" disabled>-- {{ form.type === 'add' ? 'Pilih Libur Nasional yang Diberikan' : 'Pilih Libur Nasional yang Dipotong' }} --</option>
                 <option
                   v-for="h in availableHolidays"
                   :key="h.id"
@@ -512,7 +535,9 @@ onMounted(() => {
                 </option>
               </select>
               <p class="text-[11px] text-muted mt-1.5">
-                Memilih libur nasional ini akan otomatis memotong dan menonaktifkan hak klaim libur tersebut untuk karyawan yang bersangkutan.
+                {{ form.type === 'add' 
+                  ? 'Memilih libur nasional ini akan menambahkan hak klaim libur tersebut ke akun karyawan sehingga langsung muncul di portal staf.' 
+                  : 'Memilih libur nasional ini akan memotong dan menonaktifkan hak klaim libur tersebut untuk karyawan yang bersangkutan.' }}
               </p>
             </div>
 

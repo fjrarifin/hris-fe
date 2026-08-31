@@ -23,8 +23,8 @@ export function getPhAdjustments(params) {
   return api.get('/adjustments/ph', { params })
 }
 
-export function getEmployeeHolidays(nik) {
-  return api.get(`/adjustments/ph/holidays/${nik}`)
+export function getEmployeeHolidays(nik, params = {}) {
+  return api.get(`/adjustments/ph/holidays/${nik}`, { params })
 }
 
 export function createPhAdjustment(payload) {
