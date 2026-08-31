@@ -45,9 +45,9 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="space-y-6 pb-12">
+  <div class="internal-dashboard space-y-6 pb-12">
     <!-- Hero Header (Vibrant Gradient Hero matching Recruitment Dashboard) -->
-    <div class="rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 p-6 shadow-sm dark:border-blue-900/50 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="dashboard-hero rounded-2xl p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
           <UIcon name="i-lucide-shield-alert" class="size-3.5" />
@@ -77,7 +77,7 @@ onMounted(load)
 
     <div v-else-if="dashboard" class="space-y-6">
       <!-- Section 1: Atasan Operasional Hadir Hari Ini -->
-      <div class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4">
+      <div class="dashboard-panel rounded-2xl p-6 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Kehadiran Leader</span>
@@ -93,7 +93,7 @@ onMounted(load)
           <div
             v-for="employee in dashboard.attendance.management_present"
             :key="employee.nik"
-            class="group relative flex flex-col justify-between rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-50/70 via-white to-blue-50/20 p-4 shadow-xs transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900"
+            class="leader-card group relative flex flex-col justify-between rounded-2xl p-4 transition-all"
           >
             <div>
               <div class="flex items-center justify-between">
@@ -106,7 +106,7 @@ onMounted(load)
               <p class="text-xs text-muted truncate mt-0.5" :title="employee.position">{{ employee.position }}</p>
             </div>
 
-            <div class="mt-3.5 flex items-center justify-between rounded-xl border border-default/70 bg-white/80 dark:bg-slate-800/80 px-3 py-2 text-xs backdrop-blur-xs">
+            <div class="leader-time-box mt-3.5 flex items-center justify-between rounded-xl px-3 py-2 text-xs">
               <div>
                 <p class="text-[10px] uppercase font-bold text-muted">Masuk</p>
                 <p class="font-bold text-highlighted mt-0.5">{{ formatTime(employee.scan_in) }}</p>
@@ -129,7 +129,7 @@ onMounted(load)
       <!-- Section 2: Monitoring Minimum Kehadiran Bulanan -->
       <div
         v-if="dashboard.monthly_attendance_monitoring.visible"
-        class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4"
+        class="dashboard-panel rounded-2xl p-6 space-y-4"
       >
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
@@ -192,7 +192,7 @@ onMounted(load)
       </div>
 
       <!-- Section 3: Absensi Belum Lengkap Kemarin -->
-      <div class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4">
+      <div class="dashboard-panel rounded-2xl p-6 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Koreksi Absen</span>
@@ -288,3 +288,66 @@ onMounted(load)
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Scoped Theme Styles: Bright in Light Mode, Dark in Dark Mode */
+.dashboard-hero {
+  border: 1px solid #bfdbfe;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.12), transparent 40%),
+    linear-gradient(135deg, rgba(239, 246, 255, 0.95), #ffffff 60%, #f8fafc);
+  box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.06);
+}
+
+.dashboard-panel {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.leader-card {
+  border: 1px solid #dbeafe;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.leader-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.1);
+}
+
+.leader-time-box {
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Dark Mode Overrides (Only Active When .portal-dark is on) */
+:global(.portal-dark) .internal-dashboard .dashboard-hero {
+  border-color: rgba(96, 165, 250, 0.3);
+  background:
+    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+    linear-gradient(135deg, rgba(30, 41, 59, 0.9), #111827 70%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+:global(.portal-dark) .internal-dashboard .dashboard-panel {
+  border-color: #334155;
+  background: #182235;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+:global(.portal-dark) .internal-dashboard .leader-card {
+  border-color: #334155;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.25) 0%, #182235 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+:global(.portal-dark) .internal-dashboard .leader-card:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+:global(.portal-dark) .internal-dashboard .leader-time-box {
+  border-color: #334155;
+  background: rgba(17, 24, 39, 0.7);
+}
+</style>

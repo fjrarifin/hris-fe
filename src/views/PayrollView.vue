@@ -157,9 +157,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6 pb-12">
-    <!-- Hero Section (Vibrant Gradient Hero matching Recruitment Dashboard) -->
-    <div class="rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 p-6 shadow-sm dark:border-blue-900/50 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+  <div class="payroll-dashboard space-y-6 pb-12">
+    <!-- Hero Section (Clean Gradient Hero matching Recruitment Dashboard) -->
+    <div class="dashboard-hero rounded-2xl p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
           <UIcon name="i-lucide-badge-percent" class="size-3.5" />
@@ -197,7 +197,7 @@ onMounted(() => {
     </div>
 
     <!-- Filter Card -->
-    <div class="rounded-2xl border border-default bg-card p-4 shadow-sm">
+    <div class="dashboard-panel rounded-2xl p-4">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
           <div class="flex flex-col">
@@ -248,148 +248,148 @@ onMounted(() => {
 
     <div v-else-if="dashboardData" class="space-y-6">
       <!-- ========================================== -->
-      <!-- 1. SCORE CARDS (RICH COLOR TINTED CARDS)  -->
+      <!-- 1. SCORE CARDS (BRIGHT TINTED CARDS)       -->
       <!-- ========================================== -->
       <div>
         <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           <!-- Total Gaji Bruto (Blue Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-blue-200/90 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/30 p-4 shadow-xs transition-all hover:border-blue-400 hover:shadow-md dark:border-blue-900/50 dark:from-blue-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--blue group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">Total Gaji Bruto</span>
+                <span class="text-xs font-semibold kpi-label">Total Gaji Bruto</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatRp(scoreCards.total_gaji_bruto) }}
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-coins" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Akumulasi gaji kotor periode ini</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-blue-500/60 group-hover:text-blue-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Total Gaji Netto (Emerald Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/30 p-4 shadow-xs transition-all hover:border-emerald-400 hover:shadow-md dark:border-emerald-900/50 dark:from-emerald-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--emerald group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Total Gaji Netto</span>
+                <span class="text-xs font-semibold kpi-label">Total Gaji Netto</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatRp(scoreCards.total_gaji_netto) }}
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-wallet" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Take Home Pay yang ditransfer</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-emerald-500/60 group-hover:text-emerald-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Jumlah Karyawan Regular (Indigo Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-indigo-200/90 bg-gradient-to-br from-indigo-50/90 via-white to-indigo-50/30 p-4 shadow-xs transition-all hover:border-indigo-400 hover:shadow-md dark:border-indigo-900/50 dark:from-indigo-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--indigo group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Karyawan Regular</span>
+                <span class="text-xs font-semibold kpi-label">Karyawan Regular</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatNumber(scoreCards.jumlah_karyawan_regular) }} <span class="text-xs font-normal text-muted">Orang</span>
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-users" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Tetap (PKWTT) &amp; Kontrak (PKWT)</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-indigo-500/60 group-hover:text-indigo-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Jumlah Karyawan Casual (Amber Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/90 via-white to-amber-50/30 p-4 shadow-xs transition-all hover:border-amber-400 hover:shadow-md dark:border-amber-900/50 dark:from-amber-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--amber group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Karyawan Casual</span>
+                <span class="text-xs font-semibold kpi-label">Karyawan Casual</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatNumber(scoreCards.jumlah_karyawan_casual) }} <span class="text-xs font-normal text-muted">Orang</span>
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-user-check" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Harian Lepas / Daily Worker / Freelance</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-amber-500/60 group-hover:text-amber-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Biaya Lembur (Orange Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-orange-200/90 bg-gradient-to-br from-orange-50/90 via-white to-orange-50/30 p-4 shadow-xs transition-all hover:border-orange-400 hover:shadow-md dark:border-orange-900/50 dark:from-orange-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--orange group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-orange-600 dark:text-orange-400">Biaya Lembur</span>
+                <span class="text-xs font-semibold kpi-label">Biaya Lembur</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatRp(scoreCards.biaya_lembur) }}
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-clock" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Upah over-time periode berjalan</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-orange-500/60 group-hover:text-orange-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Biaya BPJS (Teal Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-teal-200/90 bg-gradient-to-br from-teal-50/90 via-white to-teal-50/30 p-4 shadow-xs transition-all hover:border-teal-400 hover:shadow-md dark:border-teal-900/50 dark:from-teal-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--teal group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-teal-600 dark:text-teal-400">Biaya BPJS</span>
+                <span class="text-xs font-semibold kpi-label">Biaya BPJS</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatRp(scoreCards.biaya_bpjs) }}
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-shield-check" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>BPJS Kesehatan &amp; Ketenagakerjaan</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-teal-500/60 group-hover:text-teal-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- Biaya Potongan (Rose Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-rose-200/90 bg-gradient-to-br from-rose-50/90 via-white to-rose-50/30 p-4 shadow-xs transition-all hover:border-rose-400 hover:shadow-md dark:border-rose-900/50 dark:from-rose-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--rose group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-rose-600 dark:text-rose-400">Biaya Potongan</span>
+                <span class="text-xs font-semibold kpi-label">Biaya Potongan</span>
                 <div class="mt-1.5 text-2xl font-extrabold tracking-tight text-highlighted">
                   {{ formatRp(scoreCards.biaya_potongan) }}
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-receipt" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>PPH21, Kasbon, Keterlambatan, Absensi</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-rose-500/60 group-hover:text-rose-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           <!-- % Biaya Manpower / Omset (Purple Tint) -->
-          <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-purple-200/90 bg-gradient-to-br from-purple-50/90 via-white to-purple-50/30 p-4 shadow-xs transition-all hover:border-purple-400 hover:shadow-md dark:border-purple-900/50 dark:from-purple-950/25 dark:via-slate-900 dark:to-slate-900">
+          <div class="kpi-card kpi-card--purple group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-semibold text-purple-600 dark:text-purple-400">% Manpower / Omset</span>
+                <span class="text-xs font-semibold kpi-label">% Manpower / Omset</span>
                 <div class="mt-1.5 flex items-baseline gap-2">
                   <span class="text-2xl font-extrabold tracking-tight text-highlighted">
                     {{ scoreCards.persentase_manpower_omset }}%
@@ -402,13 +402,13 @@ onMounted(() => {
                   </span>
                 </div>
               </div>
-              <div class="flex size-10 items-center justify-center rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400">
+              <div class="kpi-icon flex size-10 items-center justify-center rounded-xl">
                 <UIcon name="i-lucide-percent" class="size-5" />
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs text-muted">
               <span>Omset: {{ formatRp(scoreCards.omset) }}</span>
-              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 text-purple-500/60 group-hover:text-purple-600 transition-colors" />
+              <UIcon name="i-lucide-arrow-up-right" class="size-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
@@ -419,7 +419,7 @@ onMounted(() => {
       <!-- ========================================== -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Bar Card 1: Tren Total Gaji Bruto & Netto -->
-        <div class="rounded-2xl border border-default bg-card p-5 shadow-sm">
+        <div class="dashboard-panel rounded-2xl p-5">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Tren Penggajian</span>
@@ -469,14 +469,14 @@ onMounted(() => {
         </div>
 
         <!-- Bar Card 2: Tren Biaya Karyawan Casual per Bulan -->
-        <div class="rounded-2xl border border-default bg-card p-5 shadow-sm">
+        <div class="dashboard-panel rounded-2xl p-5">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Tenaga Casual</span>
               <h2 class="text-base font-bold text-highlighted mt-0.5">Total Biaya Casual setiap Bulan</h2>
               <p class="text-xs text-muted">Pengeluaran upah tenaga harian lepas / freelance</p>
             </div>
-            <span class="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-500">
+            <span class="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
               12 Bulan Terakhir
             </span>
           </div>
@@ -504,14 +504,14 @@ onMounted(() => {
         </div>
 
         <!-- Bar Card 3: Jumlah Karyawan Resign setiap Bulan -->
-        <div class="rounded-2xl border border-default bg-card p-5 shadow-sm">
+        <div class="dashboard-panel rounded-2xl p-5">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Turnover Rate</span>
               <h2 class="text-base font-bold text-highlighted mt-0.5">Jumlah Karyawan Resign per Bulan</h2>
               <p class="text-xs text-muted">Tren turnover dan terminasi karyawan 12 bulan terakhir</p>
             </div>
-            <span class="rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-500">
+            <span class="rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
               Karyawan Keluar
             </span>
           </div>
@@ -539,7 +539,7 @@ onMounted(() => {
         </div>
 
         <!-- Bar Card 4: Persentase Biaya Man Power dengan Omset per Bulan -->
-        <div class="rounded-2xl border border-default bg-card p-5 shadow-sm">
+        <div class="dashboard-panel rounded-2xl p-5">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Rasio Finansial</span>
@@ -581,7 +581,7 @@ onMounted(() => {
       <!-- ========================================== -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <!-- Pie 1: Salary Cash vs Transfer -->
-        <div class="flex flex-col justify-between rounded-2xl border border-default bg-card p-4 shadow-sm">
+        <div class="dashboard-panel flex flex-col justify-between rounded-2xl p-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Metode Bayar</span>
             <h3 class="text-sm font-bold text-highlighted mt-0.5">Cash vs Transfer</h3>
@@ -617,7 +617,7 @@ onMounted(() => {
         </div>
 
         <!-- Pie 2: Perbandingan Gender -->
-        <div class="flex flex-col justify-between rounded-2xl border border-default bg-card p-4 shadow-sm">
+        <div class="dashboard-panel flex flex-col justify-between rounded-2xl p-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Demografi</span>
             <h3 class="text-sm font-bold text-highlighted mt-0.5">Gender Karyawan</h3>
@@ -653,7 +653,7 @@ onMounted(() => {
         </div>
 
         <!-- Pie 3: Tingkat Pendidikan -->
-        <div class="flex flex-col justify-between rounded-2xl border border-default bg-card p-4 shadow-sm">
+        <div class="dashboard-panel flex flex-col justify-between rounded-2xl p-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Kualifikasi</span>
             <h3 class="text-sm font-bold text-highlighted mt-0.5">Tingkat Pendidikan</h3>
@@ -689,7 +689,7 @@ onMounted(() => {
         </div>
 
         <!-- Pie 4: Status Karyawan -->
-        <div class="flex flex-col justify-between rounded-2xl border border-default bg-card p-4 shadow-sm">
+        <div class="dashboard-panel flex flex-col justify-between rounded-2xl p-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Ketenagakerjaan</span>
             <h3 class="text-sm font-bold text-highlighted mt-0.5">Status Karyawan</h3>
@@ -725,7 +725,7 @@ onMounted(() => {
         </div>
 
         <!-- Pie 5: BPJS dan Non BPJS -->
-        <div class="flex flex-col justify-between rounded-2xl border border-default bg-card p-4 shadow-sm">
+        <div class="dashboard-panel flex flex-col justify-between rounded-2xl p-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Kepatuhan</span>
             <h3 class="text-sm font-bold text-highlighted mt-0.5">BPJS Coverage</h3>
@@ -829,3 +829,248 @@ onMounted(() => {
     </UModal>
   </div>
 </template>
+
+<style scoped>
+/* Scoped Theme Styles: Bright in Light Mode, Dark in Dark Mode */
+.dashboard-hero {
+  border: 1px solid #bfdbfe;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.12), transparent 40%),
+    linear-gradient(135deg, rgba(239, 246, 255, 0.95), #ffffff 60%, #f8fafc);
+  box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.06);
+}
+
+.dashboard-panel {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* Light Theme KPI Tinted Cards */
+.kpi-card {
+  border: 1px solid var(--kpi-border, #e2e8f0);
+  background: var(--kpi-bg, #ffffff);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.kpi-card:hover {
+  box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.1);
+}
+
+.kpi-card--blue {
+  --kpi-bg: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  --kpi-border: #bfdbfe;
+}
+.kpi-card--blue .kpi-icon {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.kpi-card--blue .kpi-label {
+  color: #1d4ed8;
+}
+
+.kpi-card--emerald {
+  --kpi-bg: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  --kpi-border: #a7f3d0;
+}
+.kpi-card--emerald .kpi-icon {
+  background: #d1fae5;
+  color: #047857;
+}
+.kpi-card--emerald .kpi-label {
+  color: #047857;
+}
+
+.kpi-card--indigo {
+  --kpi-bg: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
+  --kpi-border: #c7d2fe;
+}
+.kpi-card--indigo .kpi-icon {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+.kpi-card--indigo .kpi-label {
+  color: #4338ca;
+}
+
+.kpi-card--amber {
+  --kpi-bg: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+  --kpi-border: #fde68a;
+}
+.kpi-card--amber .kpi-icon {
+  background: #fef3c7;
+  color: #b45309;
+}
+.kpi-card--amber .kpi-label {
+  color: #b45309;
+}
+
+.kpi-card--orange {
+  --kpi-bg: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+  --kpi-border: #fed7aa;
+}
+.kpi-card--orange .kpi-icon {
+  background: #ffedd5;
+  color: #c2410c;
+}
+.kpi-card--orange .kpi-label {
+  color: #c2410c;
+}
+
+.kpi-card--teal {
+  --kpi-bg: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+  --kpi-border: #99f6e4;
+}
+.kpi-card--teal .kpi-icon {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+.kpi-card--teal .kpi-label {
+  color: #0f766e;
+}
+
+.kpi-card--rose {
+  --kpi-bg: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
+  --kpi-border: #fecdd3;
+}
+.kpi-card--rose .kpi-icon {
+  background: #ffe4e6;
+  color: #be123c;
+}
+.kpi-card--rose .kpi-label {
+  color: #be123c;
+}
+
+.kpi-card--purple {
+  --kpi-bg: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  --kpi-border: #e9d5ff;
+}
+.kpi-card--purple .kpi-icon {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+.kpi-card--purple .kpi-label {
+  color: #7e22ce;
+}
+
+/* Dark Mode Overrides (Only Active When .portal-dark is on) */
+:global(.portal-dark) .payroll-dashboard .dashboard-hero {
+  border-color: rgba(96, 165, 250, 0.3);
+  background:
+    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+    linear-gradient(135deg, rgba(30, 41, 59, 0.9), #111827 70%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+:global(.portal-dark) .payroll-dashboard .dashboard-panel {
+  border-color: #334155;
+  background: #182235;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card {
+  border-color: #334155;
+  background: #182235;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--blue {
+  --kpi-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(96, 165, 250, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--blue .kpi-icon {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--blue .kpi-label {
+  color: #93c5fd;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--emerald {
+  --kpi-bg: linear-gradient(135deg, rgba(6, 78, 59, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(52, 211, 153, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--emerald .kpi-icon {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--emerald .kpi-label {
+  color: #6ee7b7;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--indigo {
+  --kpi-bg: linear-gradient(135deg, rgba(49, 46, 129, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(129, 140, 248, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--indigo .kpi-icon {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--indigo .kpi-label {
+  color: #a5b4fc;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--amber {
+  --kpi-bg: linear-gradient(135deg, rgba(120, 53, 15, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(251, 191, 36, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--amber .kpi-icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--amber .kpi-label {
+  color: #fde68a;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--orange {
+  --kpi-bg: linear-gradient(135deg, rgba(124, 45, 18, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(251, 146, 60, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--orange .kpi-icon {
+  background: rgba(234, 88, 12, 0.2);
+  color: #fdba74;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--orange .kpi-label {
+  color: #fdba74;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--teal {
+  --kpi-bg: linear-gradient(135deg, rgba(19, 78, 74, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(45, 212, 191, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--teal .kpi-icon {
+  background: rgba(20, 184, 166, 0.2);
+  color: #5eead4;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--teal .kpi-label {
+  color: #5eead4;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--rose {
+  --kpi-bg: linear-gradient(135deg, rgba(136, 19, 55, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(251, 113, 133, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--rose .kpi-icon {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fda4af;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--rose .kpi-label {
+  color: #fda4af;
+}
+
+:global(.portal-dark) .payroll-dashboard .kpi-card--purple {
+  --kpi-bg: linear-gradient(135deg, rgba(88, 28, 135, 0.3) 0%, #182235 100%);
+  --kpi-border: rgba(192, 132, 252, 0.35);
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--purple .kpi-icon {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+}
+:global(.portal-dark) .payroll-dashboard .kpi-card--purple .kpi-label {
+  color: #d8b4fe;
+}
+</style>
