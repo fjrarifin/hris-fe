@@ -46,8 +46,8 @@ onMounted(load)
 
 <template>
   <div class="space-y-6 pb-12">
-    <!-- Hero Header (Seragam dengan Desain Standard HRIS) -->
-    <div class="rounded-2xl border border-default bg-card p-6 shadow-xs flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <!-- Hero Header (Vibrant Gradient Hero matching Recruitment Dashboard) -->
+    <div class="rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 p-6 shadow-sm dark:border-blue-900/50 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
           <UIcon name="i-lucide-shield-alert" class="size-3.5" />
@@ -77,14 +77,14 @@ onMounted(load)
 
     <div v-else-if="dashboard" class="space-y-6">
       <!-- Section 1: Atasan Operasional Hadir Hari Ini -->
-      <div class="rounded-2xl border border-default bg-card p-6 shadow-xs space-y-4">
+      <div class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Kehadiran Leader</span>
-            <h2 class="text-lg font-bold text-highlighted mt-0.5">Atasan Operasional Hadir Hari Ini</h2>
+            <h2 class="text-base font-bold text-highlighted mt-0.5">Atasan Operasional Hadir Hari Ini</h2>
             <p class="text-xs text-muted">Manager, Asst. Manager, Supervisor/SPV, dan Leader berdasarkan scan absensi hari ini.</p>
           </div>
-          <span class="self-start sm:self-center rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-500">
+          <span class="self-start sm:self-center rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
             {{ dashboard.attendance?.management_present?.length || 0 }} Leader Hadir
           </span>
         </div>
@@ -93,24 +93,26 @@ onMounted(load)
           <div
             v-for="employee in dashboard.attendance.management_present"
             :key="employee.nik"
-            class="group relative flex flex-col justify-between rounded-2xl border border-default bg-elevated/20 p-4 shadow-xs transition-all hover:border-primary/40 hover:bg-card"
+            class="group relative flex flex-col justify-between rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-50/70 via-white to-blue-50/20 p-4 shadow-xs transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900"
           >
             <div>
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-primary truncate max-w-[150px]">{{ employee.department }}</span>
-                <span class="size-2 rounded-full bg-emerald-500"></span>
+                <span class="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400 truncate max-w-[150px]">
+                  {{ employee.department }}
+                </span>
+                <span class="flex size-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
               </div>
-              <p class="font-bold text-highlighted mt-1 text-sm truncate" :title="employee.name">{{ employee.name }}</p>
+              <p class="font-bold text-highlighted mt-2 text-sm truncate" :title="employee.name">{{ employee.name }}</p>
               <p class="text-xs text-muted truncate mt-0.5" :title="employee.position">{{ employee.position }}</p>
             </div>
 
-            <div class="mt-3 flex items-center justify-between rounded-xl border border-default/60 bg-card px-3 py-2 text-xs">
+            <div class="mt-3.5 flex items-center justify-between rounded-xl border border-default/70 bg-white/80 dark:bg-slate-800/80 px-3 py-2 text-xs backdrop-blur-xs">
               <div>
-                <p class="text-[10px] uppercase font-semibold text-muted">Masuk</p>
+                <p class="text-[10px] uppercase font-bold text-muted">Masuk</p>
                 <p class="font-bold text-highlighted mt-0.5">{{ formatTime(employee.scan_in) }}</p>
               </div>
               <div class="text-right">
-                <p class="text-[10px] uppercase font-semibold text-muted">Keluar</p>
+                <p class="text-[10px] uppercase font-bold text-muted">Keluar</p>
                 <p class="font-bold text-highlighted mt-0.5">
                   {{ employee.scan_out ? formatTime(employee.scan_out) : 'Belum scan' }}
                 </p>
@@ -127,17 +129,17 @@ onMounted(load)
       <!-- Section 2: Monitoring Minimum Kehadiran Bulanan -->
       <div
         v-if="dashboard.monthly_attendance_monitoring.visible"
-        class="rounded-2xl border border-default bg-card p-6 shadow-xs space-y-4"
+        class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4"
       >
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Kepatuhan Kerja</span>
-            <h2 class="text-lg font-bold text-highlighted mt-0.5">Monitoring Minimum Kehadiran Bulanan</h2>
+            <h2 class="text-base font-bold text-highlighted mt-0.5">Monitoring Minimum Kehadiran Bulanan</h2>
             <p class="text-xs text-muted">
               Target: {{ dashboard.monthly_attendance_monitoring.ideal_attendance_days }} hari hadir dan {{ dashboard.monthly_attendance_monitoring.minimum_work_duration }}.
             </p>
           </div>
-          <span class="self-start sm:self-center rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-500">
+          <span class="self-start sm:self-center rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
             Tampil Tanggal 26+
           </span>
         </div>
@@ -176,10 +178,10 @@ onMounted(load)
                 <td class="p-3 font-semibold text-highlighted">{{ record.total_attendance }} hari</td>
                 <td class="p-3 text-muted">{{ record.total_work_duration }}</td>
                 <td class="p-3">
-                  <span v-if="record.attendance_shortage" class="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-500">
+                  <span v-if="record.attendance_shortage" class="inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-0.5 text-xs font-bold text-rose-600 dark:text-rose-400">
                     Kurang {{ record.attendance_shortage }} hari
                   </span>
-                  <span v-if="record.work_duration_shortage_minutes" class="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-500 ml-1">
+                  <span v-if="record.work_duration_shortage_minutes" class="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400 ml-1">
                     Kurang {{ record.work_duration_shortage }}
                   </span>
                 </td>
@@ -190,14 +192,14 @@ onMounted(load)
       </div>
 
       <!-- Section 3: Absensi Belum Lengkap Kemarin -->
-      <div class="rounded-2xl border border-default bg-card p-6 shadow-xs space-y-4">
+      <div class="rounded-2xl border border-default bg-card p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-default pb-4">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Koreksi Absen</span>
-            <h2 class="text-lg font-bold text-highlighted mt-0.5">Absensi Belum Lengkap Kemarin</h2>
+            <h2 class="text-base font-bold text-highlighted mt-0.5">Absensi Belum Lengkap Kemarin</h2>
             <p class="text-xs text-muted">Data absensi {{ formatDate(dashboard.yesterday_incomplete_attendance.date) }} dengan salah satu scan belum lengkap.</p>
           </div>
-          <span class="self-start sm:self-center rounded-full bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-500">
+          <span class="self-start sm:self-center rounded-full bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-400">
             {{ incompleteAttendanceRecords.length }} Perlu Ditindaklanjuti
           </span>
         </div>
@@ -235,7 +237,7 @@ onMounted(load)
                 <td class="p-3 font-medium text-highlighted">{{ formatTime(item.scan_in) }}</td>
                 <td class="p-3 font-medium text-highlighted">{{ formatTime(item.scan_out) }}</td>
                 <td class="p-3">
-                  <span class="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-500">
+                  <span class="inline-flex items-center rounded-md bg-amber-500/15 px-2 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                     {{ missingScanLabel(item) }}
                   </span>
                 </td>
@@ -256,7 +258,7 @@ onMounted(load)
                   />
                 </td>
                 <td class="p-3">
-                  <span class="inline-flex items-center rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-500">
+                  <span class="inline-flex items-center rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                     {{ item.whatsapp_notification_status || 'Terkirim' }}
                   </span>
                 </td>
