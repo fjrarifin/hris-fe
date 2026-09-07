@@ -2793,30 +2793,63 @@ const selectedPkbSigners = ref([])
 
 const formattedAllEmployees = computed(() => {
   const existingNiks = new Set(
-    (activeCandidate.value?.pkb_signers || []).map((s) => s.employee_nik),
+    (activeCandidate.value?.pkb_signers || []).map((s) => String(s.employee_nik)),
   )
   return employees.value
-    .filter((emp) => !existingNiks.has(emp.nik))
+    .filter((emp) => !existingNiks.has(String(emp.nik)))
     .map((emp) => {
+      const empName = emp.name || emp.nama_karyawan || ''
+      const empPos = emp.position || emp.jabatan || '-'
       const deptInfo = emp.department ? ` - ${emp.department}` : ''
       return {
-        nik: emp.nik,
-        label: `${emp.nik} - ${emp.name || emp.nama_karyawan} (${emp.position || emp.jabatan || '-'}${deptInfo})`,
+        nik: String(emp.nik),
+        name: empName,
+        position: empPos,
+        label: `${emp.nik} - ${empName} (${empPos}${deptInfo})`,
       }
     })
 })
 
 const selectedPkbSignerEmployees = computed(() => {
-  const selectedNiks = new Set(selectedPkbSigners.value)
-  return formattedAllEmployees.value.filter((employee) => selectedNiks.has(employee.nik))
+  return selectedPkbSigners.value
+    .map((item) => {
+      const nik = extractNik(item)
+      if (!nik) return null
+      const found = formattedAllEmployees.value.find((emp) => String(emp.nik) === String(nik))
+      if (found) return found
+      const emp = employees.value.find((e) => String(e.nik) === String(nik))
+      if (emp) {
+        const empName = emp.name || emp.nama_karyawan || ''
+        const empPos = emp.position || emp.jabatan || '-'
+        const deptInfo = emp.department ? ` - ${emp.department}` : ''
+        return {
+          nik: String(emp.nik),
+          name: empName,
+          position: empPos,
+          label: `${emp.nik} - ${empName} (${empPos}${deptInfo})`,
+        }
+      }
+      return {
+        nik: String(nik),
+        label: `NIK: ${nik}`,
+      }
+    })
+    .filter(Boolean)
 })
 
 function removePkbSigner(nik) {
-  selectedPkbSigners.value = selectedPkbSigners.value.filter((selectedNik) => selectedNik !== nik)
+  const targetNik = extractNik(nik)
+  selectedPkbSigners.value = selectedPkbSigners.value.filter(
+    (item) => extractNik(item) !== targetNik,
+  )
 }
 
 async function submitPkbRequest() {
-  if (!selectedPkbSigners.value.length || !activeCandidate.value) {
+  const niksToSend = selectedPkbSigners.value
+    .map((item) => extractNik(item))
+    .filter(Boolean)
+
+  if (!niksToSend.length || !activeCandidate.value) {
     errorMessage.value = 'Pilih minimal 1 orang karyawan penyetuju PKB.'
     return
   }
@@ -2826,7 +2859,7 @@ async function submitPkbRequest() {
   errorMessage.value = ''
   try {
     const response = await sendPkbApprovalRequest(activeCandidate.value.id, {
-      employee_niks: selectedPkbSigners.value,
+      employee_niks: niksToSend,
       previous_salary: activeCandidate.value.previous_salary,
     })
     message.value =
@@ -2841,13 +2874,14 @@ async function submitPkbRequest() {
 }
 
 async function triggerResendPkbSignerWa(signerId) {
-  if (!activeCandidate.value) return
+  if (!activeCandidate.value || !signerId) return
   updatingStage.value = true
   message.value = ''
   errorMessage.value = ''
   try {
-    await resendPkbSignerWa(activeCandidate.value.id, signerId)
-    message.value = 'Permintaan tanda tangan PKB berhasil dikirim ulang melalui WhatsApp.'
+    const res = await resendPkbSignerWa(activeCandidate.value.id, signerId)
+    message.value =
+      res.data?.message || 'Permintaan tanda tangan PKB berhasil dikirim ulang melalui WhatsApp.'
     await load()
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal mengirim ulang WhatsApp.')
@@ -5197,7 +5231,7 @@ onBeforeUnmount(() => {
                     <tr v-for="signer in activeCandidate.pkb_signers" :key="signer.id" class="text-highlighted">
                       <td class="p-3">
                         <p class="font-semibold">
-                          {{ signer.employee ? signer.employee.nama_karyawan : '-' }}
+                          {{ signer.employee ? (signer.employee.nama_karyawan || signer.employee.name) : (getEmployeeLabelByNik(signer.employee_nik) !== '-' ? getEmployeeLabelByNik(signer.employee_nik) : signer.employee_nik) }}
                         </p>
                         <p class="text-muted text-[10px]">{{ signer.employee_nik }}</p>
                       </td>
