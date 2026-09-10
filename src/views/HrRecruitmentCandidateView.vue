@@ -2195,10 +2195,12 @@ async function submitUserInterview() {
 
   if (scheduleConflicts.value && scheduleConflicts.value.length > 0) {
     const hasCandidateConflict = scheduleConflicts.value.some((c) => c.nik === 'CANDIDATE')
-    errorMessage.value = hasCandidateConflict
-      ? 'Jadwal bentrok! Kandidat sudah memiliki jadwal wawancara lain (Wawancara HR atau User tahap lain) dalam rentang waktu kurang dari 2 jam.'
-      : 'Jadwal bentrok! Pewawancara sudah memiliki jadwal wawancara lain dalam rentang waktu kurang dari 2 jam.'
-    return
+    const confirmMsg = hasCandidateConflict
+      ? 'Perhatian: Kandidat sudah memiliki agenda wawancara lain pada jam yang berdekatan.\n\nTetap lanjutkan simpan dan kirim jadwal ini?'
+      : 'Perhatian: Pewawancara memiliki agenda wawancara lain pada jam yang berdekatan.\n\nTetap lanjutkan simpan dan kirim jadwal ini?'
+    if (!confirm(confirmMsg)) {
+      return
+    }
   }
 
   updatingStage.value = true
@@ -7007,7 +7009,7 @@ onBeforeUnmount(() => {
           <div v-if="scheduleConflicts.length"
             class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-600 space-y-1">
             <p class="font-bold flex items-center gap-1.5">
-              <span class="i-lucide-alert-triangle"></span> Peringatan Jadwal Bentrok!
+              <span class="i-lucide-alert-triangle"></span> Peringatan Jadwal Bentrok / Berdekatan!
             </p>
             <ul class="list-disc pl-4 space-y-1">
               <li v-for="conflict in scheduleConflicts" :key="conflict.nik">
@@ -7022,6 +7024,9 @@ onBeforeUnmount(() => {
                 </template>
               </li>
             </ul>
+            <p class="mt-1.5 text-[11px] text-amber-700/80 dark:text-amber-400/80 italic font-medium">
+              *Catatan: Jadwal tetap dapat disimpan dan dikirim jika pewawancara telah menyetujui sesi ini.
+            </p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-muted">Tipe Wawancara <span
