@@ -79,8 +79,11 @@
         <div v-for="(ref, index) in form.references" :key="index" class="reference-section">
           <div class="reference-heading">
             <h3>Referensi #{{ index + 1 }}</h3>
+            <span v-if="ref.submitted_by_referee" class="text-xs text-emerald-400 font-semibold">
+              Sudah diisi oleh pemberi referensi
+            </span>
             <button
-              v-if="form.references.length > requiredReferenceCount"
+              v-else-if="form.references.length > requiredReferenceCount"
               type="button"
               class="remove-reference-btn"
               @click="removeReference(index)"
@@ -216,7 +219,22 @@ const handleUnlock = async () => {
     }
     candidate.value = res.data
     requiredReferenceCount.value = res.data.required_reference_count
-    form.references = Array.from({ length: requiredReferenceCount.value }, emptyReference)
+    if (res.data.references && res.data.references.length > 0) {
+      form.references = res.data.references.map((r) => ({
+        id: r.id,
+        name: r.name || '',
+        phone: r.phone || '',
+        company: r.company || '',
+        position: r.position || '',
+        relationship: r.relationship || '',
+        submitted_by_referee: !!r.submitted_at,
+      }))
+      while (form.references.length < requiredReferenceCount.value) {
+        form.references.push(emptyReference())
+      }
+    } else {
+      form.references = Array.from({ length: requiredReferenceCount.value }, emptyReference)
+    }
   } catch (err) {
     if (err.response?.status === 403 || err.response?.status === 422) {
       passwordError.value = 'Password tidak valid. Periksa kembali 6 digit angka pada email.'

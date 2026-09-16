@@ -94,7 +94,16 @@
             label="Bagaimana komitmen, kehadiran, dan ketepatan waktu kandidat?" />
         </FormSection>
 
-        <FormSection title="D. Penilaian Akhir">
+        <FormSection v-if="type === 'managerial'" title="D. Teamwork & Leadership">
+          <Narrative v-model="form.leadership"
+            label="Apakah kandidat menunjukkan kemampuan kepemimpinan? Berikan contoh." />
+          <Narrative v-model="form.leadership_conflict"
+            label="Bagaimana kandidat menyelesaikan konflik atau perbedaan pendapat?" />
+          <Narrative v-model="form.team_relationship"
+            label="Bagaimana hubungan kandidat dengan anggota tim dan rekan kerja?" />
+        </FormSection>
+
+        <FormSection :title="type === 'managerial' ? 'E. Penilaian Akhir' : 'D. Penilaian Akhir'">
           <Narrative v-model="form.work_again"
             label="Apakah Anda bersedia bekerja sama lagi dengan kandidat? Mengapa?" />
           <Field label="Apakah Anda merekomendasikan kandidat?" full><select v-model="form.recommendation" required>
@@ -116,15 +125,6 @@
                   }}</span></label>
             </div>
           </div>
-        </FormSection>
-
-        <FormSection v-if="type === 'managerial'" title="E. Teamwork & Leadership">
-          <Narrative v-model="form.leadership"
-            label="Apakah kandidat menunjukkan kemampuan kepemimpinan? Berikan contoh." />
-          <Narrative v-model="form.leadership_conflict"
-            label="Bagaimana kandidat menyelesaikan konflik atau perbedaan pendapat?" />
-          <Narrative v-model="form.team_relationship"
-            label="Bagaimana hubungan kandidat dengan anggota tim dan rekan kerja?" />
         </FormSection>
 
         <div v-if="validationError" class="validation-warning">

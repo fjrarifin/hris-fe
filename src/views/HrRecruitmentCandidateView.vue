@@ -36,6 +36,7 @@ import {
   sendReferenceCheckRequest,
   sendReferenceCheckWa,
   previewReferenceCheckSummary,
+  unlockCandidateReferenceCheck,
   getUserInterviewSummaryPreview,
   getUserInterviewEvaluationRecapPreview,
   getPkbApprovalRecapPreview,
@@ -2439,6 +2440,164 @@ async function copyReferencePublicUrl(reference) {
   }
 }
 
+function formatWorkRelationship(rel) {
+  if (!rel) return 'Pemberi Referensi'
+  const r = rel.toLowerCase()
+  if (r.includes('direct') || r.includes('atasan')) return 'Atasan Langsung'
+  if (r.includes('peer') || r.includes('rekan')) return 'Rekan Kerja'
+  if (r.includes('subordinate') || r.includes('bawahan')) return 'Bawahan'
+  return rel
+}
+
+async function triggerUnlockReferenceCheck() {
+  if (!activeCandidate.value) return
+  if (
+    !window.confirm(
+      'Buka kembali akses form pengisian kontak referensi untuk kandidat ini? Kandidat akan dapat mengubah atau menambah kontak referensi melalui tautan yang telah dikirim.',
+    )
+  ) {
+    return
+  }
+
+  updatingStage.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const res = await unlockCandidateReferenceCheck(activeCandidate.value.id)
+    message.value = res.data.message || 'Akses formulir referensi berhasil dibuka kembali.'
+    await load()
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal membuka akses formulir referensi.')
+  } finally {
+    updatingStage.value = false
+  }
+}
+
+function printReferenceRecap() {
+  const candidateName = activeCandidate.value?.name || 'Kandidat'
+  const vacancyTitle =
+    activeCandidate.value?.vacancy?.title || activeCandidate.value?.position_applied || '-'
+  const dateStr = new Date().toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+
+  const printWindow = window.open('', '_blank', 'width=950,height=750')
+  if (!printWindow) return
+
+  let tableHeaderHtml = '<th>Aspek Penilaian</th>'
+  submittedReferences.value.forEach((ref) => {
+    const pos = ref.position || ref.answers?.reference_position || '-'
+    const comp = ref.company || ref.answers?.company_together || '-'
+    const rel = formatWorkRelationship(ref.relationship || ref.answers?.work_relationship)
+    const formType = ref.form_type === 'managerial' ? 'Managerial' : 'Staff'
+    tableHeaderHtml += `
+      <th style="text-align: center; min-width: 150px; vertical-align: top;">
+        <div style="font-weight: bold; font-size: 11pt;">${ref.name}</div>
+        <div style="font-size: 9pt; color: #475569; margin-top: 2px;">${pos} — ${comp}</div>
+        <div style="font-size: 8.5pt; color: #0284c7; margin-top: 3px; font-weight: 600;">${rel} (${formType})</div>
+      </th>
+    `
+  })
+  tableHeaderHtml +=
+    '<th style="text-align: center; min-width: 90px; vertical-align: top; color: #0284c7;">Rata-Rata</th>'
+
+  let tableRowsHtml = ''
+  visibleReferenceAnswerAspects.value.forEach((aspect) => {
+    tableRowsHtml += `
+      <tr>
+        <td style="font-weight: 600; width: 22%; background-color: #f8fafc;">${aspect.label}</td>
+    `
+    submittedReferences.value.forEach((ref) => {
+      const val = ref.answers?.[aspect.key] || '-'
+      tableRowsHtml += `<td style="white-space: pre-wrap; font-size: 9.5pt;">${val}</td>`
+    })
+    tableRowsHtml += '<td style="text-align: center; color: #94a3b8;">–</td></tr>'
+  })
+
+  // Rating Row
+  tableRowsHtml += `
+    <tr style="background-color: #f1f5f9; font-weight: bold; border-top: 2px solid #cbd5e1;">
+      <td>Rating Akhir</td>
+  `
+  submittedReferences.value.forEach((ref) => {
+    tableRowsHtml += `<td style="text-align: center;">${formatReferenceRatingText(ref.answers?.rating)}</td>`
+  })
+  tableRowsHtml += `<td style="text-align: center; color: #0284c7; font-size: 11pt;">${averageReferenceRating.value} / 5</td></tr>`
+
+  // Recommendation Row
+  tableRowsHtml += `
+    <tr style="background-color: #f8fafc; font-weight: bold;">
+      <td>Rekomendasi</td>
+  `
+  submittedReferences.value.forEach((ref) => {
+    const isYes = ref.answers?.recommendation === 'yes'
+    const color = isYes ? '#16a34a' : '#dc2626'
+    const label = isYes ? 'Direkomendasikan' : 'Tidak Direkomendasikan'
+    tableRowsHtml += `<td style="text-align: center; color: ${color};">${label}</td>`
+  })
+  tableRowsHtml += `<td style="text-align: center; color: #0f172a;">${referenceRecommendationConsensus.value}</td></tr>`
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Rekap Reference Check - ${candidateName}</title>
+      <meta charset="utf-8" />
+      <style>
+        @page { size: A4 landscape; margin: 12mm 15mm; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; padding: 20px; font-size: 10pt; line-height: 1.4; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px; }
+        .brand { font-size: 16pt; font-weight: 800; color: #0284c7; letter-spacing: -0.5px; }
+        .meta-title { font-size: 14pt; font-weight: bold; margin-top: 4px; }
+        .meta-subtitle { font-size: 9.5pt; color: #64748b; margin-top: 2px; }
+        .date { font-size: 8.5pt; color: #64748b; text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
+        th { background-color: #f8fafc; font-size: 9pt; text-transform: uppercase; color: #475569; }
+        .footer { margin-top: 24px; font-size: 8.5pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <div class="brand">HOMPIMPLAY</div>
+          <div class="meta-title">Rekapitulasi Reference Check</div>
+          <div class="meta-subtitle">Kandidat: <strong>${candidateName}</strong> | Posisi: <strong>${vacancyTitle}</strong></div>
+        </div>
+        <div class="date">
+          Tanggal Cetak:<br /><strong>${dateStr}</strong>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>${tableHeaderHtml}</tr>
+        </thead>
+        <tbody>
+          ${tableRowsHtml}
+        </tbody>
+      </table>
+
+      <div class="footer">
+        Dokumen ini dibuat otomatis oleh Sistem HRIS Hompimplay untuk keperluan verifikasi rekrutmen internal.
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+        }
+      <\/script>
+    </body>
+    </html>
+  `
+
+  printWindow.document.open()
+  printWindow.document.write(htmlContent)
+  printWindow.document.close()
+}
+
 async function copyOnboardingPublicUrl() {
   const url = onboardingPublicLink.value
   if (!url) return
@@ -3528,11 +3687,11 @@ const referenceAnswerAspects = [
   { key: 'reliability', label: 'Keandalan' },
   { key: 'pressure_handling', label: 'Menghadapi Tekanan' },
   { key: 'commitment_attendance', label: 'Komitmen dan Kehadiran' },
-  { key: 'work_again', label: 'Bersedia Bekerja Sama Lagi' },
-  { key: 'additional_notes', label: 'Catatan Tambahan' },
   { key: 'leadership', label: 'Kepemimpinan', managerial: true },
   { key: 'leadership_conflict', label: 'Konflik Kepemimpinan', managerial: true },
   { key: 'team_relationship', label: 'Hubungan dengan Tim', managerial: true },
+  { key: 'work_again', label: 'Bersedia Bekerja Sama Lagi' },
+  { key: 'additional_notes', label: 'Catatan Tambahan' },
 ]
 
 const visibleReferenceAnswerAspects = computed(() =>
@@ -4875,7 +5034,11 @@ onBeforeUnmount(() => {
                       record kandidat.</p>
                   </div>
                   <div class="flex items-center gap-2">
-                    <UButton v-if="!isViewingHistoricalStage && !activeCandidate.reference_check_submitted_at" size="xs"
+                    <UButton v-if="!isViewingHistoricalStage && activeCandidate.reference_check_submitted_at" size="xs"
+                      variant="soft" color="warning" icon="i-lucide-lock-open"
+                      label="Buka Akses Edit Kandidat"
+                      :loading="updatingStage" :disabled="updatingStage" @click="triggerUnlockReferenceCheck" />
+                    <UButton v-if="!isViewingHistoricalStage" size="xs"
                       variant="soft" color="primary" icon="i-lucide-send"
                       :label="activeCandidate.reference_check_email_sent_at ? 'Kirim Ulang Permintaan Referensi' : 'Kirim Permintaan Referensi'"
                       :loading="updatingStage" :disabled="updatingStage" @click="triggerReferenceCheckRequest" />
@@ -4899,13 +5062,18 @@ onBeforeUnmount(() => {
                   <!-- Row 2: Tanggal Dikirim Jawaban (Submit) -->
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Tanggal dikirim jawaban (submit)</span>
-                    <span v-if="activeCandidate.reference_check_submitted_at"
-                      class="font-bold text-emerald-600 dark:text-emerald-400">
-                      Selesai, {{ formatDateTime(activeCandidate.reference_check_submitted_at) }}
-                    </span>
-                    <span v-else class="font-medium text-amber-600 dark:text-amber-400">
-                      Belum disubmit
-                    </span>
+                    <div class="flex items-center gap-2">
+                      <span v-if="activeCandidate.reference_check_submitted_at"
+                        class="font-bold text-emerald-600 dark:text-emerald-400">
+                        Selesai, {{ formatDateTime(activeCandidate.reference_check_submitted_at) }}
+                      </span>
+                      <span v-else class="font-medium text-amber-600 dark:text-amber-400">
+                        {{ (activeCandidate.references || []).length ? 'Akses edit terbuka / Belum disubmit ulang' : 'Belum disubmit' }}
+                      </span>
+                      <UButton v-if="!isViewingHistoricalStage && activeCandidate.reference_check_submitted_at" size="xs"
+                        variant="subtle" color="warning" icon="i-lucide-lock-open" label="Buka Akses Edit"
+                        :loading="updatingStage" :disabled="updatingStage" @click="triggerUnlockReferenceCheck" />
+                    </div>
                   </div>
 
                   <!-- Row 3: Status Notifikasi Email -->
@@ -4960,11 +5128,11 @@ onBeforeUnmount(() => {
                           ref.submitted_at ?
                             'Selesai Diisi' : 'Menunggu' }}</UBadge>
                       </div>
-                      <p v-if="ref.relationship">
-                        <span class="text-muted">Hubungan:</span> {{ ref.relationship }}
+                      <p>
+                        <span class="text-muted">Hubungan:</span> {{ formatWorkRelationship(ref.relationship || ref.answers?.work_relationship) }}
                       </p>
-                      <p><span class="text-muted">Perusahaan:</span> {{ ref.company }}</p>
-                      <p><span class="text-muted">Jabatan:</span> {{ ref.position }}</p>
+                      <p><span class="text-muted">Perusahaan:</span> {{ ref.company || ref.answers?.company_together || '-' }}</p>
+                      <p><span class="text-muted">Jabatan:</span> {{ ref.position || ref.answers?.reference_position || '-' }}</p>
                       <p><span class="text-muted">No. Telp/WA:</span> {{ ref.phone }}</p>
                       <p>
                         <span class="text-muted">Tipe Form:</span>
@@ -6760,8 +6928,12 @@ onBeforeUnmount(() => {
                 Rangkuman jawaban dari seluruh pemberi referensi kandidat.
               </p>
             </div>
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
-              @click="referenceRecapModalOpen = false" />
+            <div class="flex items-center gap-2">
+              <UButton color="primary" variant="soft" size="xs" icon="i-lucide-printer"
+                label="Cetak / Unduh PDF" @click="printReferenceRecap" />
+              <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x"
+                @click="referenceRecapModalOpen = false" />
+            </div>
           </div>
         </template>
 
@@ -6771,10 +6943,19 @@ onBeforeUnmount(() => {
               <tr class="border-b border-default bg-muted/10 text-[10px] font-bold uppercase tracking-wider text-muted">
                 <th class="px-4 py-3">Aspek Penilaian</th>
                 <th v-for="(ref, index) in submittedReferences" :key="`reference-head-${ref.id}`"
-                  class="min-w-52 px-4 py-3 text-center">
-                  <span class="block font-bold text-highlighted">{{ ref.name }}</span>
-                  <span class="mt-0.5 block text-[9px] font-normal text-muted">Referensi {{ index + 1 }} •
-                    {{ ref.form_type === 'managerial' ? 'Managerial' : 'Staff' }}</span>
+                  class="min-w-56 px-4 py-3 text-center align-top">
+                  <span class="block font-bold text-highlighted text-xs">{{ ref.name }}</span>
+                  <span class="mt-0.5 block text-[10px] text-muted">
+                    {{ ref.position || ref.answers?.reference_position || '-' }} • {{ ref.company || ref.answers?.company_together || '-' }}
+                  </span>
+                  <div class="mt-1 flex flex-wrap items-center justify-center gap-1">
+                    <UBadge size="xs" variant="subtle" color="neutral">
+                      {{ formatWorkRelationship(ref.relationship || ref.answers?.work_relationship) }}
+                    </UBadge>
+                    <UBadge size="xs" variant="soft" color="primary">
+                      {{ ref.form_type === 'managerial' ? 'Managerial' : 'Staff' }}
+                    </UBadge>
+                  </div>
                 </th>
                 <th class="px-4 py-3 text-center font-bold text-primary">Rata-rata</th>
               </tr>
@@ -6826,7 +7007,9 @@ onBeforeUnmount(() => {
         </div>
 
         <template #footer>
-          <div class="flex justify-end">
+          <div class="flex items-center justify-between">
+            <UButton color="primary" variant="soft" size="sm" icon="i-lucide-printer"
+              label="Cetak / Unduh PDF" @click="printReferenceRecap" />
             <UButton type="button" label="Tutup" color="neutral" variant="soft"
               @click="referenceRecapModalOpen = false" />
           </div>

@@ -431,6 +431,10 @@ export function previewReferenceCheckSummary(id) {
   return api.get(`/hr/recruitment/candidates/${id}/reference-check-summary-preview`)
 }
 
+export function unlockCandidateReferenceCheck(id) {
+  return api.post(`/hr/recruitment/candidates/${id}/unlock-reference-check`)
+}
+
 export function getUserInterviewSummaryPreview(id, round) {
   return api.get(`/hr/recruitment/candidates/${id}/user-interview-round/${round}/summary-preview`)
 }
