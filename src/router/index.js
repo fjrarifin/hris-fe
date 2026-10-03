@@ -120,6 +120,12 @@ const router = createRouter({
       meta: { title: 'Pratinjau CV Kandidat' },
     },
     {
+      path: '/public/evaluation/:token/hr-summary',
+      name: 'public-evaluation-hr-summary',
+      component: () => import('../views/HrRecruitmentPublicHrSummaryView.vue'),
+      meta: { title: 'Hasil Summary HR' },
+    },
+    {
       path: '/absen-event/:slug',
       name: 'public-event-absen',
       component: () => import('../views/PublicEventAbsenView.vue'),

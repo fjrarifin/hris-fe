@@ -341,8 +341,8 @@ export function sendHrCandidateInterviewWa(id) {
   return api.post(`/hr/recruitment/candidates/${id}/send-wa-candidate-interview`)
 }
 
-export function sendHrCandidateCaseStudyWa(id) {
-  return api.post(`/hr/recruitment/candidates/${id}/send-wa-candidate-case-study`)
+export function sendHrCandidateCaseStudyWa(id, payload = {}) {
+  return api.post(`/hr/recruitment/candidates/${id}/send-wa-candidate-case-study`, payload)
 }
 
 export function scheduleHrCandidateInterview(id, payload) {
@@ -578,6 +578,22 @@ export function deleteHrMasterOrg(type, id) {
 
 export function getPublicResumeByEvaluationToken(token, payload) {
   return api.post(`/public/candidates/evaluation/${token}/resume`, payload)
+}
+
+export function getPublicHrSummaryByEvaluationToken(token, payload) {
+  return api.post(`/public/candidates/evaluation/${token}/hr-summary`, payload)
+}
+
+export function addHrCandidateCaseStudyRound(id, payload) {
+  return api.post(`/hr/recruitment/candidates/${id}/add-case-study-round`, payload)
+}
+
+export function getCaseStudyRoundSubmissionPreview(id, round) {
+  return api.get(`/hr/recruitment/candidates/${id}/case-study-round-submission-preview/${round}`)
+}
+
+export function getCaseStudyRoundQuestionPreview(id, round) {
+  return api.get(`/hr/recruitment/candidates/${id}/case-study-round-question-preview/${round}`)
 }
 
 export function getEmployeeOptions() {

@@ -24,6 +24,9 @@ import {
   uploadHrCandidateCaseStudySubmission,
   getCaseStudySubmissionPreview,
   getCaseStudyQuestionPreview,
+  addHrCandidateCaseStudyRound,
+  getCaseStudyRoundSubmissionPreview,
+  getCaseStudyRoundQuestionPreview,
 
   checkHrScheduleConflict,
   scheduleUserInterviewRound,
@@ -181,8 +184,8 @@ const stages = [
   { key: 'case_study', label: 'Case Study', color: 'orange', icon: 'i-lucide-clipboard-list' },
   { key: 'interview_user', label: 'Wawancara User', color: 'indigo', icon: 'i-lucide-users-round' },
   { key: 'reference_check', label: 'Reference Check', color: 'teal', icon: 'i-lucide-phone-call' },
-  { key: 'offering', label: 'Offering Letter', color: 'pink', icon: 'i-lucide-mail' },
   { key: 'pkb', label: 'Persetujuan PKB', color: 'amber', icon: 'i-lucide-file-signature' },
+  { key: 'offering', label: 'Offering Letter', color: 'pink', icon: 'i-lucide-mail' },
   { key: 'hired', label: 'Hired', color: 'success', icon: 'i-lucide-badge-check' },
   { key: 'rejected', label: 'Rejected', color: 'danger', icon: 'i-lucide-circle-x' },
 ]
@@ -207,8 +210,8 @@ const workflowStages = [
   { key: 'case_study', label: 'Case Study', icon: 'i-lucide-clipboard-list' },
   { key: 'interview_user', label: 'Wawancara User', icon: 'i-lucide-users-round' },
   { key: 'reference_check', label: 'Reference Check', icon: 'i-lucide-phone-call' },
-  { key: 'offering', label: 'Offering Letter', icon: 'i-lucide-mail' },
   { key: 'pkb', label: 'Persetujuan PKB', icon: 'i-lucide-file-signature' },
+  { key: 'offering', label: 'Offering Letter', icon: 'i-lucide-mail' },
   { key: 'hired', label: 'Hired & Onboarding', icon: 'i-lucide-badge-check' },
 ]
 
@@ -1054,9 +1057,9 @@ const nextStageMap = {
   interview_hr: { key: 'interview_user', label: 'Wawancara User' },
   case_study: { key: 'interview_user', label: 'Wawancara User' },
   interview_user: { key: 'reference_check', label: 'Reference Check' },
-  reference_check: { key: 'offering', label: 'Offering' },
-  offering: { key: 'pkb', label: 'Persetujuan PKB' },
-  pkb: { key: 'hired', label: 'Hired & Onboarding' },
+  reference_check: { key: 'pkb', label: 'Persetujuan PKB' },
+  pkb: { key: 'offering', label: 'Offering Letter' },
+  offering: { key: 'hired', label: 'Hired & Onboarding' },
 }
 
 const nextStage = computed(() => {
@@ -1566,8 +1569,8 @@ const recruitmentStageOrder = [
   'case_study',
   'interview_user',
   'reference_check',
-  'offering',
   'pkb',
+  'offering',
   'hired',
 ]
 
@@ -1943,47 +1946,91 @@ async function shareInterviewHrWa(candidate) {
   }
 }
 
-async function shareCaseStudyWa(candidate) {
-  if (!candidate || !candidate.case_study_sent_at) return
-  updatingStage.value = true
-  message.value = ''
-  errorMessage.value = ''
-  try {
-    const res = await sendHrCandidateCaseStudyWa(candidate.id)
-    message.value = res.data.message || 'Notifikasi WhatsApp berhasil dikirim ke kandidat.'
-    await load()
-  } catch (error) {
-    errorMessage.value = apiError(error, 'Gagal mengirim notifikasi WhatsApp ke kandidat.')
-  } finally {
-    updatingStage.value = false
-  }
-}
-
-async function submitHrSummary(event) {
-  const file = event.target.files[0]
-  if (!file || !activeCandidate.value) return
-  updatingStage.value = true
-  message.value = ''
-  errorMessage.value = ''
-  try {
-    const formData = new FormData()
-    formData.append('summary', file)
-    await uploadHrCandidateInterviewSummary(activeCandidate.value.id, formData)
-    message.value = 'Summary wawancara HR berhasil diunggah.'
-    await load()
-  } catch (error) {
-    errorMessage.value = apiError(error, 'Gagal mengunggah summary wawancara HR.')
-  } finally {
-    updatingStage.value = false
-  }
-}
-
-// Case Study
+// Case Study (Round-based)
+const activeCaseStudyTab = ref(1)
 const caseStudyModalOpen = ref(false)
 const caseStudyForm = reactive({
+  round: 1,
   link: '',
   file: null,
 })
+
+const displayedCaseStudyRounds = computed(() => {
+  const rounds = (activeCandidate.value?.case_studies || [])
+    .map((cs) => Number(cs.round))
+    .filter((r) => r >= 1 && r <= 5)
+  return rounds.length ? [...new Set(rounds)].sort((a, b) => a - b) : [1]
+})
+
+watch(
+  displayedCaseStudyRounds,
+  (rounds) => {
+    if (rounds && rounds.length) {
+      if (!rounds.includes(activeCaseStudyTab.value)) {
+        activeCaseStudyTab.value = rounds[rounds.length - 1]
+      }
+    } else {
+      activeCaseStudyTab.value = 1
+    }
+  },
+  { immediate: true },
+)
+
+const nextCaseStudyRound = computed(() => {
+  const existingRounds = (activeCandidate.value?.case_studies || []).map((cs) => Number(cs.round))
+  return existingRounds.length ? Math.max(...existingRounds) + 1 : 2
+})
+
+function getCaseStudy(round) {
+  const found = (activeCandidate.value?.case_studies || []).find((cs) => Number(cs.round) === Number(round))
+  if (found) return found
+  if (Number(round) === 1 && activeCandidate.value) {
+    return {
+      round: 1,
+      title: 'Tahap 1',
+      case_study_document_path: activeCandidate.value.case_study_document_path,
+      case_study_link: activeCandidate.value.case_study_link,
+      case_study_sent_at: activeCandidate.value.case_study_sent_at,
+      case_study_wa_sent_at: activeCandidate.value.case_study_wa_sent_at,
+      case_study_submitted_file_path: activeCandidate.value.case_study_submitted_file_path,
+      case_study_submitted_at: activeCandidate.value.case_study_submitted_at,
+    }
+  }
+  return null
+}
+
+const currentCaseStudy = computed(() => getCaseStudy(activeCaseStudyTab.value))
+
+const canAddCaseStudyRound = computed(() => {
+  const current = currentCaseStudy.value
+  const hasProgress = current && (current.case_study_submitted_at || current.case_study_submitted_file_path || current.case_study_sent_at)
+  return !!hasProgress && nextCaseStudyRound.value <= 5
+})
+
+async function handleAddCaseStudyRound(round) {
+  if (!activeCandidate.value) return
+  updatingStage.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const res = await addHrCandidateCaseStudyRound(activeCandidate.value.id, { round })
+    message.value = res.data.message || `Case Study Tahap ${round} berhasil ditambahkan.`
+    await load()
+    activeCaseStudyTab.value = round
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal menambah tahap case study.')
+  } finally {
+    updatingStage.value = false
+  }
+}
+
+function openCaseStudyModal(round = activeCaseStudyTab.value) {
+  const cs = getCaseStudy(round)
+  caseStudyForm.round = round
+  caseStudyForm.link = cs?.case_study_link || ''
+  caseStudyForm.file = null
+  caseStudyModalOpen.value = true
+}
 
 function handleCaseStudyFileChange(event) {
   caseStudyForm.file = event.target.files[0]
@@ -1997,11 +2044,13 @@ async function submitCaseStudy() {
     return
   }
 
+  const round = caseStudyForm.round || activeCaseStudyTab.value || 1
   updatingStage.value = true
   message.value = ''
   errorMessage.value = ''
   try {
     const formData = new FormData()
+    formData.append('round', round)
     if (caseStudyForm.file) {
       formData.append('document', caseStudyForm.file)
     }
@@ -2010,7 +2059,7 @@ async function submitCaseStudy() {
     }
     await sendHrCandidateCaseStudy(activeCandidate.value.id, formData)
     caseStudyModalOpen.value = false
-    message.value = 'Soal studi kasus berhasil dikirim ke email kandidat.'
+    message.value = `Soal studi kasus Tahap ${round} berhasil dikirim ke email kandidat.`
     await load()
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal mengirim soal studi kasus.')
@@ -2019,7 +2068,25 @@ async function submitCaseStudy() {
   }
 }
 
-async function submitCaseStudySubmission(event) {
+async function shareCaseStudyWa(candidate, round = activeCaseStudyTab.value) {
+  const cs = getCaseStudy(round)
+  const isSent = cs ? !empty(cs.case_study_sent_at) : (Number(round) === 1 && !empty(candidate?.case_study_sent_at))
+  if (!candidate || !isSent) return
+  updatingStage.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const res = await sendHrCandidateCaseStudyWa(candidate.id, { round })
+    message.value = res.data.message || 'Notifikasi WhatsApp berhasil dikirim ke kandidat.'
+    await load()
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal mengirim notifikasi WhatsApp ke kandidat.')
+  } finally {
+    updatingStage.value = false
+  }
+}
+
+async function submitCaseStudySubmission(event, round = activeCaseStudyTab.value) {
   const file = event.target.files[0]
   if (!file || !activeCandidate.value) return
   updatingStage.value = true
@@ -2028,18 +2095,22 @@ async function submitCaseStudySubmission(event) {
   try {
     const formData = new FormData()
     formData.append('submission', file)
+    formData.append('round', round)
     await uploadHrCandidateCaseStudySubmission(activeCandidate.value.id, formData)
-    message.value = 'Penyelesaian studi kasus berhasil diunggah.'
+    message.value = `Penyelesaian studi kasus Tahap ${round} berhasil diunggah.`
     await load()
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal mengunggah penyelesaian studi kasus.')
   } finally {
     updatingStage.value = false
+    if (event.target) {
+      event.target.value = ''
+    }
   }
 }
 
-async function deleteCaseStudySubmissionFile(candidate) {
-  if (!confirm('Apakah Anda yakin ingin menghapus dokumen jawaban studi kasus?')) return
+async function deleteCaseStudySubmissionFile(candidate, round = activeCaseStudyTab.value) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus dokumen jawaban studi kasus Tahap ${round}?`)) return
   updatingStage.value = true
   message.value = ''
   errorMessage.value = ''
@@ -2063,17 +2134,19 @@ async function deleteCaseStudySubmissionFile(candidate) {
   }
 }
 
-async function previewCaseStudySubmissionDoc(candidate) {
-  if (!candidate.case_study_submitted_file_path) return
+async function previewCaseStudySubmissionDoc(candidate, round = activeCaseStudyTab.value) {
+  const cs = getCaseStudy(round)
+  const path = cs?.case_study_submitted_file_path || (Number(round) === 1 ? candidate.case_study_submitted_file_path : null)
+  if (!path) return
   closeDocumentPreview()
   Object.assign(documentPreview, {
     open: true,
-    title: `Jawaban Case Study - ${candidate.name}`,
+    title: `Jawaban Case Study Tahap ${round} - ${candidate.name}`,
     url: '',
   })
   loadingDocument.value = true
   try {
-    const res = await getCaseStudySubmissionPreview(candidate.id)
+    const res = await getCaseStudyRoundSubmissionPreview(candidate.id, round)
     documentPreview.url = pdfBlobUrl(res.data.content_base64, res.data.mime_type)
   } catch (error) {
     closeDocumentPreview()
@@ -2744,12 +2817,14 @@ async function downloadHrInterviewSummaryDoc(candidate) {
   }
 }
 
-async function downloadCaseStudySubmissionDoc(candidate) {
-  if (!candidate || !candidate.case_study_submitted_file_path || loadingDocument.value) return
+async function downloadCaseStudySubmissionDoc(candidate, round = activeCaseStudyTab.value) {
+  const cs = getCaseStudy(round)
+  const path = cs?.case_study_submitted_file_path || (Number(round) === 1 ? candidate?.case_study_submitted_file_path : null)
+  if (!candidate || !path || loadingDocument.value) return
   loadingDocument.value = true
   errorMessage.value = ''
   try {
-    const res = await getCaseStudySubmissionPreview(candidate.id)
+    const res = await getCaseStudyRoundSubmissionPreview(candidate.id, round)
     downloadPreviewResponse(res)
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal mengunduh berkas jawaban Case Study.')
@@ -2758,12 +2833,14 @@ async function downloadCaseStudySubmissionDoc(candidate) {
   }
 }
 
-async function downloadCaseStudyQuestionDoc(candidate) {
-  if (!candidate || !candidate.case_study_document_path || loadingDocument.value) return
+async function downloadCaseStudyQuestionDoc(candidate, round = activeCaseStudyTab.value) {
+  const cs = getCaseStudy(round)
+  const path = cs?.case_study_document_path || (Number(round) === 1 ? candidate?.case_study_document_path : null)
+  if (!candidate || !path || loadingDocument.value) return
   loadingDocument.value = true
   errorMessage.value = ''
   try {
-    const res = await getCaseStudyQuestionPreview(candidate.id)
+    const res = await getCaseStudyRoundQuestionPreview(candidate.id, round)
     downloadPreviewResponse(res)
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal mengunduh berkas soal Case Study.')
@@ -2856,9 +2933,12 @@ async function downloadReferenceCheckSummaryDoc(candidate) {
 }
 
 
-// Offering Letter with signature
+// Offering Letter & PKB with signature
 const offeringLetterFile = ref(null)
 const pkbPreviousSalaryInput = ref('')
+const pkbOfferedSalaryInput = ref('')
+const pkbJoinDateInput = ref('')
+const pkbLastCompanyInput = ref('')
 
 function parseRupiah(value) {
   if (!value) return 0
@@ -2868,16 +2948,26 @@ function parseRupiah(value) {
 watch(
   () => [
     activeCandidate.value?.id,
+    displayedStageKey.value,
     activeCandidate.value?.status,
     activeCandidate.value?.previous_salary,
+    activeCandidate.value?.offered_salary,
+    activeCandidate.value?.join_date,
+    activeCandidate.value?.last_company,
   ],
-  ([, status, previousSalary]) => {
-    if (status === 'pkb') {
+  ([, stageKey, status, previousSalary, offeredSalary, joinDate, lastCompany]) => {
+    if (stageKey === 'pkb' || status === 'pkb') {
       pkbPreviousSalaryInput.value = previousSalary
         ? Number(previousSalary).toLocaleString('id-ID')
         : ''
+      pkbOfferedSalaryInput.value = offeredSalary
+        ? Number(offeredSalary).toLocaleString('id-ID')
+        : (activeCandidate.value?.expected_salary ? Number(activeCandidate.value.expected_salary).toLocaleString('id-ID') : '')
+      pkbJoinDateInput.value = joinDate ? joinDate.toString().substring(0, 10) : ''
+      pkbLastCompanyInput.value = lastCompany || ''
     }
   },
+  { immediate: true },
 )
 
 watch(pkbPreviousSalaryInput, (newVal) => {
@@ -2886,6 +2976,15 @@ watch(pkbPreviousSalaryInput, (newVal) => {
   const formatted = clean ? Number(clean).toLocaleString('id-ID') : ''
   if (newVal !== formatted) {
     pkbPreviousSalaryInput.value = formatted
+  }
+})
+
+watch(pkbOfferedSalaryInput, (newVal) => {
+  if (newVal === null || newVal === undefined || newVal === '') return
+  const clean = newVal.toString().replace(/[^0-9]/g, '')
+  const formatted = clean ? Number(clean).toLocaleString('id-ID') : ''
+  if (newVal !== formatted) {
+    pkbOfferedSalaryInput.value = formatted
   }
 })
 
@@ -3021,7 +3120,10 @@ async function submitPkbRequest() {
   try {
     const response = await sendPkbApprovalRequest(activeCandidate.value.id, {
       employee_niks: niksToSend,
-      previous_salary: activeCandidate.value.previous_salary,
+      previous_salary: pkbPreviousSalaryInput.value !== '' ? parseRupiah(pkbPreviousSalaryInput.value) : activeCandidate.value.previous_salary,
+      offered_salary: pkbOfferedSalaryInput.value !== '' ? parseRupiah(pkbOfferedSalaryInput.value) : activeCandidate.value.offered_salary,
+      join_date: pkbJoinDateInput.value !== '' ? pkbJoinDateInput.value : activeCandidate.value.join_date,
+      last_company: pkbLastCompanyInput.value !== '' ? pkbLastCompanyInput.value : activeCandidate.value.last_company,
     })
     message.value =
       response.data.message || 'Permintaan tanda tangan PKB berhasil dikirim melalui WhatsApp.'
@@ -3429,10 +3531,11 @@ const canPromoteCandidate = computed(() => {
     return !!activeCandidate.value.interview_hr_completed_at && isHrSummaryValid.value
   }
   if (status === 'case_study') {
-    return !!(
-      activeCandidate.value.case_study_sent_at &&
-      activeCandidate.value.case_study_submitted_file_path
-    )
+    const csList = activeCandidate.value.case_studies || []
+    if (csList.length > 0) {
+      return csList.some((cs) => !!cs.case_study_submitted_file_path || !!cs.case_study_submitted_at)
+    }
+    return !!(activeCandidate.value.case_study_submitted_file_path || activeCandidate.value.case_study_submitted_at)
   }
   if (status === 'interview_user') {
     const rounds = activeCandidate.value.user_interviews || []
@@ -3446,8 +3549,7 @@ const canPromoteCandidate = computed(() => {
     })
   }
   if (status === 'reference_check') {
-    const references = activeCandidate.value.references || []
-    return references.length > 0 && references.every((reference) => !!reference.submitted_at)
+    return true
   }
   if (status === 'offering') {
     return !!activeCandidate.value.offered_salary || !!activeCandidate.value.offering_letter_signed_at
@@ -4582,53 +4684,79 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Stage 4: Case Study -->
+            <!-- Stage 4: Case Study (Dynamic Tabs & Multi-round) -->
             <div v-if="displayedStageKey === 'case_study'"
               class="case-study-workflow-section mt-6 border-t border-default pt-6 space-y-4">
-              <!-- Card Container for Case Study (Identik dengan Wawancara HR) -->
+
+              <!-- Top Bar: Dynamic Tabs + Add Round Button -->
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default pb-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button v-for="round in displayedCaseStudyRounds" :key="round" type="button"
+                    @click="activeCaseStudyTab = round"
+                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-medium rounded-lg border transition-all select-none"
+                    :class="activeCaseStudyTab === round
+                      ? 'border-primary bg-primary text-white font-semibold'
+                      : 'border-default bg-muted/5 text-muted hover:bg-muted/10 hover:text-highlighted'
+                      ">
+                    <UIcon v-if="getCaseStudy(round)?.case_study_submitted_at || getCaseStudy(round)?.case_study_submitted_file_path" name="i-lucide-check" class="size-3.5" />
+                    <span>Tahap {{ round }}</span>
+                  </button>
+
+                  <button v-if="!isViewingHistoricalStage && canAddCaseStudyRound" type="button"
+                    :disabled="updatingStage" @click="handleAddCaseStudyRound(nextCaseStudyRound)"
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-dashed border-primary/50 text-primary hover:bg-primary/5 transition-all select-none cursor-pointer">
+                    <UIcon name="i-lucide-plus" class="size-3.5" />
+                    <span>Tahap {{ nextCaseStudyRound }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card Container for Current Case Study Round -->
               <article class="rounded-2xl border border-default bg-card p-5 space-y-4 shadow-sm">
                 <!-- Header -->
                 <div class="flex items-center justify-between pb-3 border-b border-default/60">
                   <div>
-                    <h5 class="text-sm font-bold text-highlighted">Case Study (Studi Kasus)</h5>
-                    <p class="text-xs text-muted">Kelola pengiriman instruksi soal dan penerimaan berkas jawaban case
-                      study
-                      kandidat.</p>
+                    <h5 class="text-sm font-bold text-highlighted">Case Study - Tahap {{ activeCaseStudyTab }}</h5>
+                    <p class="text-xs text-muted">Kelola pengiriman instruksi soal dan penerimaan berkas jawaban case study tahap {{ activeCaseStudyTab }}.</p>
                   </div>
                   <div class="flex items-center gap-2">
                     <UButton
-                      v-if="!isViewingHistoricalStage && activeCandidate.case_study_sent_at && !activeCandidate.case_study_submitted_at && !activeCandidate.case_study_submitted_file_path"
+                      v-if="!isViewingHistoricalStage && currentCaseStudy?.case_study_sent_at && !currentCaseStudy?.case_study_submitted_at && !currentCaseStudy?.case_study_submitted_file_path"
                       size="xs" variant="soft" color="success" icon="i-lucide-message-square" label="Kirim WA"
                       :disabled="updatingStage ||
-                        (activeCandidate.case_study_wa_sent_at &&
-                          activeCandidate.case_study_wa_sent_at >= activeCandidate.case_study_sent_at)
-                        " @click="shareCaseStudyWa(activeCandidate)" />
+                        (currentCaseStudy?.case_study_wa_sent_at &&
+                          currentCaseStudy?.case_study_wa_sent_at >= currentCaseStudy?.case_study_sent_at)
+                        " @click="shareCaseStudyWa(activeCandidate, activeCaseStudyTab)" />
 
                     <UButton v-if="
                       !isViewingHistoricalStage &&
-                      !activeCandidate.case_study_submitted_at &&
-                      !activeCandidate.case_study_submitted_file_path
+                      !currentCaseStudy?.case_study_submitted_at &&
+                      !currentCaseStudy?.case_study_submitted_file_path
                     " size="xs" variant="soft" color="primary" icon="i-lucide-send" label="Kirim/Edit Soal Case Study"
-                      @click="caseStudyModalOpen = true" />
+                      @click="openCaseStudyModal(activeCaseStudyTab)" />
                   </div>
                 </div>
 
-                <!-- Scheduled Info Table/Rows (Matching Wawancara HR style) -->
+                <!-- Scheduled Info Table/Rows -->
                 <div class="space-y-0 text-xs">
                   <!-- Row 1: Tanggal Dikirim Soal -->
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Tanggal dikirim soal</span>
                     <span class="font-bold text-highlighted">
-                      {{ activeCandidate.case_study_sent_at ? formatDate(activeCandidate.case_study_sent_at) : 'Belum dikirim' }}
+                      {{ currentCaseStudy?.case_study_sent_at ? formatDate(currentCaseStudy.case_study_sent_at) : 'Belum dikirim' }}
                     </span>
-
                   </div>
 
                   <!-- Row 2: Tanggal Jawaban Disubmit -->
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Tanggal dikirim jawaban (submit)</span>
-                    <span v-if="activeCandidate.case_study_submitted_at"
+                    <span v-if="currentCaseStudy?.case_study_submitted_at"
                       class="font-bold text-emerald-600 dark:text-emerald-400">
-                      Selesai, {{ formatDateTime(activeCandidate.case_study_submitted_at) }}
+                      Selesai, {{ formatDateTime(currentCaseStudy.case_study_submitted_at) }}
+                    </span>
+                    <span v-else-if="currentCaseStudy?.case_study_submitted_file_path"
+                      class="font-bold text-emerald-600 dark:text-emerald-400">
+                      Selesai diunggah manual oleh HRD
                     </span>
                     <span v-else class="font-medium text-amber-600 dark:text-amber-400">
                       Belum disubmit
@@ -4636,32 +4764,31 @@ onBeforeUnmount(() => {
                   </div>
 
                   <!-- Row 3: Tautan / Dokumen Soal (jika ada) -->
-                  <div v-if="activeCandidate.case_study_link || activeCandidate.case_study_document_path"
+                  <div v-if="currentCaseStudy?.case_study_link || currentCaseStudy?.case_study_document_path"
                     class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Tautan / Dokumen soal</span>
                     <div class="text-right space-y-1">
-                      <div v-if="activeCandidate.case_study_link">
-                        <a :href="activeCandidate.case_study_link" target="_blank"
+                      <div v-if="currentCaseStudy?.case_study_link">
+                        <a :href="currentCaseStudy.case_study_link" target="_blank"
                           class="text-primary underline font-medium break-all">
-                          {{ activeCandidate.case_study_link }}
+                          {{ currentCaseStudy.case_study_link }}
                         </a>
                       </div>
-                      <div v-if="activeCandidate.case_study_document_path">
-                        <button type="button" @click="downloadCaseStudyQuestionDoc(activeCandidate)"
+                      <div v-if="currentCaseStudy?.case_study_document_path">
+                        <button type="button" @click="downloadCaseStudyQuestionDoc(activeCandidate, activeCaseStudyTab)"
                           class="text-primary hover:underline font-medium inline-flex items-center justify-end gap-1 cursor-pointer">
                           <UIcon name="i-lucide-file-text" class="size-3.5" /> Download Dokumen Soal
                         </button>
                       </div>
-
                     </div>
                   </div>
 
                   <!-- Row 4: Status Notifikasi Email -->
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Status notifikasi email</span>
-                    <span v-if="activeCandidate.case_study_sent_at"
+                    <span v-if="currentCaseStudy?.case_study_sent_at"
                       class="font-bold text-emerald-600 dark:text-emerald-400">
-                      Terkirim, {{ formatDateTime(activeCandidate.case_study_sent_at) }}
+                      Terkirim, {{ formatDateTime(currentCaseStudy.case_study_sent_at) }}
                     </span>
                     <span v-else class="font-medium text-amber-600 dark:text-amber-400">
                       Belum dikirim
@@ -4672,10 +4799,10 @@ onBeforeUnmount(() => {
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Status notifikasi WhatsApp</span>
                     <span v-if="
-                      activeCandidate.case_study_wa_sent_at &&
-                      activeCandidate.case_study_wa_sent_at >= activeCandidate.case_study_sent_at
+                      currentCaseStudy?.case_study_wa_sent_at &&
+                      currentCaseStudy?.case_study_wa_sent_at >= currentCaseStudy?.case_study_sent_at
                     " class="font-bold text-emerald-600 dark:text-emerald-400">
-                      Terkirim, {{ formatDateTime(activeCandidate.case_study_wa_sent_at) }}
+                      Terkirim, {{ formatDateTime(currentCaseStudy.case_study_wa_sent_at) }}
                     </span>
                     <span v-else class="font-medium text-amber-600 dark:text-amber-400">
                       Belum dikirim
@@ -4688,40 +4815,43 @@ onBeforeUnmount(() => {
               <div class="case-study-submission-panel space-y-3">
                 <div class="flex items-center justify-between">
                   <h5 class="text-xs font-bold text-muted uppercase tracking-wider">
-                    Jawaban / Penyelesaian Soal
+                    Jawaban / Penyelesaian Soal (Tahap {{ activeCaseStudyTab }})
                   </h5>
+                  <div v-if="currentCaseStudy?.case_study_submitted_file_path && !isViewingHistoricalStage">
+                    <label class="cursor-pointer">
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border border-default rounded-lg hover:bg-muted/10 text-muted hover:text-highlighted">
+                        <UIcon name="i-lucide-upload" class="size-3" /> Ganti Dokumen
+                      </span>
+                      <input type="file" class="hidden" @change="submitCaseStudySubmission($event, activeCaseStudyTab)" />
+                    </label>
+                  </div>
                 </div>
 
-                <div v-if="activeCandidate.case_study_submitted_file_path"
+                <div v-if="currentCaseStudy?.case_study_submitted_file_path"
                   class="flex items-center justify-between bg-muted/10 p-3.5 rounded-xl border border-default">
                   <span class="text-xs font-bold text-highlighted flex items-center gap-2">
-                    <UIcon name="i-lucide-file-archive" class="text-emerald-500 size-4" /> Jawaban Studi Kasus Kandidat
+                    <UIcon name="i-lucide-file-archive" class="text-emerald-500 size-4" /> Jawaban Studi Kasus Kandidat (Tahap {{ activeCaseStudyTab }})
                   </span>
                   <div class="flex items-center gap-1.5">
                     <UButton size="xs" variant="soft" color="primary" icon="i-lucide-eye" label="Lihat Jawaban"
-                      @click="previewCaseStudySubmissionDoc(activeCandidate)" />
+                      @click="previewCaseStudySubmissionDoc(activeCandidate, activeCaseStudyTab)" />
                     <UButton size="xs" variant="soft" color="neutral" icon="i-lucide-download" label="Unduh"
-                      :loading="loadingDocument" @click="downloadCaseStudySubmissionDoc(activeCandidate)" />
+                      :loading="loadingDocument" @click="downloadCaseStudySubmissionDoc(activeCandidate, activeCaseStudyTab)" />
+                    <UButton v-if="!isViewingHistoricalStage" size="xs" variant="ghost" color="danger"
+                      icon="i-lucide-trash-2" :loading="updatingStage"
+                      @click="deleteCaseStudySubmissionFile(activeCandidate, activeCaseStudyTab)" />
                   </div>
                 </div>
                 <div v-else-if="!isViewingHistoricalStage"
                   class="flex flex-col items-center justify-center p-4 bg-muted/5 border border-dashed border-default rounded-xl">
-                  <p v-if="!activeCandidate.case_study_sent_at"
-                    class="mb-2 text-xs font-semibold text-amber-500 text-center">
-                    Soal case study belum dikirim. Upload jawaban pelamar akan aktif setelah soal
-                    dikirim ke kandidat.
+                  <p class="mb-2 text-xs font-medium text-muted text-center">
+                    HRD dapat langsung mengunggah file jawaban atau hasil studi kasus kandidat secara manual di bawah ini.
                   </p>
-                  <label :class="activeCandidate.case_study_sent_at ? 'cursor-pointer' : 'cursor-not-allowed'">
-                    <span :class="[
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded-lg transition-colors',
-                      activeCandidate.case_study_sent_at
-                        ? 'bg-default hover:bg-muted/10 text-highlighted shadow-xs'
-                        : 'bg-muted/10 text-muted opacity-60',
-                    ]">
-                      <UIcon name="i-lucide-upload" class="size-3.5" /> Upload Jawaban Pelamar
+                  <label class="cursor-pointer">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-default rounded-lg bg-default hover:bg-muted/10 text-highlighted shadow-xs transition-colors">
+                      <UIcon name="i-lucide-upload" class="size-3.5" /> Upload Jawaban Pelamar (Manual)
                     </span>
-                    <input type="file" :disabled="!activeCandidate.case_study_sent_at"
-                      @change="submitCaseStudySubmission($event)" class="hidden" />
+                    <input type="file" class="hidden" @change="submitCaseStudySubmission($event, activeCaseStudyTab)" />
                   </label>
                 </div>
               </div>
@@ -5220,7 +5350,143 @@ onBeforeUnmount(() => {
               </article>
             </div>
 
-            <!-- Stage 7: Offering Letter -->
+            <!-- Stage 7: Persetujuan PKB -->
+            <div v-if="displayedStageKey === 'pkb'" class="mt-6 border-t border-default pt-6">
+              <h4 class="text-xs font-bold text-muted uppercase tracking-wider mb-4">
+                Persetujuan PKB (Internal)
+              </h4>
+
+              <!-- Ringkasan Usulan Gaji & Join Date PKB -->
+              <div v-if="activeCandidate.offered_salary || activeCandidate.join_date || activeCandidate.previous_salary"
+                class="rounded-xl border border-default bg-card p-4 mb-4 text-xs space-y-2">
+                <div class="flex items-center justify-between border-b border-default/40 pb-2">
+                  <span class="text-muted">Gaji yang Ditawarkan / Diajukan</span>
+                  <span class="font-bold text-highlighted">
+                    Rp {{ Number(activeCandidate.offered_salary || 0).toLocaleString('id-ID') }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between border-b border-default/40 pb-2">
+                  <span class="text-muted">Estimasi Tanggal Masuk (Join Date)</span>
+                  <span class="font-bold text-highlighted">
+                    {{ activeCandidate.join_date ? formatDate(activeCandidate.join_date) : '-' }}
+                  </span>
+                </div>
+                <div v-if="activeCandidate.previous_salary" class="flex items-center justify-between border-b border-default/40 pb-2">
+                  <span class="text-muted">Gaji Sebelumnya</span>
+                  <span class="font-medium text-highlighted">
+                    Rp {{ Number(activeCandidate.previous_salary).toLocaleString('id-ID') }}
+                  </span>
+                </div>
+                <div v-if="activeCandidate.last_company" class="flex items-center justify-between">
+                  <span class="text-muted">Perusahaan Terakhir</span>
+                  <span class="font-medium text-highlighted">
+                    {{ activeCandidate.last_company }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Send PKB Request Form -->
+              <div v-if="!isViewingHistoricalStage" class="bg-muted/5 border border-default rounded-xl p-4 mb-6">
+                <h5 class="text-xs font-bold text-muted uppercase mb-3">Detail Penawaran & Pilih Karyawan Penyetuju</h5>
+
+                <!-- Input Detail Gaji & Mulai Kerja Sebelum Kirim PKB -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 p-3 bg-default/60 border border-default rounded-lg">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-muted mb-1">Gaji yang Ditawarkan / Diajukan (Rp)</label>
+                    <input v-model="pkbOfferedSalaryInput" placeholder="Contoh: 8.000.000" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-muted mb-1">Estimasi Tanggal Masuk (Join Date)</label>
+                    <input v-model="pkbJoinDateInput" type="date" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-muted mb-1">Gaji Terakhir / Sebelumnya (Rp)</label>
+                    <input v-model="pkbPreviousSalaryInput" placeholder="Contoh: 7.000.000" :class="formControlClass" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-muted mb-1">Perusahaan Terakhir</label>
+                    <input v-model="pkbLastCompanyInput" placeholder="Nama perusahaan terakhir" :class="formControlClass" />
+                  </div>
+                </div>
+
+                <label class="block text-[11px] font-semibold text-muted mb-1.5">Karyawan Penyetuju PKB</label>
+                <USelectMenu v-model="selectedPkbSigners" :items="formattedAllEmployees" value-key="nik"
+                  label-key="label" multiple placeholder="Cari dan pilih karyawan berdasarkan nama atau NIK"
+                  :search-input="{ placeholder: 'Ketik nama atau NIK karyawan...' }" icon="i-lucide-search"
+                  class="w-full mb-3" />
+
+                <div v-if="selectedPkbSignerEmployees.length"
+                  class="mb-4 rounded-lg border border-default bg-default/60 p-3">
+                  <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted">
+                    {{ selectedPkbSignerEmployees.length }} karyawan dipilih
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <span v-for="signer in selectedPkbSignerEmployees" :key="signer.nik"
+                      class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary">
+                      <span class="truncate">{{ signer.label }}</span>
+                      <button type="button"
+                        class="i-lucide-x size-3.5 shrink-0 cursor-pointer opacity-70 hover:opacity-100"
+                        :aria-label="`Hapus ${signer.label}`" @click="removePkbSigner(signer.nik)"></button>
+                    </span>
+                  </div>
+                </div>
+
+                <UButton size="xs" color="primary" icon="i-lucide-send" label="Kirim Permintaan Persetujuan PKB"
+                  :disabled="!selectedPkbSigners.length || updatingStage" @click="submitPkbRequest" />
+              </div>
+
+              <!-- PKB Signers list table -->
+              <div class="border border-default rounded-xl overflow-hidden text-xs">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-muted/10 border-b border-default text-muted uppercase font-bold text-[10px]">
+                      <th class="p-3">Nama Penyetuju</th>
+                      <th class="p-3">Tgl Kirim (WA)</th>
+                      <th class="p-3">Status</th>
+                      <th class="p-3">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-default">
+                    <tr v-for="signer in activeCandidate.pkb_signers" :key="signer.id" class="text-highlighted">
+                      <td class="p-3">
+                        <p class="font-semibold">
+                          {{ signer.employee ? (signer.employee.nama_karyawan || signer.employee.name) : (getEmployeeLabelByNik(signer.employee_nik) !== '-' ? getEmployeeLabelByNik(signer.employee_nik) : signer.employee_nik) }}
+                        </p>
+                        <p class="text-muted text-[10px]">{{ signer.employee_nik }}</p>
+                      </td>
+                      <td class="p-3 font-medium">
+                        <span v-if="signer.sent_at" class="text-emerald-500 flex items-center gap-1">
+                          <UIcon name="i-lucide-circle-check" class="size-4" />
+                          {{ formatDateTime(signer.sent_at) }}
+                        </span>
+                        <span v-else class="text-amber-500"> Belum terkirim </span>
+                      </td>
+                      <td class="p-3">
+                        <span v-if="signer.signed_at" class="text-emerald-500 font-bold">Disetujui ({{
+                          formatDate(signer.signed_at) }})</span>
+                        <span v-else class="text-amber-500">Menunggu</span>
+                      </td>
+                      <td class="p-3">
+                        <div class="flex items-center gap-1.5">
+                          <UButton v-if="!isViewingHistoricalStage && !signer.signed_at" size="xs" variant="soft"
+                            color="success" icon="i-lucide-send" label="Kirim Ulang WA" :loading="updatingStage"
+                            @click="triggerResendPkbSignerWa(signer.id)" />
+                          <UButton v-if="!signer.signed_at" size="xs" variant="soft" color="neutral"
+                            icon="i-lucide-copy" label="Salin Link" @click="copySignLink(signer.id)" />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-if="!(activeCandidate.pkb_signers || []).length">
+                      <td colspan="4" class="p-4 text-center text-muted">
+                        Belum ada karyawan yang ditugaskan untuk menyetujui PKB.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Stage 8: Offering Letter -->
             <div v-if="displayedStageKey === 'offering'" class="mt-6 border-t border-default pt-6">
               <div class="flex items-center justify-between mb-4">
                 <h4 class="text-xs font-bold text-muted uppercase tracking-wider">
@@ -5348,92 +5614,6 @@ onBeforeUnmount(() => {
                 <p class="font-bold text-highlighted">Offering Letter belum diatur</p>
                 <p>Ekspektasi Gaji Kandidat: Rp {{ activeCandidate.expected_salary ?
                   Number(activeCandidate.expected_salary).toLocaleString('id-ID') : '-' }}</p>
-              </div>
-            </div>
-
-            <!-- Stage 8: Persetujuan PKB -->
-            <div v-if="displayedStageKey === 'pkb'" class="mt-6 border-t border-default pt-6">
-              <h4 class="text-xs font-bold text-muted uppercase tracking-wider mb-4">
-                Persetujuan PKB (Internal)
-              </h4>
-
-              <!-- Send PKB Request Form -->
-              <div v-if="!isViewingHistoricalStage" class="bg-muted/5 border border-default rounded-xl p-4 mb-6">
-                <h5 class="text-xs font-bold text-muted uppercase mb-2">Pilih Karyawan Penyetuju</h5>
-
-                <USelectMenu v-model="selectedPkbSigners" :items="formattedAllEmployees" value-key="nik"
-                  label-key="label" multiple placeholder="Cari dan pilih karyawan berdasarkan nama atau NIK"
-                  :search-input="{ placeholder: 'Ketik nama atau NIK karyawan...' }" icon="i-lucide-search"
-                  class="w-full mb-3" />
-
-                <div v-if="selectedPkbSignerEmployees.length"
-                  class="mb-4 rounded-lg border border-default bg-default/60 p-3">
-                  <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted">
-                    {{ selectedPkbSignerEmployees.length }} karyawan dipilih
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <span v-for="signer in selectedPkbSignerEmployees" :key="signer.nik"
-                      class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary">
-                      <span class="truncate">{{ signer.label }}</span>
-                      <button type="button"
-                        class="i-lucide-x size-3.5 shrink-0 cursor-pointer opacity-70 hover:opacity-100"
-                        :aria-label="`Hapus ${signer.label}`" @click="removePkbSigner(signer.nik)"></button>
-                    </span>
-                  </div>
-                </div>
-
-                <UButton size="xs" color="primary" icon="i-lucide-send" label="Kirim Permintaan Persetujuan PKB"
-                  :disabled="!selectedPkbSigners.length || updatingStage" @click="submitPkbRequest" />
-              </div>
-
-              <!-- PKB Signers list table -->
-              <div class="border border-default rounded-xl overflow-hidden text-xs">
-                <table class="w-full text-left border-collapse">
-                  <thead>
-                    <tr class="bg-muted/10 border-b border-default text-muted uppercase font-bold text-[10px]">
-                      <th class="p-3">Nama Penyetuju</th>
-                      <th class="p-3">Tgl Kirim (WA)</th>
-                      <th class="p-3">Status</th>
-                      <th class="p-3">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-default">
-                    <tr v-for="signer in activeCandidate.pkb_signers" :key="signer.id" class="text-highlighted">
-                      <td class="p-3">
-                        <p class="font-semibold">
-                          {{ signer.employee ? (signer.employee.nama_karyawan || signer.employee.name) : (getEmployeeLabelByNik(signer.employee_nik) !== '-' ? getEmployeeLabelByNik(signer.employee_nik) : signer.employee_nik) }}
-                        </p>
-                        <p class="text-muted text-[10px]">{{ signer.employee_nik }}</p>
-                      </td>
-                      <td class="p-3 font-medium">
-                        <span v-if="signer.sent_at" class="text-emerald-500 flex items-center gap-1">
-                          <UIcon name="i-lucide-circle-check" class="size-4" />
-                          {{ formatDateTime(signer.sent_at) }}
-                        </span>
-                        <span v-else class="text-amber-500"> Belum terkirim </span>
-                      </td>
-                      <td class="p-3">
-                        <span v-if="signer.signed_at" class="text-emerald-500 font-bold">Disetujui ({{
-                          formatDate(signer.signed_at) }})</span>
-                        <span v-else class="text-amber-500">Menunggu</span>
-                      </td>
-                      <td class="p-3">
-                        <div class="flex items-center gap-1.5">
-                          <UButton v-if="!isViewingHistoricalStage && !signer.signed_at" size="xs" variant="soft"
-                            color="success" icon="i-lucide-send" label="Kirim Ulang WA" :loading="updatingStage"
-                            @click="triggerResendPkbSignerWa(signer.id)" />
-                          <UButton v-if="!signer.signed_at" size="xs" variant="soft" color="neutral"
-                            icon="i-lucide-copy" label="Salin Link" @click="copySignLink(signer.id)" />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr v-if="!(activeCandidate.pkb_signers || []).length">
-                      <td colspan="4" class="p-4 text-center text-muted">
-                        Belum ada karyawan yang ditugaskan untuk menyetujui PKB.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
 
@@ -5833,21 +6013,21 @@ onBeforeUnmount(() => {
                 </p>
 
                 <p v-if="activeCandidate.status === 'reference_check' && !allReferencesSubmitted"
+                  class="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 font-medium bg-sky-500/10 border border-sky-500/20 px-3 py-2 rounded-lg">
+                  <UIcon name="i-lucide-info" class="size-4 shrink-0" />
+                  <span>(Opsional) Sebagian atau seluruh pemberi referensi belum menyelesaikan penilaian. Anda tetap dapat melanjutkan ke tahap PKB.</span>
+                </p>
+
+                <p v-else-if="activeCandidate.status === 'pkb' && !canPromoteCandidate"
                   class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
                   <UIcon name="i-lucide-clock" class="size-4 shrink-0" />
-                  <span>Menunggu seluruh pemberi referensi menyelesaikan penilaian.</span>
+                  <span>Menunggu persetujuan PKB selesai ditandatangani oleh seluruh penyetuju.</span>
                 </p>
 
                 <p v-else-if="activeCandidate.status === 'offering' && !activeCandidate.offered_salary"
                   class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
                   <UIcon name="i-lucide-triangle-alert" class="size-4 shrink-0" />
                   <span>Atur detail offering terlebih dahulu.</span>
-                </p>
-
-                <p v-if="activeCandidate.status === 'pkb' && !canPromoteCandidate"
-                  class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
-                  <UIcon name="i-lucide-clock" class="size-4 shrink-0" />
-                  <span>Menunggu persetujuan PKB selesai ditandatangani oleh seluruh penyetuju.</span>
                 </p>
               </div>
             </div>
@@ -6883,9 +7063,11 @@ onBeforeUnmount(() => {
         <template #header>
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-sm font-semibold text-highlighted">Kirim Soal Studi Kasus</p>
+              <p class="text-sm font-semibold text-highlighted">
+                Kirim Soal Studi Kasus (Tahap {{ caseStudyForm.round || activeCaseStudyTab || 1 }})
+              </p>
               <p class="mt-1 text-xs text-muted">
-                Lampirkan file PDF soal atau sertakan tautan eksternal studi kasus.
+                Lampirkan file PDF soal atau sertakan tautan eksternal studi kasus untuk tahap {{ caseStudyForm.round || activeCaseStudyTab || 1 }}.
               </p>
             </div>
             <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide-x" @click="caseStudyModalOpen = false" />
