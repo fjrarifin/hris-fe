@@ -556,8 +556,16 @@ export function getHrRecruitmentRequests() {
   return api.get('/hr/recruitment/requests')
 }
 
+export function getHrRecruitmentRequestOptions() {
+  return api.get('/hr/recruitment/requests/options')
+}
+
 export function decideHrRecruitmentRequest(id, payload) {
   return api.post(`/hr/recruitment/requests/${id}/decide`, payload)
+}
+
+export function updateHrRecruitmentRequestHiring(id, payload) {
+  return api.post(`/hr/recruitment/requests/${id}/hiring-update`, payload)
 }
 
 export function getHrMasterOrgs(type) {

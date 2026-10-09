@@ -164,6 +164,10 @@ export function getStaffRecruitmentRequests() {
   return api.get('/staff/recruitment/requests')
 }
 
+export function getStaffRecruitmentRequestOptions() {
+  return api.get('/staff/recruitment/requests/options')
+}
+
 export function createStaffRecruitmentRequest(payload) {
   return api.post('/staff/recruitment/requests', payload)
 }

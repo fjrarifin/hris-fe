@@ -2070,7 +2070,7 @@ async function submitCaseStudy() {
 
 async function shareCaseStudyWa(candidate, round = activeCaseStudyTab.value) {
   const cs = getCaseStudy(round)
-  const isSent = cs ? !empty(cs.case_study_sent_at) : (Number(round) === 1 && !empty(candidate?.case_study_sent_at))
+  const isSent = cs ? Boolean(cs.case_study_sent_at) : (Number(round) === 1 && Boolean(candidate?.case_study_sent_at))
   if (!candidate || !isSent) return
   updatingStage.value = true
   message.value = ''
@@ -2749,6 +2749,34 @@ async function saveHrTextSummary() {
     errorMessage.value = apiError(error, 'Gagal menyimpan catatan summary.')
   } finally {
     updatingStage.value = false
+  }
+}
+
+async function submitHrSummary(event) {
+  const file = event.target.files[0]
+  if (!file || !activeCandidate.value) return
+  updatingStage.value = true
+  message.value = ''
+  errorMessage.value = ''
+  try {
+    const formData = new FormData()
+    formData.append('summary', file)
+    await uploadHrCandidateInterviewSummary(activeCandidate.value.id, formData)
+    message.value = 'Dokumen summary wawancara HR berhasil diunggah.'
+    await load()
+    if (activeCandidate.value) {
+      const refreshed = candidates.value.find(c => c.id === activeCandidate.value.id)
+      if (refreshed) {
+        await selectCandidate(refreshed)
+      }
+    }
+  } catch (error) {
+    errorMessage.value = apiError(error, 'Gagal mengunggah dokumen summary wawancara HR.')
+  } finally {
+    updatingStage.value = false
+    if (event.target) {
+      event.target.value = ''
+    }
   }
 }
 
