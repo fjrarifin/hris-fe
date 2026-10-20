@@ -58,6 +58,7 @@ import HrRecruitmentRequestView from '../views/HrRecruitmentRequestView.vue'
 import StaffRecruitmentRequestView from '../views/StaffRecruitmentRequestView.vue'
 import StaffPerformanceReviewView from '../views/StaffPerformanceReviewView.vue'
 import StaffTalentView from '../views/StaffTalentView.vue'
+import StaffKpiTemplateView from '../views/StaffKpiTemplateView.vue'
 import HrMasterOrgStructureView from '../views/HrMasterOrgStructureView.vue'
 import HrLeaveBalanceView from '../views/HrLeaveBalanceView.vue'
 
@@ -653,6 +654,16 @@ const router = createRouter({
           name: 'staff-talent',
           component: StaffTalentView,
           meta: { title: 'Jobdesk & KPI Saya', levels: [3], menuKey: 'staff-talent' },
+        },
+        {
+          path: 'staff/kpi-templates',
+          name: 'staff-kpi-templates',
+          component: StaffKpiTemplateView,
+          meta: {
+            title: 'Template & Penugasan KPI Tim',
+            levels: [3],
+            menuKey: 'staff-kpi-templates',
+          },
         },
         {
           path: 'account/change-password',

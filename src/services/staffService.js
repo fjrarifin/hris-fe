@@ -186,3 +186,48 @@ export function downloadTeamAttendanceReport(params) {
     responseType: 'blob',
   })
 }
+
+export function getStaffKpiTemplates() {
+  return api.get('/staff/kpi-templates')
+}
+
+export function getStaffKpiTemplateOptions() {
+  return api.get('/staff/kpi-templates/options')
+}
+
+export function getStaffKpiSubordinates() {
+  return api.get('/staff/kpi-templates/subordinates')
+}
+
+export function getStaffKpiTemplate(id) {
+  return api.get(`/staff/kpi-templates/${id}`)
+}
+
+export function createStaffKpiTemplate(payload) {
+  return api.post('/staff/kpi-templates', payload)
+}
+
+export function updateStaffKpiTemplate(id, payload) {
+  return api.put(`/staff/kpi-templates/${id}`, payload)
+}
+
+export function deleteStaffKpiTemplate(id) {
+  return api.delete(`/staff/kpi-templates/${id}`)
+}
+
+export function submitStaffKpiTemplate(id) {
+  return api.post(`/staff/kpi-templates/${id}/submit`)
+}
+
+export function decideStaffKpiTemplate(id, payload) {
+  return api.post(`/staff/kpi-templates/${id}/decide`, payload)
+}
+
+export function assignStaffKpiTemplate(id, payload) {
+  return api.post(`/staff/kpi-templates/${id}/assign`, payload)
+}
+
+export function unassignStaffKpiTemplate(assignmentId) {
+  return api.delete(`/staff/kpi-templates/assignments/${assignmentId}`)
+}
+

@@ -91,30 +91,39 @@ onBeforeUnmount(closeDocumentPreview)
         </p>
       </div>
     </UCard>
-    <UCard v-if="data" title="KPI Aktif">
+    <UCard v-if="data" title="Target KPI Kinerja">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-muted">
-              <th class="p-3">KPI</th>
+              <th class="p-3">Indikator KPI</th>
               <th class="p-3">Target</th>
               <th class="p-3">Bobot</th>
-              <th class="p-3">Formula</th>
+              <th class="p-3">Formula / Cara Penilaian</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in data.kpis" :key="item.id" class="border-t border-default">
               <td class="p-3">
-                <p class="font-medium text-highlighted">{{ item.nama_kpi }}</p>
-                <p class="mt-1 text-xs text-muted">{{ item.deskripsi }}</p>
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-highlighted">{{ item.nama_kpi }}</p>
+                  <UBadge
+                    v-if="item.template_name"
+                    :label="item.template_name"
+                    color="neutral"
+                    variant="subtle"
+                    size="xs"
+                  />
+                </div>
+                <p v-if="item.deskripsi" class="mt-1 text-xs text-muted">{{ item.deskripsi }}</p>
               </td>
-              <td class="p-3">{{ item.target }} {{ item.satuan }}</td>
-              <td class="p-3">{{ item.bobot }}%</td>
-              <td class="p-3">{{ item.formula_penilaian || '-' }}</td>
+              <td class="p-3 font-medium text-highlighted">{{ item.target }} {{ item.satuan }}</td>
+              <td class="p-3 font-semibold text-highlighted">{{ item.bobot }}%</td>
+              <td class="p-3 text-xs text-muted">{{ item.formula_penilaian || '-' }}</td>
             </tr>
             <tr v-if="!data.kpis.length">
               <td colspan="4" class="p-6 text-center text-muted">
-                Belum ada KPI aktif untuk jabatan Anda.
+                Belum ada KPI aktif yang ditugaskan kepada Anda.
               </td>
             </tr>
           </tbody>

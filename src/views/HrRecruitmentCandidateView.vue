@@ -59,9 +59,7 @@ import {
   getMasterDepartments,
   getMasterUnits,
 } from '../services/hrService'
-import { getEmployees } from '../services/employeeService'
-import { apiError, formatDate, formatDateTime } from '../utils/formatters'
-import { notifier } from '../utils/notifications'
+import { apiError, formatDate, formatDateTime, toYMD } from '../utils/formatters'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -3383,6 +3381,9 @@ async function submitSaveOnboardingDraft() {
     const res = await saveOnboardingDraft(activeCandidate.value.id, onboardingEditForm)
     message.value = res.data.message || 'Draf data onboarding berhasil disimpan.'
     onboardingVerificationModalOpen.value = false
+    if (res.data?.candidate) {
+      selectedCandidateDetails.value = res.data.candidate
+    }
     await load()
   } catch (error) {
     errorMessage.value = apiError(error, 'Gagal menyimpan draf data onboarding.')
@@ -3531,7 +3532,8 @@ function openOnboardingVerificationModal() {
   onboardingEditForm.departement =
     data.departement || activeCandidate.value?.vacancy?.department || ''
   onboardingEditForm.unit = data.unit || activeCandidate.value?.vacancy?.unit || ''
-  // debug logs removed
+  onboardingEditForm.atasan_langsung = data.atasan_langsung || ''
+  onboardingEditForm.atasan_tidak_langsung = data.atasan_tidak_langsung || ''
 }
 
 const isHrSummaryValid = computed(() => {

@@ -241,6 +241,14 @@ export function syncActiveHrKpis(jabatanId, templateIds) {
   })
 }
 
+export function decideHrKpiTemplate(id, payload) {
+  return api.patch(`/hr/talent/kpis/${id}/decide`, payload)
+}
+
+export function getHrKpiAssignments() {
+  return api.get('/hr/talent/kpis/assignments')
+}
+
 export function getHrPerformancePeriods() {
   return api.get('/hr/talent/periods')
 }
