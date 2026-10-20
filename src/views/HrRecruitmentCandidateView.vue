@@ -59,7 +59,9 @@ import {
   getMasterDepartments,
   getMasterUnits,
 } from '../services/hrService'
+import { getEmployees } from '../services/employeeService'
 import { apiError, formatDate, formatDateTime, toYMD } from '../utils/formatters'
+import { notifier } from '../utils/notifications'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -577,6 +579,7 @@ async function load() {
       }
     }
   } catch (error) {
+    console.error('Failed loading candidates:', error)
     errorMessage.value = apiError(error)
   }
 }
