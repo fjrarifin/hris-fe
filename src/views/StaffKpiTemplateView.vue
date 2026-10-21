@@ -623,7 +623,7 @@ onMounted(loadData)
         <form class="mt-4 space-y-4" @submit.prevent="saveTemplate">
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+              <label class="block text-xs font-semibold text-highlighted mb-1">
                 Nama Template <span class="text-rose-500">*</span>
               </label>
               <input
@@ -631,14 +631,14 @@ onMounted(loadData)
                 required
                 type="text"
                 placeholder="misal: KPI Staf Barista Outlet"
-                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Jabatan Sasaran (Opsional)</label>
+              <label class="block text-xs font-semibold text-highlighted mb-1">Jabatan Sasaran (Opsional)</label>
               <select
                 v-model="builderModal.form.master_jabatan_id"
-                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Umum / Tanpa Jabatan Spesifik</option>
                 <option v-for="j in options.jabatans" :key="j.id" :value="j.id">
@@ -649,12 +649,12 @@ onMounted(loadData)
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Deskripsi Template</label>
+            <label class="block text-xs font-semibold text-highlighted mb-1">Deskripsi Template</label>
             <textarea
               v-model="builderModal.form.deskripsi"
               rows="2"
               placeholder="Jelaskan tujuan dan kriteria umum template ini..."
-              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+              class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             ></textarea>
           </div>
 
@@ -662,7 +662,7 @@ onMounted(loadData)
           <div class="pt-2">
             <div class="flex items-center justify-between pb-2">
               <div class="flex items-center gap-2">
-                <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Poin-Poin KPI</h4>
+                <h4 class="text-sm font-semibold text-highlighted">Poin-Poin KPI</h4>
                 <span
                   class="rounded-full px-2.5 py-0.5 text-xs font-bold"
                   :class="
@@ -687,11 +687,11 @@ onMounted(loadData)
               <div
                 v-for="(item, idx) in builderModal.form.items"
                 :key="idx"
-                class="rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/80 p-4 space-y-3 shadow-xs"
+                class="rounded-xl border border-default bg-elevated p-4 space-y-3 shadow-xs"
               >
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                    <span class="inline-block size-2 rounded-full bg-primary-500"></span>
+                  <span class="text-xs font-bold text-highlighted flex items-center gap-1.5">
+                    <span class="inline-block size-2 rounded-full bg-primary"></span>
                     Poin KPI #{{ idx + 1 }}
                   </span>
                   <button
@@ -705,7 +705,7 @@ onMounted(loadData)
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
                   <div class="sm:col-span-2">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label class="block text-xs font-semibold text-highlighted mb-1">
                       Nama Indikator KPI <span class="text-rose-500">*</span>
                     </label>
                     <input
@@ -713,11 +713,11 @@ onMounted(loadData)
                       required
                       type="text"
                       placeholder="misal: Akurasi Stock Opname"
-                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-default bg-default px-3 py-1.5 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label class="block text-xs font-semibold text-highlighted mb-1">
                       Target <span class="text-rose-500">*</span>
                     </label>
                     <input
@@ -725,17 +725,17 @@ onMounted(loadData)
                       required
                       type="text"
                       placeholder="misal: 100"
-                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-default bg-default px-3 py-1.5 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label class="block text-xs font-semibold text-highlighted mb-1">
                       Satuan <span class="text-rose-500">*</span>
                     </label>
                     <select
                       v-model="item.satuan"
                       required
-                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-default bg-default px-3 py-1.5 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       <option
                         v-for="opt in options.satuan_options"
@@ -750,7 +750,7 @@ onMounted(loadData)
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label class="block text-xs font-semibold text-highlighted mb-1">
                       Bobot (%) <span class="text-rose-500">*</span>
                     </label>
                     <input
@@ -760,16 +760,16 @@ onMounted(loadData)
                       step="0.01"
                       min="0.01"
                       max="100"
-                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-default bg-default px-3 py-1.5 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Formula / Keterangan Penilaian</label>
+                    <label class="block text-xs font-semibold text-highlighted mb-1">Formula / Keterangan Penilaian</label>
                     <input
                       v-model="item.formula_penilaian"
                       type="text"
                       placeholder="misal: (aktual / target) x 100"
-                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-default bg-default px-3 py-1.5 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -856,10 +856,10 @@ onMounted(loadData)
           <strong>{{ decisionModal.template.creator_employee?.nama_karyawan || 'Bawahan' }}</strong>
         </p>
 
-        <div class="mt-4 space-y-3 rounded-xl border border-slate-200 dark:border-slate-700/80 p-4 bg-slate-50 dark:bg-slate-800/80">
-          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ decisionModal.template.nama_template }}</p>
-          <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
-            <p>Total Butir: <span class="font-medium text-slate-900 dark:text-slate-100">{{ decisionModal.template.items?.length || 0 }} item</span></p>
+        <div class="mt-4 space-y-3 rounded-xl border border-default p-4 bg-elevated">
+          <p class="text-sm font-semibold text-highlighted">{{ decisionModal.template.nama_template }}</p>
+          <div class="text-xs text-muted space-y-1">
+            <p>Total Butir: <span class="font-medium text-highlighted">{{ decisionModal.template.items?.length || 0 }} item</span></p>
             <p>Total Bobot: <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ decisionModal.template.total_bobot }}%</span></p>
           </div>
         </div>
@@ -874,7 +874,7 @@ onMounted(loadData)
                 :class="
                   decisionModal.decision === 'approved'
                     ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
-                    : 'border-default text-muted hover:border-slate-300'
+                    : 'border-default text-muted hover:border-default'
                 "
                 @click="decisionModal.decision = 'approved'"
               >
@@ -886,7 +886,7 @@ onMounted(loadData)
                 :class="
                   decisionModal.decision === 'rejected'
                     ? 'border-rose-500 bg-rose-500/10 text-rose-600'
-                    : 'border-default text-muted hover:border-slate-300'
+                    : 'border-default text-muted hover:border-default'
                 "
                 @click="decisionModal.decision = 'rejected'"
               >
@@ -907,7 +907,7 @@ onMounted(loadData)
                   ? 'Tuliskan butir KPI yang perlu diperbaiki oleh bawahan...'
                   : 'Catatan persetujuan untuk HRD...'
               "
-              class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm"
+              class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             ></textarea>
           </div>
         </div>
@@ -944,7 +944,7 @@ onMounted(loadData)
               <label class="block text-xs font-medium text-muted mb-1">Periode Kinerja (Opsional)</label>
               <select
                 v-model="assignModal.periodId"
-                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm"
+                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Semua / Berjalan Terus</option>
                 <option v-for="p in options.periods" :key="p.id" :value="p.id">
@@ -959,7 +959,7 @@ onMounted(loadData)
                 type="number"
                 min="1"
                 max="100"
-                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm"
+                class="w-full rounded-lg border border-default bg-default px-3 py-2 text-sm text-highlighted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <span class="text-[11px] text-muted">100% jika ini template utama karyawan.</span>
             </div>
@@ -980,7 +980,7 @@ onMounted(loadData)
               <label
                 v-for="sub in subordinates"
                 :key="sub.nik"
-                class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 cursor-pointer"
+                class="flex items-center gap-3 p-2 rounded-lg hover:bg-elevated cursor-pointer"
               >
                 <input
                   v-model="assignModal.selectedNiks"
