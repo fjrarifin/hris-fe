@@ -503,6 +503,12 @@ const router = createRouter({
           },
         },
         {
+          path: 'hr/permission-recap',
+          name: 'hr-permission-recap',
+          component: () => import('../views/HrPermissionRecapView.vue'),
+          meta: { title: 'Rekap Izin / Sakit', levels: [2], menuKey: 'hr-permission-recap' },
+        },
+        {
           path: 'hr/overtime-recap',
           name: 'hr-overtime-recap',
           component: () => import('../views/HrOvertimeRecapView.vue'),

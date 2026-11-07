@@ -197,7 +197,7 @@ onMounted(load)
                     <p v-if="item.reject_reason" class="italic">Alasan: {{ item.reject_reason }}</p>
                   </div>
                   <div v-else-if="item.status === 'pending' && item.pending_with" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                    Mandek di: {{ item.pending_with }}
+                    Menunggu persetujuan: {{ item.pending_with }}
                   </div>
                 </div>
               </td>

@@ -301,7 +301,11 @@ function selectRecord(record) {
     record.correction?.extra_off_source_period_start &&
     record.correction?.extra_off_source_period_end
   ) {
-    form.extra_off_source = `${record.correction.extra_off_source_period_start}|${record.correction.extra_off_source_period_end}`
+    const sourceId = record.correction.extra_off_source_id || record.absence_options?.extra_off_sources?.find(
+      (source) => source.source_period_start === record.correction.extra_off_source_period_start &&
+        source.source_period_end === record.correction.extra_off_source_period_end,
+    )?.source_id
+    form.extra_off_source = `${record.correction.extra_off_source_period_start}|${record.correction.extra_off_source_period_end}|${sourceId || ''}`
   }
   form.has_missing_attendance_form = record.correction?.has_missing_attendance_form === true
   form.notes = record.correction?.notes || ''
@@ -349,6 +353,7 @@ async function saveCorrection() {
       corrected_scan_in: form.correction_type === 'time' ? form.corrected_scan_in : null,
       corrected_scan_out: form.correction_type === 'time' ? form.corrected_scan_out : null,
       public_holiday_id: form.correction_type === 'public_holiday' ? form.public_holiday_id : null,
+      extra_off_source_id: form.correction_type === 'extra_off' ? Number(form.extra_off_source.split('|')[2]) || null : null,
       extra_off_source_period_start:
         form.correction_type === 'extra_off' ? form.extra_off_source.split('|')[0] : null,
       extra_off_source_period_end:
@@ -792,8 +797,8 @@ onMounted(async () => {
               <option value="" disabled>Pilih sumber EO</option>
               <option
                 v-for="source in selected.absence_options?.extra_off_sources || []"
-                :key="`${source.source_period_start}|${source.source_period_end}`"
-                :value="`${source.source_period_start}|${source.source_period_end}`"
+                :key="`${source.source_period_start}|${source.source_period_end}|${source.source_id}`"
+                :value="`${source.source_period_start}|${source.source_period_end}|${source.source_id}`"
               >
                 {{ source.label }} - sisa {{ source.remaining_days }}
               </option>

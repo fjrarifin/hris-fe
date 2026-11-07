@@ -5,7 +5,7 @@ import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
 const data = ref({ balance: 0, sources: [], requests: [] })
-const form = reactive({ source_period_start: '', source_period_end: '', claim_date: '' })
+const form = reactive({ source_id: null, source_period_start: '', source_period_end: '', claim_date: '' })
 const loading = ref(true)
 const saving = ref(false)
 const message = ref('')
@@ -23,7 +23,8 @@ async function load() {
 }
 
 function chooseSource(value) {
-  const [start, end] = value.split('|')
+  const [start, end, id] = value.split('|')
+  form.source_id = id ? Number(id) : null
   form.source_period_start = start || ''
   form.source_period_end = end || ''
 }
@@ -34,6 +35,7 @@ async function submit() {
   errorMessage.value = ''
   try {
     message.value = (await createExtraOff(form)).data.message
+    form.source_id = null
     form.source_period_start = ''
     form.source_period_end = ''
     form.claim_date = ''
@@ -71,7 +73,7 @@ onMounted(load)
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Extra Off</h2>
       <p class="mt-1 text-sm text-muted">
-        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Pengajuan Extra Off maksimal dilakukan 3 bulan setelah akhir periode payroll.
+        Ajukan Extra Off dari kelebihan hari masuk periode payroll. Extra Off payroll berlaku 3 bulan setelah akhir periode. Extra Off pengganti PH hanya berlaku sampai tanggal 24 penutup periode konversi.
       </p>
     </div>
 
@@ -96,7 +98,7 @@ onMounted(load)
             required
             :value="
               form.source_period_start && form.source_period_end
-                ? `${form.source_period_start}|${form.source_period_end}`
+                ? `${form.source_period_start}|${form.source_period_end}|${form.source_id}`
                 : ''
             "
             @change="chooseSource($event.target.value)"
@@ -104,8 +106,8 @@ onMounted(load)
             <option disabled value="">Pilih Periode Payroll</option>
             <option
               v-for="source in data.sources"
-              :key="`${source.source_period_start}|${source.source_period_end}`"
-              :value="`${source.source_period_start}|${source.source_period_end}`"
+              :key="`${source.source_period_start}|${source.source_period_end}|${source.source_id}`"
+              :value="`${source.source_period_start}|${source.source_period_end}|${source.source_id}`"
             >
               {{ source.label }} - sisa {{ source.remaining_days }} hari (Exp Pengajuan: {{ formatDate(source.expired_at) }})
             </option>
