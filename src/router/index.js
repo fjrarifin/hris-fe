@@ -731,6 +731,12 @@ const router = createRouter({
           component: () => import('../views/ItVisitorLogView.vue'),
           meta: { title: 'Buku Tamu / Visitor', levels: [0, 1, 2], menuKey: 'it-visitors' },
         },
+        {
+          path: 'it/neo-knowledge',
+          name: 'it-neo-knowledge',
+          component: () => import('../views/ItNeoKnowledgeView.vue'),
+          meta: { title: 'Neo Knowledge Hub', levels: [0, 2], menuKey: 'it-neo-knowledge' },
+        },
       ],
     },
   ],
