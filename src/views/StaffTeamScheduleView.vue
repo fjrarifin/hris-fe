@@ -56,6 +56,7 @@ async function openEmployee(nik) {
 }
 
 async function saveSchedule() {
+  if (!employeeSchedule.value?.employee.can_manage) return
   saving.value = true
   errorMessage.value = ''
   try {
@@ -187,18 +188,18 @@ onMounted(async () => {
 
     <UCard v-if="team" :title="`Daftar Bawahan - ${team.supervisor.name}`">
       <form
-        v-if="team.employees.length"
+        v-if="team.employees.some((employee) => employee.can_manage)"
         class="mb-5 rounded-xl border border-default p-4"
         @submit.prevent="upload"
       >
         <p class="mb-3 text-sm text-muted">
-          Template otomatis berisi seluruh bawahan langsung dan tidak langsung Anda pada periode
+          Template otomatis berisi bawahan langsung Anda pada periode
           yang dipilih.
         </p>
         <ol class="mb-4 list-decimal space-y-1 pl-5 text-sm text-muted">
           <li>Unduh template CSV, lalu isi kode jadwal pada kolom tanggal.</li>
           <li>Gunakan kode jadwal sesuai panduan di bawah, misalnya P0, M1, C, O, atau PH.</li>
-          <li>Upload kembali file tersebut. NIK yang bukan bawahan Anda akan dilewati.</li>
+          <li>Upload kembali file tersebut. NIK selain bawahan langsung akan dilewati.</li>
         </ol>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
@@ -256,7 +257,7 @@ onMounted(async () => {
                 <UButton
                   size="xs"
                   variant="soft"
-                  label="Detail / Edit"
+                  :label="employee.can_manage ? 'Detail / Edit' : 'Lihat Jadwal'"
                   @click="openEmployee(employee.nik)"
                 />
               </td>
@@ -287,6 +288,7 @@ onMounted(async () => {
 
     <div v-if="employeeSchedule" ref="detailCard">
       <UCard :title="`Assignment Harian - ${employeeSchedule.employee.name}`">
+        <p v-if="!employeeSchedule.employee.can_manage" class="mb-4 text-sm text-muted">Hanya lihat: jadwal bawahan tidak langsung tidak dapat diubah.</p>
         <form @submit.prevent="saveSchedule">
           <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label
@@ -297,6 +299,7 @@ onMounted(async () => {
               {{ formatDate(date.date) }}
               <select
                 v-model="date.code"
+                :disabled="!employeeSchedule.employee.can_manage"
                 class="mt-2 w-full rounded-lg border border-default bg-default p-2 text-highlighted"
               >
                 <option value="">Belum ditentukan</option>
@@ -310,7 +313,7 @@ onMounted(async () => {
               </select>
             </label>
           </div>
-          <UButton type="submit" label="Simpan Jadwal Bawahan" class="mt-5" :loading="saving" />
+          <UButton v-if="employeeSchedule.employee.can_manage" type="submit" label="Simpan Jadwal Bawahan" class="mt-5" :loading="saving" />
         </form>
       </UCard>
     </div>

@@ -52,7 +52,7 @@ onMounted(load)
   <section class="space-y-6">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Approval Pengajuan Tim</h2>
-      <p class="mt-1 text-sm text-muted">Pengajuan dan riwayat keputusan bawahan langsung Anda.</p>
+      <p class="mt-1 text-sm text-muted">Pengajuan bawahan langsung dapat diproses. Pengajuan bawahan tidak langsung hanya dapat dilihat.</p>
     </div>
 
     <AlertToastBridge :message="message" :error="errorMessage" />

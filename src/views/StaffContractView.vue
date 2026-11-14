@@ -76,7 +76,7 @@ onBeforeUnmount(closePreview)
     <UCard>
       <h2 class="text-2xl font-semibold text-highlighted">Kontrak Kerja</h2>
       <p class="mt-2 text-sm text-muted">
-        Lihat kontrak aktif, riwayat kontrak Anda, dan kontrak aktif bawahan langsung.
+        Lihat kontrak aktif, riwayat kontrak Anda, dan kontrak aktif bawahan langsung maupun tidak langsung.
       </p>
     </UCard>
 
@@ -249,7 +249,7 @@ onBeforeUnmount(closePreview)
             <UIcon name="i-lucide-users" class="mx-auto size-8 text-dimmed" />
             <p class="mt-3 text-sm font-medium text-highlighted">Belum ada kontrak aktif tim</p>
             <p class="mt-1 text-xs text-muted">
-              Kontrak aktif bawahan langsung akan tampil di sini.
+              Kontrak aktif bawahan langsung maupun tidak langsung akan tampil di sini.
             </p>
           </div>
         </div>
