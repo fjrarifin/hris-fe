@@ -183,7 +183,7 @@ onMounted(() => loadDashboard())
             </div>
             <UBadge color="success" variant="subtle" label="2 menit" />
           </div>
-          <p class="mt-5 text-sm text-muted">User dengan heartbeat terbaru.</p>
+          <p class="mt-5 text-sm text-muted">User dengan aktivitas sesi 2 menit terakhir.</p>
         </UCard>
         <UCard>
           <div class="flex items-start justify-between gap-3">

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
 import Navbar from '../components/Navbar.vue'
+import NovaChatFloating from '../components/NovaChatFloating.vue'
 
 const isSidebarOpen = ref(false)
 const isDarkMode = ref(localStorage.getItem('hris_theme') === 'dark')
@@ -47,6 +48,8 @@ function toggleTheme() {
       <footer class="border-t border-default px-4 py-4 text-center text-xs text-muted sm:px-6">
         © {{ new Date().getFullYear() }} · CV. 3 Detik · HRIS
       </footer>
+
+      <NovaChatFloating />
     </main>
   </div>
 </template>

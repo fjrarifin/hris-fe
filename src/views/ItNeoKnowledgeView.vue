@@ -1283,7 +1283,7 @@ onMounted(() => {
                 <td class="px-4 py-3 font-bold text-highlighted">Reset Session Login</td>
                 <td class="px-4 py-3 font-mono text-primary">"reset session", "kick session", "nyangkut", "hapus sesi"</td>
                 <td class="px-4 py-3"><UBadge color="primary" size="xs">Karyawan Terdaftar</UBadge></td>
-                <td class="px-4 py-3 text-muted">Menghapus token login aktif akun <code class="font-mono">hris-fe</code> milik NIK tersebut.</td>
+                <td class="px-4 py-3 text-muted">Menghapus token login aktif Web (<code class="font-mono">hris-fe</code>) dan Mobile (<code class="font-mono">hris-mobile</code>) milik NIK tersebut.</td>
               </tr>
               <tr>
                 <td class="px-4 py-3 font-bold text-highlighted">Deteksi Gagal Login</td>
