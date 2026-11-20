@@ -12,6 +12,9 @@ const search = ref('')
 const statusFilter = ref(
   ['AKTIF', 'NONAKTIF'].includes(route.query.status) ? route.query.status : 'all',
 )
+const departmentFilter = ref('all')
+const sortBy = ref('nik')
+const sortDirection = ref('asc')
 const page = ref(1)
 const exporting = ref(false)
 const failedPhotos = ref([])
@@ -28,12 +31,22 @@ const columns = [
   { id: 'action', header: 'Aksi' },
 ]
 
+const departments = computed(() =>
+  [...new Set(employees.value.map((employee) => employee.departement?.trim()).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }),
+  ),
+)
+
 const filteredEmployees = computed(() => {
   const keyword = search.value.trim().toLowerCase()
 
   return employees.value
     .filter((employee) => {
       if (statusFilter.value !== 'all' && employee.status !== statusFilter.value) {
+        return false
+      }
+
+      if (departmentFilter.value !== 'all' && employee.departement?.trim() !== departmentFilter.value) {
         return false
       }
 
@@ -57,6 +70,13 @@ const filteredEmployees = computed(() => {
       department: employee.department || '-',
       status: employee.status || 'NONAKTIF',
     }))
+    .sort((a, b) => {
+      const result = String(a[sortBy.value] ?? '').localeCompare(String(b[sortBy.value] ?? ''), 'id', {
+        sensitivity: 'base',
+        numeric: true,
+      })
+      return result * (sortDirection.value === 'asc' ? 1 : -1) || String(a.nik ?? '').localeCompare(String(b.nik ?? ''), 'id', { numeric: true })
+    })
 })
 
 const paginatedEmployees = computed(() => {
@@ -99,7 +119,7 @@ async function downloadExport() {
   try {
     const response = await exportEmployees()
     const disposition = response.headers['content-disposition'] || ''
-    const name = disposition.match(/filename="?([^"]+)"?/)?.[1] || 'Data_Karyawan.csv'
+    const name = disposition.match(/filename="?([^"]+)"?/)?.[1] || 'Data_Karyawan.xlsx'
     const url = URL.createObjectURL(response.data)
     const link = document.createElement('a')
     link.href = url
@@ -149,7 +169,7 @@ watch(search, () => {
   page.value = 1
 })
 
-watch(statusFilter, () => {
+watch([statusFilter, departmentFilter, sortBy, sortDirection], () => {
   page.value = 1
 })
 
@@ -175,12 +195,12 @@ onBeforeUnmount(() => {
     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h2 class="text-2xl font-semibold text-highlighted">Data Karyawan</h2>
-        <p class="mt-1 text-sm text-muted">Kelola data master karyawan HRIS.</p>
+        <p class="mt-1 text-sm text-muted">Kelola data master karyawan HRIS. Export mencakup semua karyawan dan kolom data, tanpa mengikuti filter.</p>
       </div>
 
       <div class="flex gap-2">
         <UButton
-          label="Export Karyawan"
+          label="Export Semua Karyawan (Excel)"
           icon="i-lucide-download"
           color="neutral"
           variant="outline"
@@ -193,7 +213,7 @@ onBeforeUnmount(() => {
 
     <UCard>
       <template #header>
-        <div class="flex flex-col gap-3 sm:flex-row">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <UInput
             v-model="search"
             class="w-full sm:max-w-md"
@@ -207,6 +227,32 @@ onBeforeUnmount(() => {
             <option value="all">Semua Status</option>
             <option value="AKTIF">Aktif</option>
             <option value="NONAKTIF">Tidak Aktif</option>
+          </select>
+          <select
+            v-model="departmentFilter"
+            class="rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+            aria-label="Filter departemen"
+          >
+            <option value="all">Semua Departemen</option>
+            <option v-for="department in departments" :key="department" :value="department">
+              {{ department }}
+            </option>
+          </select>
+          <select
+            v-model="sortBy"
+            class="rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+            aria-label="Urutkan berdasarkan"
+          >
+            <option value="nik">Urutkan: NIK</option>
+            <option value="name">Urutkan: Nama</option>
+          </select>
+          <select
+            v-model="sortDirection"
+            class="rounded-lg border border-default bg-default p-2.5 text-sm text-highlighted"
+            aria-label="Arah urutan"
+          >
+            <option value="asc">Menaik (A–Z / 0–9)</option>
+            <option value="desc">Menurun (Z–A / 9–0)</option>
           </select>
         </div>
       </template>
