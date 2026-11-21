@@ -347,7 +347,7 @@ onBeforeUnmount(closeDocumentPreview)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section class="employee-detail-page space-y-6 p-4 sm:p-6 lg:p-8">
     <form class="space-y-6" @submit.prevent="save">
       <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
@@ -803,3 +803,65 @@ onBeforeUnmount(closeDocumentPreview)
     </div>
   </section>
 </template>
+
+<style scoped>
+.employee-detail-page {
+  --employee-surface: #ffffff;
+  --employee-border: #e5eaf1;
+  --employee-text: #0f172a;
+  --employee-muted: #64748b;
+  --employee-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  min-width: 0;
+  min-height: calc(100vh - 8rem);
+  background: #eef3f8;
+  color: var(--employee-text);
+}
+
+:global(.portal-dark) .employee-detail-page {
+  background: #0f1420;
+  color: #e2e8f0;
+}
+
+.employee-detail-page :deep(h2) {
+  color: var(--employee-text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.employee-detail-page :deep(h3),
+.employee-detail-page :deep(.text-highlighted) {
+  color: var(--employee-text);
+}
+
+.employee-detail-page :deep(.text-muted) {
+  color: var(--employee-muted);
+}
+
+.employee-detail-page :deep(.overflow-hidden.rounded-lg.border) {
+  border-color: var(--employee-border);
+  border-radius: 12px;
+  background: var(--employee-surface);
+  box-shadow: var(--employee-shadow);
+}
+
+.employee-detail-page :deep(table thead th) {
+  background: #f8fafc;
+  color: var(--employee-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.employee-detail-page :deep(table tbody td) {
+  border-color: var(--employee-border);
+  color: var(--employee-text);
+  font-size: 0.8rem;
+}
+
+.employee-detail-page :deep(input),
+.employee-detail-page :deep(select) {
+  font-size: 0.875rem;
+}
+</style>

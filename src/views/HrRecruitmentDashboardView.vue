@@ -342,7 +342,7 @@ onMounted(loadDashboard)
 </script>
 
 <template>
-  <section class="recruitment-dashboard space-y-5">
+  <section class="recruitment-page recruitment-dashboard space-y-5 p-4 sm:p-6 lg:p-8">
     <header class="dashboard-hero">
       <div>
         <div class="dashboard-eyebrow">
@@ -1207,11 +1207,9 @@ onMounted(loadDashboard)
   gap: 24px;
   padding: 26px 28px;
   border: 1px solid #bfdbfe;
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.16), transparent 36%),
-    linear-gradient(135deg, #eff6ff, #fff 58%, #f8fafc);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 .dashboard-hero h1 {
   margin: 7px 0 5px;

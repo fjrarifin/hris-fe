@@ -155,7 +155,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="payroll-dashboard space-y-6 pb-12">
+  <div class="recruitment-page payroll-dashboard space-y-6 p-4 pb-12 sm:p-6 lg:p-8">
     <!-- Hero Section -->
     <div class="dashboard-hero rounded-2xl p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>

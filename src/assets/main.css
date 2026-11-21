@@ -134,6 +134,100 @@ body {
   --ui-text-highlighted: #ffffff;
 }
 
+.employee-page,
+.employee-detail-page,
+.recruitment-page {
+  --employee-surface: #ffffff;
+  --employee-border: #e5eaf1;
+  --employee-text: #0f172a;
+  --employee-muted: #64748b;
+  --employee-blue-soft: #e9f0ff;
+  --employee-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  min-width: 0;
+  min-height: calc(100vh - 8rem);
+  background: #eef3f8;
+  color: var(--employee-text);
+}
+
+.portal-dark .employee-page,
+.portal-dark .employee-detail-page,
+.portal-dark .recruitment-page {
+  background: #0f1420;
+  color: #e2e8f0;
+}
+
+.recruitment-page :is(h1, h2) {
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.portal-dark .recruitment-page :is(h1, h2) {
+  color: #f8fafc;
+}
+
+.recruitment-page :is(.text-highlighted, h3) {
+  color: #0f172a;
+}
+
+.portal-dark .recruitment-page :is(.text-highlighted, h3) {
+  color: #f8fafc;
+}
+
+.recruitment-page .text-muted {
+  color: #64748b;
+}
+
+.portal-dark .recruitment-page .text-muted {
+  color: #a5b4c9;
+}
+
+.recruitment-page :is(.overflow-hidden.rounded-lg.border, .rounded-xl.border.border-default.bg-default) {
+  border-color: #e5eaf1;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.portal-dark .recruitment-page :is(.overflow-hidden.rounded-lg.border, .rounded-xl.border.border-default.bg-default) {
+  border-color: #27344c;
+  background: #111c32;
+}
+
+.recruitment-page :is(input, select, textarea) {
+  border-color: #e5eaf1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.recruitment-page :is(input, select, textarea):focus {
+  border-color: #b8ccff;
+  box-shadow: 0 0 0 3px #e9f0ff;
+  outline: none;
+}
+
+.recruitment-page table thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+}
+
+.recruitment-page table tbody td {
+  border-color: #e5eaf1;
+  font-size: 0.8rem;
+}
+
+.portal-dark .recruitment-page table thead th {
+  background: #111c32;
+  color: #a5b4c9;
+}
+
+.portal-dark .recruitment-page table tbody td {
+  border-color: #27344c;
+}
+
 /* Onboarding status alert styles */
 .onboarding-status-alert {
   background-color: rgba(245, 158, 11, 0.1);

@@ -27,6 +27,8 @@ const columns = [
   { accessorKey: 'email', header: 'Email' },
   { accessorKey: 'position', header: 'Jabatan' },
   { accessorKey: 'department', header: 'Departemen' },
+  { accessorKey: 'join_date', header: 'Tanggal Bergabung' },
+  { accessorKey: 'last_contract_end_date', header: 'Akhir Kontrak Terakhir' },
   { accessorKey: 'status', header: 'Status' },
   { id: 'action', header: 'Aksi' },
 ]
@@ -68,10 +70,19 @@ const filteredEmployees = computed(() => {
       email: employee.email || '-',
       position: employee.position || '-',
       department: employee.department || '-',
+      join_date: formatDate(employee.join_date),
+      join_date_sort: employee.join_date || '',
+      last_contract_end_date: formatDate(employee.last_contract_end_date),
       status: employee.status || 'NONAKTIF',
     }))
     .sort((a, b) => {
-      const result = String(a[sortBy.value] ?? '').localeCompare(String(b[sortBy.value] ?? ''), 'id', {
+      const left = sortBy.value === 'join_date'
+        ? (a.join_date_sort || '9999-12-31')
+        : String(a[sortBy.value] ?? '')
+      const right = sortBy.value === 'join_date'
+        ? (b.join_date_sort || '9999-12-31')
+        : String(b[sortBy.value] ?? '')
+      const result = left.localeCompare(right, 'id', {
         sensitivity: 'base',
         numeric: true,
       })
@@ -95,6 +106,19 @@ const visibleRange = computed(() => {
 
   return `${start}-${end} dari ${filteredEmployees.value.length} data`
 })
+
+function formatDate(value) {
+  if (!value) return '-'
+
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return '-'
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
 
 async function loadEmployees() {
   loading.value = true
@@ -191,14 +215,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section class="employee-page space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h2 class="text-2xl font-semibold text-highlighted">Data Karyawan</h2>
         <p class="mt-1 text-sm text-muted">Kelola data master karyawan HRIS. Export mencakup semua karyawan dan kolom data, tanpa mengikuti filter.</p>
       </div>
 
-      <div class="flex gap-2">
+      <div class="employee-actions flex flex-wrap gap-2 sm:justify-end">
         <UButton
           label="Export Semua Karyawan (Excel)"
           icon="i-lucide-download"
@@ -211,7 +235,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <UCard>
+    <UCard class="employee-table-card">
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <UInput
@@ -245,6 +269,7 @@ onBeforeUnmount(() => {
           >
             <option value="nik">Urutkan: NIK</option>
             <option value="name">Urutkan: Nama</option>
+            <option value="join_date">Urutkan: Tanggal Bergabung</option>
           </select>
           <select
             v-model="sortDirection"
@@ -359,6 +384,95 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.employee-page {
+  --employee-surface: #ffffff;
+  --employee-border: #e5eaf1;
+  --employee-text: #0f172a;
+  --employee-muted: #64748b;
+  --employee-blue: #2563eb;
+  --employee-blue-soft: #e9f0ff;
+  --employee-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  min-width: 0;
+  min-height: calc(100vh - 8rem);
+  background: #eef3f8;
+}
+
+:global(.portal-dark) .employee-page {
+  background: #0f1420;
+}
+
+.employee-page :deep(h2) {
+  color: var(--employee-text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.employee-page :deep(p.text-muted),
+.employee-page :deep(.text-muted) {
+  color: var(--employee-muted);
+}
+
+.employee-page :deep(.text-highlighted) {
+  color: var(--employee-text);
+}
+
+.employee-page :deep(.rounded-lg.border-default.bg-default) {
+  min-height: 38px;
+  border-color: var(--employee-border);
+  border-radius: 8px;
+  background-color: var(--employee-surface);
+  color: var(--employee-text);
+  box-shadow: none;
+}
+
+.employee-page :deep(.rounded-lg.border-default.bg-default:focus) {
+  border-color: #b8ccff;
+  box-shadow: 0 0 0 3px var(--employee-blue-soft);
+  outline: none;
+}
+
+.employee-page :deep(.overflow-hidden.rounded-lg.border) {
+  border-color: var(--employee-border);
+  border-radius: 12px;
+  background: var(--employee-surface);
+  box-shadow: var(--employee-shadow);
+}
+
+.employee-page :deep(table thead th) {
+  background: #f8fafc;
+  color: var(--employee-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.employee-page :deep(table tbody td) {
+  border-color: var(--employee-border);
+  color: var(--employee-text);
+  font-size: 0.8rem;
+}
+
+.employee-page :deep(table tbody tr:hover td) {
+  background: #f8fafc;
+}
+
+.employee-page :deep(.border-t) {
+  border-color: var(--employee-border);
+}
+
+@media (max-width: 640px) {
+  .employee-page .employee-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .employee-page .employee-actions > * {
+    width: 100%;
+  }
+}
+
 .photo-lightbox-enter-active,
 .photo-lightbox-leave-active {
   transition: opacity 180ms ease;

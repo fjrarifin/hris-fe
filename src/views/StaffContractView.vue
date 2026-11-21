@@ -70,7 +70,7 @@ onBeforeUnmount(closePreview)
 </script>
 
 <template>
-  <section class="space-y-5">
+  <section class="recruitment-page space-y-5 p-4 sm:p-6 lg:p-8">
     <AlertToastBridge :error="errorMessage" />
 
     <UCard>

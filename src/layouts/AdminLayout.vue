@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
 import Navbar from '../components/Navbar.vue'
 import NovaChatFloating from '../components/NovaChatFloating.vue'
 
+const route = useRoute()
 const isSidebarOpen = ref(false)
 const isDarkMode = ref(localStorage.getItem('hris_theme') === 'dark')
 
@@ -41,7 +42,12 @@ function toggleTheme() {
         @toggle-theme="toggleTheme"
       />
 
-      <div class="mx-auto min-h-[calc(100vh-8rem)] max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div
+        :class="[
+          'min-h-[calc(100vh-8rem)]',
+          ['employees', 'employee-detail', 'hr-recruitment-candidates', 'hr-recruitment-vacancies', 'hr-recruitment-dashboard', 'attendance', 'hr-overtime-recap', 'hr-permission-recap', 'hr-leave-balances', 'hr-leave-adjustments', 'hr-ph-adjustments', 'hr-extra-off-adjustments', 'hr-attendance-minimum', 'hr-attendance-corrections', 'payroll', 'hr-payroll-master', 'hr-payroll-process', 'staff-dashboard', 'staff-leave', 'staff-public-holiday', 'staff-extra-off', 'staff-permission', 'staff-attendance', 'staff-contracts', 'staff-approvals', 'staff-kpi-templates', 'staff-overtime', 'staff-recruitment-requests', 'staff-team-schedules', 'staff-team-attendances', 'staff-subordinate-candidates', 'staff-gate-qr', 'staff-profile'].includes(route.name) ? 'w-full' : 'mx-auto max-w-7xl p-4 sm:p-6 lg:p-8',
+        ]"
+      >
         <RouterView />
       </div>
 

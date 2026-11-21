@@ -75,7 +75,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="recruitment-page space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="text-2xl font-semibold text-highlighted">Rekap Izin / Sakit Karyawan</h2>
       <UButton label="Ekspor Excel" :loading="exporting" @click="exportData" />

@@ -252,7 +252,7 @@ onMounted(load)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section class="recruitment-page space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <h2 class="text-2xl font-semibold text-highlighted">

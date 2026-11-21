@@ -263,7 +263,7 @@ onMounted(load)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section class="recruitment-page space-y-6 p-4 sm:p-6 lg:p-8">
     <div>
       <h2 class="text-2xl font-semibold text-highlighted">Absensi Saya</h2>
       <p class="mt-1 text-sm text-muted">

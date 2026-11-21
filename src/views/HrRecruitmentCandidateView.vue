@@ -492,6 +492,26 @@ const formattedEmployees = computed(() => {
     })
 })
 
+const formattedInterviewers = computed(() =>
+  employees.value
+    .filter((emp) => {
+      const status = (emp.status || '').toLowerCase().trim()
+      return status === 'aktif' || status === 'active'
+    })
+    .map((emp) => {
+      const name = emp.name || emp.nama_karyawan || ''
+      const position = emp.position || emp.jabatan || '-'
+      const department = emp.department ? ` - ${emp.department}` : ''
+      const division = emp.divisi || emp.division ? ` / ${emp.divisi || emp.division}` : ''
+      return {
+        nik: emp.nik,
+        name,
+        position,
+        label: `${name} - ${emp.nik} (${position}${department}${division})`,
+      }
+    }),
+)
+
 function extractNik(val) {
   if (!val) return ''
   if (typeof val === 'object') return val.nik || val.id || ''
@@ -3953,7 +3973,7 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section v-else class="space-y-6">
+  <section v-else class="recruitment-page space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <h2 class="text-2xl font-semibold text-highlighted">Pipeline Pelamar (Recruitment)</h2>
@@ -7388,7 +7408,7 @@ onBeforeUnmount(() => {
           <div>
             <label class="mb-1 block text-sm font-medium text-muted">Pewawancara Internal <span
                 class="text-danger">*</span></label>
-            <USelectMenu v-model="userInterviewForm.interviewer_niks" :items="formattedEmployees" value-key="nik"
+            <USelectMenu v-model="userInterviewForm.interviewer_niks" :items="formattedInterviewers" value-key="nik"
               label-key="label" placeholder="Pilih pewawancara (bisa lebih dari satu)" multiple class="w-full" />
             <!-- Selected Interviewers Tag Pills -->
             <div v-if="userInterviewForm.interviewer_niks.length" class="mt-2.5 flex flex-wrap gap-2">

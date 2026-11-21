@@ -538,7 +538,7 @@ onMounted(loadDashboard)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section class="employee-page staff-dashboard-page space-y-6 p-4 sm:p-6 lg:p-8">
     <UCard
       v-if="!isStaff"
       class="dashboard-hero overflow-hidden border border-blue-100 bg-linear-to-br from-white via-blue-50 to-blue-100"
@@ -584,7 +584,7 @@ onMounted(loadDashboard)
 
     <div v-if="loading" class="py-12 text-center text-sm text-muted">Memuat ringkasan...</div>
 
-    <div v-else-if="isStaff && dashboard" class="mx-auto max-w-7xl space-y-5">
+    <div v-else-if="isStaff && dashboard" class="space-y-5">
       <section class="overflow-hidden rounded-2xl border border-default bg-default shadow-sm">
         <div
           class="relative overflow-hidden bg-linear-to-br from-primary-950 via-slate-900 to-slate-950 px-5 py-5 text-white sm:px-6"
@@ -636,24 +636,28 @@ onMounted(loadDashboard)
                 :label="staffTodayStatus"
               />
             </div>
-            <div class="mt-5 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
-              <div class="min-w-0 rounded-lg border border-default bg-default px-4 py-3">
-                <div class="flex items-center gap-2 text-xs text-muted">
-                  <span class="size-2 rounded-full bg-success"></span>
-                  Masuk
+            <div class="mt-5 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 lg:gap-4">
+              <div class="flex min-w-0 items-center gap-3 rounded-xl border border-default bg-default px-4 py-3.5 shadow-sm lg:px-5 lg:py-4">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success lg:size-11">
+                  <UIcon name="i-lucide-log-in" class="size-5" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-xs font-medium text-muted">Jam Masuk</p>
+                  <p class="mt-1 truncate text-xl font-bold leading-none tracking-tight text-highlighted lg:text-2xl">
+                    {{ formatTime(staffTodayAttendance?.scan_in) }}
+                  </p>
                 </div>
-                <p class="mt-2 truncate text-xl font-semibold text-highlighted sm:text-2xl">
-                  {{ formatTime(staffTodayAttendance?.scan_in) }}
-                </p>
               </div>
-              <div class="min-w-0 rounded-lg border border-default bg-default px-4 py-3">
-                <div class="flex items-center gap-2 text-xs text-muted">
-                  <span class="size-2 rounded-full bg-warning"></span>
-                  Pulang
+              <div class="flex min-w-0 items-center gap-3 rounded-xl border border-default bg-default px-4 py-3.5 shadow-sm lg:px-5 lg:py-4">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-warning/10 text-warning lg:size-11">
+                  <UIcon name="i-lucide-log-out" class="size-5" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-xs font-medium text-muted">Jam Pulang</p>
+                  <p class="mt-1 truncate text-xl font-bold leading-none tracking-tight text-highlighted lg:text-2xl">
+                    {{ formatTime(staffTodayAttendance?.scan_out) }}
+                  </p>
                 </div>
-                <p class="mt-2 truncate text-xl font-semibold text-highlighted sm:text-2xl">
-                  {{ formatTime(staffTodayAttendance?.scan_out) }}
-                </p>
               </div>
             </div>
           </div>
