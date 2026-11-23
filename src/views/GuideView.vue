@@ -138,12 +138,18 @@ const sections = [
     </UCard>
 
     <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-      <UCard v-for="section in sections" :key="section.title">
+      <UCard v-for="section in sections" :key="section.title" class="min-w-0">
         <div class="flex items-center gap-3">
           <UIcon :name="section.icon" class="size-5 shrink-0 text-primary" />
           <h3 class="text-lg font-semibold text-highlighted">{{ section.title }}</h3>
         </div>
-        <UBadge class="mt-3" color="primary" variant="subtle" :label="section.note" />
+        <UBadge
+          class="mt-3 max-w-full whitespace-normal text-left leading-snug"
+          :ui="{ label: 'whitespace-normal break-words text-left' }"
+          color="primary"
+          variant="subtle"
+          :label="section.note"
+        />
         <ol class="mt-5 space-y-4">
           <li
             v-for="(step, index) in section.steps"

@@ -38,6 +38,7 @@ const form = reactive({
   level: 3,
   is_active: true,
   allow_mobile_attendance: false,
+  allow_work_order: false,
 })
 const createForm = reactive({
   name: '',
@@ -46,6 +47,7 @@ const createForm = reactive({
   level: 2,
   is_active: true,
   allow_mobile_attendance: false,
+  allow_work_order: false,
 })
 
 const levelOptions = [
@@ -76,6 +78,7 @@ function resetCreateForm() {
     level: 2,
     is_active: true,
     allow_mobile_attendance: false,
+  allow_work_order: false,
   })
   applyDefaultMenusForLevel()
 }
@@ -161,6 +164,7 @@ function editUser(user) {
     level: user.level,
     is_active: user.is_active,
     allow_mobile_attendance: user.allow_mobile_attendance,
+    allow_work_order: Boolean(user.allow_work_order),
   })
   clearMessages()
 }
@@ -233,6 +237,7 @@ async function toggleActive(user) {
     level: user.level,
     is_active: !user.is_active,
     allow_mobile_attendance: user.allow_mobile_attendance,
+    allow_work_order: Boolean(user.allow_work_order),
   })
   await saveUser()
 }
@@ -393,6 +398,14 @@ onMounted(() => loadUsers())
                 />
                 Akses Absensi Mobile
               </label>
+              <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+                <input
+                  v-model="createForm.allow_work_order"
+                  type="checkbox"
+                  class="size-4 rounded border-default"
+                />
+                Akses Work Order
+              </label>
             </div>
           </div>
 
@@ -551,6 +564,14 @@ onMounted(() => loadUsers())
               class="size-4 rounded border-default"
             />
             Akses Absensi Mobile
+          </label>
+          <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+            <input
+              v-model="form.allow_work_order"
+              type="checkbox"
+              class="size-4 rounded border-default"
+            />
+            Akses Work Order
           </label>
         </div>
         <div class="md:col-span-2 xl:col-span-5">

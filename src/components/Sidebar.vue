@@ -110,6 +110,17 @@ onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick))
         highlight
       />
 
+      <div v-if="auth.user?.allow_work_order || auth.user?.level === 0" class="mt-3">
+        <RouterLink
+          to="/ga/work-orders"
+          class="flex items-center gap-3 rounded-xl border border-slate-700/80 bg-slate-800/70 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:border-blue-500/60 hover:bg-slate-800"
+          active-class="!border-blue-500 !bg-blue-700 !text-white"
+        >
+          <UIcon name="i-lucide-wrench" class="size-4" />
+          Work Order
+        </RouterLink>
+      </div>
+
       <div v-if="auth.user?.level === 3" class="mt-4 space-y-2">
         <RouterLink
           v-if="auth.user?.allow_mobile_attendance"

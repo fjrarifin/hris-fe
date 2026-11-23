@@ -109,6 +109,13 @@ const router = createRouter({
       meta: { title: 'Persetujuan PKB Internal' },
     },
     {
+      path: '/wo/:token',
+      alias: '/public/work-order-approval/:token',
+      name: 'public-work-order-approval',
+      component: () => import('../views/PublicGaWorkOrderApprovalView.vue'),
+      meta: { title: 'Persetujuan Work Order GA' },
+    },
+    {
       path: '/public/evaluation/:token',
       name: 'public-evaluation',
       component: () => import('../views/HrRecruitmentPublicEvaluationView.vue'),
@@ -736,6 +743,18 @@ const router = createRouter({
           name: 'it-neo-knowledge',
           component: () => import('../views/ItNeoKnowledgeView.vue'),
           meta: { title: 'Neo Knowledge Hub', levels: [0, 2], menuKey: 'it-neo-knowledge' },
+        },
+        {
+          path: 'ga/work-orders',
+          name: 'ga-work-orders',
+          component: () => import('../views/GaWorkOrderView.vue'),
+          meta: { title: 'Work Order', levels: [0, 1, 2, 3], workOrderScope: 'all' },
+        },
+        {
+          path: 'staff/work-order-approvals',
+          name: 'staff-work-order-approvals',
+          component: () => import('../views/GaWorkOrderView.vue'),
+          meta: { title: 'Approval Work Order', levels: [0, 1, 2, 3], workOrderScope: 'approvals' },
         },
       ],
     },
