@@ -4613,6 +4613,24 @@ onBeforeUnmount(() => {
                     </span>
                   </div>
 
+                  <!-- Row 4b: Google Calendar -->
+                  <div class="flex items-center justify-between py-3 border-b border-default/40">
+                    <span class="font-medium text-muted">Google Calendar</span>
+                    <div v-if="activeCandidate.interview_hr_gcal_event_id" class="flex items-center gap-2 text-right">
+                      <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                        Tersinkron<template v-if="activeCandidate.interview_hr_gcal_synced_at">, {{ formatDateTime(activeCandidate.interview_hr_gcal_synced_at) }}</template>
+                      </span>
+                      <a v-if="activeCandidate.interview_hr_gcal_event_link"
+                        :href="activeCandidate.interview_hr_gcal_event_link" target="_blank"
+                        class="text-primary underline font-medium">
+                        Buka Calendar
+                      </a>
+                    </div>
+                    <span v-else class="font-medium text-muted">
+                      Belum tersinkron
+                    </span>
+                  </div>
+
                   <!-- Row 5: Whatsapp kandidat -->
                   <div class="flex items-center justify-between py-3 border-b border-default/40">
                     <span class="font-medium text-muted">Whatsapp kandidat</span>
@@ -5049,6 +5067,24 @@ onBeforeUnmount(() => {
                       </span>
                       <span v-else class="font-medium text-amber-600 dark:text-amber-400">
                         Belum dikirim
+                      </span>
+                    </div>
+
+                    <!-- Row 4b: Google Calendar -->
+                    <div class="flex items-center justify-between py-3 border-b border-default/40">
+                      <span class="font-medium text-muted">Google Calendar</span>
+                      <div v-if="getUserInterview(activeUserInterviewTab).gcal_event_id" class="flex items-center gap-2 text-right">
+                        <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                          Tersinkron<template v-if="getUserInterview(activeUserInterviewTab).gcal_synced_at">, {{ formatDateTime(getUserInterview(activeUserInterviewTab).gcal_synced_at) }}</template>
+                        </span>
+                        <a v-if="getUserInterview(activeUserInterviewTab).gcal_event_link"
+                          :href="getUserInterview(activeUserInterviewTab).gcal_event_link" target="_blank"
+                          class="text-primary underline font-medium">
+                          Buka Calendar
+                        </a>
+                      </div>
+                      <span v-else class="font-medium text-muted">
+                        Belum tersinkron
                       </span>
                     </div>
 
@@ -7088,8 +7124,9 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="hrInterviewForm.interview_hr_type === 'online'">
             <label class="mb-1 block text-sm font-medium text-muted">Link Meeting <span
-                class="text-danger">*</span></label>
-            <input v-model="hrInterviewForm.interview_hr_meet_link" required placeholder="https://meet.google.com/xxx"
+                class="text-xs font-normal text-muted">(opsional jika Google Calendar aktif)</span></label>
+            <input v-model="hrInterviewForm.interview_hr_meet_link"
+              placeholder="Kosongkan untuk auto-generate Google Meet, atau tempel link..."
               :class="formControlClass" />
           </div>
           <div v-else>
@@ -7456,8 +7493,9 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="userInterviewForm.interview_type === 'online'">
             <label class="mb-1 block text-sm font-medium text-muted">Link Meeting <span
-                class="text-danger">*</span></label>
-            <input v-model="userInterviewForm.interview_meet_link" required placeholder="https://meet.google.com/xxx"
+                class="text-xs font-normal text-muted">(opsional jika Google Calendar aktif)</span></label>
+            <input v-model="userInterviewForm.interview_meet_link"
+              placeholder="Kosongkan untuk auto-generate Google Meet, atau tempel link..."
               :class="formControlClass" />
           </div>
           <div v-else>

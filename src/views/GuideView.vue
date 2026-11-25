@@ -26,7 +26,7 @@ const sections = [
   {
     title: 'Public Holiday',
     icon: 'i-lucide-calendar-check-2',
-    note: 'PH dapat digunakan maksimal 90 hari setelah tanggal libur.',
+    note: 'PH berlaku 3 bulan kalender dan wajib digunakan paling lambat pada tanggal kedaluwarsa (hangus mulai hari berikutnya).',
     steps: [
       'Pilih Public Holiday (PH) yang masih tersedia, lalu tentukan tanggal pengambilan yang diinginkan.',
       'Pengajuan PH tidak dapat diajukan untuk tanggal yang sudah terlewat, bentrok dengan jadwal cuti, maupun melewati masa berlaku PH.',

@@ -5,6 +5,10 @@ export function getEventAbsenList(params) {
   return api.get('/event-absen', { params })
 }
 
+export function getEventAbsenEmployees(params) {
+  return api.get('/event-absen/employees', { params })
+}
+
 export function createEventAbsen(payload) {
   return api.post('/event-absen', payload)
 }

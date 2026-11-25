@@ -4,7 +4,7 @@ import { createExtraOff, deleteExtraOff, getExtraOffs } from '../services/staffS
 import { askConfirmation } from '../utils/confirmDialog'
 import { apiError, formatDate, statusColor, statusLabel } from '../utils/formatters'
 
-const data = ref({ balance: 0, sources: [], requests: [] })
+const data = ref({ balance: 0, sources: [], expired_sources: [], requests: [] })
 const form = reactive({ source_id: null, source_period_start: '', source_period_end: '', claim_date: '' })
 const loading = ref(true)
 const saving = ref(false)
@@ -170,6 +170,43 @@ onMounted(load)
             </tr>
             <tr v-if="!data.requests.length">
               <td colspan="4" class="p-6 text-center text-muted">Belum ada pengajuan EO.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </UCard>
+
+    <UCard v-if="data.expired_sources?.length" title="EO Kedaluwarsa / Hangus">
+      <p class="mb-3 text-xs text-muted">
+        Daftar saldo Extra Off yang telah melewati batas kedaluwarsa dan tidak digunakan sehingga hangus otomatis.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-muted">
+            <tr>
+              <th class="p-3">Sumber Periode</th>
+              <th class="p-3">Sisa Hangus</th>
+              <th class="p-3">Berlaku Sampai</th>
+              <th class="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="source in data.expired_sources"
+              :key="`exp-${source.source_id}-${source.source_period_start}`"
+              class="border-t border-default"
+            >
+              <td class="p-3 font-medium text-highlighted">{{ source.label }}</td>
+              <td class="p-3">{{ source.expired_days }} hari</td>
+              <td class="p-3">{{ formatDate(source.expired_at) }}</td>
+              <td class="p-3">
+                <div class="flex flex-col items-start gap-1">
+                  <UBadge color="error" variant="subtle" label="Kedaluwarsa / Hangus" />
+                  <span class="text-xs text-muted">
+                    Tidak digunakan hingga {{ formatDate(source.expired_at) }}
+                  </span>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

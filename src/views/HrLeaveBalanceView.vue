@@ -505,7 +505,7 @@
               <div>
                 <h4 class="text-xs font-bold text-highlighted uppercase tracking-wider mb-2 flex items-center gap-2">
                   <UIcon name="i-lucide-sparkles" class="size-4 text-indigo-500" />
-                  Daftar Hari Libur Nasional Eligible (90 Hari Terakhir)
+                  Daftar Hari Libur Nasional Eligible (Masa Berlaku 3 Bulan)
                 </h4>
                 <div v-if="selectedEmployeeDetails.details?.ph_eligible_list?.length" class="overflow-x-auto border border-default rounded-lg">
                   <table class="w-full text-left text-xs">

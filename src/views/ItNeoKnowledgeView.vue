@@ -580,14 +580,14 @@ onMounted(() => {
       <div>
         <div class="flex items-center gap-2.5">
           <h1 class="text-2xl font-bold tracking-tight text-highlighted">
-            Neo Knowledge Hub
+            Nova Knowledge Hub
           </h1>
           <UBadge color="primary" variant="subtle" size="sm" class="font-semibold">
             Agent HRIS AI
           </UBadge>
         </div>
         <p class="mt-1 text-sm text-muted">
-          Pusat kendali pengetahuan, SOP resmi, FAQ deterministik, dan memori percakapan asisten WhatsApp Neo.
+          Pusat kendali pengetahuan, SOP resmi, FAQ deterministik, dan memori percakapan asisten HRIS Nova.
         </p>
       </div>
 
@@ -1359,7 +1359,7 @@ onMounted(() => {
               Public Holiday (PH) & Extra Off (EO)
             </div>
             <p class="text-muted leading-relaxed">
-              Tabel: <code class="font-mono text-primary">public_holiday_requests</code> & <code class="font-mono text-primary">employee_extra_offs</code> • Saldo kompensasi kerja di tanggal merah dan kelebihan jam kerja (berlaku 90 hari).
+              Tabel: <code class="font-mono text-primary">public_holiday_requests</code> & <code class="font-mono text-primary">employee_extra_offs</code> • Saldo kompensasi kerja di tanggal merah (PH berlaku 3 bulan kalender hingga tanggal kedaluwarsa dan hangus mulai hari berikutnya) dan kelebihan jam kerja (EO berlaku 3 bulan).
             </p>
           </div>
 

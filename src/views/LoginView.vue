@@ -214,7 +214,7 @@ onMounted(() => {
         </div>
 
         <div class="action-row">
-          <a href="https://wa.me/6285111339833" target="_blank" class="action-button">
+          <a href="https://wa.me/6282343512356" target="_blank" class="action-button">
             <UIcon name="i-lucide-message-circle" class="action-icon action-icon-whatsapp" />
             Hubungi IT
           </a>

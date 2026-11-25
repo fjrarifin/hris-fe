@@ -8,6 +8,7 @@ import {
   downloadEventAbsenPhotos,
   exportEventAbsenParticipants,
   getEventAbsenDetail,
+  getEventAbsenEmployees,
   getEventAbsenList,
   updateEventAbsen,
 } from '../services/eventAbsenService'
@@ -44,12 +45,31 @@ const editingId = ref(null)
 const form = reactive({
   nama_event: '',
   deskripsi: '',
+  lokasi: '',
   slug: '',
-  tanggal_mulai: '',
-  tanggal_selesai: '',
+  tanggal_acara: '',
+  jam_mulai: '09:00',
+  jam_selesai: '11:00',
+  reminder_value: 1,
+  reminder_unit: 'hours',
+  participant_niks: [],
   status: 'aktif',
 })
 const formErrors = reactive({})
+
+// Employee picker for optional participants
+const employeeOptions = ref([])
+const loadingEmployees = ref(false)
+const employeeSearch = ref('')
+const employeeDivisiFilter = ref('')
+
+const reminderPresets = [
+  { label: '30 mnt', value: 30, unit: 'minutes' },
+  { label: '1 jam', value: 1, unit: 'hours' },
+  { label: '2 jam', value: 2, unit: 'hours' },
+  { label: '12 jam', value: 12, unit: 'hours' },
+  { label: '24 jam', value: 24, unit: 'hours' },
+]
 
 // QR Code Modal
 const showQrModal = ref(false)
@@ -62,6 +82,8 @@ const showParticipantsModal = ref(false)
 const loadingParticipants = ref(false)
 const selectedDetailEvent = ref(null)
 const participants = ref([])
+const invitedParticipants = ref([])
+const participantsTab = ref('attended')
 const participantSearch = ref('')
 const selectedPhotoPreview = ref(null)
 
@@ -74,6 +96,44 @@ const publicBaseUrl = computed(() => {
 
 const formControlClass =
   'w-full rounded-md border border-default bg-default px-3 py-2 text-sm text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20'
+
+const availableDivisions = computed(() => {
+  const set = new Set()
+  employeeOptions.value.forEach((emp) => {
+    const label = (emp.divisi || emp.departement || '').trim()
+    if (label) set.add(label)
+  })
+  return Array.from(set).sort()
+})
+
+const filteredEmployeeOptions = computed(() => {
+  const q = employeeSearch.value.trim().toLowerCase()
+  const div = employeeDivisiFilter.value.trim().toLowerCase()
+
+  return employeeOptions.value.filter((emp) => {
+    const empDiv = (emp.divisi || emp.departement || '').trim().toLowerCase()
+    if (div && empDiv !== div) {
+      return false
+    }
+    if (!q) return true
+    return (
+      (emp.nik || '').toLowerCase().includes(q) ||
+      (emp.nama_karyawan || '').toLowerCase().includes(q) ||
+      (emp.jabatan || '').toLowerCase().includes(q) ||
+      empDiv.includes(q)
+    )
+  })
+})
+
+const selectedEmployeeObjects = computed(() => {
+  const map = new Map(employeeOptions.value.map((emp) => [emp.nik, emp]))
+  return form.participant_niks.map((nik) => map.get(nik) || { nik, nama_karyawan: nik, has_phone: true })
+})
+
+const reminderMinutesTotal = computed(() => {
+  const val = Math.max(1, Number(form.reminder_value) || 1)
+  return form.reminder_unit === 'hours' ? val * 60 : val
+})
 
 const filteredParticipants = computed(() => {
   if (!participantSearch.value.trim()) {
@@ -89,11 +149,79 @@ const filteredParticipants = computed(() => {
   })
 })
 
-function formatDateTimeInput(dateStr) {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
+const filteredInvitedParticipants = computed(() => {
+  if (!participantSearch.value.trim()) {
+    return invitedParticipants.value
+  }
+  const q = participantSearch.value.toLowerCase()
+  return invitedParticipants.value.filter((item) => {
+    const nik = (item.nik_karyawan || '').toLowerCase()
+    const name = (item.nama_karyawan || '').toLowerCase()
+    const jabatan = (item.jabatan || '').toLowerCase()
+    const divisi = (item.divisi || '').toLowerCase()
+    return nik.includes(q) || name.includes(q) || jabatan.includes(q) || divisi.includes(q)
+  })
+})
+
+function formatDateInput(dateStr) {
+  const d = dateStr ? new Date(dateStr) : new Date()
   const pad = (n) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function formatTimeInput(dateStr, fallback = '09:00') {
+  if (!dateStr) return fallback
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return fallback
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function applyReminderPreset(preset) {
+  form.reminder_value = preset.value
+  form.reminder_unit = preset.unit
+}
+
+function isPresetActive(preset) {
+  return Number(form.reminder_value) === preset.value && form.reminder_unit === preset.unit
+}
+
+function formatReminderBadge(minutes) {
+  if (!minutes || minutes <= 0) return ''
+  if (minutes % 60 === 0) return `H-${minutes / 60} jam`
+  return `H-${minutes} mnt`
+}
+
+function toggleParticipant(nik) {
+  const idx = form.participant_niks.indexOf(nik)
+  if (idx === -1) {
+    form.participant_niks.push(nik)
+  } else {
+    form.participant_niks.splice(idx, 1)
+  }
+}
+
+function selectAllFilteredEmployees() {
+  const set = new Set(form.participant_niks)
+  filteredEmployeeOptions.value.forEach((emp) => set.add(emp.nik))
+  form.participant_niks = Array.from(set)
+}
+
+function clearSelectedParticipants() {
+  form.participant_niks = []
+}
+
+async function ensureEmployeesLoaded() {
+  if (employeeOptions.value.length > 0 || loadingEmployees.value) return
+  loadingEmployees.value = true
+  try {
+    const { data } = await getEventAbsenEmployees()
+    employeeOptions.value = data.data || []
+  } catch (err) {
+    notifier.error(err.response?.data?.message || 'Gagal memuat daftar karyawan.')
+  } finally {
+    loadingEmployees.value = false
+  }
 }
 
 function generateSlug(text) {
@@ -127,47 +255,104 @@ async function loadEvents(page = 1) {
   }
 }
 
-function openCreateModal() {
+async function openCreateModal() {
   isEditing.value = false
   editingId.value = null
+  employeeSearch.value = ''
+  employeeDivisiFilter.value = ''
   Object.assign(form, {
     nama_event: '',
     deskripsi: '',
+    lokasi: '',
     slug: '',
-    tanggal_mulai: formatDateTimeInput(new Date()),
-    tanggal_selesai: formatDateTimeInput(new Date(Date.now() + 8 * 3600 * 1000)),
+    tanggal_acara: formatDateInput(new Date()),
+    jam_mulai: '09:00',
+    jam_selesai: '11:00',
+    reminder_value: 1,
+    reminder_unit: 'hours',
+    participant_niks: [],
     status: 'aktif',
   })
   Object.keys(formErrors).forEach((k) => delete formErrors[k])
   showFormModal.value = true
+  await ensureEmployeesLoaded()
 }
 
-function openEditModal(item) {
+async function openEditModal(item) {
   isEditing.value = true
   editingId.value = item.id
+  employeeSearch.value = ''
+  employeeDivisiFilter.value = ''
+  const reminderMins = Number(item.reminder_minutes_before) || 60
+  const useHours = reminderMins >= 60 && reminderMins % 60 === 0
+  const existingNiks = Array.isArray(item.invited_participants)
+    ? item.invited_participants.map((p) => p.nik_karyawan).filter(Boolean)
+    : []
+
   Object.assign(form, {
     nama_event: item.nama_event,
     deskripsi: item.deskripsi || '',
+    lokasi: item.lokasi || '',
     slug: item.slug,
-    tanggal_mulai: formatDateTimeInput(item.tanggal_mulai),
-    tanggal_selesai: formatDateTimeInput(item.tanggal_selesai),
+    tanggal_acara: formatDateInput(item.tanggal_mulai),
+    jam_mulai: formatTimeInput(item.tanggal_mulai, '09:00'),
+    jam_selesai: formatTimeInput(item.tanggal_selesai, '11:00'),
+    reminder_value: useHours ? reminderMins / 60 : reminderMins,
+    reminder_unit: useHours ? 'hours' : 'minutes',
+    participant_niks: [...existingNiks],
     status: item.status || 'aktif',
   })
   Object.keys(formErrors).forEach((k) => delete formErrors[k])
   showFormModal.value = true
+  await ensureEmployeesLoaded()
 }
 
 async function saveEvent() {
   Object.keys(formErrors).forEach((k) => delete formErrors[k])
+
+  if (!form.tanggal_acara || !form.jam_mulai || !form.jam_selesai) {
+    notifier.error('Tanggal acara, jam mulai, dan jam selesai wajib diisi.')
+    return
+  }
+
+  if (form.jam_selesai <= form.jam_mulai) {
+    formErrors.tanggal_selesai = ['Jam selesai harus setelah jam mulai.']
+    notifier.error('Jam selesai harus setelah jam mulai.')
+    return
+  }
+
+  const hasParticipants = form.participant_niks.length > 0
+  const lokasiInfo = form.lokasi?.trim() ? ` di ${form.lokasi.trim()}` : ''
+  const confirmMessage = isEditing.value
+    ? hasParticipants
+      ? `Simpan perubahan event "${form.nama_event}" (${form.tanggal_acara}, ${form.jam_mulai}–${form.jam_selesai} WIB${lokasiInfo})? Peserta baru yang ditambahkan akan otomatis menerima undangan WA melalui Nova Agent.`
+      : `Simpan perubahan event "${form.nama_event}" (${form.tanggal_acara}, ${form.jam_mulai}–${form.jam_selesai} WIB${lokasiInfo})?`
+    : hasParticipants
+      ? `Buat event "${form.nama_event}" pada ${form.tanggal_acara} (${form.jam_mulai}–${form.jam_selesai} WIB${lokasiInfo})? Nova Agent akan langsung mengirim undangan WhatsApp & pengingat ${formatReminderBadge(reminderMinutesTotal.value)} ke ${form.participant_niks.length} peserta terpilih.`
+      : `Buat event "${form.nama_event}" pada ${form.tanggal_acara} (${form.jam_mulai}–${form.jam_selesai} WIB${lokasiInfo})? Absensi akan terbuka untuk seluruh karyawan HRIS.`
+
+  const confirmed = await askConfirmation({
+    title: isEditing.value ? 'Konfirmasi Simpan Perubahan' : 'Konfirmasi Buat Event',
+    message: confirmMessage,
+    confirmLabel: isEditing.value ? 'Ya, Simpan' : 'Ya, Buat Event',
+    color: 'primary',
+  })
+
+  if (!confirmed) return
+
   saving.value = true
 
   const payload = {
     nama_event: form.nama_event,
     deskripsi: form.deskripsi,
+    lokasi: form.lokasi?.trim() || null,
     slug: form.slug ? generateSlug(form.slug) : undefined,
-    tanggal_mulai: form.tanggal_mulai,
-    tanggal_selesai: form.tanggal_selesai,
+    tanggal_mulai: `${form.tanggal_acara} ${form.jam_mulai}:00`,
+    tanggal_selesai: `${form.tanggal_acara} ${form.jam_selesai}:00`,
     status: form.status,
+    reminder_enabled: hasParticipants,
+    reminder_minutes_before: hasParticipants ? reminderMinutesTotal.value : null,
+    participant_niks: [...form.participant_niks],
   }
 
   try {
@@ -175,8 +360,8 @@ async function saveEvent() {
       await updateEventAbsen(editingId.value, payload)
       notifier.success('Event absensi berhasil diperbarui.')
     } else {
-      await createEventAbsen(payload)
-      notifier.success('Event absensi baru berhasil dibuat.')
+      const { data } = await createEventAbsen(payload)
+      notifier.success(data?.message || 'Event absensi baru berhasil dibuat.')
     }
     showFormModal.value = false
     await loadEvents(pagination.value.current_page)
@@ -266,6 +451,7 @@ function printQrPoster() {
   if (!printWindow) return
 
   const eventName = selectedQrEvent.value.nama_event
+  const eventLocation = selectedQrEvent.value.lokasi || ''
   const eventDesc = selectedQrEvent.value.deskripsi || ''
   const fullUrl = `${publicBaseUrl.value}${selectedQrEvent.value.slug}`
 
@@ -346,6 +532,7 @@ function printQrPoster() {
         <div class="card">
           <div class="brand">HRIS PRESENSI EVENT</div>
           <h1>${eventName}</h1>
+          ${eventLocation ? `<p class="desc" style="font-weight:600;color:#334155;margin-bottom:8px;">Lokasi: ${eventLocation}</p>` : ''}
           ${eventDesc ? `<p class="desc">${eventDesc}</p>` : ''}
           <div class="qr-wrapper">
             <img src="${qrDataUrl.value}" class="qr-img" />
@@ -368,12 +555,15 @@ function printQrPoster() {
 async function openParticipantsModal(item) {
   selectedDetailEvent.value = item
   participantSearch.value = ''
+  participantsTab.value = 'attended'
+  invitedParticipants.value = []
   showParticipantsModal.value = true
   loadingParticipants.value = true
   try {
     const { data } = await getEventAbsenDetail(item.id)
     selectedDetailEvent.value = data.data
     participants.value = data.participants || []
+    invitedParticipants.value = data.invited_participants || []
   } catch (err) {
     notifier.error(err.response?.data?.message || 'Gagal memuat detail peserta event.')
   } finally {
@@ -617,14 +807,27 @@ onMounted(() => {
                 <div class="font-semibold text-highlighted">
                   {{ item.nama_event }}
                 </div>
+                <div v-if="item.lokasi" class="mt-0.5 flex items-center gap-1 text-xs font-medium text-primary">
+                  <UIcon name="i-lucide-map-pin" class="size-3.5 shrink-0" />
+                  <span class="truncate">{{ item.lokasi }}</span>
+                </div>
                 <div v-if="item.deskripsi" class="mt-0.5 line-clamp-1 text-xs text-muted">
                   {{ item.deskripsi }}
                 </div>
-                <div class="mt-1 flex items-center gap-2 text-[11px] text-muted">
-                  <UIcon name="i-lucide-user" class="size-3" />
-                  <span>{{ item.creator?.name || 'Admin' }}</span>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
+                  <span class="inline-flex items-center gap-1">
+                    <UIcon name="i-lucide-user" class="size-3" />
+                    <span>{{ item.creator?.name || 'Admin' }}</span>
+                  </span>
                   <span>•</span>
                   <span>{{ formatDateTime(item.created_at) }}</span>
+                  <template v-if="item.reminder_enabled && item.invited_participants_count > 0">
+                    <span>•</span>
+                    <span class="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                      <UIcon name="i-lucide-bell" class="size-3" />
+                      <span>WA {{ formatReminderBadge(item.reminder_minutes_before) }}</span>
+                    </span>
+                  </template>
                 </div>
               </td>
 
@@ -680,7 +883,10 @@ onMounted(() => {
                   @click="openParticipantsModal(item)"
                 >
                   <UIcon name="i-lucide-users" class="size-3.5" />
-                  <span>{{ item.absensi_events_count || 0 }} Peserta</span>
+                  <span v-if="item.invited_participants_count > 0">
+                    {{ item.absensi_events_count || 0 }} / {{ item.invited_participants_count }} Hadir
+                  </span>
+                  <span v-else>{{ item.absensi_events_count || 0 }} Peserta</span>
                 </button>
               </td>
 
@@ -752,162 +958,395 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Create / Edit Event Modal (Solid Nuxt UCard) -->
+    <!-- Create / Edit Event Modal (Wide 2-Column Layout with Sticky Header & Footer) -->
     <div
       v-if="showFormModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
     >
       <button
         type="button"
-        class="absolute inset-0 bg-slate-950/60"
+        class="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px]"
         aria-label="Tutup form event"
         @click="showFormModal = false"
       ></button>
 
-      <UCard class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto shadow-2xl">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-base font-bold text-highlighted">
-                {{ isEditing ? 'Edit Event Absensi' : 'Buat Event Absensi Baru' }}
-              </h3>
-              <p class="text-xs text-muted">
-                Isi data detail event untuk membuat link absensi publik karyawan.
-              </p>
-            </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-x"
-              @click="showFormModal = false"
-            />
-          </div>
-        </template>
-
-        <form class="space-y-4" @submit.prevent="saveEvent">
-          <!-- Nama Event -->
+      <div class="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-default bg-[var(--ui-bg,#ffffff)] shadow-2xl">
+        <!-- Sticky Modal Header -->
+        <div class="flex items-start justify-between gap-4 border-b border-default px-6 py-4">
           <div>
-            <label class="block text-xs font-semibold uppercase text-muted">
-              Nama Event / Acara <span class="text-rose-500">*</span>
-            </label>
-            <input
-              v-model="form.nama_event"
-              type="text"
-              placeholder="Contoh: Training K3 Pabrik - 20 Agustus 2026"
-              :class="formControlClass"
-              required
-              @input="handleNameInput"
-            />
-            <p v-if="formErrors.nama_event" class="mt-1 text-xs text-rose-500">
-              {{ formErrors.nama_event[0] }}
+            <h3 class="text-lg font-bold text-highlighted">
+              {{ isEditing ? 'Edit Event Absensi' : 'Buat Event Absensi Baru' }}
+            </h3>
+            <p class="mt-0.5 text-xs text-muted">
+              Atur detail jadwal, lokasi ruangan, pengingat WhatsApp Nova Agent, dan daftar peserta karyawan (opsional).
             </p>
           </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-x"
+            @click="showFormModal = false"
+          />
+        </div>
 
-          <!-- Deskripsi -->
-          <div>
-            <label class="block text-xs font-semibold uppercase text-muted">
-              Deskripsi / Keterangan (Opsional)
-            </label>
-            <textarea
-              v-model="form.deskripsi"
-              rows="2"
-              placeholder="Catatan tambahan mengenai lokasi atau instruksi event..."
-              :class="formControlClass"
-            ></textarea>
-          </div>
+        <!-- Scrollable Modal Body + Sticky Footer inside Form -->
+        <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="saveEvent">
+          <div class="flex-1 overflow-y-auto px-6 py-5">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <!-- Left Column: Detail Acara, Jadwal, Lokasi, Reminder, Slug -->
+            <div class="space-y-4 lg:col-span-7">
+              <!-- Nama Acara -->
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                  Nama Acara <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="form.nama_event"
+                  type="text"
+                  placeholder="Contoh: Training Penggunaan APAR & Tanggap Darurat Kebakaran"
+                  :class="formControlClass"
+                  required
+                  @input="handleNameInput"
+                />
+                <p v-if="formErrors.nama_event" class="mt-1 text-xs text-rose-500">
+                  {{ formErrors.nama_event[0] }}
+                </p>
+              </div>
 
-          <!-- Slug Custom -->
-          <div>
-            <label class="block text-xs font-semibold uppercase text-muted">
-              Slug Link Publik <span class="text-rose-500">*</span>
-            </label>
-            <div class="mt-1.5 flex rounded-md border border-default bg-default">
-              <span class="flex select-none items-center pl-3 text-xs text-muted">
-                /absen-event/
-              </span>
-              <input
-                v-model="form.slug"
-                type="text"
-                placeholder="training-k3-agustus"
-                class="w-full bg-transparent px-2 py-2 text-sm font-mono text-highlighted focus:outline-none"
-                required
-              />
+              <!-- Tanggal & Jam Sejajar (HSSE Flow) -->
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                    Tanggal Acara <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.tanggal_acara"
+                    type="date"
+                    :class="formControlClass"
+                    required
+                  />
+                  <p v-if="formErrors.tanggal_mulai" class="mt-1 text-xs text-rose-500">
+                    {{ formErrors.tanggal_mulai[0] }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                    Jam Mulai (WIB) <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.jam_mulai"
+                    type="time"
+                    :class="formControlClass"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                    Jam Selesai (WIB) <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.jam_selesai"
+                    type="time"
+                    :class="formControlClass"
+                    required
+                  />
+                  <p v-if="formErrors.tanggal_selesai" class="mt-1 text-xs text-rose-500">
+                    {{ formErrors.tanggal_selesai[0] }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Lokasi / Ruangan & Status Event (Sejajar & Seimbang) -->
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                <div class="sm:col-span-7">
+                  <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                    Lokasi / Ruangan
+                  </label>
+                  <input
+                    v-model="form.lokasi"
+                    type="text"
+                    placeholder="Contoh: Ruang Meeting Lt. 2 / Area Lapangan"
+                    :class="formControlClass"
+                  />
+                  <p v-if="formErrors.lokasi" class="mt-1 text-xs text-rose-500">
+                    {{ formErrors.lokasi[0] }}
+                  </p>
+                </div>
+
+                <div class="sm:col-span-5">
+                  <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                    Status Event
+                  </label>
+                  <select
+                    v-model="form.status"
+                    :class="formControlClass"
+                  >
+                    <option value="aktif">Aktif (Sesuai Jadwal)</option>
+                    <option value="nonaktif">Nonaktif (Tutup Sementara)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Reminder WhatsApp (Nova Agent) Card -->
+              <div class="rounded-xl border border-default bg-muted/20 p-3.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <label class="flex items-center gap-1.5 text-xs font-semibold text-highlighted">
+                    <UIcon name="i-lucide-bell-ring" class="size-3.5 text-primary" />
+                    <span>Reminder WhatsApp (Nova Agent)</span>
+                  </label>
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    :class="
+                      form.participant_niks.length > 0
+                        ? 'bg-emerald-500/15 text-emerald-700'
+                        : 'bg-muted text-muted'
+                    "
+                  >
+                    {{ form.participant_niks.length > 0 ? 'Aktif untuk peserta terpilih' : 'Aktif otomatis jika peserta dipilih' }}
+                  </span>
+                </div>
+
+                <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                  <input
+                    v-model.number="form.reminder_value"
+                    type="number"
+                    min="1"
+                    max="168"
+                    class="w-20 rounded-md border border-default bg-default px-3 py-1.5 text-sm font-medium text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                  <select
+                    v-model="form.reminder_unit"
+                    class="min-w-[160px] flex-1 rounded-md border border-default bg-default px-3 py-1.5 text-sm text-highlighted outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="minutes">Menit sebelum acara</option>
+                    <option value="hours">Jam sebelum acara</option>
+                  </select>
+
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <button
+                      v-for="preset in reminderPresets"
+                      :key="preset.label"
+                      type="button"
+                      class="rounded-md border px-2.5 py-1.5 text-xs font-medium transition"
+                      :class="
+                        isPresetActive(preset)
+                          ? 'border-primary bg-primary text-white shadow-xs'
+                          : 'border-default bg-default text-muted hover:border-primary/40 hover:text-highlighted'
+                      "
+                      @click="applyReminderPreset(preset)"
+                    >
+                      {{ preset.label }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slug Custom -->
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                  Slug Link Publik <span class="text-rose-500">*</span>
+                </label>
+                <div class="flex items-stretch overflow-hidden rounded-md border border-default bg-default focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+                  <span class="flex shrink-0 select-none items-center whitespace-nowrap border-r border-default bg-muted/40 px-3 font-mono text-xs text-muted">
+                    /absen-event/
+                  </span>
+                  <input
+                    v-model="form.slug"
+                    type="text"
+                    placeholder="training-k3-agustus"
+                    class="min-w-0 flex-1 bg-transparent px-3 py-2 font-mono text-sm text-highlighted focus:outline-none"
+                    required
+                  />
+                </div>
+                <p class="mt-1 truncate text-[11px] text-muted">
+                  URL Link: <span class="font-mono text-primary">{{ publicBaseUrl }}{{ form.slug || 'slug-event' }}</span>
+                </p>
+                <p v-if="formErrors.slug" class="mt-1 text-xs text-rose-500">
+                  {{ formErrors.slug[0] }}
+                </p>
+              </div>
+
+              <!-- Deskripsi -->
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold text-highlighted">
+                  Deskripsi / Keterangan <span class="font-normal text-muted">(Opsional)</span>
+                </label>
+                <textarea
+                  v-model="form.deskripsi"
+                  rows="2"
+                  placeholder="Catatan tambahan mengenai instruksi acara..."
+                  :class="formControlClass"
+                ></textarea>
+              </div>
             </div>
-            <p class="mt-1 text-[11px] text-muted">
-              URL Link: <span class="font-mono text-primary">{{ publicBaseUrl }}{{ form.slug || 'slug-event' }}</span>
-            </p>
-            <p v-if="formErrors.slug" class="mt-1 text-xs text-rose-500">
-              {{ formErrors.slug[0] }}
-            </p>
-          </div>
 
-          <!-- Waktu Mulai & Selesai -->
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label class="block text-xs font-semibold uppercase text-muted">
-                Tanggal & Jam Mulai <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.tanggal_mulai"
-                type="datetime-local"
-                :class="formControlClass"
-                required
-              />
-              <p v-if="formErrors.tanggal_mulai" class="mt-1 text-xs text-rose-500">
-                {{ formErrors.tanggal_mulai[0] }}
+            <!-- Right Column: Pilih Peserta Karyawan (Opsional) -->
+            <div class="flex flex-col rounded-xl border border-default bg-muted/15 p-4 lg:col-span-5">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <label class="block text-xs font-semibold text-highlighted">
+                    Peserta Karyawan <span class="font-normal text-muted">(Opsional)</span>
+                  </label>
+                  <p class="mt-0.5 text-[11px] leading-relaxed text-muted">
+                    Kosongkan agar terbuka untuk semua karyawan. Jika diisi, hanya peserta terpilih yang bisa absen &amp; menerima WA undangan + reminder.
+                  </p>
+                </div>
+                <UBadge
+                  :color="form.participant_niks.length > 0 ? 'primary' : 'neutral'"
+                  variant="subtle"
+                  class="shrink-0"
+                  :label="`${form.participant_niks.length} Dipilih`"
+                />
+              </div>
+
+              <!-- Selected Chips -->
+              <div
+                v-if="selectedEmployeeObjects.length > 0"
+                class="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2"
+              >
+                <div class="mb-1.5 flex items-center justify-between">
+                  <span class="text-[11px] font-semibold text-primary">
+                    Peserta Terpilih ({{ selectedEmployeeObjects.length }})
+                  </span>
+                  <button
+                    type="button"
+                    class="text-[11px] font-medium text-rose-600 hover:underline"
+                    @click="clearSelectedParticipants"
+                  >
+                    Bersihkan Semua
+                  </button>
+                </div>
+                <div class="flex max-h-20 flex-wrap gap-1.5 overflow-y-auto">
+                  <span
+                    v-for="emp in selectedEmployeeObjects"
+                    :key="emp.nik"
+                    class="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-default px-2 py-0.5 text-[11px] font-medium text-highlighted"
+                  >
+                    <span class="max-w-[140px] truncate">{{ emp.nama_karyawan }}</span>
+                    <button
+                      type="button"
+                      class="rounded-full p-0.5 text-muted hover:bg-muted hover:text-highlighted"
+                      @click="toggleParticipant(emp.nik)"
+                    >
+                      <UIcon name="i-lucide-x" class="size-3" />
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Search & Divisi Filter -->
+              <div class="mt-3 space-y-2">
+                <div class="relative">
+                  <UIcon name="i-lucide-search" class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted" />
+                  <input
+                    v-model="employeeSearch"
+                    type="text"
+                    placeholder="Cari NIK, nama, jabatan, atau divisi..."
+                    class="w-full rounded-md border border-default bg-default py-1.5 pl-8 pr-3 text-xs text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <select
+                    v-model="employeeDivisiFilter"
+                    class="min-w-0 flex-1 rounded-md border border-default bg-default px-2.5 py-1.5 text-xs text-highlighted focus:border-primary focus:outline-none"
+                  >
+                    <option value="">Semua Divisi</option>
+                    <option v-for="div in availableDivisions" :key="div" :value="div">
+                      {{ div }}
+                    </option>
+                  </select>
+
+                  <UButton
+                    color="neutral"
+                    variant="outline"
+                    size="xs"
+                    type="button"
+                    label="Pilih Semua"
+                    class="shrink-0"
+                    :disabled="!filteredEmployeeOptions.length"
+                    @click="selectAllFilteredEmployees"
+                  />
+                </div>
+              </div>
+
+              <!-- Employee Checkbox List -->
+              <div class="mt-3 flex-1 min-h-[220px] max-h-[340px] overflow-y-auto rounded-lg border border-default bg-default divide-y divide-default">
+                <div v-if="loadingEmployees" class="px-3 py-8 text-center text-xs text-muted">
+                  Memuat daftar karyawan...
+                </div>
+                <div v-else-if="!filteredEmployeeOptions.length" class="px-3 py-8 text-center text-xs text-muted">
+                  Tidak ada karyawan yang cocok dengan pencarian.
+                </div>
+                <label
+                  v-for="emp in filteredEmployeeOptions"
+                  :key="emp.nik"
+                  class="flex cursor-pointer items-center justify-between gap-2.5 px-3 py-2 text-xs transition-colors hover:bg-muted/30"
+                  :class="form.participant_niks.includes(emp.nik) ? 'bg-primary/5' : ''"
+                >
+                  <div class="flex min-w-0 items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      :checked="form.participant_niks.includes(emp.nik)"
+                      class="size-4 shrink-0 rounded border-default text-primary focus:ring-primary"
+                      @change="toggleParticipant(emp.nik)"
+                    />
+                    <div class="min-w-0">
+                      <div class="truncate font-medium text-highlighted">
+                        {{ emp.nama_karyawan }}
+                      </div>
+                      <div class="truncate text-[11px] text-muted">
+                        <span class="font-mono">{{ emp.nik }}</span> • {{ emp.jabatan || emp.divisi || '-' }}
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    v-if="!emp.has_phone"
+                    class="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600"
+                  >
+                    No. HP -
+                  </span>
+                </label>
+              </div>
+              <p v-if="formErrors.participant_niks" class="mt-1.5 text-xs text-rose-500">
+                {{ formErrors.participant_niks[0] }}
               </p>
             </div>
+          </div>
+          </div>
 
-            <div>
-              <label class="block text-xs font-semibold uppercase text-muted">
-                Tanggal & Jam Selesai <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.tanggal_selesai"
-                type="datetime-local"
-                :class="formControlClass"
-                required
+          <!-- Sticky Modal Footer -->
+          <div class="flex items-center justify-between gap-3 border-t border-default bg-muted/15 px-6 py-3.5">
+            <p class="hidden text-xs text-muted sm:block">
+              <template v-if="form.participant_niks.length > 0">
+                Nova Agent akan mengirim undangan WA &amp; pengingat {{ formatReminderBadge(reminderMinutesTotal) }} ke <strong>{{ form.participant_niks.length }} peserta</strong>.
+              </template>
+              <template v-else>
+                Absensi bersifat terbuka untuk seluruh karyawan HRIS.
+              </template>
+            </p>
+            <div class="ml-auto flex items-center gap-2.5">
+              <UButton
+                color="neutral"
+                variant="outline"
+                type="button"
+                label="Batal"
+                @click="showFormModal = false"
               />
-              <p v-if="formErrors.tanggal_selesai" class="mt-1 text-xs text-rose-500">
-                {{ formErrors.tanggal_selesai[0] }}
-              </p>
+              <UButton
+                color="primary"
+                variant="solid"
+                type="submit"
+                :label="isEditing ? 'Simpan Perubahan' : 'Buat Event'"
+                :loading="saving"
+              />
             </div>
-          </div>
-
-          <!-- Status -->
-          <div>
-            <label class="block text-xs font-semibold uppercase text-muted">
-              Status Event
-            </label>
-            <select
-              v-model="form.status"
-              :class="formControlClass"
-            >
-              <option value="aktif">Aktif (Bisa Diabsen Sesuai Jadwal)</option>
-              <option value="nonaktif">Nonaktif (Tutup / Kunci Absen Sementara)</option>
-            </select>
-          </div>
-
-          <!-- Footer Buttons -->
-          <div class="mt-6 flex items-center justify-end gap-3 border-t border-default pt-4">
-            <UButton
-              color="neutral"
-              variant="outline"
-              type="button"
-              label="Batal"
-              @click="showFormModal = false"
-            />
-            <UButton
-              color="primary"
-              variant="solid"
-              type="submit"
-              :label="isEditing ? 'Simpan Perubahan' : 'Buat Event'"
-              :loading="saving"
-            />
           </div>
         </form>
-      </UCard>
+      </div>
     </div>
 
     <!-- QR Code Modal (Solid Nuxt UCard) -->
@@ -1039,9 +1478,9 @@ onMounted(() => {
         </template>
 
         <div class="-mx-6 -my-4 flex flex-col">
-          <!-- Search Bar -->
-          <div class="border-b border-default bg-muted/20 px-6 py-3">
-            <div class="relative max-w-sm">
+          <!-- Search Bar & Optional Tabs -->
+          <div class="flex flex-col gap-3 border-b border-default bg-muted/20 px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="relative max-w-sm flex-1">
               <UIcon name="i-lucide-search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted" />
               <input
                 v-model="participantSearch"
@@ -1049,6 +1488,25 @@ onMounted(() => {
                 placeholder="Cari NIK, nama, atau jabatan..."
                 class="w-full rounded-md border border-default bg-default py-1.5 pl-9 pr-3 text-xs text-highlighted placeholder:text-muted focus:border-primary focus:outline-none"
               />
+            </div>
+
+            <div v-if="invitedParticipants.length > 0" class="inline-flex rounded-lg border border-default bg-default p-0.5 text-xs">
+              <button
+                type="button"
+                class="rounded-md px-3 py-1 font-medium transition"
+                :class="participantsTab === 'attended' ? 'bg-primary text-white' : 'text-muted hover:text-highlighted'"
+                @click="participantsTab = 'attended'"
+              >
+                Sudah Hadir ({{ participants.length }})
+              </button>
+              <button
+                type="button"
+                class="rounded-md px-3 py-1 font-medium transition"
+                :class="participantsTab === 'invited' ? 'bg-primary text-white' : 'text-muted hover:text-highlighted'"
+                @click="participantsTab = 'invited'"
+              >
+                Daftar Undangan ({{ invitedParticipants.length }})
+              </button>
             </div>
           </div>
 
@@ -1060,6 +1518,80 @@ onMounted(() => {
                 <span>Memuat data peserta...</span>
               </div>
             </div>
+
+            <!-- Tab: Daftar Undangan -->
+            <template v-else-if="participantsTab === 'invited' && invitedParticipants.length > 0">
+              <div v-if="!filteredInvitedParticipants.length" class="py-12 text-center text-muted">
+                <p class="text-sm font-medium">Tidak ada peserta undangan yang cocok.</p>
+              </div>
+              <div v-else class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="border-b border-default bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    <tr>
+                      <th class="px-4 py-3">NIK</th>
+                      <th class="px-4 py-3">Nama Karyawan</th>
+                      <th class="px-4 py-3">Jabatan &amp; Divisi</th>
+                      <th class="px-4 py-3 text-center">Kehadiran</th>
+                      <th class="px-4 py-3 text-center">WA Undangan</th>
+                      <th class="px-4 py-3 text-center">WA Reminder</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-default">
+                    <tr
+                      v-for="inv in filteredInvitedParticipants"
+                      :key="inv.id"
+                      class="transition-colors hover:bg-muted/30"
+                    >
+                      <td class="px-4 py-2.5 font-mono font-bold text-highlighted">
+                        {{ inv.nik_karyawan }}
+                      </td>
+                      <td class="px-4 py-2.5 font-medium text-highlighted">
+                        {{ inv.nama_karyawan || '-' }}
+                      </td>
+                      <td class="px-4 py-2.5">
+                        <div class="text-highlighted">{{ inv.jabatan || '-' }}</div>
+                        <div class="text-[11px] text-muted">{{ inv.divisi || inv.departement || '-' }}</div>
+                      </td>
+                      <td class="px-4 py-2.5 text-center">
+                        <UBadge
+                          :color="inv.attended ? 'emerald' : 'neutral'"
+                          variant="subtle"
+                          :label="inv.attended ? 'Hadir' : 'Belum Hadir'"
+                        />
+                      </td>
+                      <td class="px-4 py-2.5 text-center">
+                        <UBadge
+                          v-if="!inv.has_phone"
+                          color="warning"
+                          variant="subtle"
+                          label="Tanpa No. HP"
+                        />
+                        <UBadge
+                          v-else
+                          :color="inv.initial_notified_at ? 'emerald' : 'neutral'"
+                          variant="subtle"
+                          :label="inv.initial_notified_at ? 'Terkirim' : 'Menunggu'"
+                        />
+                      </td>
+                      <td class="px-4 py-2.5 text-center">
+                        <UBadge
+                          v-if="!inv.has_phone"
+                          color="warning"
+                          variant="subtle"
+                          label="-"
+                        />
+                        <UBadge
+                          v-else
+                          :color="inv.reminder_sent_at ? 'emerald' : 'neutral'"
+                          variant="subtle"
+                          :label="inv.reminder_sent_at ? 'Terkirim' : 'Terjadwal'"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </template>
 
             <div v-else-if="!filteredParticipants.length" class="py-12 text-center text-muted">
               <UIcon name="i-lucide-user-x" class="mx-auto size-8 text-muted" />

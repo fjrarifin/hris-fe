@@ -542,7 +542,17 @@ onMounted(loadAgenda)
                   <span>Email: {{ selectedItem.email_sent_at ? 'Terkirim' : 'Belum dikirim' }}</span
                   ><span
                     >WhatsApp: {{ selectedItem.wa_sent_at ? 'Terkirim' : 'Belum dikirim' }}</span
-                  >
+                  ><span>
+                    Google Calendar:
+                    <a
+                      v-if="selectedItem.gcal_event_link"
+                      :href="selectedItem.gcal_event_link"
+                      target="_blank"
+                      >Tersinkron (Buka Event)</a
+                    >
+                    <template v-else-if="selectedItem.gcal_event_id">Tersinkron</template>
+                    <template v-else>Belum tersinkron</template>
+                  </span>
                 </dd>
               </div>
               <div v-if="selectedItem.completed_at">

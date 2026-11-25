@@ -346,6 +346,7 @@ onBeforeUnmount(() => {
 
             <div v-if="eventData" class="mt-5 rounded-2xl bg-slate-50 p-4 text-left border border-slate-200 text-xs space-y-1.5">
               <div class="text-slate-500">Nama Event: <strong class="text-slate-800">{{ eventData.nama_event }}</strong></div>
+              <div v-if="eventData.lokasi" class="text-slate-500">Lokasi: <strong class="text-slate-800">{{ eventData.lokasi }}</strong></div>
               <div class="text-slate-500">Batas Waktu: <span class="font-medium text-slate-700">{{ eventData.tanggal_selesai_formatted }}</span></div>
             </div>
           </div>
@@ -358,6 +359,9 @@ onBeforeUnmount(() => {
             <h1 class="text-lg font-bold text-white leading-snug">
               {{ eventData.nama_event }}
             </h1>
+            <p v-if="eventData.lokasi" class="mt-1.5 text-xs font-semibold text-blue-50">
+              Lokasi: {{ eventData.lokasi }}
+            </p>
             <p v-if="eventData.deskripsi" class="mt-1 text-xs text-blue-100 leading-relaxed">
               {{ eventData.deskripsi }}
             </p>
@@ -375,6 +379,9 @@ onBeforeUnmount(() => {
               <h2 class="mt-1.5 text-base font-bold text-slate-900">Masukkan NIK Karyawan</h2>
               <p class="text-xs text-slate-500 mt-0.5">
                 Masukkan NIK Anda yang terdaftar di database HRIS (contoh: <span class="font-mono font-semibold text-slate-700">HPP25120031</span>).
+              </p>
+              <p v-if="eventData.is_restricted_participants" class="mt-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-[11px] font-medium text-amber-800">
+                Event ini khusus untuk peserta karyawan yang terdaftar.
               </p>
             </div>
 

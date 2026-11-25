@@ -515,7 +515,7 @@ onMounted(() => {
             </div>
 
             <div v-else-if="availableHolidays.length === 0" class="text-xs font-medium text-rose-500">
-              {{ form.type === 'add' ? 'Tidak ada master libur nasional aktif dalam rentang 90 hari.' : 'Karyawan ini tidak memiliki jatah libur nasional aktif untuk dipotong.' }}
+              {{ form.type === 'add' ? 'Tidak ada master libur nasional aktif dalam masa berlaku 3 bulan.' : 'Karyawan ini tidak memiliki jatah libur nasional aktif untuk dipotong.' }}
             </div>
 
             <div v-else>

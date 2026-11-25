@@ -480,7 +480,7 @@ onMounted(async () => {
           I = Izin. Badge M berwarna kuning jika scan tidak lengkap atau durasi kerja kurang dari 8
           jam. Sakit dengan surat dihitung sebagai kehadiran, sedangkan sakit tanpa surat masuk
           hitungan alfa. Hak PH mulai 27 Mei 2026 diperoleh jika karyawan masuk pada hari libur
-          nasional; jatah sebelumnya tetap berlaku dalam masa 90 hari. PH, EO, Cuti, dan Sakit
+          nasional; jatah sebelumnya tetap berlaku dalam masa 3 bulan kalender. PH, EO, Cuti, dan Sakit
           dengan surat yang disetujui dihitung 8 jam kerja. Target bulanan:
           {{ data.targets.ideal_attendance_days }} hari dan
           {{ data.targets.minimum_work_duration }}.
