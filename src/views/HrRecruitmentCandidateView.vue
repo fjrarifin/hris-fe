@@ -5561,7 +5561,7 @@ onBeforeUnmount(() => {
                             color="success" icon="i-lucide-send" label="Kirim Ulang WA" :loading="updatingStage"
                             @click="triggerResendPkbSignerWa(signer.id)" />
                           <UButton v-if="!signer.signed_at" size="xs" variant="soft" color="neutral"
-                            icon="i-lucide-copy" label="Salin Link" @click="copySignLink(signer.id)" />
+                            icon="i-lucide-copy" label="Salin Link" @click="copySignLink(signer.public_token || signer.id)" />
                         </div>
                       </td>
                     </tr>

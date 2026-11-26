@@ -25,18 +25,19 @@ const approverSearch = ref('')
 const photoItems = ref([])
 const documentFileName = ref('')
 const newWo = ref({
+  division: 'MEP',
   job_type: 'WORK ORDER',
   area_name: '',
   project_description: '',
   target_date: '',
   notes: '',
   photos: [],
-  document: '',
   approver_ids: [],
 })
 
 // Detail & Approval modal
 const activeDetailId = ref(null)
+const activeDetailDivision = ref('MEP')
 const detailLoading = ref(false)
 const detail = ref(null)
 const approvalComment = ref('')
@@ -84,7 +85,7 @@ function closeDetailModal() {
   revisionPhotoItems.value = []
 }
 
-async function loadDetailAttachments(id, order) {
+async function loadDetailAttachments(id, order, division = 'MEP') {
   revokeAttachmentUrls()
   if (!order) return
   attachments.value.loading = true
@@ -98,7 +99,7 @@ async function loadDetailAttachments(id, order) {
     const urls = []
     for (let i = 0; i < photoList.length; i++) {
       try {
-        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'photo', i)
+        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'photo', i, division)
         urls.push(URL.createObjectURL(blob))
       } catch {
         urls.push('')
@@ -108,7 +109,7 @@ async function loadDetailAttachments(id, order) {
 
     if (order.completion_photo_path) {
       try {
-        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'completion')
+        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'completion', 0, division)
         attachments.value.completionUrl = URL.createObjectURL(blob)
       } catch {
         // will fetch on click
@@ -119,7 +120,7 @@ async function loadDetailAttachments(id, order) {
     const revUrls = []
     for (let i = 0; i < revList.length; i++) {
       try {
-        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'revision', i)
+        const { blob } = await gaWorkOrderService.fetchAttachmentBlob(id, 'revision', i, division)
         revUrls.push(URL.createObjectURL(blob))
       } catch {
         revUrls.push('')
@@ -129,7 +130,7 @@ async function loadDetailAttachments(id, order) {
 
     if (order.request_document_path && !/\.pdf($|\?)/i.test(order.request_document_path)) {
       try {
-        const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(id, 'document')
+        const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(id, 'document', 0, division)
         attachments.value.documentUrl = URL.createObjectURL(blob)
         attachments.value.documentIsImage = String(contentType).startsWith('image/')
       } catch {
@@ -138,7 +139,7 @@ async function loadDetailAttachments(id, order) {
     }
     if (order.spl_document_path && !/\.pdf($|\?)/i.test(order.spl_document_path)) {
       try {
-        const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(id, 'spl')
+        const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(id, 'spl', 0, division)
         attachments.value.splUrl = URL.createObjectURL(blob)
         attachments.value.splIsImage = String(contentType).startsWith('image/')
       } catch {
@@ -160,7 +161,7 @@ async function openAttachmentType(type, index = 0) {
     }
     if (!activeDetailId.value) return
     try {
-      const { blob } = await gaWorkOrderService.fetchAttachmentBlob(activeDetailId.value, type, index)
+      const { blob } = await gaWorkOrderService.fetchAttachmentBlob(activeDetailId.value, type, index, activeDetailDivision.value)
       const url = URL.createObjectURL(blob)
       attachments.value[arrKey][index] = url
       window.open(url, '_blank', 'noopener,noreferrer')
@@ -178,7 +179,7 @@ async function openAttachmentType(type, index = 0) {
   }
   if (!activeDetailId.value) return
   try {
-    const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(activeDetailId.value, type)
+    const { blob, contentType } = await gaWorkOrderService.fetchAttachmentBlob(activeDetailId.value, type, 0, activeDetailDivision.value)
     const url = URL.createObjectURL(blob)
     if (key) attachments.value[key] = url
     if (type === 'document') attachments.value.documentIsImage = String(contentType).startsWith('image/')
@@ -201,6 +202,15 @@ const filteredApprovers = computed(() => {
       u.jabatan?.toLowerCase().includes(q),
   )
 })
+
+const selectedApprovers = computed(() => {
+  const byId = new Map(approvers.value.map((u) => [u.hris_user_id, u]))
+  return newWo.value.approver_ids.map((id) => byId.get(id)).filter(Boolean)
+})
+
+function removeApprover(id) {
+  newWo.value.approver_ids = newWo.value.approver_ids.filter((item) => item !== id)
+}
 
 const wo = computed(() => detail.value?.work_order || null)
 const initialApprovals = computed(() => (detail.value?.approvals || []).filter((a) => a.stage === 'initial'))
@@ -415,25 +425,25 @@ async function submitNewWo() {
   feedback.value = ''
   try {
     const res = await gaWorkOrderService.create({
+      division: newWo.value.division,
       job_type: newWo.value.job_type,
       area_name: newWo.value.area_name,
       project_description: newWo.value.project_description,
       target_date: newWo.value.target_date || null,
       notes: newWo.value.notes || null,
       photos: newWo.value.photos,
-      document: newWo.value.document || null,
       approver_ids: newWo.value.approver_ids,
     })
     feedback.value = res.message || 'Work Order berhasil diajukan.'
     showCreateModal.value = false
     newWo.value = {
+      division: 'MEP',
       job_type: 'WORK ORDER',
       area_name: '',
       project_description: '',
       target_date: '',
       notes: '',
       photos: [],
-      document: '',
       approver_ids: [],
     }
     photoItems.value = []
@@ -453,12 +463,13 @@ async function submitNewWo() {
 async function openDetail(id) {
   revokeAttachmentUrls()
   activeDetailId.value = id
+  activeDetailDivision.value = workOrders.value.data.find((row) => row.id === id)?.division || 'MEP'
   detailLoading.value = true
   approvalComment.value = ''
   error.value = ''
   try {
-    detail.value = await gaWorkOrderService.show(id)
-    loadDetailAttachments(id, detail.value?.work_order)
+    detail.value = await gaWorkOrderService.show(id, activeDetailDivision.value)
+    loadDetailAttachments(id, detail.value?.work_order, activeDetailDivision.value)
   } catch (err) {
     error.value = err.response?.data?.message || 'Gagal memuat detail Work Order.'
     activeDetailId.value = null
@@ -481,10 +492,10 @@ async function submitDecision(decision) {
       stage: myPendingStage.value,
       decision,
       comment: approvalComment.value.trim() || null,
-    })
+    }, activeDetailDivision.value)
     feedback.value = res.message || 'Keputusan berhasil disimpan.'
     approvalComment.value = ''
-    detail.value = await gaWorkOrderService.show(activeDetailId.value)
+    detail.value = await gaWorkOrderService.show(activeDetailId.value, activeDetailDivision.value)
     await fetchList(workOrders.value.current_page || 1)
   } catch (err) {
     error.value = err.response?.data?.message || 'Gagal menyimpan keputusan.'
@@ -552,13 +563,13 @@ async function submitReviewDecision(decision) {
       decision,
       notes: reviewNotes.value.trim() || null,
       photos: decision === 'revision' ? revisionPhotoItems.value.map((p) => p.dataUri) : undefined,
-    })
+    }, activeDetailDivision.value)
     feedback.value = res.message || 'Status Work Order berhasil diperbarui.'
     showRevisionForm.value = false
     reviewNotes.value = ''
     revisionPhotoItems.value = []
-    detail.value = await gaWorkOrderService.show(activeDetailId.value)
-    loadDetailAttachments(activeDetailId.value, detail.value?.work_order)
+    detail.value = await gaWorkOrderService.show(activeDetailId.value, activeDetailDivision.value)
+    loadDetailAttachments(activeDetailId.value, detail.value?.work_order, activeDetailDivision.value)
     await fetchList(workOrders.value.current_page || 1)
   } catch (err) {
     error.value =
@@ -579,7 +590,8 @@ async function cancelWorkOrder(id) {
   error.value = ''
   feedback.value = ''
   try {
-    const res = await gaWorkOrderService.cancel(id)
+    const division = workOrders.value.data.find((row) => row.id === id)?.division || activeDetailDivision.value
+    const res = await gaWorkOrderService.cancel(id, division)
     feedback.value = res.message || 'Work Order berhasil dibatalkan dan dihapus.'
     if (activeDetailId.value === id) {
       closeDetailModal()
@@ -888,6 +900,15 @@ onMounted(() => fetchList(1))
         <form class="space-y-4" @submit.prevent="submitNewWo">
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
+              <label class="mb-1 block text-xs font-semibold text-highlighted">Divisi <span class="text-red-500">*</span></label>
+              <select v-model="newWo.division" class="wo-input min-h-[40px] w-full rounded-lg px-3 text-sm" required>
+                <option value="MEP">MEP (Engineering)</option>
+                <option value="IT">IT (Information Technology)</option>
+                <option value="HSSE" disabled>HSSE (segera hadir)</option>
+                <option value="GS" disabled>GS (segera hadir)</option>
+              </select>
+            </div>
+            <div>
               <label class="mb-1 block text-xs font-semibold text-highlighted">Jenis Pekerjaan</label>
               <select v-model="newWo.job_type" class="wo-input min-h-[40px] w-full rounded-lg px-3 text-sm" required>
                 <option value="WORK ORDER">WORK ORDER</option>
@@ -895,6 +916,9 @@ onMounted(() => fetchList(1))
                 <option value="LAIN - LAIN">LAIN - LAIN</option>
               </select>
             </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label class="mb-1 block text-xs font-semibold text-highlighted">
                 Area / Lokasi (Master Units) <span class="text-red-500">*</span>
@@ -917,60 +941,34 @@ onMounted(() => fetchList(1))
             />
           </div>
 
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div class="wo-subtle-box rounded-lg border border-default p-3">
-              <div class="mb-1 flex items-center justify-between gap-2">
-                <label class="text-xs font-semibold text-highlighted">
-                  Lampiran Foto (Min. 1, Maks. 3) <span class="text-red-500">*</span>
-                </label>
-                <span class="text-[11px] font-medium text-muted tabular-nums">{{ photoItems.length }} / 3</span>
-              </div>
-              <input
-                v-if="photoItems.length < 3"
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                class="block w-full text-xs text-muted file:mr-2 file:rounded-md file:border-0 file:bg-blue-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800"
-                @change="onPhotoSelected"
-              />
-              <p class="mt-1 text-[11px] text-muted">JPG / PNG / WebP, maks. 2 MB per foto</p>
-              <div v-if="photoItems.length" class="mt-2 grid grid-cols-3 gap-2">
-                <div v-for="(p, idx) in photoItems" :key="idx" class="relative overflow-hidden rounded-lg border border-default">
-                  <img :src="p.dataUri" :alt="p.name" class="h-20 w-full object-cover" />
-                  <button
-                    type="button"
-                    aria-label="Hapus foto"
-                    class="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-slate-900/80 text-[10px] font-bold text-white hover:bg-red-600"
-                    @click="removePhoto(idx)"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
+          <div class="wo-subtle-box rounded-lg border border-default p-3">
+            <div class="mb-1 flex items-center justify-between gap-2">
+              <label class="text-xs font-semibold text-highlighted">
+                Lampiran Foto (Min. 1, Maks. 3) <span class="text-red-500">*</span>
+              </label>
+              <span class="text-[11px] font-medium text-muted tabular-nums">{{ photoItems.length }} / 3</span>
             </div>
-
-            <div class="wo-subtle-box rounded-lg border border-default p-3">
-              <div class="mb-1 flex items-center justify-between gap-2">
-                <label class="text-xs font-semibold text-highlighted">
-                  Lampiran Dokumen (Opsional, Maks. 1)
-                </label>
+            <input
+              v-if="photoItems.length < 3"
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/webp"
+              class="block w-full text-xs text-muted file:mr-2 file:rounded-md file:border-0 file:bg-blue-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800"
+              @change="onPhotoSelected"
+            />
+            <p class="mt-1 text-[11px] text-muted">JPG / PNG / WebP, maks. 2 MB per foto</p>
+            <div v-if="photoItems.length" class="mt-2 grid grid-cols-3 gap-2">
+              <div v-for="(p, idx) in photoItems" :key="idx" class="relative overflow-hidden rounded-lg border border-default">
+                <img :src="p.dataUri" :alt="p.name" class="h-24 w-full object-cover" />
                 <button
-                  v-if="documentFileName"
                   type="button"
-                  class="text-[11px] font-semibold text-red-600 hover:underline"
-                  @click="removeDocument"
+                  aria-label="Hapus foto"
+                  class="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-slate-900/80 text-[10px] font-bold text-white hover:bg-red-600"
+                  @click="removePhoto(idx)"
                 >
-                  Hapus
+                  ✕
                 </button>
               </div>
-              <input
-                type="file"
-                accept="application/pdf,image/jpeg,image/png,image/webp"
-                class="block w-full text-xs text-muted file:mr-2 file:rounded-md file:border-0 file:bg-blue-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800"
-                @change="onDocumentSelected"
-              />
-              <p v-if="documentFileName" class="mt-1.5 truncate text-xs font-medium text-emerald-600">✓ {{ documentFileName }}</p>
-              <p v-else class="mt-1 text-[11px] text-muted">PDF / JPG / PNG, maks. 5 MB (maksimal 1 file)</p>
             </div>
           </div>
 
@@ -978,6 +976,24 @@ onMounted(() => fetchList(1))
             <label class="mb-1 block text-xs font-semibold text-highlighted">
               Pilih Approver (Supervisor / Asst. Manager / Manager / General Manager) <span class="text-red-500">*</span>
             </label>
+            <div v-if="selectedApprovers.length" class="mb-2 flex flex-wrap gap-1.5">
+              <span
+                v-for="u in selectedApprovers"
+                :key="`sel-${u.hris_user_id}`"
+                class="wo-approver-badge"
+              >
+                <span class="max-w-[240px] truncate">{{ u.name }}</span>
+                <button
+                  type="button"
+                  :aria-label="`Hapus ${u.name} dari approver`"
+                  title="Hapus approver"
+                  class="wo-approver-badge-remove"
+                  @click="removeApprover(u.hris_user_id)"
+                >
+                  <UIcon name="i-lucide-x" class="size-3.5" />
+                </button>
+              </span>
+            </div>
             <input
               v-model="approverSearch"
               type="search"
@@ -990,7 +1006,7 @@ onMounted(() => fetchList(1))
                 :key="u.hris_user_id"
                 class="flex cursor-pointer items-center gap-2.5 rounded px-2 py-1 text-sm"
               >
-                <input v-model="newWo.approver_ids" type="checkbox" :value="u.hris_user_id" class="size-4 rounded" />
+                <input v-model="newWo.approver_ids" type="checkbox" :value="u.hris_user_id" class="size-4 shrink-0 rounded" />
                 <span class="font-medium text-highlighted">{{ u.name }}</span>
                 <span class="text-xs text-muted">({{ u.jabatan }} • {{ u.nik }})</span>
               </label>
@@ -1033,7 +1049,7 @@ onMounted(() => fetchList(1))
           <div class="min-w-0">
             <h2 class="text-lg font-bold text-highlighted">Detail Work Order #{{ wo?.excel_no || activeDetailId }}</h2>
             <p v-if="wo" class="text-xs text-muted">
-              {{ wo.area_name }} • {{ wo.job_type }}
+              {{ wo.area_name }} • {{ wo.job_type }}{{ wo.division ? ` • Divisi ${wo.division}` : '' }}
               <span v-if="detail?.requester"> • Pemohon: <strong class="text-highlighted">{{ detail.requester.name }}</strong></span>
             </p>
             <div v-if="wo" class="mt-2">
@@ -1487,6 +1503,34 @@ onMounted(() => fetchList(1))
   background: rgba(37, 99, 235, 0.14);
   color: #2563eb;
   border-color: rgba(37, 99, 235, 0.35);
+}
+.wo-approver-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(37, 99, 235, 0.32);
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+  padding: 3px 6px 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.wo-approver-badge-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.wo-approver-badge-remove:hover {
+  background: rgba(37, 99, 235, 0.22);
+  color: #1d4ed8;
 }
 .wo-pill-warn {
   background: rgba(245, 158, 11, 0.16);

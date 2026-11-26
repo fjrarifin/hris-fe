@@ -18,8 +18,8 @@ export const gaWorkOrderService = {
     return data?.data || []
   },
 
-  async show(id) {
-    const { data } = await api.get(`/ga/work-orders/${id}`)
+  async show(id, division = 'MEP') {
+    const { data } = await api.get(`/ga/work-orders/${id}`, { params: { division } })
     return data
   },
 
@@ -28,24 +28,24 @@ export const gaWorkOrderService = {
     return data
   },
 
-  async approve(id, payload) {
-    const { data } = await api.post(`/ga/work-orders/${id}/approve`, payload)
+  async approve(id, payload, division = 'MEP') {
+    const { data } = await api.post(`/ga/work-orders/${id}/approve`, payload, { params: { division } })
     return data
   },
 
-  async cancel(id) {
-    const { data } = await api.delete(`/ga/work-orders/${id}`)
+  async cancel(id, division = 'MEP') {
+    const { data } = await api.delete(`/ga/work-orders/${id}`, { params: { division } })
     return data
   },
 
-  async review(id, payload) {
-    const { data } = await api.post(`/ga/work-orders/${id}/review`, payload)
+  async review(id, payload, division = 'MEP') {
+    const { data } = await api.post(`/ga/work-orders/${id}/review`, payload, { params: { division } })
     return data
   },
 
-  async fetchAttachmentBlob(id, type, index = 0) {
+  async fetchAttachmentBlob(id, type, index = 0, division = 'MEP') {
     const response = await api.get(`/ga/work-orders/${id}/attachments/${type}`, {
-      params: type === 'photo' || type === 'revision' ? { index } : undefined,
+      params: { ...(type === 'photo' || type === 'revision' ? { index } : {}), division },
       responseType: 'blob',
     })
     return {

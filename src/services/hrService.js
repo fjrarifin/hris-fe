@@ -560,6 +560,11 @@ export function getPublicPkbSigner(id) {
   return api.get(`/public/pkb/signer/${id}`)
 }
 
+export function getPublicPkbDocument(id, type, round = null) {
+  const suffix = round ? `/${round}` : ''
+  return api.get(`/public/pkb/signer/${id}/document/${type}${suffix}`)
+}
+
 export function submitPublicPkbSignature(id, payload) {
   return api.post(`/public/pkb/signer/${id}/sign`, payload)
 }
