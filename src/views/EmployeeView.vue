@@ -386,23 +386,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.employee-page {
-  --employee-surface: #ffffff;
-  --employee-border: #e5eaf1;
-  --employee-text: #0f172a;
-  --employee-muted: #64748b;
-  --employee-blue: #2563eb;
-  --employee-blue-soft: #e9f0ff;
-  --employee-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  min-width: 0;
-  min-height: calc(100vh - 8rem);
-  background: #eef3f8;
-}
-
-:global(.portal-dark) .employee-page {
-  background: #0f1420;
-}
-
 .employee-page :deep(h2) {
   color: var(--employee-text);
   font-size: 1.25rem;
@@ -429,7 +412,7 @@ onBeforeUnmount(() => {
 }
 
 .employee-page :deep(.rounded-lg.border-default.bg-default:focus) {
-  border-color: #b8ccff;
+  border-color: #3b82f6;
   box-shadow: 0 0 0 3px var(--employee-blue-soft);
   outline: none;
 }
@@ -442,7 +425,7 @@ onBeforeUnmount(() => {
 }
 
 .employee-page :deep(table thead th) {
-  background: #f8fafc;
+  background: var(--employee-table-head);
   color: var(--employee-muted);
   font-size: 0.7rem;
   font-weight: 700;
@@ -457,7 +440,7 @@ onBeforeUnmount(() => {
 }
 
 .employee-page :deep(table tbody tr:hover td) {
-  background: #f8fafc;
+  background: var(--employee-row-hover);
 }
 
 .employee-page :deep(.border-t) {
