@@ -29,6 +29,7 @@ const columns = [
   { accessorKey: 'department', header: 'Departemen' },
   { accessorKey: 'join_date', header: 'Tanggal Bergabung' },
   { accessorKey: 'last_contract_end_date', header: 'Akhir Kontrak Terakhir' },
+  { accessorKey: 'resign_date', header: 'Tanggal Resign' },
   { accessorKey: 'status', header: 'Status' },
   { id: 'action', header: 'Aksi' },
 ]
@@ -73,6 +74,7 @@ const filteredEmployees = computed(() => {
       join_date: formatDate(employee.join_date),
       join_date_sort: employee.join_date || '',
       last_contract_end_date: formatDate(employee.last_contract_end_date),
+      resign_date: formatDate(employee.resign_date),
       status: employee.status || 'NONAKTIF',
     }))
     .sort((a, b) => {

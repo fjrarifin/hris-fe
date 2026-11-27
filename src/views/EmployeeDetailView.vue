@@ -115,7 +115,7 @@ function assignForm(data) {
   photoLoadFailed.value = false
   contracts.value = data.contracts ?? []
   changeLogs.value = data.change_logs ?? []
-  for (const key of ['join_date', 'start_date', 'end_date', 'tanggal_lahir']) {
+  for (const key of ['join_date', 'resign_date', 'start_date', 'end_date', 'tanggal_lahir']) {
     form[key] = form[key] ? String(form[key]).slice(0, 10) : ''
   }
 }

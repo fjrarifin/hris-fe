@@ -252,6 +252,13 @@ function removeChild(index) {
           Tanggal Bergabung
           <input v-model="props.form.join_date" type="date" :class="inputClass" />
         </label>
+        <label v-if="!props.creating" class="text-sm text-muted">
+          Tanggal Resign / Akhir Kerja
+          <input v-model="props.form.resign_date" type="date" :class="inputClass" />
+          <span class="mt-1 block text-xs text-muted">
+            Opsional. Batas akhir perhitungan prorate payroll karyawan.
+          </span>
+        </label>
       </div>
     </UCard>
 
